@@ -55,9 +55,10 @@ class _AboutScreenState extends State<AboutScreen> {
           ConfigItem(label: Text('Dart version'), labelWidth: 150, content: _buildText(flutterVersion['dartSdkVersion'])),
         ]),
         ConfigSection(children: <Widget>[
-          ConfigPageItem(label: Text('Changelog'), labelWidth: 300, onPressed: () => Utils.launchUrl('https://defined.net/mobile/changelog', context)),
-          ConfigPageItem(label: Text('Privacy policy'), labelWidth: 300, onPressed: () => Utils.launchUrl('https://defined.net/mobile/privacy-policy', context)),
-          ConfigPageItem(label: Text('Licenses'), labelWidth: 300, onPressed: () => Utils.launchUrl('https://defined.net/mobile/license', context)),
+          //TODO: wire up these other pages
+//          ConfigPageItem(label: Text('Changelog'), labelWidth: 300, onPressed: () => Utils.launchUrl('https://defined.net/mobile/changelog', context)),
+          ConfigPageItem(label: Text('Privacy policy'), labelWidth: 300, onPressed: () => Utils.launchUrl('https://defined.net/privacy-policy', context)),
+//          ConfigPageItem(label: Text('Licenses'), labelWidth: 300, onPressed: () => Utils.launchUrl('https://defined.net/mobile/license', context)),
         ]),
         Padding(padding: EdgeInsets.only(top: 20), child: Text('Copyright © 2020 Defined Networking, Inc', textAlign: TextAlign.center,)),
       ]),

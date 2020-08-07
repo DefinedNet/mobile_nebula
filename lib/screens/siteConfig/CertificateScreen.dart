@@ -276,6 +276,11 @@ class _CertificateScreenState extends State<CertificateScreen> {
   _addCertEntry(String rawCert, ValueChanged<String> callback) async {
     String error;
 
+    // Allow for app store review testing cert to override the generated key
+    if (rawCert.trim() == _testCert) {
+      privKey = _testKey;
+    }
+
     try {
       var rawCerts = await platform.invokeMethod("nebula.parseCerts", <String, String>{"certs": rawCert});
       List<dynamic> certs = jsonDecode(rawCerts);
@@ -291,3 +296,16 @@ class _CertificateScreenState extends State<CertificateScreen> {
     }
   }
 }
+
+// This a cert that if presented will swap the key to assist the app review process
+const _testCert = '''-----BEGIN NEBULA CERTIFICATE-----
+CpMBChdBcHAgU3RvcmUgUmV2aWV3IERldmljZRIKgpSghQyA/v//DyIGcmV2aWV3
+IhRiNzJjZThiZWM5MDYwYTA3MmNmMSjvk7f5BTCPnYf0BzogYHa3YoNcFJxKX8bU
+jK4pg0aIYxDkwk8aM7w1c+CQXSpKICx06NYtozgKaA2R9NO311D8T86iTXxLmjI4
+0wzAXCSmEkCi9ocqtyQhNp75eKphqVlZNl1RXBo4hdY9jBdc9+b9o0bU4zxFxIRT
+uDneQqytYS+BUfgNnGX5wsMxOEst/kkC
+-----END NEBULA CERTIFICATE-----''';
+
+const _testKey = '''-----BEGIN NEBULA X25519 PRIVATE KEY-----
+UlyDdFn/2mLFykeWjCEwWVRSDHtMF7nz3At3O77Faf4=
+-----END NEBULA X25519 PRIVATE KEY-----''';
