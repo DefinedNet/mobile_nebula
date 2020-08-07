@@ -30,7 +30,7 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
   @override
   void initState() {
     site = widget.site;
-    tunnels = widget.tunnels;
+    tunnels = widget.tunnels ?? [];
     _sortTunnels();
     super.initState();
   }

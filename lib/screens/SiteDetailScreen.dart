@@ -53,10 +53,10 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
       if (lastState != site.connected) {
         //TODO: connected is set before the nebula object exists leading to a crash race, waiting for "Connected" status is a gross hack but keeps it alive
         if (site.status == 'Connected') {
-          lastState = site.connected;
+          lastState = true;
           _listHostmap();
         } else {
-          lastState = site.connected;
+          lastState = false;
           activeHosts = null;
           pendingHosts = null;
         }
