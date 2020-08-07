@@ -57,11 +57,11 @@ class Site {
       this.port = 0,
       this.cipher = "aes",
       this.sortKey,
-      this.mtu,
+      this.mtu = 1300,
       this.connected,
       this.status,
       this.logFile,
-      this.logVerbosity,
+      this.logVerbosity = 'info',
       errors,
       unsafeRoutes})
       : staticHostmap = staticHostmap ?? {},

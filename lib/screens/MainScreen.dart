@@ -88,7 +88,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildNoSites() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Column(
+      child: Center(child: Column(
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 8.0),
@@ -98,7 +98,7 @@ class _MainScreenState extends State<MainScreen> {
               textAlign: TextAlign.center),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildSites() {

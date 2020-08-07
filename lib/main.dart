@@ -78,6 +78,7 @@ class _AppState extends State<App> {
       child: PlatformProvider(
         //initialPlatform: initialPlatform,
         builder: (context) => PlatformApp(
+          debugShowCheckedModeBanner: false,
           localizationsDelegates: <LocalizationsDelegate<dynamic>>[
             DefaultMaterialLocalizations.delegate,
             DefaultWidgetsLocalizations.delegate,
