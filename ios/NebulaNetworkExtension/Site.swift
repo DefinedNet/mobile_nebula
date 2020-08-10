@@ -362,11 +362,7 @@ struct IncomingSite: Codable {
         }
         
         proto.providerConfiguration = ["config": rawConfig]
-
-        //TODO: proto is a subclass and we should probably set some settings on the parents
-        //TODO: set these to meaningful values, or not at all
-        proto.serverAddress = "TODO"
-        proto.username = "TEST USERNAME"
+        proto.serverAddress = "Nebula"
         
         // Finish up the manager, this is what stores everything at the system level
         manager.protocolConfiguration = proto

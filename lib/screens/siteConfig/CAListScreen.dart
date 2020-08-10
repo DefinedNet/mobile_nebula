@@ -99,11 +99,21 @@ class _CAListScreenState extends State<CAListScreen> {
     //TODO: show an error popup
     try {
       var rawCerts = await platform.invokeMethod("nebula.parseCerts", <String, String>{"certs": ca});
+      var ignored = 0;
+
       List<dynamic> certs = jsonDecode(rawCerts);
       certs.forEach((rawCert) {
         final info = CertificateInfo.fromJson(rawCert);
+        if (!info.cert.details.isCa) {
+          ignored++;
+          return;
+        }
         cas[info.cert.fingerprint] = info;
       });
+
+      if (ignored > 0) {
+        error = 'One or more certificates were ignored because they were not certificate authorities.';
+      }
 
       changed = true;
     } on PlatformException catch (err) {

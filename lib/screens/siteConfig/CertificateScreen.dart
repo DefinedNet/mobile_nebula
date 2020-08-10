@@ -285,7 +285,12 @@ class _CertificateScreenState extends State<CertificateScreen> {
       var rawCerts = await platform.invokeMethod("nebula.parseCerts", <String, String>{"certs": rawCert});
       List<dynamic> certs = jsonDecode(rawCerts);
       if (certs.length > 0) {
-        cert = CertificateInfo.fromJson(certs.first);
+        var tryCert = CertificateInfo.fromJson(certs.first);
+        if (tryCert.cert.details.isCa) {
+          return callback('A certificate authority is not appropriate for a client certificate.');
+        }
+        //TODO: test that the pubkey matches the privkey
+        cert = tryCert;
       }
     } on PlatformException catch (err) {
       error = err.details ?? err.message;
