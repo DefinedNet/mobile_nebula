@@ -3,17 +3,17 @@ package mobileNebula
 type config struct {
 	PKI           configPKI           `yaml:"pki"`
 	StaticHostmap map[string][]string `yaml:"static_host_map"`
-	Lighthouse configLighthouse `yaml:"lighthouse"`
-	Listen     configListen     `yaml:"listen"`
-	Punchy     configPunchy     `yaml:"punchy"`
-	Cipher     string           `yaml:"cipher"`
-	LocalRange string           `yaml:"local_range"`
-	SSHD       configSSHD       `yaml:"sshd"`
-	Tun        configTun        `yaml:"tun"`
-	Logging    configLogging    `yaml:"logging"`
-	Stats      configStats      `yaml:"stats"`
-	Handshakes configHandshakes `yaml:"handshakes"`
-	Firewall   configFirewall   `yaml:"firewall"`
+	Lighthouse    configLighthouse    `yaml:"lighthouse"`
+	Listen        configListen        `yaml:"listen"`
+	Punchy        configPunchy        `yaml:"punchy"`
+	Cipher        string              `yaml:"cipher"`
+	LocalRange    string              `yaml:"local_range"`
+	SSHD          configSSHD          `yaml:"sshd"`
+	Tun           configTun           `yaml:"tun"`
+	Logging       configLogging       `yaml:"logging"`
+	Stats         configStats         `yaml:"stats"`
+	Handshakes    configHandshakes    `yaml:"handshakes"`
+	Firewall      configFirewall      `yaml:"firewall"`
 }
 
 func newConfig() *config {

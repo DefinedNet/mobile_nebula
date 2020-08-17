@@ -45,8 +45,10 @@ func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebul
 	if err != nil {
 		switch v := err.(type) {
 		case nebula.ContextualError:
-			return nil, v.RealError
+			v.Log(l)
+			return nil, v.Unwrap()
 		default:
+			l.WithError(err).Error("Failed to start")
 			return nil, err
 		}
 	}
@@ -81,7 +83,7 @@ func (n *Nebula) ListHostmap(pending bool) (string, error) {
 }
 
 func (n *Nebula) GetHostInfoByVpnIp(vpnIp string, pending bool) (string, error) {
-	b, err := json.Marshal(n.c.GetHostInfoByVpnIp(stringIpToInt(vpnIp), pending))
+	b, err := json.Marshal(n.c.GetHostInfoByVpnIP(stringIpToInt(vpnIp), pending))
 	if err != nil {
 		return "", err
 	}

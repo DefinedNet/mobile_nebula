@@ -15,7 +15,7 @@ data class SiteContainer(
     val updater: SiteUpdater
 )
 
-class Sites(private var context: Context, private var engine: FlutterEngine) {
+class Sites(private var engine: FlutterEngine) {
     private var sites: HashMap<String, SiteContainer> = HashMap()
 
     init {
@@ -23,6 +23,7 @@ class Sites(private var context: Context, private var engine: FlutterEngine) {
     }
 
     fun refreshSites(activeSite: String? = null) {
+        val context = MainActivity.getContext()!!
         val sitesDir = context.filesDir.resolve("sites")
         if (!sitesDir.isDirectory) {
             sitesDir.delete()
@@ -57,7 +58,7 @@ class Sites(private var context: Context, private var engine: FlutterEngine) {
 
     fun deleteSite(id: String) {
         sites.remove(id)
-        val siteDir = context.filesDir.resolve("sites").resolve(id)
+        val siteDir = MainActivity.getContext()!!.filesDir.resolve("sites").resolve(id)
         siteDir.deleteRecursively()
         //TODO: make sure you stop the vpn
         //TODO: make sure you relink the active site if this is the active site
@@ -77,7 +78,6 @@ class SiteUpdater(private var site: Site, engine: FlutterEngine): EventChannel.S
         site.connected = connected
         site.status = status
         val d = mapOf("connected" to site.connected, "status" to site.status)
-
         if (err != null) {
             eventSink?.error("", err, d)
         } else {
@@ -208,6 +208,14 @@ class Site {
         } catch (err: Exception) {
             ca = arrayOf()
             errors.add("Error while loading certificate authorities: ${err.message}")
+        }
+
+        if (errors.isEmpty()) {
+            try {
+                mobileNebula.MobileNebula.testConfig(config, getKey(MainActivity.getContext()!!))
+            } catch (err: Exception) {
+                errors.add("Config test error: ${err.message}")
+            }
         }
     }
 

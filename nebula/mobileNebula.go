@@ -1,6 +1,7 @@
 package mobileNebula
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/slackhq/nebula"
 	"github.com/slackhq/nebula/cert"
 	"golang.org/x/crypto/curve25519"
@@ -106,6 +108,39 @@ func RenderConfig(configData string, key string) (string, error) {
 	}
 
 	return string(finalConfig), nil
+}
+
+func TestConfig(configData string, key string) error {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in f", r)
+		}
+	}()
+
+	yamlConfig, err := RenderConfig(configData, key)
+	if err != nil {
+		return err
+	}
+
+	config := nebula.NewConfig()
+	err = config.LoadString(yamlConfig)
+	if err != nil {
+		return fmt.Errorf("failed to load config: %s", err)
+	}
+
+	// We don't want to leak the config into the system logs
+	l := logrus.New()
+	l.SetOutput(bytes.NewBuffer([]byte{}))
+	_, err = nebula.Main(config, true, "", l, nil)
+	if err != nil {
+		switch v := err.(type) {
+		case nebula.ContextualError:
+			return v.Unwrap()
+		default:
+			return err
+		}
+	}
+	return nil
 }
 
 func GetConfigSetting(configData string, setting string) string {

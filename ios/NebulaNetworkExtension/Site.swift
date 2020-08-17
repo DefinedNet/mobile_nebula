@@ -173,9 +173,9 @@ struct Site: Codable {
     
     init(proto: NETunnelProviderProtocol) throws {
         let dict = proto.providerConfiguration
-        let rawConfig = dict?["config"] as? Data ?? Data()
+        let config = dict?["config"] as? Data ?? Data()
         let decoder = JSONDecoder()
-        let incoming = try decoder.decode(IncomingSite.self, from: rawConfig)
+        let incoming = try decoder.decode(IncomingSite.self, from: config)
         self.init(incoming: incoming)
     }
     
@@ -241,6 +241,22 @@ struct Site: Codable {
         logVerbosity = incoming.logVerbosity ?? "info"
         mtu = incoming.mtu ?? 1300
         logFile = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.net.defined.mobileNebula")?.appendingPathComponent(id).appendingPathExtension("log").path
+        
+        if (errors.isEmpty) {
+            do {
+                let encoder = JSONEncoder()
+                let rawConfig = try encoder.encode(incoming)
+                let key = try getKey()
+                let strConfig = String(data: rawConfig, encoding: .utf8)
+                var err: NSError?
+                MobileNebulaTestConfig(strConfig, key, &err)
+                if (err != nil) {
+                    throw err!
+                }
+            } catch {
+                errors.append("Config test error: \(error.localizedDescription)")
+            }
+        }
     }
     
     // Gets the private key from the keystore, we don't always need it in memory

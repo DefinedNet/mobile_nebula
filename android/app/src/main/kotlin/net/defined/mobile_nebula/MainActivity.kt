@@ -2,11 +2,12 @@ package net.defined.mobile_nebula
 
 import android.app.Activity
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.net.VpnService
 import android.os.*
-import androidx.annotation.NonNull;
+import androidx.annotation.NonNull
 import com.google.gson.Gson
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -28,9 +29,15 @@ class MainActivity: FlutterActivity() {
 
     private var activeSiteId: String? = null
 
+    companion object {
+        private var appContext: Context? = null
+        fun getContext(): Context? { return appContext }
+    }
+
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
+        appContext = context
         //TODO: Initializing in the constructor leads to a context lacking info we need, figure out the right way to do this
-        sites = Sites(context, flutterEngine)
+        sites = Sites(flutterEngine)
         
         // Bind against our service to detect which site is running on app boot
         val intent = Intent(this, NebulaVpnService::class.java)
@@ -153,7 +160,7 @@ class MainActivity: FlutterActivity() {
             intent.putExtra("id", siteContainer.site.id)
             onActivityResult(VPN_START_CODE, Activity.RESULT_OK, intent)
         }
-        
+
         result.success(null)
     }
 
