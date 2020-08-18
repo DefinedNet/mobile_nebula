@@ -172,7 +172,7 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                   try {
                     var config = await widget.site.renderConfig();
                     Utils.openPage(context, (context) {
-                      return RenderedConfigScreen(config: config);
+                      return RenderedConfigScreen(config: config, name: widget.site.name);
                     });
                   } catch (err) {
                     Utils.popError(context, 'Failed to render the site config', err);

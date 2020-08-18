@@ -1,13 +1,12 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:flutter_share/flutter_share.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/models/Site.dart';
+import 'package:mobile_nebula/services/share.dart';
 import 'package:mobile_nebula/services/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -79,7 +78,7 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
             padding: padding,
             icon: Icon(context.platformIcons.share, size: 30),
             onPressed: () {
-              FlutterShare.shareFile(title: '${widget.site.name} logs', filePath: widget.site.logFile);
+              Share.shareFile(title: '${widget.site.name} logs', filePath: widget.site.logFile, filename: '${widget.site.name}.log');
             },
           )),
           Expanded(

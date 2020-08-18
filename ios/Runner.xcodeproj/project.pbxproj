@@ -20,6 +20,7 @@
 		43AA89572444DA6500EDC39C /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43AA89562444DA6500EDC39C /* PacketTunnelProvider.swift */; };
 		43AA895C2444DA6500EDC39C /* NebulaNetworkExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 43AA89542444DA6500EDC39C /* NebulaNetworkExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		43AA89622444DAA500EDC39C /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43AA894E2444D8BC00EDC39C /* NetworkExtension.framework */; };
+		43AD63F424EB3802000FB47E /* Share.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43AD63F324EB3802000FB47E /* Share.swift */; };
 		4CF2F06A02A63B862C9F6F03 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 384887B4785D38431E800D3A /* Pods_Runner.framework */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
@@ -76,6 +77,7 @@
 		43AA89562444DA6500EDC39C /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
 		43AA89582444DA6500EDC39C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		43AA89592444DA6500EDC39C /* NebulaNetworkExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NebulaNetworkExtension.entitlements; sourceTree = "<group>"; };
+		43AD63F324EB3802000FB47E /* Share.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Share.swift; sourceTree = "<group>"; };
 		43B66ECA245A0C8400B18C36 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		43B66ECC245A146300B18C36 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		43B828DA249C08DC00CA229C /* MMWormhole.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = MMWormhole.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -188,6 +190,7 @@
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 				43871C9C2444E2EC004F9075 /* Sites.swift */,
+				43AD63F324EB3802000FB47E /* Share.swift */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -418,6 +421,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
+				43AD63F424EB3802000FB47E /* Share.swift in Sources */,
 				43871C9D2444E2EC004F9075 /* Sites.swift in Sources */,
 				437F725F2469B4B000A0C4B9 /* Site.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,

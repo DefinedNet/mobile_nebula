@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_share/flutter_share.dart';
 import 'package:mobile_nebula/components/FormPage.dart';
 import 'package:mobile_nebula/components/config/ConfigButtonItem.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
@@ -15,6 +14,7 @@ import 'package:mobile_nebula/components/config/ConfigSection.dart';
 import 'package:mobile_nebula/components/config/ConfigTextItem.dart';
 import 'package:mobile_nebula/models/Certificate.dart';
 import 'package:mobile_nebula/screens/siteConfig/CertificateDetailsScreen.dart';
+import 'package:mobile_nebula/services/share.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 class CertificateResult {
@@ -140,7 +140,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
             ConfigButtonItem(
               content: Text('Share Public Key'),
               onPressed: () async {
-                await FlutterShare.share(title: 'Please sign and return a certificate', text: pubKey);
+                await Share.share(title: 'Please sign and return a certificate', text: pubKey, filename: 'device.pub');
                 setState(() {
                   shared = true;
                 });

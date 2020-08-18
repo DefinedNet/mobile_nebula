@@ -51,6 +51,9 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
             case "active.setRemoteForTunnel": self.activeSetRemoteForTunnel(call: call, result: result)
             case "active.closeTunnel": self.activeCloseTunnel(call: call, result: result)
                 
+            case "share": Share.share(call: call, result: result)
+            case "shareFile": Share.shareFile(call: call, result: result)
+                
             default:
                 result(FlutterMethodNotImplemented)
             }
@@ -86,7 +89,6 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
         guard let config = call.arguments as? String else { return result(NoArgumentsError()) }
         
         var err: NSError?
-        print(config)
         let yaml = MobileNebulaRenderConfig(config, "<hidden>", &err)
         if (err != nil) {
             return result(CallFailedError(message: "Error while rendering config", details: err!.localizedDescription))

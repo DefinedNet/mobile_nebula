@@ -160,10 +160,10 @@ class _MainScreenState extends State<MainScreen> {
         var uuid = Uuid();
 
         var cert = '''-----BEGIN NEBULA CERTIFICATE-----
-CmMKBnBpeGVsNBIJiYCEUID+//8PKLqMivcFMKTzjoYGOiB4iANINzCjLdlQJSj/
-vJDd080yggfLgW9hT4a/bhGZekog+W+YEJiV36evX4MueQ+npDzJd3zGg5gialu4
-UNGYBP0SQL5bjEyafC0YtETEbrraSfwuFHMvUoi1Kc4XRzTPPvHsEaq3hNNTZtD7
-Pt3sjH83zTMZfnD/Du3ahsvV0rAXUgc=
+CmIKBHRlc3QSCoKUoIUMgP7//w8ourrS+QUwjre3iAY6IDbmIX5cwd+UYVhLADLa
+A5PwucZPVrNtP0P9NJE0boM2SiBSGzy8bcuFWWK5aVArJGA9VDtLg1HuujBu8lOp
+VTgklxJAgbI1Xb1C9JC3a1Cnc6NPqWhnw+3VLoDXE9poBav09+zhw5DPDtgvQmxU
+Sbw6cAF4gPS4e/tZ5Kjc8QEvjk3HDQ==
 -----END NEBULA CERTIFICATE-----''';
 
         var ca = '''-----BEGIN NEBULA CERTIFICATE-----
@@ -183,7 +183,9 @@ mUOcsdFcCZiXrj7ryQIG1+WfqA46w71A/lV4nAc=
           unsafeRoutes: [UnsafeRoute(route: '10.3.3.3/32', via: '10.1.0.1')]
         );
 
-        s.key = "-----BEGIN NEBULA X25519 PRIVATE KEY-----\ndYgPb04Bb1xzfgdCfVsKGZrCYe+u5tDWNXKipQBVZ44=\n-----END NEBULA X25519 PRIVATE KEY-----";
+        s.key = '''-----BEGIN NEBULA X25519 PRIVATE KEY-----
+rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
+-----END NEBULA X25519 PRIVATE KEY-----''';
 
         var err = await s.save();
         if (err != null) {

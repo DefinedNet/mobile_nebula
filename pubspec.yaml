@@ -11,7 +11,7 @@ description: Mobile Nebula Client
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+31
+version: 0.0.32+4
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -27,7 +27,6 @@ dependencies:
   path_provider: ^1.6.0
   file_picker: ^1.9.0
   barcode_scan: ^3.0.1
-  flutter_share: ^1.0.2
   uuid: ^2.0.4
   package_info: '>=0.4.1 <2.0.0'
   url_launcher: ^5.4.10
