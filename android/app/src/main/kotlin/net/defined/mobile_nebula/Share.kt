@@ -85,7 +85,7 @@ class Share {
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 intent.action = Intent.ACTION_SEND
-                intent.type = "*/*"
+                intent.type = "text/plain"
 
                 intent.putExtra(Intent.EXTRA_SUBJECT, title)
                 intent.putExtra(Intent.EXTRA_STREAM, fileUri)
@@ -97,7 +97,6 @@ class Share {
 
                 val resInfoList: List<ResolveInfo> = context.packageManager.queryIntentActivities(chooserIntent, PackageManager.MATCH_DEFAULT_ONLY)
                 for (resolveInfo in resInfoList) {
-                    print(fileUri)
                     val packageName: String = resolveInfo.activityInfo.packageName
                     context.grantUriPermission(packageName, fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }

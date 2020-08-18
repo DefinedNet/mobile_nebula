@@ -77,7 +77,7 @@ public class Share {
             return completion(false)
         }
         
-        let activityViewController = UIActivityViewController(activityItems: [file], applicationActivities: nil)
+        let activityViewController = UIActivityViewController(activityItems: [ShareCopy(file: file)], applicationActivities: nil)
         
         activityViewController.completionWithItemsHandler = {(activityType: UIActivity.ActivityType?, completed: Bool, returnedItems: [Any]?, error: Error?) in
             completion(true)
@@ -115,5 +115,36 @@ extension UIApplication {
             return topViewController(controller: presented)
         }
         return controller
+    }
+}
+
+class ShareCopy: UIActivityItemProvider {
+    private let file: URL
+    private let content: String
+
+    init(file: URL) {
+        self.file = file
+        do {
+            self.content = try String.init(contentsOf: file)
+        } catch {
+            self.content = "Error"
+        }
+        
+        // the type of the placeholder item is used to
+        // display correct activity types by UIActivityControler
+        super.init(placeholderItem: self.content)
+    }
+
+    override var item: Any {
+        get {
+            guard let activityType = activityType else {
+                return file
+            }
+
+            switch activityType {
+            case .copyToPasteboard: return content
+            default: return file
+            }
+        }
     }
 }
