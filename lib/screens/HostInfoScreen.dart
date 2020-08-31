@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
+import 'package:mobile_nebula/components/SpecialSelectableText.dart';
 import 'package:mobile_nebula/components/config/ConfigCheckboxItem.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
 import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
@@ -60,7 +61,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
 
   Widget _buildMain() {
     return ConfigSection(children: [
-      ConfigItem(label: Text('VPN IP'), labelWidth: 150, content: SelectableText(hostInfo.vpnIp)),
+      ConfigItem(label: Text('VPN IP'), labelWidth: 150, content: SpecialSelectableText(hostInfo.vpnIp)),
       hostInfo.cert != null
           ? ConfigPageItem(
               label: Text('Certificate'),
@@ -75,12 +76,12 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
   Widget _buildDetails() {
     return ConfigSection(children: <Widget>[
       ConfigItem(
-          label: Text('Lighthouse'), labelWidth: 150, content: SelectableText(widget.isLighthouse ? 'Yes' : 'No')),
-      ConfigItem(label: Text('Local Index'), labelWidth: 150, content: SelectableText('${hostInfo.localIndex}')),
-      ConfigItem(label: Text('Remote Index'), labelWidth: 150, content: SelectableText('${hostInfo.remoteIndex}')),
+          label: Text('Lighthouse'), labelWidth: 150, content: SpecialSelectableText(widget.isLighthouse ? 'Yes' : 'No')),
+      ConfigItem(label: Text('Local Index'), labelWidth: 150, content: SpecialSelectableText('${hostInfo.localIndex}')),
+      ConfigItem(label: Text('Remote Index'), labelWidth: 150, content: SpecialSelectableText('${hostInfo.remoteIndex}')),
       ConfigItem(
-          label: Text('Message Counter'), labelWidth: 150, content: SelectableText('${hostInfo.messageCounter}')),
-      ConfigItem(label: Text('Cached Packets'), labelWidth: 150, content: SelectableText('${hostInfo.cachedPackets}')),
+          label: Text('Message Counter'), labelWidth: 150, content: SpecialSelectableText('${hostInfo.messageCounter}')),
+      ConfigItem(label: Text('Cached Packets'), labelWidth: 150, content: SpecialSelectableText('${hostInfo.cachedPackets}')),
     ]);
   }
 

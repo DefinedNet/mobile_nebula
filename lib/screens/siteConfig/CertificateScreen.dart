@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_nebula/components/FormPage.dart';
+import 'package:mobile_nebula/components/SpecialSelectableText.dart';
 import 'package:mobile_nebula/components/config/ConfigButtonItem.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
 import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
@@ -51,6 +52,12 @@ class _CertificateScreenState extends State<CertificateScreen> {
   void initState() {
     cert = widget.cert;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    pasteController.dispose();
+    super.dispose();
   }
 
   @override
@@ -135,7 +142,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
           children: [
             ConfigItem(
               labelWidth: 0,
-              content: SelectableText(pubKey, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
+              content: SpecialSelectableText(pubKey, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
             ),
             ConfigButtonItem(
               content: Text('Share Public Key'),

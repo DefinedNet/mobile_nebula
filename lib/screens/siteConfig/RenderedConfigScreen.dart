@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
+import 'package:mobile_nebula/components/SpecialSelectableText.dart';
 import 'package:mobile_nebula/services/share.dart';
 
 class RenderedConfigScreen extends StatelessWidget {
@@ -25,7 +26,7 @@ class RenderedConfigScreen extends StatelessWidget {
       child: Container(
           padding: EdgeInsets.all(5),
           constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-          child: SelectableText(config, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14))),
+          child: SpecialSelectableText(config, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14))),
     );
   }
 }

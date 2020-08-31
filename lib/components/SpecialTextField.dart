@@ -24,6 +24,7 @@ class SpecialTextField extends StatefulWidget {
       this.textAlign,
       this.autofocus,
       this.onChanged,
+      this.enabled,
       this.expands,
       this.keyboardAppearance,
       this.textAlignVertical,
@@ -51,6 +52,7 @@ class SpecialTextField extends StatefulWidget {
 
   final bool autofocus;
   final ValueChanged<String> onChanged;
+  final bool enabled;
   final List<TextInputFormatter> inputFormatters;
   final bool expands;
 
@@ -98,6 +100,7 @@ class _SpecialTextFieldState extends State<SpecialTextField> {
             autofocus: widget.autofocus,
             focusNode: widget.focusNode,
             onChanged: widget.onChanged,
+            enabled: widget.enabled,
             onSubmitted: (_) {
               if (widget.nextFocusNode != null) {
                 FocusScope.of(context).requestFocus(widget.nextFocusNode);
