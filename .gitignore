@@ -45,3 +45,5 @@ lib/generated_plugin_registrant.dart
 /env.sh
 /lib/gen.versions.dart
 /lib/.gen.versions.dart
+/ios/Flutter/.last_build_id
+/local.properties
