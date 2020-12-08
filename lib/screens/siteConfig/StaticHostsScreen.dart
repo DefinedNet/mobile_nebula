@@ -8,7 +8,7 @@ import 'package:mobile_nebula/components/config/ConfigSection.dart';
 import 'package:mobile_nebula/models/Hostmap.dart';
 import 'package:mobile_nebula/models/IPAndPort.dart';
 import 'package:mobile_nebula/models/StaticHosts.dart';
-import 'package:mobile_nebula/screens/siteConfig/StaticHostMapScreen.dart';
+import 'package:mobile_nebula/screens/siteConfig/StaticHostmapScreen.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 //TODO: wire up the focus nodes, add a done/next/prev to the keyboard
