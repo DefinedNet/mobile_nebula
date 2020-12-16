@@ -28,6 +28,7 @@ class Advanced {
   String verbosity;
   List<UnsafeRoute> unsafeRoutes;
   int mtu;
+  bool logLocalTZ;
 }
 
 class AdvancedScreen extends StatefulWidget {
@@ -52,6 +53,7 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
     settings.verbosity = widget.site.logVerbosity;
     settings.unsafeRoutes = widget.site.unsafeRoutes;
     settings.mtu = widget.site.mtu;
+    settings.logLocalTZ = widget.site.logLocalTZ;
     super.initState();
   }
 
@@ -131,6 +133,22 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                           });
                     });
                   }),
+              ConfigItem(
+                label: Text('Use Local Time Zone'),
+                labelWidth: 200,
+                content: Align(
+                    alignment: Alignment.centerRight,
+                    child: Switch.adaptive(
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      value: settings.logLocalTZ,
+                      onChanged: (value) {
+                        setState(() {
+                            settings.logLocalTZ = value;
+                            changed = true;
+                        });
+                      },
+                    )),
+              ),
               ConfigPageItem(
                   label: Text('Log verbosity'),
                   labelWidth: 150,

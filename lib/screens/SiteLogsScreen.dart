@@ -105,8 +105,10 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
   loadLogs() async {
     var file = File(widget.site.logFile);
     try {
-      final v = await file.readAsString();
-
+      String v = await file.readAsString();
+      if(widget.site.logLocalTZ) {
+        v = convertToLocalTZ(v);
+      }
       setState(() {
         logs = v;
       });
@@ -114,6 +116,17 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
       Utils.popError(context, 'Error while reading logs', err.toString());
     }
   }
+
+convertToLocalTZ(String rawLog) {
+    // Regex to extract time value
+    rawLog = rawLog.replaceAllMapped(RegExp('time="(.*?)"'), (match){
+      // Convert to DateTime with the inner match from above
+      DateTime userDate = DateTime.parse(match.group(1));
+      // Return timestamp in format that matches default
+      return 'time="${userDate.toLocal().toIso8601String()}"';
+    });
+    return rawLog;
+}
 
   deleteLogs() async {
     var file = File(widget.site.logFile);

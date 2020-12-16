@@ -43,6 +43,7 @@ class Site {
   String status;
   String logFile;
   String logVerbosity;
+  bool logLocalTZ;
 
   // A list of errors encountered while loading the site
   List<String> errors;
@@ -62,6 +63,7 @@ class Site {
       this.status,
       this.logFile,
       this.logVerbosity = 'info',
+      this.logLocalTZ,
       errors,
       unsafeRoutes})
       : staticHostmap = staticHostmap ?? {},
@@ -105,6 +107,7 @@ class Site {
     sortKey = json['sortKey'];
     logFile = json['logFile'];
     logVerbosity = json['logVerbosity'];
+    logLocalTZ = json['logLocalTZ'];
     connected = json['connected'] ?? false;
     status = json['status'] ?? "";
 
@@ -154,6 +157,7 @@ class Site {
       'cipher': cipher,
       'sortKey': sortKey,
       'logVerbosity': logVerbosity,
+      'logLocalTZ': logLocalTZ,
     };
   }
 
