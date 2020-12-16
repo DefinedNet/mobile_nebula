@@ -42,6 +42,7 @@ type KeyPair struct {
 	PrivateKey string
 }
 
+// RenderConfig reads a JSON config, maps to corresponding structs and returns a yaml config
 func RenderConfig(configData string, key string) (string, error) {
 	config := newConfig()
 	var d m
@@ -63,6 +64,9 @@ func RenderConfig(configData string, key string) (string, error) {
 	if val, _ := d["logVerbosity"].(string); val != "" {
 		config.Logging.Level = val
 	}
+
+	b, _ := d["logLocalTZ"].(bool)
+	config.Logging.UserTimeZone = bool(b)
 
 	i, _ = d["lhDuration"].(float64)
 	config.Lighthouse.Interval = int(i)
