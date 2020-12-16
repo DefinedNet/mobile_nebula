@@ -154,7 +154,6 @@ type configLogging struct {
 	Level           string `yaml:"level"`
 	Format          string `yaml:"format"`
 	TimestampFormat string `yaml:"timestamp_format,omitempty"`
-	UserTimeZone    bool   `yaml:"logLocalTZ"`
 }
 
 type configStats struct {

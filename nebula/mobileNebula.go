@@ -65,9 +65,6 @@ func RenderConfig(configData string, key string) (string, error) {
 		config.Logging.Level = val
 	}
 
-	b, _ := d["logLocalTZ"].(bool)
-	config.Logging.UserTimeZone = bool(b)
-
 	i, _ = d["lhDuration"].(float64)
 	config.Lighthouse.Interval = int(i)
 
