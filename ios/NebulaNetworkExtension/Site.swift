@@ -150,6 +150,7 @@ struct Site: Codable {
     var mtu: Int
     var cipher: String
     var sortKey: Int
+    var logLocalTZ: Bool?
     var logVerbosity: String
     var connected: Bool?
     var status: String?
@@ -238,6 +239,7 @@ struct Site: Codable {
         port = incoming.port
         cipher = incoming.cipher
         sortKey = incoming.sortKey ?? 0
+        logLocalTZ = incoming.logLocalTZ ?? false
         logVerbosity = incoming.logVerbosity ?? "info"
         mtu = incoming.mtu ?? 1300
         logFile = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.net.defined.mobileNebula")?.appendingPathComponent(id).appendingPathExtension("log").path
@@ -284,6 +286,7 @@ struct Site: Codable {
         case status
         case logFile
         case unsafeRoutes
+        case logLocalTZ
         case logVerbosity
         case errors
         case mtu
@@ -314,6 +317,7 @@ struct IncomingSite: Codable {
     var mtu: Int?
     var cipher: String
     var sortKey: Int?
+    var logLocalTZ: Bool?
     var logVerbosity: String?
     var key: String?
     
