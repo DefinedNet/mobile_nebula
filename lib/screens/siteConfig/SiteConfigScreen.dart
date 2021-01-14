@@ -218,6 +218,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
                         site.lhDuration = settings.lhDuration;
                         site.port = settings.port;
                         site.logVerbosity = settings.verbosity;
+                        site.logLocalTZ = settings.logLocalTZ;
                         site.unsafeRoutes = settings.unsafeRoutes;
                         site.mtu = settings.mtu;
                       });

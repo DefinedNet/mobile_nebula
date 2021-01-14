@@ -42,6 +42,7 @@ type KeyPair struct {
 	PrivateKey string
 }
 
+// RenderConfig reads a JSON config, maps to corresponding structs and returns a yaml config
 func RenderConfig(configData string, key string) (string, error) {
 	config := newConfig()
 	var d m

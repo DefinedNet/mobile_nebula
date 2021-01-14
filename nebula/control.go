@@ -18,6 +18,7 @@ type Nebula struct {
 	l *logrus.Logger
 }
 
+// NewNebula assembles config and certificates to return a Nebula Client
 func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebula, error) {
 	// GC more often, largely for iOS due to extension 15mb limit
 	debug.SetGCPercent(20)
@@ -34,6 +35,8 @@ func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebul
 	}
 
 	l := logrus.New()
+
+	// Set logrus output to write to logfile
 	f, err := os.OpenFile(logFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return nil, err
@@ -56,22 +59,27 @@ func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebul
 	return &Nebula{c, l}, nil
 }
 
+// Start is a handler function for downstream libries to manage the Nebula service
 func (n *Nebula) Start() {
 	n.c.Start()
 }
 
+// ShutdownBlock is a handler function for downstream libries to manage the Nebula service
 func (n *Nebula) ShutdownBlock() {
 	n.c.ShutdownBlock()
 }
 
+// Stop is a handler function for downstream libries to manage the Nebula service
 func (n *Nebula) Stop() {
 	n.c.Stop()
 }
 
+// Rebind is a handler function for downstream libries to manage the Nebula service
 func (n *Nebula) Rebind() {
 	n.c.RebindUDPServer()
 }
 
+// ListHostmap is a handler function for downstream libries to manage the Nebula service
 func (n *Nebula) ListHostmap(pending bool) (string, error) {
 	hosts := n.c.ListHostmap(pending)
 	b, err := json.Marshal(hosts)
@@ -82,6 +90,7 @@ func (n *Nebula) ListHostmap(pending bool) (string, error) {
 	return string(b), nil
 }
 
+// GetHostInfoByVpnIp is a handler function for downstream libries to manage the Nebula service
 func (n *Nebula) GetHostInfoByVpnIp(vpnIp string, pending bool) (string, error) {
 	b, err := json.Marshal(n.c.GetHostInfoByVpnIP(stringIpToInt(vpnIp), pending))
 	if err != nil {
@@ -91,10 +100,12 @@ func (n *Nebula) GetHostInfoByVpnIp(vpnIp string, pending bool) (string, error) 
 	return string(b), nil
 }
 
+// CloseTunnel takes a VPN IP and closes the corresponding tunnel
 func (n *Nebula) CloseTunnel(vpnIp string) bool {
 	return n.c.CloseTunnel(stringIpToInt(vpnIp), false)
 }
 
+// SetRemoteForTunnel is a wrapper function for Nebula's SetRemoteForTunnel
 func (n *Nebula) SetRemoteForTunnel(vpnIp string, addr string) (string, error) {
 	udpAddr := nebula.NewUDPAddrFromString(addr)
 	if udpAddr == nil {
