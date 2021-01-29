@@ -37,6 +37,7 @@ type RawCert struct {
 	Validity Validity
 }
 
+
 type KeyPair struct {
 	PublicKey  string
 	PrivateKey string
@@ -50,6 +51,7 @@ func RenderConfig(configData string, key string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 
 	config.PKI.CA, _ = d["ca"].(string)
 	config.PKI.Cert, _ = d["cert"].(string)

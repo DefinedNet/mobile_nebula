@@ -1,11 +1,20 @@
 class IPAndPort {
-  IPAndPort({this.ip, this.port});
+  IPAndPort({this.ip, this.port}) {
+    if (ip.contains(':')) {
+      this._v6 = true;
+    }
+  }
 
   String ip;
   int port;
+  bool _v6 = false;
 
   @override
   String toString() {
+    if (_v6) {
+      return '[$ip]:$port';
+    }
+
     return '$ip:$port';
   }
 
@@ -14,12 +23,19 @@ class IPAndPort {
   }
 
   IPAndPort.fromString(String val) {
+    //TODO: This is a horrible ip and port parsing scheme, dart lacks a proper one, need to port a real one from another language
     final parts = val.split(':');
-    if (parts.length != 2) {
+    if (parts.length < 2) {
       throw 'Invalid IPAndPort string';
     }
 
-    ip = parts[0];
-    port = int.parse(parts[1]);
+    port = int.parse(parts[parts.length - 1]);
+
+    if (parts.length > 2) {
+      _v6 = true;
+      ip = parts.getRange(0, parts.length - 2).join(':');
+    } else {
+      ip = parts[0];
+    }
   }
 }

@@ -27,8 +27,6 @@ func newConfig() *config {
 			DNS:             configDNS{},
 			Interval:        60,
 			Hosts:           []string{},
-			RemoteAllowList: map[string]bool{},
-			LocalAllowList:  map[string]interface{}{},
 		},
 		Listen: configListen{
 			Host:  "0.0.0.0",
@@ -94,8 +92,8 @@ type configLighthouse struct {
 	DNS             configDNS              `yaml:"dns"`
 	Interval        int                    `yaml:"interval"`
 	Hosts           []string               `yaml:"hosts"`
-	RemoteAllowList map[string]bool        `yaml:"remote_allow_list"`
-	LocalAllowList  map[string]interface{} `yaml:"local_allow_list"` // This can be a special "interfaces" object or a bool
+	//RemoteAllowList map[string]bool        `yaml:"remote_allow_list"`
+	//LocalAllowList  map[string]interface{} `yaml:"local_allow_list"` // This can be a special "interfaces" object or a bool
 }
 
 type configDNS struct {

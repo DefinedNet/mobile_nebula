@@ -56,6 +56,7 @@ func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebul
 	return &Nebula{c, l}, nil
 }
 
+
 func (n *Nebula) Start() {
 	n.c.Start()
 }

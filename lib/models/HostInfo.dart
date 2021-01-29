@@ -40,10 +40,16 @@ class UDPAddress {
 
   @override
   String toString() {
+    //TODO: This is a pretty terrible way to determing ipv6 addresses. Better to just have control.go string this for us
+    //TODO: since we really don't need to reason about ports
+    if (ip.contains(':')) {
+      return '[$ip]:$port';
+    }
+
     return '$ip:$port';
   }
 
   UDPAddress.fromJson(Map<String, dynamic> json)
-    : ip = json['IP'],
-      port = json['Port'];
+      : ip = json['ip'],
+        port = json['port'];
 }

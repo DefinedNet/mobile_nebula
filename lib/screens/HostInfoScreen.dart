@@ -76,18 +76,25 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
   Widget _buildDetails() {
     return ConfigSection(children: <Widget>[
       ConfigItem(
-          label: Text('Lighthouse'), labelWidth: 150, content: SpecialSelectableText(widget.isLighthouse ? 'Yes' : 'No')),
+          label: Text('Lighthouse'),
+          labelWidth: 150,
+          content: SpecialSelectableText(widget.isLighthouse ? 'Yes' : 'No')),
       ConfigItem(label: Text('Local Index'), labelWidth: 150, content: SpecialSelectableText('${hostInfo.localIndex}')),
-      ConfigItem(label: Text('Remote Index'), labelWidth: 150, content: SpecialSelectableText('${hostInfo.remoteIndex}')),
       ConfigItem(
-          label: Text('Message Counter'), labelWidth: 150, content: SpecialSelectableText('${hostInfo.messageCounter}')),
-      ConfigItem(label: Text('Cached Packets'), labelWidth: 150, content: SpecialSelectableText('${hostInfo.cachedPackets}')),
+          label: Text('Remote Index'), labelWidth: 150, content: SpecialSelectableText('${hostInfo.remoteIndex}')),
+      ConfigItem(
+          label: Text('Message Counter'),
+          labelWidth: 150,
+          content: SpecialSelectableText('${hostInfo.messageCounter}')),
+      ConfigItem(
+          label: Text('Cached Packets'), labelWidth: 150, content: SpecialSelectableText('${hostInfo.cachedPackets}')),
     ]);
   }
 
   Widget _buildRemotes() {
     if (hostInfo.remoteAddresses.length == 0) {
-      return ConfigSection(label: 'REMOTES', children: [ConfigItem(content: Text('No remote addresses yet'), labelWidth: 0)]);
+      return ConfigSection(
+          label: 'REMOTES', children: [ConfigItem(content: Text('No remote addresses yet'), labelWidth: 0)]);
     }
 
     return widget.pending ? _buildStaticRemotes() : _buildEditRemotes();
@@ -103,7 +110,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
       String remote = remoteObj.toString();
       items.add(ConfigCheckboxItem(
         key: Key(remote),
-        label: Text(remote),
+        label: Text(remote), //TODO: need to do something to adjust the font size in the event we have an ipv6 address
         labelWidth: ipWidth,
         checked: currentRemote == remote,
         onChanged: () async {
@@ -136,7 +143,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
       String remote = remoteObj.toString();
       items.add(ConfigCheckboxItem(
         key: Key(remote),
-        label: Text(remote),
+        label: Text(remote), //TODO: need to do something to adjust the font size in the event we have an ipv6 address
         labelWidth: ipWidth,
         checked: currentRemote == remote,
       ));
@@ -181,7 +188,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
 
   _setHostInfo(HostInfo h) {
     h.remoteAddresses.sort((a, b) {
-      final diff = Utils.ip2int(a.ip) - Utils.ip2int(b.ip);
+      final diff = a.ip.compareTo(b.ip);
       return diff == 0 ? a.port - b.port : diff;
     });
 

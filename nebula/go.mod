@@ -2,6 +2,9 @@ module github.com/DefinedNet/mobile_nebula/nebula
 
 go 1.14
 
+
+replace github.com/slackhq/nebula => /Volumes/T7/nate/src/github.com/slackhq/nebula
+
 require (
 	github.com/prometheus/common v0.7.0
 	github.com/sirupsen/logrus v1.4.2
