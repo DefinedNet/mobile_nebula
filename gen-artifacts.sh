@@ -16,7 +16,7 @@ if [ "$1" = "ios" ]; then
 elif [ "$1" = "android" ]; then
   # Build nebula for android
   make mobileNebula.aar
-  rm -rf ../android/app/src/main/libs/mobileNebula.aar
+  mkdir -p ../android/app/src/main/libs
   cp mobileNebula.aar ../android/app/src/main/libs/mobileNebula.aar
 
 else
