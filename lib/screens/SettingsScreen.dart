@@ -66,7 +66,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     List<Widget> items = [];
     items.add(ConfigSection(children: colorSection));
-    items.add(ConfigSection(children: [ConfigPageItem(label: Text('About'), onPressed: () => Utils.openPage(context, (context) => AboutScreen()),)]));
+    items.add(ConfigItem(
+      label: Text('Wrap log output'),
+      labelWidth: 200,
+      content: Align(
+          alignment: Alignment.centerRight,
+          child: Switch.adaptive(
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            value: settings.logWrap,
+            onChanged: (value) {
+              setState(() {
+                settings.logWrap = value;
+              });
+            },
+          )),
+    ));
+    items.add(ConfigSection(children: [
+      ConfigPageItem(
+        label: Text('About'),
+        onPressed: () => Utils.openPage(context, (context) => AboutScreen()),
+      )
+    ]));
 
     return SimplePage(
       title: 'Settings',

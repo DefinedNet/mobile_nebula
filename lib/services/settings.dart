@@ -30,6 +30,14 @@ class Settings {
     _set('darkMode', enabled);
   }
 
+  bool get logWrap {
+    return _getBool('logWrap', false);
+  }
+
+  set logWrap(bool enabled) {
+    _set('logWrap', enabled);
+  }
+
   String _getString(String key, String defaultValue) {
     final val = _settings[key];
     if (val is String) {

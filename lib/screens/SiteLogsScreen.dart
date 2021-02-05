@@ -7,6 +7,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/components/SpecialSelectableText.dart';
 import 'package:mobile_nebula/models/Site.dart';
+import 'package:mobile_nebula/services/settings.dart';
 import 'package:mobile_nebula/services/share.dart';
 import 'package:mobile_nebula/services/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -25,6 +26,7 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
   ScrollController controller = ScrollController();
   RefreshController refreshController = RefreshController(initialRefresh: false);
 
+  var settings = Settings();
   @override
   void initState() {
     loadLogs();
@@ -52,10 +54,7 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
         refreshController.loadComplete();
       },
       refreshController: refreshController,
-      child: Container(
-          padding: EdgeInsets.all(5),
-          constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-          child: SpecialSelectableText(logs.trim(), style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14))),
+      child: Container(padding: EdgeInsets.all(5), constraints: logBoxConstraints(context), child: SpecialSelectableText(logs.trim(), style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14))),
       bottomBar: _buildBottomBar(),
     );
   }
@@ -95,8 +94,7 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
             padding: padding,
             icon: Icon(context.platformIcons.downArrow, size: 30),
             onPressed: () async {
-              controller.animateTo(controller.position.maxScrollExtent,
-                  duration: const Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
+              controller.animateTo(controller.position.maxScrollExtent, duration: const Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
             },
           )),
         ]));
@@ -119,5 +117,13 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
     var file = File(widget.site.logFile);
     await file.writeAsBytes([]);
     await loadLogs();
+  }
+
+  logBoxConstraints(BuildContext context) {
+    if (settings.logWrap) {
+      return BoxConstraints(maxWidth: MediaQuery.of(context).size.width);
+    } else {
+      return BoxConstraints(minWidth: MediaQuery.of(context).size.width);
+    }
   }
 }
