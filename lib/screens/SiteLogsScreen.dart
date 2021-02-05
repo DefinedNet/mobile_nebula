@@ -103,8 +103,11 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
   loadLogs() async {
     var file = File(widget.site.logFile);
     try {
-      final v = await file.readAsString();
+      String v = await file.readAsString();
 
+      if (settings.logLocalTZ) {
+        v = convertToLocalTZ(v);
+      }
       setState(() {
         logs = v;
       });
@@ -125,5 +128,13 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
     } else {
       return BoxConstraints(minWidth: MediaQuery.of(context).size.width);
     }
+  }
+
+  convertToLocalTZ(String rawLog) {
+    rawLog = rawLog.replaceAllMapped(RegExp('time="(.*?)"'), (match) {
+      DateTime userDate = DateTime.parse(match.group(1));
+      return 'time="${userDate.toLocal().toIso8601String()}"';
+    });
+    return rawLog;
   }
 }
