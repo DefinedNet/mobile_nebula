@@ -11,6 +11,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var _log = OSLog(subsystem: "net.defined.mobileNebula", category: "PacketTunnelProvider")
     private var wormhole = MMWormhole(applicationGroupIdentifier: "group.net.defined.mobileNebula", optionalDirectory: "ipc")
     private var nebula: MobileNebulaNebula?
+    private var didSleep = false
     
     private func log(_ message: StaticString, _ args: CVarArg...) {
         os_log(message, log: _log, args)
@@ -41,9 +42,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             return completionHandler(error)
         }
         
-        self.networkMonitor = NWPathMonitor()
-        self.networkMonitor!.pathUpdateHandler = self.pathUpdate
-        self.networkMonitor!.start(queue: DispatchQueue(label: "NetworkMonitor"))
+        startNetworkMonitor()
         
         let fileDescriptor = (self.packetFlow.value(forKeyPath: "socket.fileDescriptor") as? Int32) ?? -1
         if fileDescriptor < 0 {
@@ -109,15 +108,44 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         })
     }
     
+    override func sleep(completionHandler: @escaping () -> Void) {
+        if (!didSleep) {
+            nebula!.sleep()
+            stopNetworkMonitor()
+        }
+        didSleep = true
+        completionHandler()
+    }
+    
+    override func wake() {
+        if (didSleep) {
+            nebula!.rebind("iOS wake")
+            didSleep = false
+            //TODO: we may want to delay doing the network monitor. Will need more data on if this is the culprit for frequent wakes, although since nulling out the reference with stopNetworkMonitor() I haven't observed agressive sleep/wake behavior
+            startNetworkMonitor()
+        }
+    }
+    
+    private func startNetworkMonitor() {
+        networkMonitor = NWPathMonitor()
+        networkMonitor!.pathUpdateHandler = self.pathUpdate
+        networkMonitor!.start(queue: DispatchQueue(label: "NetworkMonitor"))
+    }
+    
+    private func stopNetworkMonitor() {
+        self.networkMonitor?.cancel()
+        networkMonitor = nil
+    }
+    
     override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
         nebula?.stop()
-        networkMonitor?.cancel()
-        networkMonitor = nil
+        stopNetworkMonitor()
         completionHandler()
     }
         
     private func pathUpdate(path: Network.NWPath) {
-        nebula?.rebind()
+        //TODO: we can likely be smarter here and enumerate all the interfaces and their current addresses, only rebind if things changed
+        nebula?.rebind("network change")
     }
     
     private func wormholeListener(msg: Any?) {

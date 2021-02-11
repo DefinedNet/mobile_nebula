@@ -56,6 +56,9 @@ func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebul
 	return &Nebula{c, l}, nil
 }
 
+func (n *Nebula) Log(v string) {
+	n.l.Println(v)
+}
 
 func (n *Nebula) Start() {
 	n.c.Start()
@@ -69,7 +72,8 @@ func (n *Nebula) Stop() {
 	n.c.Stop()
 }
 
-func (n *Nebula) Rebind() {
+func (n *Nebula) Rebind(reason string) {
+	n.l.Infof("Rebinding UDP listener and updating lighthouses due to %s", reason)
 	n.c.RebindUDPServer()
 }
 
@@ -82,6 +86,7 @@ func (n *Nebula) ListHostmap(pending bool) (string, error) {
 
 	return string(b), nil
 }
+
 
 func (n *Nebula) GetHostInfoByVpnIp(vpnIp string, pending bool) (string, error) {
 	b, err := json.Marshal(n.c.GetHostInfoByVpnIP(stringIpToInt(vpnIp), pending))
@@ -108,6 +113,11 @@ func (n *Nebula) SetRemoteForTunnel(vpnIp string, addr string) (string, error) {
 	}
 
 	return string(b), nil
+}
+
+func (n *Nebula) Sleep() {
+	n.l.Info("Sleep called, closing tunnels")
+	n.c.CloseAllTunnels()
 }
 
 func stringIpToInt(ip string) uint32 {
