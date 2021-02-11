@@ -1,7 +1,7 @@
 ## Directory Structure
-`/lib` - Flutter directory - takes dart code and turns it into iOS and Android native applications
-`/nebula` - Build for mobile
-`/android & /ios` - Shims for stitching together frontend (user facing) config items to persisted state and client configurations
+- `/lib` - Flutter directory - takes dart code and turns it into iOS and Android native applications
+- `/nebula` - Build for mobile
+- `/android & /ios` - Shims for stitching together frontend (user facing) config items to persisted state and client configurations
 
 ## Persisted State
 State is stored using two different platform specific mechanisms. iOS applications stores its site specific data in a VPN configuration. Android state is persisted via Keychain(?)/encrypted filesystem. Flutter models help us persist data in a structured format but requires some native code (Kotlin/Swift) to parse and store the data (i.e. `android/` & `ios/`). 
