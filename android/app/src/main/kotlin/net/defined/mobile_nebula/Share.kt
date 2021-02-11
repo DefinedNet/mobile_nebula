@@ -121,13 +121,13 @@ class ShareReceiver : BroadcastReceiver() {
             return
         }
 
-        val res = intent.extras.get(Intent.EXTRA_CHOSEN_COMPONENT) as? ComponentName ?: return
+        val res = intent.extras!!.get(Intent.EXTRA_CHOSEN_COMPONENT) as? ComponentName ?: return
         when (res.className) {
             "org.chromium.arc.intent_helper.SendTextToClipboardActivity" ->  {
-                val file = intent.extras[Intent.EXTRA_TEXT] as? File ?: return
+                val file = intent.extras!![Intent.EXTRA_TEXT] as? File ?: return
                 val clipboard = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
-                clipboard.primaryClip = ClipData.newPlainText("", file.readText())
+                clipboard.setPrimaryClip(ClipData.newPlainText("", file.readText()))
             }
         }
     }

@@ -382,7 +382,7 @@ class MainActivity: FlutterActivity() {
             val id = msg.data.getString("id")
 
             //TODO: If the elvis hits then we had a deleted site running, which shouldn't happen
-            val site = sites!!.getSite(id) ?: return
+            val site = sites!!.getSite(id!!) ?: return
 
             when (msg.what) {
                 NebulaVpnService.MSG_IS_RUNNING -> isRunning(site, msg)
