@@ -1,6 +1,6 @@
 class IPAndPort {
   IPAndPort({this.ip, this.port}) {
-    if (ip.contains(':')) {
+    if (ip != null && ip.contains(':')) {
       this._v6 = true;
     }
   }
