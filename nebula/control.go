@@ -87,7 +87,6 @@ func (n *Nebula) ListHostmap(pending bool) (string, error) {
 	return string(b), nil
 }
 
-
 func (n *Nebula) GetHostInfoByVpnIp(vpnIp string, pending bool) (string, error) {
 	b, err := json.Marshal(n.c.GetHostInfoByVpnIP(stringIpToInt(vpnIp), pending))
 	if err != nil {
@@ -116,8 +115,9 @@ func (n *Nebula) SetRemoteForTunnel(vpnIp string, addr string) (string, error) {
 }
 
 func (n *Nebula) Sleep() {
-	n.l.Info("Sleep called, closing tunnels")
-	n.c.CloseAllTunnels()
+	if closed := n.c.CloseAllTunnels(true); closed > 0 {
+		n.l.WithField("tunnels", closed).Info("Sleep called, closed non lighthouse tunnels")
+	}
 }
 
 func stringIpToInt(ip string) uint32 {

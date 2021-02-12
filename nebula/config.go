@@ -24,9 +24,9 @@ func newConfig() *config {
 		},
 		StaticHostmap: map[string][]string{},
 		Lighthouse: configLighthouse{
-			DNS:             configDNS{},
-			Interval:        60,
-			Hosts:           []string{},
+			DNS:      configDNS{},
+			Interval: 60,
+			Hosts:    []string{},
 		},
 		Listen: configListen{
 			Host:  "0.0.0.0",
@@ -87,11 +87,11 @@ type configPKI struct {
 }
 
 type configLighthouse struct {
-	AmLighthouse    bool                   `yaml:"am_lighthouse"`
-	ServeDNS        bool                   `yaml:"serve_dns"`
-	DNS             configDNS              `yaml:"dns"`
-	Interval        int                    `yaml:"interval"`
-	Hosts           []string               `yaml:"hosts"`
+	AmLighthouse bool      `yaml:"am_lighthouse"`
+	ServeDNS     bool      `yaml:"serve_dns"`
+	DNS          configDNS `yaml:"dns"`
+	Interval     int       `yaml:"interval"`
+	Hosts        []string  `yaml:"hosts"`
 	//RemoteAllowList map[string]bool        `yaml:"remote_allow_list"`
 	//LocalAllowList  map[string]interface{} `yaml:"local_allow_list"` // This can be a special "interfaces" object or a bool
 }

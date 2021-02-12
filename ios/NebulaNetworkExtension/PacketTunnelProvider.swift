@@ -109,21 +109,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
     
     override func sleep(completionHandler: @escaping () -> Void) {
-        if (!didSleep) {
-            nebula!.sleep()
-            stopNetworkMonitor()
-        }
-        didSleep = true
+        nebula!.sleep()
         completionHandler()
-    }
-    
-    override func wake() {
-        if (didSleep) {
-            nebula!.rebind("iOS wake")
-            didSleep = false
-            //TODO: we may want to delay doing the network monitor. Will need more data on if this is the culprit for frequent wakes, although since nulling out the reference with stopNetworkMonitor() I haven't observed agressive sleep/wake behavior
-            startNetworkMonitor()
-        }
     }
     
     private func startNetworkMonitor() {
