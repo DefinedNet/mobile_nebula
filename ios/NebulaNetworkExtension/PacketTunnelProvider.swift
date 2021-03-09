@@ -108,10 +108,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         })
     }
     
-    override func sleep(completionHandler: @escaping () -> Void) {
-        nebula!.sleep()
-        completionHandler()
-    }
+//TODO: Sleep/wake get called aggresively and do nothing to help us here, we should locate why that is and make these work appropriately
+//    override func sleep(completionHandler: @escaping () -> Void) {
+//        nebula!.sleep()
+//        completionHandler()
+//    }
     
     private func startNetworkMonitor() {
         networkMonitor = NWPathMonitor()
