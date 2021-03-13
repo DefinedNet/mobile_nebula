@@ -10,6 +10,7 @@ import 'package:mobile_nebula/components/config/ConfigSection.dart';
 import 'package:mobile_nebula/models/Site.dart';
 import 'package:mobile_nebula/models/UnsafeRoute.dart';
 import 'package:mobile_nebula/screens/siteConfig/CipherScreen.dart';
+import 'package:mobile_nebula/screens/siteConfig/DNSResolversScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/LogVerbosityScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/RenderedConfigScreen.dart';
 import 'package:mobile_nebula/services/utils.dart';
@@ -28,6 +29,7 @@ class Advanced {
   String verbosity;
   List<UnsafeRoute> unsafeRoutes;
   int mtu;
+  List<String> dnsResolvers;
 }
 
 class AdvancedScreen extends StatefulWidget {
@@ -52,6 +54,7 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
     settings.verbosity = widget.site.logVerbosity;
     settings.unsafeRoutes = widget.site.unsafeRoutes;
     settings.mtu = widget.site.mtu;
+    settings.dnsResolvers = widget.site.dnsResolvers;
     super.initState();
   }
 
@@ -161,6 +164,25 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                       });
                     });
                   },
+              ),
+              ConfigPageItem(
+                label: Text('DNS Resolvers'),
+                labelWidth: 150,
+                content: Text(
+                    Utils.itemCountFormat(settings.dnsResolvers.length),
+                    textAlign: TextAlign.end),
+                onPressed: () {
+                  Utils.openPage(context, (context) {
+                    return DNSResolversScreen(
+                        dnsResolvers: settings.dnsResolvers,
+                        onSave: (dnsResolvers) {
+                          setState(() {
+                            settings.dnsResolvers = dnsResolvers;
+                            changed = true;
+                          });
+                        });
+                  });
+                },
               )
             ],
           ),

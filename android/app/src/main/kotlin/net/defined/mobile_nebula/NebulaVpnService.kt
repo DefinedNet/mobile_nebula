@@ -88,6 +88,11 @@ class NebulaVpnService : VpnService() {
             builder.addRoute(ipNet.network, ipNet.maskSize.toInt())
         }
 
+        // Add our dns resolvers
+        site!!.dnsResolvers.forEach { dnsResolver ->
+            builder.addDnsServer(dnsResolver)
+        }
+
         val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         cm.allNetworks.forEach { network ->
             cm.getLinkProperties(network).dnsServers.forEach { builder.addDnsServer(it) }

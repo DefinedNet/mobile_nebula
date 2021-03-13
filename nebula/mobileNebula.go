@@ -102,6 +102,13 @@ func RenderConfig(configData string, key string) (string, error) {
 		}
 	}
 
+	if dnsResolvers, ok := d["dnsResolvers"].([]interface{}); ok {
+		config.Tun.DNSResolvers = make([]string, len(dnsResolvers))
+		for i, r := range dnsResolvers {
+			config.Tun.DNSResolvers[i] = r.(string)
+		}
+	}
+
 	finalConfig, err := yaml.Marshal(config)
 	if err != nil {
 		return "", err

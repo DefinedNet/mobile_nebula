@@ -134,6 +134,7 @@ class Site {
     val id: String
     val staticHostmap: HashMap<String, StaticHosts>
     val unsafeRoutes: List<UnsafeRoute>
+    val dnsResolvers: List<String>
     var cert: CertificateInfo? = null
     var ca: Array<CertificateInfo>
     val lhDuration: Int
@@ -165,6 +166,7 @@ class Site {
         id = incomingSite.id
         staticHostmap = incomingSite.staticHostmap
         unsafeRoutes = incomingSite.unsafeRoutes ?: ArrayList()
+        dnsResolvers = incomingSite.dnsResolvers ?: ArrayList()
         lhDuration = incomingSite.lhDuration
         port = incomingSite.port
         mtu = incomingSite.mtu ?: 1300
@@ -243,6 +245,7 @@ class IncomingSite(
     val id: String,
     val staticHostmap: HashMap<String, StaticHosts>,
     val unsafeRoutes: List<UnsafeRoute>?,
+    val dnsResolvers: List<String>?,
     val cert: String,
     val ca: String,
     val lhDuration: Int,
