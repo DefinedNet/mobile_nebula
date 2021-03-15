@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"runtime"
 	"runtime/debug"
 
 	"github.com/sirupsen/logrus"
@@ -16,6 +17,11 @@ import (
 type Nebula struct {
 	c *nebula.Control
 	l *logrus.Logger
+}
+
+func init() {
+	// Reduces memory utilization according to https://twitter.com/felixge/status/1355846360562589696?s=20
+	runtime.MemProfileRate = 0
 }
 
 func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebula, error) {
