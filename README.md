@@ -5,6 +5,14 @@
 - [`android-studio`](https://developer.android.com/studio)
 - [Enable NDK](https://developer.android.com/studio/projects/install-ndk) Check local.properties for current NDK version
 
+Downgrade flutter to a 1.x release (the following worked on an AUR install of `flutter`)
+
+```
+cd $(dirname $(readlink $(which flutter)))
+git checkout 1.22.6
+flutter doctor
+```
+
 Copy env.sh.example to env.sh and update your PATH variable to expose both flutter and go bin directories
 
   ```export PATH="$PATH:/path/to/go/bin:/path/to/flutter/bin```

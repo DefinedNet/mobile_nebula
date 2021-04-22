@@ -66,6 +66,7 @@ android {
 
             // We are disabling minification and proguard because it wrecks the crypto for storing keys
             // Ideally we would turn these on. We had issues with gson as well but resolved those with proguardFiles
+            shrinkResources false
             minifyEnabled false
             useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
