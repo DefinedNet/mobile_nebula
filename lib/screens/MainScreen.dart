@@ -176,7 +176,7 @@ mUOcsdFcCZiXrj7ryQIG1+WfqA46w71A/lV4nAc=
           name: "DEBUG TEST",
           id: uuid.v4(),
           staticHostmap: {
-            "10.1.0.1": StaticHost(lighthouse: true, destinations: [IPAndPort(ip: '10.1.1.53', port: 4242)])
+            "10.1.0.1": StaticHost(lighthouse: true, destinations: [IPAndPort(ip: '10.1.1.53', port: 4242), IPAndPort(ip: '1::1', port: 4242)])
           },
           ca: [CertificateInfo.debug(rawCert: ca)],
           cert: CertificateInfo.debug(rawCert: cert),
@@ -207,7 +207,7 @@ rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
     bool hasErrors = false;
 
     sites = [];
-    rawSites.values.forEach((rawSite) {
+    rawSites.forEach((id, rawSite) {
       try {
         var site = Site.fromJson(rawSite);
         if (site.errors.length > 0) {
@@ -227,7 +227,9 @@ rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
         sites.add(site);
       } catch (err) {
         //TODO: handle error
-        print(err);
+        print("$err site config: $rawSite");
+        // Sometimes it is helpful to just nuke these is dev
+        // platform.invokeMethod('deleteSite', id);
       }
     });
 

@@ -40,8 +40,7 @@ class UDPAddress {
 
   @override
   String toString() {
-    //TODO: This is a pretty terrible way to determing ipv6 addresses. Better to just have control.go string this for us
-    //TODO: since we really don't need to reason about ports
+    // Simple check on if nebula told us about a v4 or v6 ip address
     if (ip.contains(':')) {
       return '[$ip]:$port';
     }

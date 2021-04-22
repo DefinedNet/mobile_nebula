@@ -1,17 +1,14 @@
-class IPAndPort {
-  IPAndPort({this.ip, this.port}) {
-    if (ip != null && ip.contains(':')) {
-      this._v6 = true;
-    }
-  }
+import 'dart:io';
 
+class IPAndPort {
   String ip;
   int port;
-  bool _v6 = false;
+
+  IPAndPort({this.ip, this.port});
 
   @override
   String toString() {
-    if (_v6) {
+    if (ip.contains(':')) {
       return '[$ip]:$port';
     }
 
@@ -23,19 +20,9 @@ class IPAndPort {
   }
 
   IPAndPort.fromString(String val) {
-    //TODO: This is a horrible ip and port parsing scheme, dart lacks a proper one, need to port a real one from another language
-    final parts = val.split(':');
-    if (parts.length < 2) {
-      throw 'Invalid IPAndPort string';
-    }
-
-    port = int.parse(parts[parts.length - 1]);
-
-    if (parts.length > 2) {
-      _v6 = true;
-      ip = parts.getRange(0, parts.length - 2).join(':');
-    } else {
-      ip = parts[0];
-    }
+    //TODO: Uri.parse is as close as I could get to parsing both ipv4 and v6 addresses with a port without bringing a whole mess of code into here
+    final uri = Uri.parse("ugh://$val");
+    this.ip = uri.host;
+    this.port = uri.port;
   }
 }
