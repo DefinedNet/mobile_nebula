@@ -108,7 +108,8 @@ class NebulaVpnService : VpnService() {
         }
 
         registerNetworkCallback()
-        registerSleep()
+        //TODO: There is an open discussion around sleep killing tunnels or just changing mobile to tear down stale tunnels
+        //registerSleep()
         
         nebula!!.start()
         running = true
