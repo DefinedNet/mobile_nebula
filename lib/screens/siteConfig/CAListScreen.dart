@@ -189,25 +189,19 @@ class _CAListScreenState extends State<CAListScreen> {
           ConfigButtonItem(
               content: Text('Choose a file'),
               onPressed: () async {
-                final file = await FilePicker.getFile();
-                if (file == null) {
-                  return;
-                }
-
-                var content = "";
                 try {
-                  content = file.readAsStringSync();
+                  final content = await Utils.pickFile(context);
+                  _addCAEntry(content, (err) {
+                    if (err != null) {
+                      Utils.popError(context, 'Error loading CA file', err);
+                    } else {
+                      setState(() {});
+                    }
+                  });
+
                 } catch (err) {
                   return Utils.popError(context, 'Failed to load CA file', err.toString());
                 }
-
-                _addCAEntry(content, (err) {
-                  if (err != null) {
-                    Utils.popError(context, 'Error loading CA file', err);
-                  } else {
-                    setState(() {});
-                  }
-                });
               })
         ],
       )

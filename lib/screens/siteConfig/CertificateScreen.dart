@@ -219,34 +219,18 @@ class _CertificateScreenState extends State<CertificateScreen> {
           ConfigButtonItem(
               content: Center(child: Text('Choose a file')),
               onPressed: () async {
-                var file;
                 try {
-                  await FilePicker.clearTemporaryFiles();
-                  file = await FilePicker.getFile();
-
-                  if (file == null) {
-                    print('GOT A NULL');
-                    return;
-                  }
+                  final content = await Utils.pickFile(context);
+                  _addCertEntry(content, (err) {
+                    if (err != null) {
+                      Utils.popError(context, 'Error loading certificate file', err);
+                    } else {
+                      setState(() {});
+                    }
+                  });
                 } catch (err) {
-                  print('HEY $err');
+                  return Utils.popError(context, 'Failed to load certificate file', err.toString());
                 }
-
-                var content = "";
-                try {
-                  content = file.readAsStringSync();
-                } catch (err) {
-                  print('CAUGH IN READ ${file}');
-                  return Utils.popError(context, 'Failed to load CA file', err.toString());
-                }
-
-                _addCertEntry(content, (err) {
-                  if (err != null) {
-                    Utils.popError(context, 'Error loading certificate file', err);
-                  } else {
-                    setState(() {});
-                  }
-                });
               })
         ],
       )

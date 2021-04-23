@@ -21,21 +21,5 @@ class ConfigButtonItem extends StatelessWidget {
           constraints: BoxConstraints(minHeight: Utils.minInteractiveSize, minWidth: double.infinity),
           child: Center(child: content),
         ));
-
-    return Container(
-        color: Utils.configItemBackground(context),
-        constraints: BoxConstraints(minHeight: Utils.minInteractiveSize, minWidth: double.infinity),
-        child: PlatformButton(
-          androidFlat: (_) => MaterialFlatButtonData(
-              textTheme: ButtonTextTheme.normal, padding: EdgeInsets.zero, shape: RoundedRectangleBorder()),
-          ios: (_) => CupertinoButtonData(padding: EdgeInsets.zero, borderRadius: BorderRadius.zero),
-          padding: EdgeInsets.symmetric(vertical: 7),
-          child: content,
-          onPressed: () {
-            if (onPressed != null) {
-              onPressed();
-            }
-          },
-        ));
   }
 }

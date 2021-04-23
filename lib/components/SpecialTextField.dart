@@ -108,7 +108,7 @@ class _SpecialTextFieldState extends State<SpecialTextField> {
             },
             expands: widget.expands,
             inputFormatters: formatters,
-            android: (_) => MaterialTextFieldData(
+            material: (_, __) => MaterialTextFieldData(
                 decoration: InputDecoration(
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.zero,
@@ -116,7 +116,7 @@ class _SpecialTextFieldState extends State<SpecialTextField> {
                     hintText: widget.placeholder,
                     counterText: '',
                     suffix: widget.suffix)),
-            ios: (_) => CupertinoTextFieldData(
+            cupertino: (_, __) => CupertinoTextFieldData(
                 decoration: BoxDecoration(),
                 padding: EdgeInsets.zero,
                 placeholder: widget.placeholder,

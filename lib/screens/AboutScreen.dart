@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -40,7 +38,7 @@ class _AboutScreenState extends State<AboutScreen> {
   Widget build(BuildContext context) {
     if (!ready) {
       return Center(
-        child: PlatformCircularProgressIndicator(ios: (_) {
+        child: PlatformCircularProgressIndicator(cupertino: (_, __) {
           return CupertinoProgressIndicatorData(radius: 50);
         }),
       );

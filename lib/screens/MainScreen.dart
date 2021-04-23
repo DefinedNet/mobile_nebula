@@ -72,7 +72,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildBody() {
     if (!ready) {
       return Center(
-        child: PlatformCircularProgressIndicator(ios: (_) {
+        child: PlatformCircularProgressIndicator(cupertino: (_, __) {
           return CupertinoProgressIndicatorData(radius: 50);
         }),
       );
