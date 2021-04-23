@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/SpecialTextField.dart';
 import '../services/utils.dart';
 
@@ -51,7 +50,7 @@ class IPField extends StatelessWidget {
           maxLengthEnforced: ipOnly ? true : false,
           inputFormatters: ipOnly
               ? [IPTextInputFormatter()]
-              : [WhitelistingTextInputFormatter(RegExp(r'[^\s]+'))],
+              : [FilteringTextInputFormatter.allow(RegExp(r'[^\s]+'))],
           textInputAction: this.textInputAction,
           placeholder: help,
         ));

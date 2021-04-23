@@ -1,11 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/FormPage.dart';
 import 'package:mobile_nebula/components/config/ConfigCheckboxItem.dart';
 import 'package:mobile_nebula/components/config/ConfigSection.dart';
-import 'package:mobile_nebula/services/utils.dart';
 
 class CipherScreen extends StatefulWidget {
   const CipherScreen({Key key, this.cipher, @required this.onSave}) : super(key: key);

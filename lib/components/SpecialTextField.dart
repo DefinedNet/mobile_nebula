@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
+//TODO: please let us delete this file
+
 /// A normal TextField or CupertinoTextField that watches for copy, paste, cut, or select all keyboard actions
 class SpecialTextField extends StatefulWidget {
   const SpecialTextField(
@@ -74,7 +76,7 @@ class _SpecialTextFieldState extends State<SpecialTextField> {
   void initState() {
     formatters = widget.inputFormatters;
     if (formatters == null || formatters.length == 0) {
-      formatters = [WhitelistingTextInputFormatter(RegExp(r'[^\t]'))];
+      formatters = [FilteringTextInputFormatter.allow(RegExp(r'[^\t]'))];
     }
 
     super.initState();

@@ -128,7 +128,7 @@ class Utils {
         builder: (context) {
           if (Platform.isAndroid) {
             return AlertDialog(title: Text(title), content: Text(error), actions: <Widget>[
-              FlatButton(
+              TextButton(
                 child: Text('Ok'),
                 onPressed: () {
                   Navigator.of(context).pop();

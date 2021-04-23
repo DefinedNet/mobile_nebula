@@ -77,7 +77,7 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                     suffix: Text("seconds"),
                     textAlign: TextAlign.right,
                     maxLength: 5,
-                    inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     onSaved: (val) {
                       setState(() {
                         settings.lhDuration = int.parse(val);
@@ -93,7 +93,7 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.right,
                     maxLength: 5,
-                    inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     onSaved: (val) {
                       setState(() {
                         settings.port = int.parse(val);
@@ -108,7 +108,7 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.right,
                     maxLength: 5,
-                    inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     onSaved: (val) {
                       setState(() {
                         settings.mtu = int.parse(val);
