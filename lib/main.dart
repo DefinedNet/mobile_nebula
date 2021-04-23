@@ -85,12 +85,12 @@ class _AppState extends State<App> {
             DefaultCupertinoLocalizations.delegate,
           ],
           title: 'Nebula',
-          android: (_) {
+          material: (_, __) {
             return new MaterialAppData(
               themeMode: brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
             );
           },
-          ios: (_) => CupertinoAppData(
+          cupertino: (_, __) => CupertinoAppData(
             theme: CupertinoThemeData(brightness: brightness),
           ),
           home: MainScreen(),

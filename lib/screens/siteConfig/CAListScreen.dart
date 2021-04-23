@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:barcode_scan/barcode_scan.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -189,25 +188,23 @@ class _CAListScreenState extends State<CAListScreen> {
           ConfigButtonItem(
               content: Text('Choose a file'),
               onPressed: () async {
-                final file = await FilePicker.getFile();
-                if (file == null) {
-                  return;
-                }
-
-                var content = "";
                 try {
-                  content = file.readAsStringSync();
+                  final content = await Utils.pickFile(context);
+                  if (content == null) {
+                    return;
+                  }
+
+                  _addCAEntry(content, (err) {
+                    if (err != null) {
+                      Utils.popError(context, 'Error loading CA file', err);
+                    } else {
+                      setState(() {});
+                    }
+                  });
+
                 } catch (err) {
                   return Utils.popError(context, 'Failed to load CA file', err.toString());
                 }
-
-                _addCAEntry(content, (err) {
-                  if (err != null) {
-                    Utils.popError(context, 'Error loading CA file', err);
-                  } else {
-                    setState(() {});
-                  }
-                });
               })
         ],
       )

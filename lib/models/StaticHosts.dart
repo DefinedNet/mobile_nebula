@@ -10,7 +10,7 @@ class StaticHost {
     lighthouse = json['lighthouse'];
 
     var list = json['destinations'] as List<dynamic>;
-    var result = List<IPAndPort>();
+    var result = <IPAndPort>[];
 
     list.forEach((item) {
       result.add(IPAndPort.fromString(item));

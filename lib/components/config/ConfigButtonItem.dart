@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/SpecialButton.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
@@ -20,22 +19,6 @@ class ConfigButtonItem extends StatelessWidget {
         child: Container(
           constraints: BoxConstraints(minHeight: Utils.minInteractiveSize, minWidth: double.infinity),
           child: Center(child: content),
-        ));
-
-    return Container(
-        color: Utils.configItemBackground(context),
-        constraints: BoxConstraints(minHeight: Utils.minInteractiveSize, minWidth: double.infinity),
-        child: PlatformButton(
-          androidFlat: (_) => MaterialFlatButtonData(
-              textTheme: ButtonTextTheme.normal, padding: EdgeInsets.zero, shape: RoundedRectangleBorder()),
-          ios: (_) => CupertinoButtonData(padding: EdgeInsets.zero, borderRadius: BorderRadius.zero),
-          padding: EdgeInsets.symmetric(vertical: 7),
-          child: content,
-          onPressed: () {
-            if (onPressed != null) {
-              onPressed();
-            }
-          },
         ));
   }
 }

@@ -20,7 +20,7 @@ class _Hostmap {
   bool lighthouse;
 
   _Hostmap({this.focusNode, this.nebulaIp, destinations, this.lighthouse})
-      : destinations = destinations ?? List<IPAndPort>();
+      : destinations = destinations ?? <IPAndPort>[];
 }
 
 class StaticHostsScreen extends StatefulWidget {

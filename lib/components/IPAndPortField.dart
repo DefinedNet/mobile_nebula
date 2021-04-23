@@ -93,7 +93,7 @@ class _IPAndPortFieldState extends State<IPAndPortField> {
               widget.onChanged(_ipAndPort);
             },
             maxLength: 5,
-            inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             textInputAction: TextInputAction.done,
             placeholder: 'port',
           ))

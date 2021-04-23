@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -127,7 +128,7 @@ class Utils {
         builder: (context) {
           if (Platform.isAndroid) {
             return AlertDialog(title: Text(title), content: Text(error), actions: <Widget>[
-              FlatButton(
+              TextButton(
                 child: Text('Ok'),
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -162,5 +163,16 @@ class Utils {
   static int ip2int(String ip) {
     final parts = ip.split('.');
     return int.parse(parts[3]) | int.parse(parts[2]) << 8 | int.parse(parts[1]) << 16 | int.parse(parts[0]) << 24;
+  }
+
+  static Future<String> pickFile(BuildContext context) async {
+    await FilePicker.platform.clearTemporaryFiles();
+    final result = await FilePicker.platform.pickFiles(allowMultiple: false);
+    if (result == null) {
+      return null;
+    }
+
+    final file = File(result.files.first.path);
+    return file.readAsString();
   }
 }

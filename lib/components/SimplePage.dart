@@ -96,7 +96,7 @@ class SimplePage extends StatelessWidget {
           title: Text(title),
           leading: leadingAction != null ? leadingAction : Utils.leadingBackWidget(context),
           trailingActions: trailingActions,
-          ios: (_) => CupertinoNavigationBarData(
+          cupertino: (_, __) => CupertinoNavigationBarData(
             transitionBetweenRoutes: false,
           ),
         ),
