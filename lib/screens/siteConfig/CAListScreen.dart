@@ -190,6 +190,10 @@ class _CAListScreenState extends State<CAListScreen> {
               onPressed: () async {
                 try {
                   final content = await Utils.pickFile(context);
+                  if (content == null) {
+                    return;
+                  }
+
                   _addCAEntry(content, (err) {
                     if (err != null) {
                       Utils.popError(context, 'Error loading CA file', err);

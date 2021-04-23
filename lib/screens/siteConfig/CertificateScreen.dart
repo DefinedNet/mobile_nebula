@@ -221,6 +221,10 @@ class _CertificateScreenState extends State<CertificateScreen> {
               onPressed: () async {
                 try {
                   final content = await Utils.pickFile(context);
+                  if (content == null) {
+                    return;
+                  }
+
                   _addCertEntry(content, (err) {
                     if (err != null) {
                       Utils.popError(context, 'Error loading certificate file', err);
