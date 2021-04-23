@@ -1,17 +1,22 @@
-// Inspired by https://github.com/suragch/string_validator/blob/master/lib/src/validator.dart
+import 'dart:io';
 
-final _ipv4 = RegExp(r'^(\d?\d?\d)\.(\d?\d?\d)\.(\d?\d?\d)\.(\d?\d?\d)$');
-
-bool ipValidator(str) {
-  if (str == null) {
+bool ipValidator(String str, bool enableIPV6) {
+  final ia = InternetAddress.tryParse(str);
+  if (ia == null) {
     return false;
   }
 
-  if (!_ipv4.hasMatch(str)) {
-    return false;
+  switch (ia.type) {
+    case InternetAddressType.IPv6: {
+      if (enableIPV6) {
+        return true;
+      }
+    }
+    break;
+
+    case InternetAddressType.IPv4: { return true; }
+    break;
   }
 
-  var parts = str.split('.');
-  parts.sort((a, b) => int.parse(a) - int.parse(b));
-  return int.parse(parts[3]) <= 255;
+  return false;
 }

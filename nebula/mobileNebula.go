@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net"
 	"strings"
 	"time"
@@ -122,15 +123,16 @@ func TestConfig(configData string, key string) error {
 		return err
 	}
 
-	config := nebula.NewConfig()
+	// We don't want to leak the config into the system logs
+	l := logrus.New()
+	l.SetOutput(bytes.NewBuffer([]byte{}))
+
+	config := nebula.NewConfig(l)
 	err = config.LoadString(yamlConfig)
 	if err != nil {
 		return fmt.Errorf("failed to load config: %s", err)
 	}
 
-	// We don't want to leak the config into the system logs
-	l := logrus.New()
-	l.SetOutput(bytes.NewBuffer([]byte{}))
 	_, err = nebula.Main(config, true, "", l, nil)
 	if err != nil {
 		switch v := err.(type) {
@@ -144,7 +146,11 @@ func TestConfig(configData string, key string) error {
 }
 
 func GetConfigSetting(configData string, setting string) string {
-	config := nebula.NewConfig()
+	// We don't want to leak the config into the system logs
+	l := logrus.New()
+	l.SetOutput(ioutil.Discard)
+
+	config := nebula.NewConfig(l)
 	config.LoadString(configData)
 	return config.GetString(setting, "")
 }

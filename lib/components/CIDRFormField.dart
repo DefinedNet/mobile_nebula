@@ -9,6 +9,7 @@ class CIDRFormField extends FormField<CIDR> {
   CIDRFormField({
     Key key,
     autoFocus = false,
+    enableIPV6 = false,
     focusNode,
     nextFocusNode,
     ValueChanged<CIDR> onChanged,
@@ -26,7 +27,7 @@ class CIDRFormField extends FormField<CIDR> {
                 return "Please fill out this field";
               }
 
-              if (!ipValidator(cidr.ip)) {
+              if (!ipValidator(cidr.ip, enableIPV6)) {
                 return 'Please enter a valid ip address';
               }
 

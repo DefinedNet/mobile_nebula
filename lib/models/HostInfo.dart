@@ -40,10 +40,15 @@ class UDPAddress {
 
   @override
   String toString() {
+    // Simple check on if nebula told us about a v4 or v6 ip address
+    if (ip.contains(':')) {
+      return '[$ip]:$port';
+    }
+
     return '$ip:$port';
   }
 
   UDPAddress.fromJson(Map<String, dynamic> json)
-    : ip = json['IP'],
-      port = json['Port'];
+      : ip = json['ip'],
+        port = json['port'];
 }

@@ -1,14 +1,17 @@
 package net.defined.mobile_nebula
 
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.net.ConnectivityManager
-import android.net.VpnService
+import android.content.IntentFilter
+import android.net.*
 import android.os.*
 import android.util.Log
+import androidx.annotation.RequiresApi
 import mobileNebula.CIDR
 import java.io.File
+
 
 class NebulaVpnService : VpnService() {
 
@@ -35,8 +38,8 @@ class NebulaVpnService : VpnService() {
     private var site: Site? = null
     private var nebula: mobileNebula.Nebula? = null
     private var vpnInterface: ParcelFileDescriptor? = null
+    private var didSleep = false
 
-    //TODO: bindService seems to be how to do IPC
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.getStringExtra("COMMAND") == "STOP") {
             stopVpn()
@@ -104,9 +107,53 @@ class NebulaVpnService : VpnService() {
             return stopSelf()
         }
 
+        registerNetworkCallback()
+        registerSleep()
+        
         nebula!!.start()
         running = true
         sendSimple(MSG_IS_RUNNING, if (running) 1 else 0)
+    }
+
+    // Used to detect network changes (wifi -> cell or vice versa) and rebinds the udp socket/updates LH
+    private fun registerNetworkCallback() {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        val builder = NetworkRequest.Builder()
+        builder.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+
+        connectivityManager.registerNetworkCallback(builder.build(),
+                object : ConnectivityManager.NetworkCallback () {
+                    override fun onAvailable(network: Network?) {
+                        super.onAvailable(network)
+                        nebula!!.rebind("network change")
+                    }
+
+                    override fun onLost(network: Network?) {
+                        super.onLost(network)
+                        nebula!!.rebind("network change")
+                    }
+                })
+    }
+
+    private fun registerSleep() {
+        val receiver: BroadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent?) {
+                val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+                if (pm.isDeviceIdleMode) {
+                    if (!didSleep) {
+                        nebula!!.sleep()
+                        //TODO: we may want to shut off our network change listener like we do with iOS, I haven't observed any issues with it yet though
+                    }
+                    didSleep = true
+                } else {
+                    nebula!!.rebind("android wake")
+                    didSleep = false
+                }
+            }
+        }
+
+        registerReceiver(receiver, IntentFilter(PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED))
     }
 
     private fun stopVpn() {

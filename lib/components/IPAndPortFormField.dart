@@ -11,6 +11,7 @@ class IPAndPortFormField extends FormField<IPAndPort> {
   IPAndPortFormField({
     Key key,
     ipOnly = false,
+    enableIPV6 = false,
     ipHelp = "ip address",
     autoFocus = false,
     focusNode,
@@ -32,7 +33,7 @@ class IPAndPortFormField extends FormField<IPAndPort> {
                 return "Please fill out this field";
               }
 
-              if (!ipValidator(ipAndPort.ip) && (!ipOnly && !dnsValidator(ipAndPort.ip))) {
+              if (!ipValidator(ipAndPort.ip, enableIPV6) && (!ipOnly && !dnsValidator(ipAndPort.ip))) {
                 return ipOnly ? 'Please enter a valid ip address' : 'Please enter a valid ip address or dns name';
               }
 

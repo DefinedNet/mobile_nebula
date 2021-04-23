@@ -1,13 +1,28 @@
 module github.com/DefinedNet/mobile_nebula/nebula
 
-go 1.14
+go 1.16
+
+// replace github.com/slackhq/nebula => /Volumes/T7/nate/src/github.com/slackhq/nebula
 
 require (
-	github.com/prometheus/common v0.7.0
-	github.com/sirupsen/logrus v1.4.2
-	github.com/slackhq/nebula v1.3.0
-	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
-	golang.org/x/mobile v0.0.0-20200801112145-973feb4309de // indirect
-	golang.org/x/tools v0.0.0-20200831203904-5a2aa26beb65 // indirect
-	gopkg.in/yaml.v2 v2.2.7
+	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
+	github.com/flynn/noise v1.0.0 // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/imdario/mergo v0.3.12 // indirect
+	github.com/miekg/dns v1.1.41 // indirect
+	github.com/nbrownus/go-metrics-prometheus v0.0.0-20210317214817-64743030013d // indirect
+	github.com/prometheus/client_golang v1.10.0 // indirect
+	github.com/prometheus/common v0.21.0 // indirect
+	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
+	github.com/sirupsen/logrus v1.8.1
+	github.com/slackhq/nebula v1.3.1-0.20210422202340-1deb5d98e836
+	github.com/songgao/water v0.0.0-20200317203138-2b4b6d7c09d8 // indirect
+	github.com/vishvananda/netlink v1.1.0 // indirect
+	github.com/vishvananda/netns v0.0.0-20210104183010-2eb08e3e575f // indirect
+	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b
+	golang.org/x/mobile v0.0.0-20210220033013-bdb1ca9a1e08 // indirect
+	golang.org/x/net v0.0.0-20210421230115-4e50805a0758 // indirect
+	golang.org/x/sys v0.0.0-20210421221651-33663a62ff08 // indirect
+	golang.org/x/term v0.0.0-20210422114643-f5beecf764ed // indirect
+	gopkg.in/yaml.v2 v2.4.0
 )

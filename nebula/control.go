@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"runtime"
 	"runtime/debug"
 
 	"github.com/sirupsen/logrus"
@@ -18,6 +19,11 @@ type Nebula struct {
 	l *logrus.Logger
 }
 
+func init() {
+	// Reduces memory utilization according to https://twitter.com/felixge/status/1355846360562589696?s=20
+	runtime.MemProfileRate = 0
+}
+
 func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebula, error) {
 	// GC more often, largely for iOS due to extension 15mb limit
 	debug.SetGCPercent(20)
@@ -27,18 +33,18 @@ func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebul
 		return nil, err
 	}
 
-	config := nebula.NewConfig()
-	err = config.LoadString(yamlConfig)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load config: %s", err)
-	}
-
 	l := logrus.New()
 	f, err := os.OpenFile(logFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return nil, err
 	}
 	l.SetOutput(f)
+
+	config := nebula.NewConfig(l)
+	err = config.LoadString(yamlConfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load config: %s", err)
+	}
 
 	//TODO: inject our version
 	c, err := nebula.Main(config, false, "", l, &tunFd)
@@ -56,6 +62,10 @@ func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebul
 	return &Nebula{c, l}, nil
 }
 
+func (n *Nebula) Log(v string) {
+	n.l.Println(v)
+}
+
 func (n *Nebula) Start() {
 	n.c.Start()
 }
@@ -68,7 +78,8 @@ func (n *Nebula) Stop() {
 	n.c.Stop()
 }
 
-func (n *Nebula) Rebind() {
+func (n *Nebula) Rebind(reason string) {
+	n.l.Infof("Rebinding UDP listener and updating lighthouses due to %s", reason)
 	n.c.RebindUDPServer()
 }
 
@@ -107,6 +118,12 @@ func (n *Nebula) SetRemoteForTunnel(vpnIp string, addr string) (string, error) {
 	}
 
 	return string(b), nil
+}
+
+func (n *Nebula) Sleep() {
+	if closed := n.c.CloseAllTunnels(true); closed > 0 {
+		n.l.WithField("tunnels", closed).Info("Sleep called, closed non lighthouse tunnels")
+	}
 }
 
 func stringIpToInt(ip string) uint32 {

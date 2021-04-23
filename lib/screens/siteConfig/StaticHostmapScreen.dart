@@ -52,6 +52,8 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
       _addDestination();
     }
 
+    // _addDestination() above sets us to changed, set it back to false since we are at the default state
+    changed = false;
     super.initState();
   }
 
@@ -147,6 +149,7 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
               child: IPAndPortFormField(
             ipHelp: 'public ip or name',
             ipTextAlign: TextAlign.end,
+            enableIPV6: true,
             noBorder: true,
             initialValue: dest.destination,
             onSaved: (v) {
