@@ -30,14 +30,14 @@ flutter_ios_podfile_setup
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
-
+  
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-  pod 'MMWormhole', '~> 2.0.0'
+  pod 'SwiftyJSON', '~> 5.0'
 end
 
 target 'NebulaNetworkExtension' do
-    use_frameworks!
-    pod 'MMWormhole', '~> 2.0.0'
+  use_frameworks!
+  pod 'SwiftyJSON', '~> 5.0'
 end
 
 post_install do |installer|

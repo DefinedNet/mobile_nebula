@@ -2,6 +2,7 @@ import UIKit
 import Flutter
 import MobileNebula
 import NetworkExtension
+import SwiftyJSON
 
 enum ChannelName {
     static let vpn = "net.defined.mobileNebula/NebulaVpnService"
@@ -141,7 +142,6 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
         
 #if targetEnvironment(simulator)
         let updater = self.sites?.getUpdater(id: id)
-        activeSite = updater?.getSite()
         updater?.update(connected: true)
 #else
         let container = self.sites?.getContainer(id: id)
@@ -188,9 +188,8 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     }
     
     func vpnRequest(command: String, arguments: Any?, result: @escaping FlutterResult) {
-        guard let args = arguments as? Dictionary<String, String> else { return result(NoArgumentsError()) }
-        guard let id = args["id"] else { return result(MissingArgumentError(message: "id is a required argument")) }
-        
+        guard let args = arguments as? Dictionary<String, Any> else { return result(NoArgumentsError()) }
+        guard let id = args["id"] as? String else { return result(MissingArgumentError(message: "id is a required argument")) }
         let container = sites?.getContainer(id: id)
         
         if container == nil {
@@ -205,7 +204,7 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
 
         if let session = container!.site.manager?.connection as? NETunnelProviderSession {
             do {
-                try session.sendProviderMessage(try JSONEncoder().encode(IPCRequest(command: command, arguments: args))) { data in
+                try session.sendProviderMessage(try JSONEncoder().encode(IPCRequest(command: command, arguments: JSON(args)))) { data in
                     if data == nil {
                         return result(nil)
                     }
@@ -216,7 +215,7 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
                     }
                     
                     if res.type == .success {
-                        return result(res.message?.any())
+                        return result(res.message?.object)
                     }
                     
                     return result(CallFailedError(message: res.message?.debugDescription ?? "Failed to convert error"))

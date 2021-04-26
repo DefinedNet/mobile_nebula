@@ -89,7 +89,7 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
         }),
         refreshController: refreshController,
         onRefresh: () async {
-          if (site.connected) {
+          if (site.connected && site.status == "Connected") {
             await _listHostmap();
           }
           refreshController.refreshCompleted();

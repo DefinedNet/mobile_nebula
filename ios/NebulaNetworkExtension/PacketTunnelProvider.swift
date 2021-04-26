@@ -1,6 +1,7 @@
 import NetworkExtension
 import MobileNebula
 import os.log
+import SwiftyJSON
 
 class PacketTunnelProvider: NEPacketTunnelProvider {
     private var networkMonitor: NWPathMonitor?
@@ -15,7 +16,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     // This is the system completionHandler, only set when we expect the UI to ask us to actually start so that errors can flow back to the UI
     private var startCompleter: ((Error?) -> Void)?
     
-    private func log(_ message: StaticString, _ args: CVarArg...) {
+    private func log(_ message: StaticString, _ args: Any...) {
         os_log(message, log: _log, args)
     }
     
@@ -194,7 +195,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                         
                     } else {
                         // Error response has
-                        completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .error, message: .string(error!.localizedDescription))))
+                        completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .error, message: JSON(error!.localizedDescription))))
                     }
                 }
             }
@@ -220,7 +221,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         }
         
         if (error != nil) {
-            completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .error, message: JSON.string(error?.localizedDescription ?? "Unknown error"))))
+            completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .error, message: JSON(error?.localizedDescription ?? "Unknown error"))))
         } else {
             completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .success, message: data)))
         }
@@ -229,24 +230,24 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private func listHostmap(pending: Bool) -> (JSON?, Error?) {
         var err: NSError?
         let res = nebula!.listHostmap(pending, error: &err)
-        return (JSON.string(res), err)
+        return (JSON(res), err)
     }
     
-    private func getHostInfo(args: Dictionary<String, Any>) -> (JSON?, Error?) {
+    private func getHostInfo(args: JSON) -> (JSON?, Error?) {
         var err: NSError?
-        let res = nebula!.getHostInfo(byVpnIp: args["vpnIp"] as? String, pending: args["pending"] as! Bool, error: &err)
-        return (JSON.string(res), err)
+        let res = nebula!.getHostInfo(byVpnIp: args["vpnIp"].string, pending: args["pending"].boolValue, error: &err)
+        return (JSON(res), err)
     }
     
-    private func setRemoteForTunnel(args: Dictionary<String, Any>) -> (JSON?, Error?) {
+    private func setRemoteForTunnel(args: JSON) -> (JSON?, Error?) {
         var err: NSError?
-        let res = nebula!.setRemoteForTunnel(args["vpnIp"] as? String, addr: args["addr"] as? String, error: &err)
-        return (JSON.string(res), err)
+        let res = nebula!.setRemoteForTunnel(args["vpnIp"].string, addr: args["addr"].string, error: &err)
+        return (JSON(res), err)
     }
     
-    private func closeTunnel(args: Dictionary<String, Any>) -> (JSON?, Error?) {
-        let res = nebula!.closeTunnel(args["vpnIp"] as? String)
-        return (JSON.bool(res), nil)
+    private func closeTunnel(args: JSON) -> (JSON?, Error?) {
+        let res = nebula!.closeTunnel(args["vpnIp"].string)
+        return (JSON(res), nil)
     }
 }
 

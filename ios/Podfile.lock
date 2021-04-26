@@ -39,9 +39,6 @@ PODS:
     - Flutter
   - FLAnimatedImage (1.0.12)
   - Flutter (1.0.0)
-  - MMWormhole (2.0.0):
-    - MMWormhole/Core (= 2.0.0)
-  - MMWormhole/Core (2.0.0)
   - MTBBarcodeScanner (5.0.11)
   - package_info (0.0.1):
     - Flutter
@@ -54,6 +51,7 @@ PODS:
     - FLAnimatedImage (>= 1.0.11)
     - SDWebImage/Core (~> 5.6)
   - SwiftProtobuf (1.8.0)
+  - SwiftyJSON (5.0.1)
   - url_launcher (0.0.1):
     - Flutter
 
@@ -61,9 +59,9 @@ DEPENDENCIES:
   - barcode_scan (from `.symlinks/plugins/barcode_scan/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
-  - MMWormhole (~> 2.0.0)
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
+  - SwiftyJSON (~> 5.0)
   - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
 
 SPEC REPOS:
@@ -71,11 +69,11 @@ SPEC REPOS:
     - DKImagePickerController
     - DKPhotoGallery
     - FLAnimatedImage
-    - MMWormhole
     - MTBBarcodeScanner
     - SDWebImage
     - SDWebImageFLPlugin
     - SwiftProtobuf
+    - SwiftyJSON
 
 EXTERNAL SOURCES:
   barcode_scan:
@@ -98,15 +96,15 @@ SPEC CHECKSUMS:
   file_picker: 3e6c3790de664ccf9b882732d9db5eaf6b8d4eb1
   FLAnimatedImage: 4a0b56255d9b05f18b6dd7ee06871be5d3b89e31
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
-  MMWormhole: 0cd3fd35a9118b2e2d762b499f54eeaace0be791
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   SDWebImage: 84000f962cbfa70c07f19d2234cbfcf5d779b5dc
   SDWebImageFLPlugin: 6c2295fb1242d44467c6c87dc5db6b0a13228fd8
   SwiftProtobuf: 2cbd9409689b7df170d82a92a33443c8e3e14a70
+  SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
 
-PODFILE CHECKSUM: e8d4fb1ed5b0713de2623a28dfae2585e15c0d00
+PODFILE CHECKSUM: 87c61886589bcc4c3c709db9ee22a607d81c4861
 
 COCOAPODS: 1.10.1
