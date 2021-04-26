@@ -2,7 +2,6 @@ import UIKit
 import Flutter
 import MobileNebula
 import NetworkExtension
-import MMWormhole
 
 enum ChannelName {
     static let vpn = "net.defined.mobileNebula/NebulaVpnService"
@@ -15,7 +14,6 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
     private var sites: Sites?
-    private var wormhole = MMWormhole(applicationGroupIdentifier: "group.net.defined.mobileNebula", optionalDirectory: "ipc")
     
     override func application(
         _ application: UIApplication,
@@ -30,9 +28,6 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
         sites = Sites(messenger: controller.binaryMessenger)
         let channel = FlutterMethodChannel(name: ChannelName.vpn, binaryMessenger: controller.binaryMessenger)
         
-        NSKeyedUnarchiver.setClass(IPCMessage.classForKeyedUnarchiver(), forClassName: "NebulaNetworkExtension.IPCMessage")
-        wormhole.listenForMessage(withIdentifier: "nebula", listener: self.wormholeListener)
-        
         channel.setMethodCallHandler({(call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
             switch call.method {
             case "nebula.parseCerts": return self.nebulaParseCerts(call: call, result: result)
@@ -45,11 +40,11 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
             case "startSite": return self.startSite(call: call, result: result)
             case "stopSite": return self.stopSite(call: call, result: result)
                 
-            case "active.listHostmap": self.activeListHostmap(call: call, result: result)
-            case "active.listPendingHostmap": self.activeListPendingHostmap(call: call, result: result)
-            case "active.getHostInfo": self.activeGetHostInfo(call: call, result: result)
-            case "active.setRemoteForTunnel": self.activeSetRemoteForTunnel(call: call, result: result)
-            case "active.closeTunnel": self.activeCloseTunnel(call: call, result: result)
+            case "active.listHostmap": self.vpnRequest(command: "listHostmap", arguments: call.arguments, result: result)
+            case "active.listPendingHostmap": self.vpnRequest(command: "listPendingHostmap", arguments: call.arguments, result: result)
+            case "active.getHostInfo": self.vpnRequest(command: "getHostInfo", arguments: call.arguments, result: result)
+            case "active.setRemoteForTunnel": self.vpnRequest(command: "setRemoteForTunnel", arguments: call.arguments, result: result)
+            case "active.closeTunnel": self.vpnRequest(command: "closeTunnel", arguments: call.arguments, result: result)
                 
             case "share": Share.share(call: call, result: result)
             case "shareFile": Share.shareFile(call: call, result: result)
@@ -143,12 +138,15 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     func startSite(call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let args = call.arguments as? Dictionary<String, String> else { return result(NoArgumentsError()) }
         guard let id = args["id"] else { return result(MissingArgumentError(message: "id is a required argument")) }
+        
 #if targetEnvironment(simulator)
         let updater = self.sites?.getUpdater(id: id)
+        activeSite = updater?.getSite()
         updater?.update(connected: true)
-        
 #else
-        let manager = self.sites?.getSite(id: id)?.manager
+        let container = self.sites?.getContainer(id: id)
+        let manager = container?.site.manager
+
         manager?.loadFromPreferences{ error in
             //TODO: Handle load error
             // This is silly but we need to enable the site each time to avoid situations where folks have multiple sites
@@ -158,12 +156,13 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
                 manager?.loadFromPreferences{ error in
                     //TODO: Handle load error
                     do {
-                        try manager?.connection.startVPNTunnel()
+                        container?.updater.startFunc = {() -> Void in
+                            return self.vpnRequest(command: "start", arguments: args, result: result)
+                        }
+                        try manager?.connection.startVPNTunnel(options: ["expectStart": NSNumber(1)])
                     } catch {
                         return result(CallFailedError(message: "Could not start site", details: error.localizedDescription))
                     }
-                    
-                    return result(nil)
                 }
             }
         }
@@ -188,120 +187,47 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
 #endif
     }
     
-    func activeListHostmap(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let args = call.arguments as? Dictionary<String, String> else { return result(NoArgumentsError()) }
+    func vpnRequest(command: String, arguments: Any?, result: @escaping FlutterResult) {
+        guard let args = arguments as? Dictionary<String, String> else { return result(NoArgumentsError()) }
         guard let id = args["id"] else { return result(MissingArgumentError(message: "id is a required argument")) }
-        //TODO: match id for safety?
-        wormholeRequestWithCallback(type: "listHostmap", arguments: nil) { (data, err) -> () in
-            if (err != nil) {
-                return result(CallFailedError(message: err!.localizedDescription))
-            }
-            
-            result(data)
-        }
-    }
-    
-    func activeListPendingHostmap(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let args = call.arguments as? Dictionary<String, String> else { return result(NoArgumentsError()) }
-        guard let id = args["id"] else { return result(MissingArgumentError(message: "id is a required argument")) }
-        //TODO: match id for safety?
-        wormholeRequestWithCallback(type: "listPendingHostmap", arguments: nil) { (data, err) -> () in
-            if (err != nil) {
-                return result(CallFailedError(message: err!.localizedDescription))
-            }
-            
-            result(data)
-        }
-    }
-    
-    func activeGetHostInfo(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let args = call.arguments as? Dictionary<String, Any> else { return result(NoArgumentsError()) }
-        guard let id = args["id"] as? String else { return result(MissingArgumentError(message: "id is a required argument")) }
-        guard let vpnIp = args["vpnIp"] as? String else { return result(MissingArgumentError(message: "vpnIp is a required argument")) }
-        let pending = args["pending"] as? Bool ?? false
         
-        //TODO: match id for safety?
-        wormholeRequestWithCallback(type: "getHostInfo", arguments: ["vpnIp": vpnIp, "pending": pending]) { (data, err) -> () in
-            if (err != nil) {
-                return result(CallFailedError(message: err!.localizedDescription))
-            }
-            
-            result(data)
-        }
-    }
-    
-    func activeSetRemoteForTunnel(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let args = call.arguments as? Dictionary<String, String> else { return result(NoArgumentsError()) }
-        guard let id = args["id"] else { return result(MissingArgumentError(message: "id is a required argument")) }
-        guard let vpnIp = args["vpnIp"] else { return result(MissingArgumentError(message: "vpnIp is a required argument")) }
-        guard let addr = args["addr"] else { return result(MissingArgumentError(message: "addr is a required argument")) }
+        let container = sites?.getContainer(id: id)
         
-        //TODO: match id for safety?
-        wormholeRequestWithCallback(type: "setRemoteForTunnel", arguments: ["vpnIp": vpnIp, "addr": addr]) { (data, err) -> () in
-            if (err != nil) {
-                return result(CallFailedError(message: err!.localizedDescription))
-            }
-            
-            result(data)
-        }
-    }
-    
-    func activeCloseTunnel(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let args = call.arguments as? Dictionary<String, String> else { return result(NoArgumentsError()) }
-        guard let id = args["id"] else { return result(MissingArgumentError(message: "id is a required argument")) }
-        guard let vpnIp = args["vpnIp"] else { return result(MissingArgumentError(message: "vpnIp is a required argument")) }
-        
-        //TODO: match id for safety?
-        wormholeRequestWithCallback(type: "closeTunnel", arguments: ["vpnIp": vpnIp]) { (data, err) -> () in
-            if (err != nil) {
-                return result(CallFailedError(message: err!.localizedDescription))
-            }
-            
-            result(data as? Bool ?? false)
-        }
-    }
-    
-    func wormholeListener(msg: Any?) {
-        guard let call = msg as? IPCMessage else {
-            print("Failed to decode IPCMessage from network extension")
-            return
+        if container == nil {
+            // No site for this id
+            return result(nil)
         }
         
-        switch call.type {
-        case "error":
-            guard let updater = self.sites?.getUpdater(id: call.id) else {
-                return print("Could not find site to deliver error to \(call.id): \(String(describing: call.message))")
-            }
-            updater.setError(err: call.message as! String)
-            
-        default:
-            print("Unknown IPC message type \(call.type)")
+        if !(container!.site.connected ?? false) {
+            // Site isn't connected, no point in sending a command
+            return result(nil)
         }
-    }
-    
-    func wormholeRequestWithCallback(type: String, arguments: Dictionary<String, Any>?, completion: @escaping (Any?, Error?) -> ()) {
-        let uuid = UUID().uuidString
-    
-        wormhole.listenForMessage(withIdentifier: uuid) { msg -> () in
-            self.wormhole.stopListeningForMessage(withIdentifier: uuid)
-            
-            guard let call = msg as? IPCMessage else {
-                completion("", "Failed to decode IPCMessage callback from network extension")
-                return
+
+        if let session = container!.site.manager?.connection as? NETunnelProviderSession {
+            do {
+                try session.sendProviderMessage(try JSONEncoder().encode(IPCRequest(command: command, arguments: args))) { data in
+                    if data == nil {
+                        return result(nil)
+                    }
+                    
+                    //print(String(decoding: data!, as: UTF8.self))
+                    guard let res = try? JSONDecoder().decode(IPCResponse.self, from: data!) else {
+                        return result(CallFailedError(message: "Failed to decode response"))
+                    }
+                    
+                    if res.type == .success {
+                        return result(res.message?.any())
+                    }
+                    
+                    return result(CallFailedError(message: res.message?.debugDescription ?? "Failed to convert error"))
+                }
+            } catch {
+                return result(CallFailedError(message: error.localizedDescription))
             }
-            
-            switch call.type {
-            case "error":
-                completion("", call.message as? String ?? "Failed to convert error")
-            case "success":
-                completion(call.message, nil)
-                
-            default:
-                completion("", "Unknown IPC message type \(call.type)")
-            }
+        } else {
+            //TODO: we have a site without a manager, things have gone weird. How to handle since this shouldn't happen?
+            result(nil)
         }
-        
-        wormhole.passMessageObject(IPCRequest(callbackId: uuid, type: type, arguments: arguments), identifier: "app")
     }
 }
 

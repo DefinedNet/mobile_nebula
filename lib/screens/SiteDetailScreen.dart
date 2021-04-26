@@ -50,7 +50,6 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
     }
 
     onChange = site.onChange().listen((_) {
-      setState(() {});
       if (lastState != site.connected) {
         //TODO: connected is set before the nebula object exists leading to a crash race, waiting for "Connected" status is a gross hack but keeps it alive
         if (site.status == 'Connected') {
@@ -62,6 +61,8 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
           pendingHosts = null;
         }
       }
+      setState(() {});
+
     }, onError: (err) {
       setState(() {});
       Utils.popError(context, "Error", err);

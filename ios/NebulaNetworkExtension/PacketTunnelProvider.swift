@@ -1,7 +1,6 @@
 import NetworkExtension
 import MobileNebula
 import os.log
-import MMWormhole
 
 class PacketTunnelProvider: NEPacketTunnelProvider {
     private var networkMonitor: NWPathMonitor?
@@ -9,16 +8,32 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     
     private var site: Site?
     private var _log = OSLog(subsystem: "net.defined.mobileNebula", category: "PacketTunnelProvider")
-    private var wormhole = MMWormhole(applicationGroupIdentifier: "group.net.defined.mobileNebula", optionalDirectory: "ipc")
     private var nebula: MobileNebulaNebula?
     private var didSleep = false
+    private var cachedRouteDescription: String?
+    
+    // This is the system completionHandler, only set when we expect the UI to ask us to actually start so that errors can flow back to the UI
+    private var startCompleter: ((Error?) -> Void)?
     
     private func log(_ message: StaticString, _ args: CVarArg...) {
         os_log(message, log: _log, args)
     }
     
-    override func startTunnel(options: [String : NSObject]?, completionHandler: @escaping (Error?) -> Void) {
-        NSKeyedUnarchiver.setClass(IPCRequest.classForKeyedUnarchiver(), forClassName: "Runner.IPCRequest")
+    override func startTunnel(options: [String : NSObject]?, completionHandler: @escaping (Error?) -> Void) {       
+        // There is currently no way to get initialization errors back to the UI via completionHandler here
+        // `expectStart` is sent only via the UI which means we should wait for the real start command which has another completion handler the UI can intercept
+        // In the end we need to call this completionHandler to inform the system of our state
+        if options?["expectStart"] != nil {
+            startCompleter = completionHandler
+            return
+        }
+        
+        // VPN is being booted out of band of the UI. Use the system completion handler as there will be nothing to route initialization errors to but we still need to report
+        // success/fail by the presence of an error or nil
+        start(completionHandler: completionHandler)
+    }
+    
+    private func start(completionHandler: @escaping (Error?) -> Void) {
         let proto = self.protocolConfiguration as! NETunnelProviderProtocol
         var config: Data
         var key: String
@@ -31,24 +46,19 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             log("Failed to render config from vpn object")
             return completionHandler(error)
         }
-        
+
         let _site = site!
         _log = OSLog(subsystem: "net.defined.mobileNebula:\(_site.name)", category: "PacketTunnelProvider")
-        
+
         do {
             key = try _site.getKey()
         } catch {
-            wormhole.passMessageObject(IPCMessage(id: _site.id, type: "error", message: error.localizedDescription), identifier: "nebula")
             return completionHandler(error)
         }
-        
-        startNetworkMonitor()
-        
+
         let fileDescriptor = (self.packetFlow.value(forKeyPath: "socket.fileDescriptor") as? Int32) ?? -1
         if fileDescriptor < 0 {
-            let msg = IPCMessage(id: _site.id, type: "error", message: "Starting tunnel failed: Could not determine file descriptor")
-            wormhole.passMessageObject(msg, identifier: "nebula")
-            return completionHandler(NSError())
+            return completionHandler("Starting tunnel failed: Could not determine file descriptor")
         }
 
         var ifnameSize = socklen_t(IFNAMSIZ)
@@ -61,48 +71,41 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
         // This is set to 127.0.0.1 because it has to be something..
         let tunnelNetworkSettings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: "127.0.0.1")
-        
+
         // Make sure our ip is routed to the tun device
         var err: NSError?
         let ipNet = MobileNebulaParseCIDR(_site.cert!.cert.details.ips[0], &err)
         if (err != nil) {
-            let msg = IPCMessage(id: _site.id, type: "error", message: err?.localizedDescription ?? "Unknown error from go MobileNebula.ParseCIDR - certificate")
-            self.wormhole.passMessageObject(msg, identifier: "nebula")
-            return completionHandler(err)
+            return completionHandler(err!)
         }
         tunnelNetworkSettings.ipv4Settings = NEIPv4Settings(addresses: [ipNet!.ip], subnetMasks: [ipNet!.maskCIDR])
         var routes: [NEIPv4Route] = [NEIPv4Route(destinationAddress: ipNet!.network, subnetMask: ipNet!.maskCIDR)]
-        
+
         // Add our unsafe routes
         _site.unsafeRoutes.forEach { unsafeRoute in
             let ipNet = MobileNebulaParseCIDR(unsafeRoute.route, &err)
             if (err != nil) {
-                let msg = IPCMessage(id: _site.id, type: "error", message: err?.localizedDescription ?? "Unknown error from go MobileNebula.ParseCIDR - unsafe routes")
-                self.wormhole.passMessageObject(msg, identifier: "nebula")
-                return completionHandler(err)
+                return completionHandler(err!)
             }
             routes.append(NEIPv4Route(destinationAddress: ipNet!.network, subnetMask: ipNet!.maskCIDR))
         }
-        
+
         tunnelNetworkSettings.ipv4Settings!.includedRoutes = routes
         tunnelNetworkSettings.mtu = _site.mtu as NSNumber
 
-        wormhole.listenForMessage(withIdentifier: "app", listener: self.wormholeListener)
         self.setTunnelNetworkSettings(tunnelNetworkSettings, completionHandler: {(error:Error?) in
             if (error != nil) {
-                let msg = IPCMessage(id: _site.id, type: "error", message: error?.localizedDescription ?? "Unknown setTunnelNetworkSettings error")
-                self.wormhole.passMessageObject(msg, identifier: "nebula")
-                return completionHandler(error)
+                return completionHandler(error!)
             }
-            
+
             var err: NSError?
             self.nebula = MobileNebulaNewNebula(String(data: config, encoding: .utf8), key, self.site!.logFile, Int(fileDescriptor), &err)
+            self.startNetworkMonitor()
+
             if err != nil {
-                let msg = IPCMessage(id: _site.id, type: "error", message: err?.localizedDescription ?? "Unknown error from go MobileNebula.Main")
-                self.wormhole.passMessageObject(msg, identifier: "nebula")
-                return completionHandler(err)
+                return completionHandler(err!)
             }
-            
+
             self.nebula!.start()
             completionHandler(nil)
         })
@@ -132,21 +135,80 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
         
     private func pathUpdate(path: Network.NWPath) {
-        //TODO: we can likely be smarter here and enumerate all the interfaces and their current addresses, only rebind if things changed
-        nebula?.rebind("network change")
+        let routeDescription = collectAddresses(endpoints: path.gateways)
+        if routeDescription != cachedRouteDescription {
+            // Don't bother to rebind if we don't have any gateways
+            if routeDescription != "" {
+                nebula?.rebind("network change to: \(routeDescription); from: \(cachedRouteDescription ?? "none")")
+            }
+            cachedRouteDescription = routeDescription
+        }
     }
     
-    private func wormholeListener(msg: Any?) {
-        guard let call = msg as? IPCRequest else {
+    private func collectAddresses(endpoints: [Network.NWEndpoint]) -> String {
+        var str: [String] = []
+        endpoints.forEach{ endpoint in
+            switch endpoint {
+            case let .hostPort(.ipv6(host), port):
+                str.append("[\(host)]:\(port)")
+            case let .hostPort(.ipv4(host), port):
+                str.append("\(host):\(port)")
+            default:
+                return
+            }
+        }
+        
+        return str.sorted().joined(separator: ", ")
+    }
+    
+    override func handleAppMessage(_ data: Data, completionHandler: ((Data?) -> Void)? = nil) {
+        guard let call = try? JSONDecoder().decode(IPCRequest.self, from: data) else {
             log("Failed to decode IPCRequest from network extension")
             return
         }
         
         var error: Error?
-        var data: Any?
+        var data: JSON?
+        
+        // start command has special treatment due to needing to call two completers
+        if call.command == "start" {
+            self.start() { error in
+                // Notify the system of our start result
+                if self.startCompleter != nil {
+                    if error == nil {
+                        // Clean boot, no errors
+                        self.startCompleter!(nil)
+                        
+                    } else {
+                        // We encountered an error, we can just pass NSError() here since ios throws it away
+                        // But we will provide it in the event we can intercept the error without doing this workaround sometime in the future
+                        self.startCompleter!(error!.localizedDescription)
+                    }
+                }
+                
+                // Notify the UI if we have a completionHandler
+                if completionHandler != nil {
+                    if error == nil {
+                        // No response data, this is expected on a clean start
+                        completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .success, message: nil)))
+                        
+                    } else {
+                        // Error response has
+                        completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .error, message: .string(error!.localizedDescription))))
+                    }
+                }
+            }
+            return
+        }
+        
+        if nebula == nil {
+            // Respond with an empty success message in the event a command comes in before we've truly started
+            log("Received command but do not have a nebula instance")
+            return completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .success, message: nil)))
+        }
         
         //TODO: try catch over all this
-        switch call.type {
+        switch call.command {
         case "listHostmap": (data, error) = listHostmap(pending: false)
         case "listPendingHostmap": (data, error) = listHostmap(pending: true)
         case "getHostInfo": (data, error) = getHostInfo(args: call.arguments!)
@@ -154,37 +216,37 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         case "closeTunnel": (data, error) = closeTunnel(args: call.arguments!)
             
         default:
-            error = "Unknown IPC message type \(call.type)"
+            error = "Unknown IPC message type \(call.command)"
         }
         
         if (error != nil) {
-            self.wormhole.passMessageObject(IPCMessage(id: "", type: "error", message: error!.localizedDescription), identifier: call.callbackId)
+            completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .error, message: JSON.string(error?.localizedDescription ?? "Unknown error"))))
         } else {
-            self.wormhole.passMessageObject(IPCMessage(id: "", type: "success", message: data), identifier: call.callbackId)
+            completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .success, message: data)))
         }
     }
     
-    private func listHostmap(pending: Bool) -> (String?, Error?) {
+    private func listHostmap(pending: Bool) -> (JSON?, Error?) {
         var err: NSError?
         let res = nebula!.listHostmap(pending, error: &err)
-        return (res, err)
+        return (JSON.string(res), err)
     }
     
-    private func getHostInfo(args: Dictionary<String, Any>) -> (String?, Error?) {
+    private func getHostInfo(args: Dictionary<String, Any>) -> (JSON?, Error?) {
         var err: NSError?
         let res = nebula!.getHostInfo(byVpnIp: args["vpnIp"] as? String, pending: args["pending"] as! Bool, error: &err)
-        return (res, err)
+        return (JSON.string(res), err)
     }
     
-    private func setRemoteForTunnel(args: Dictionary<String, Any>) -> (String?, Error?) {
+    private func setRemoteForTunnel(args: Dictionary<String, Any>) -> (JSON?, Error?) {
         var err: NSError?
         let res = nebula!.setRemoteForTunnel(args["vpnIp"] as? String, addr: args["addr"] as? String, error: &err)
-        return (res, err)
+        return (JSON.string(res), err)
     }
     
-    private func closeTunnel(args: Dictionary<String, Any>) -> (Bool?, Error?) {
+    private func closeTunnel(args: Dictionary<String, Any>) -> (JSON?, Error?) {
         let res = nebula!.closeTunnel(args["vpnIp"] as? String)
-        return (res, nil)
+        return (JSON.bool(res), nil)
     }
 }
 

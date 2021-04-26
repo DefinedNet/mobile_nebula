@@ -90,7 +90,7 @@ class Sites {
             try? fileManager.removeItem(at: sitePath)
 #else
             _ = KeyChain.delete(key: site.site.id)
-            site.site.manager.removeFromPreferences(completionHandler: callback)
+            site.site.manager!.removeFromPreferences(completionHandler: callback)
 #endif
         }
         
@@ -105,6 +105,10 @@ class Sites {
     func getUpdater(id: String) -> SiteUpdater? {
         return self.sites[id]?.updater
     }
+    
+    func getContainer(id: String) -> SiteContainer? {
+        return self.sites[id]
+    }
 }
 
 class SiteUpdater: NSObject, FlutterStreamHandler {
@@ -112,6 +116,7 @@ class SiteUpdater: NSObject, FlutterStreamHandler {
     private var eventChannel: FlutterEventChannel;
     private var site: Site
     private var notification: Any?
+    public var startFunc: (() -> Void)?
     
     init(messenger: FlutterBinaryMessenger, site: Site) {
         eventChannel = FlutterEventChannel(name: "net.defined.nebula/\(site.id)", binaryMessenger: messenger)
@@ -120,13 +125,20 @@ class SiteUpdater: NSObject, FlutterStreamHandler {
         eventChannel.setStreamHandler(self)
     }
     
+    /// onListen is called when flutter code attaches an event listener
     func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
         eventSink = events;
 
-        self.notification = NotificationCenter.default.addObserver(forName: NSNotification.Name.NEVPNStatusDidChange, object: site.manager.connection , queue: nil) { _ in
+        self.notification = NotificationCenter.default.addObserver(forName: NSNotification.Name.NEVPNStatusDidChange, object: site.manager!.connection , queue: nil) { n in
+            let connected = self.site.connected
+            self.site.status = statusString[self.site.manager!.connection.status]
+            self.site.connected = statusMap[self.site.manager!.connection.status]
             
-            self.site.status = statusString[self.site.manager.connection.status]
-            self.site.connected = statusMap[self.site.manager.connection.status]
+            // Check to see if we just moved to connected and if we have a start function to call when that happens
+            if self.site.connected! && connected != self.site.connected && self.startFunc != nil {
+                self.startFunc!()
+                self.startFunc = nil
+            }
             
             let d: Dictionary<String, Any> = [
                 "connected": self.site.connected!,
@@ -137,15 +149,8 @@ class SiteUpdater: NSObject, FlutterStreamHandler {
         
         return nil
     }
-    
-    func setError(err: String) {
-        let d: Dictionary<String, Any> = [
-            "connected": self.site.connected!,
-            "status": self.site.status!,
-        ]
-        self.eventSink?(FlutterError(code: "", message: err, details: d))
-    }
 
+    /// onCancel is called when the flutter listener stops listening
     func onCancel(withArguments arguments: Any?) -> FlutterError? {
         if (self.notification != nil) {
             NotificationCenter.default.removeObserver(self.notification!)
@@ -153,6 +158,7 @@ class SiteUpdater: NSObject, FlutterStreamHandler {
         return nil
     }
     
+    /// update is a way to send information to the flutter listener and generally should not be used directly
     func update(connected: Bool) {
         let d: Dictionary<String, Any> = [
             "connected": connected,

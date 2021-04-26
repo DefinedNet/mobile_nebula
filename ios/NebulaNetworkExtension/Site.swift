@@ -3,56 +3,124 @@ import MobileNebula
 
 extension String: Error {}
 
-class IPCMessage: NSObject, NSCoding {
-    var id: String
-    var type: String
-    var message: Any?
-    
-    func encode(with aCoder: NSCoder) {
-        aCoder.encode(id, forKey: "id")
-        aCoder.encode(type, forKey: "type")
-        aCoder.encode(message, forKey: "message")
+enum IPCResponseType: String, Codable {
+    case error = "error"
+    case success = "success"
+}
+
+// JSON extensions heavily influenced by https://github.com/zoul/generic-json-swift/blob/master/GenericJSON/JSON.swift
+
+enum JSON {
+    case string(String)
+    case number(Double)
+    case object([String:JSON])
+    case array([JSON])
+    case bool(Bool)
+    case null
+}
+
+extension JSON: Codable {
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+
+        switch self {
+        case let .array(array):
+            try container.encode(array)
+        case let .object(object):
+            try container.encode(object)
+        case let .string(string):
+            try container.encode(string)
+        case let .number(number):
+            try container.encode(number)
+        case let .bool(bool):
+            try container.encode(bool)
+        case .null:
+            try container.encodeNil()
+        }
     }
 
-    required init(coder aDecoder: NSCoder) {
-        id = aDecoder.decodeObject(forKey: "id") as! String
-        type = aDecoder.decodeObject(forKey: "type") as! String
-        message = aDecoder.decodeObject(forKey: "message") as Any?
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+
+        if let object = try? container.decode([String: JSON].self) {
+            self = .object(object)
+        } else if let array = try? container.decode([JSON].self) {
+            self = .array(array)
+        } else if let string = try? container.decode(String.self) {
+            self = .string(string)
+        } else if let bool = try? container.decode(Bool.self) {
+            self = .bool(bool)
+        } else if let number = try? container.decode(Double.self) {
+            self = .number(number)
+        } else if container.decodeNil() {
+            self = .null
+        } else {
+            throw DecodingError.dataCorrupted(
+                .init(codingPath: decoder.codingPath, debugDescription: "Invalid JSON value.")
+            )
+        }
     }
     
-    init(id: String, type: String, message: Any) {
-        self.id = id
+    func any() -> Any? {
+        switch self {
+        case let .array(array):
+            return array
+        case let .object(object):
+            return object
+        case let .string(string):
+            return string
+        case let .number(number):
+            return number
+        case let .bool(bool):
+            return bool
+        case .null:
+            return nil
+        }
+    }
+}
+
+
+extension JSON: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        switch self {
+        case .string(let str):
+            return str.debugDescription
+        case .number(let num):
+            return num.debugDescription
+        case .bool(let bool):
+            return bool.description
+        case .null:
+            return "null"
+        default:
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted]
+            return try! String(data: encoder.encode(self), encoding: .utf8)!
+        }
+    }
+}
+
+class IPCResponse: Codable {
+    var type: IPCResponseType
+    //TODO: change message to data?
+    var message: JSON?
+    
+    init(type: IPCResponseType, message: JSON?) {
         self.type = type
         self.message = message
     }
 }
 
-class IPCRequest: NSObject, NSCoding {
-    var type: String
-    var callbackId: String
-    var arguments: Dictionary<String, Any>?
+class IPCRequest: Codable {
+    var command: String
+    var arguments: Dictionary<String, String>?
     
-    func encode(with aCoder: NSCoder) {
-        aCoder.encode(type, forKey: "type")
-        aCoder.encode(arguments, forKey: "arguments")
-        aCoder.encode(callbackId, forKey: "callbackId")
-    }
-    
-    required init(coder aDecoder: NSCoder) {
-        callbackId = aDecoder.decodeObject(forKey: "callbackId") as! String
-        type = aDecoder.decodeObject(forKey: "type") as! String
-        arguments = aDecoder.decodeObject(forKey: "arguments") as? Dictionary<String, Any>
-    }
-    
-    init(callbackId: String, type: String, arguments: Dictionary<String, Any>?) {
-        self.callbackId = callbackId
-        self.type = type
+    init(command: String, arguments: Dictionary<String, String>?) {
+        self.command = command
         self.arguments = arguments
     }
     
-    init(callbackId: String, type: String) {
-        self.callbackId = callbackId
-        self.type = type
+    init(command: String) {
+        self.command = command
     }
 }
 
@@ -135,7 +203,7 @@ let statusString: Dictionary<NEVPNStatus, String> = [
 ]
 
 // Represents a site that was pulled out of the system configuration
-struct Site: Codable {
+class Site: Codable {
     // Stored in manager
     var name: String
     var id: String
@@ -151,18 +219,17 @@ struct Site: Codable {
     var cipher: String
     var sortKey: Int
     var logVerbosity: String
-    var connected: Bool?
+    var connected: Bool? //TODO: active is a better name
     var status: String?
     var logFile: String?
     
     // A list of error encountered when trying to rehydrate a site from config
     var errors: [String]
     
-    // We initialize to avoid an error with Codable, there is probably a better way since manager must be present for a Site but is not codable
-    var manager: NETunnelProviderManager = NETunnelProviderManager()
+    var manager: NETunnelProviderManager?
     
     // Creates a new site from a vpn manager instance
-    init(manager: NETunnelProviderManager) throws {
+    convenience init(manager: NETunnelProviderManager) throws {
         //TODO: Throw an error and have Sites delete the site, notify the user instead of using !
         let proto = manager.protocolConfiguration as! NETunnelProviderProtocol
         try self.init(proto: proto)
@@ -171,7 +238,7 @@ struct Site: Codable {
         self.status = statusString[manager.connection.status]
     }
     
-    init(proto: NETunnelProviderProtocol) throws {
+    convenience init(proto: NETunnelProviderProtocol) throws {
         let dict = proto.providerConfiguration
         let config = dict?["config"] as? Data ?? Data()
         let decoder = JSONDecoder()
