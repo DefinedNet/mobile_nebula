@@ -185,8 +185,7 @@ class Site {
     try {
       await platform.invokeMethod("startSite", <String, String>{"id": id});
     } on PlatformException catch (err) {
-      //TODO: fix this message
-      throw err.details ?? err.message ?? err.toString();
+      throw err.message ?? err.toString();
     } catch (err) {
       throw err.toString();
     }

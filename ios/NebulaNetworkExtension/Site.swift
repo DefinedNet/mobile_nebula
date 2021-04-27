@@ -1,58 +1,36 @@
 import NetworkExtension
 import MobileNebula
+import SwiftyJSON
 
 extension String: Error {}
 
-class IPCMessage: NSObject, NSCoding {
-    var id: String
-    var type: String
-    var message: Any?
-    
-    func encode(with aCoder: NSCoder) {
-        aCoder.encode(id, forKey: "id")
-        aCoder.encode(type, forKey: "type")
-        aCoder.encode(message, forKey: "message")
-    }
+enum IPCResponseType: String, Codable {
+    case error = "error"
+    case success = "success"
+}
 
-    required init(coder aDecoder: NSCoder) {
-        id = aDecoder.decodeObject(forKey: "id") as! String
-        type = aDecoder.decodeObject(forKey: "type") as! String
-        message = aDecoder.decodeObject(forKey: "message") as Any?
-    }
+class IPCResponse: Codable {
+    var type: IPCResponseType
+    //TODO: change message to data?
+    var message: JSON?
     
-    init(id: String, type: String, message: Any) {
-        self.id = id
+    init(type: IPCResponseType, message: JSON?) {
         self.type = type
         self.message = message
     }
 }
 
-class IPCRequest: NSObject, NSCoding {
-    var type: String
-    var callbackId: String
-    var arguments: Dictionary<String, Any>?
+class IPCRequest: Codable {
+    var command: String
+    var arguments: JSON?
     
-    func encode(with aCoder: NSCoder) {
-        aCoder.encode(type, forKey: "type")
-        aCoder.encode(arguments, forKey: "arguments")
-        aCoder.encode(callbackId, forKey: "callbackId")
-    }
-    
-    required init(coder aDecoder: NSCoder) {
-        callbackId = aDecoder.decodeObject(forKey: "callbackId") as! String
-        type = aDecoder.decodeObject(forKey: "type") as! String
-        arguments = aDecoder.decodeObject(forKey: "arguments") as? Dictionary<String, Any>
-    }
-    
-    init(callbackId: String, type: String, arguments: Dictionary<String, Any>?) {
-        self.callbackId = callbackId
-        self.type = type
+    init(command: String, arguments: JSON?) {
+        self.command = command
         self.arguments = arguments
     }
     
-    init(callbackId: String, type: String) {
-        self.callbackId = callbackId
-        self.type = type
+    init(command: String) {
+        self.command = command
     }
 }
 
@@ -135,7 +113,7 @@ let statusString: Dictionary<NEVPNStatus, String> = [
 ]
 
 // Represents a site that was pulled out of the system configuration
-struct Site: Codable {
+class Site: Codable {
     // Stored in manager
     var name: String
     var id: String
@@ -151,18 +129,17 @@ struct Site: Codable {
     var cipher: String
     var sortKey: Int
     var logVerbosity: String
-    var connected: Bool?
+    var connected: Bool? //TODO: active is a better name
     var status: String?
     var logFile: String?
     
     // A list of error encountered when trying to rehydrate a site from config
     var errors: [String]
     
-    // We initialize to avoid an error with Codable, there is probably a better way since manager must be present for a Site but is not codable
-    var manager: NETunnelProviderManager = NETunnelProviderManager()
+    var manager: NETunnelProviderManager?
     
     // Creates a new site from a vpn manager instance
-    init(manager: NETunnelProviderManager) throws {
+    convenience init(manager: NETunnelProviderManager) throws {
         //TODO: Throw an error and have Sites delete the site, notify the user instead of using !
         let proto = manager.protocolConfiguration as! NETunnelProviderProtocol
         try self.init(proto: proto)
@@ -171,7 +148,7 @@ struct Site: Codable {
         self.status = statusString[manager.connection.status]
     }
     
-    init(proto: NETunnelProviderProtocol) throws {
+    convenience init(proto: NETunnelProviderProtocol) throws {
         let dict = proto.providerConfiguration
         let config = dict?["config"] as? Data ?? Data()
         let decoder = JSONDecoder()
