@@ -233,6 +233,11 @@ rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
       }
     });
 
+    if (Platform.isAndroid) {
+      // Android suffers from a race to discover the active site and attach site specific event listeners
+      platform.invokeMethod("android.registerActiveSite");
+    }
+
     if (hasErrors) {
       Utils.popError(context, "Site Error(s)", "1 or more sites have errors and need your attention, problem sites have a red border.");
     }

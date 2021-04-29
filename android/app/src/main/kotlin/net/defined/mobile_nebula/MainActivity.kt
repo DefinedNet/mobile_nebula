@@ -39,15 +39,12 @@ class MainActivity: FlutterActivity() {
         //TODO: Initializing in the constructor leads to a context lacking info we need, figure out the right way to do this
         sites = Sites(flutterEngine)
         
-        // Bind against our service to detect which site is running on app boot
-        val intent = Intent(this, NebulaVpnService::class.java)
-        bindService(intent, connection, 0)
-        
         GeneratedPluginRegistrant.registerWith(flutterEngine);
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             when(call.method) {
                 "android.requestPermissions" -> androidPermissions(result)
+                "android.registerActiveSite" -> registerActiveSite(result)
 
                 "nebula.parseCerts" -> nebulaParseCerts(call, result)
                 "nebula.generateKeyPair" -> nebulaGenerateKeyPair(result)
@@ -71,6 +68,15 @@ class MainActivity: FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+    }
+
+    // This is called by the UI _after_ it has finished rendering the site list to avoid a race condition with detecting
+    // the current active site and attaching site specific event channels in the event the UI app was quit
+    private fun registerActiveSite(result: MethodChannel.Result) {
+        // Bind against our service to detect which site is running on app boot
+        val intent = Intent(this, NebulaVpnService::class.java)
+        bindService(intent, connection, 0)
+        result.success(null)
     }
 
     private fun nebulaParseCerts(call: MethodCall, result: MethodChannel.Result) {

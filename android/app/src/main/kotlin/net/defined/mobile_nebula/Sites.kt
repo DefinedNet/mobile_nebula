@@ -25,6 +25,7 @@ class Sites(private var engine: FlutterEngine) {
     fun refreshSites(activeSite: String? = null) {
         val context = MainActivity.getContext()!!
         val sitesDir = context.filesDir.resolve("sites")
+
         if (!sitesDir.isDirectory) {
             sitesDir.delete()
             sitesDir.mkdir()
