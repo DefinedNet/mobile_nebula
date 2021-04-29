@@ -10,7 +10,7 @@
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="Nebula"
+        android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher">
         <service android:name=".NebulaVpnService"
             android:permission="android.permission.BIND_VPN_SERVICE"

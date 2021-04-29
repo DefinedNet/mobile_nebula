@@ -48,3 +48,4 @@ lib/generated_plugin_registrant.dart
 /ios/Flutter/.last_build_id
 /local.properties
 /.gradle/
+*.keystore
