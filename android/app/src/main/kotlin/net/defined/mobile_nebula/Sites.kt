@@ -46,7 +46,7 @@ class Sites(private var engine: FlutterEngine) {
                 this.sites[site.id] = SiteContainer(site, updater)
 
             } catch (err: Exception) {
-                siteDir.deleteRecursively()
+//                siteDir.deleteRecursively()
                 Log.e(TAG, "Deleting non conforming site ${siteDir.absolutePath}", err)
             }
         }
@@ -101,9 +101,10 @@ class SiteUpdater(private var site: Site, engine: FlutterEngine): EventChannel.S
 }
 
 data class CertificateInfo(
-    @SerializedName("Cert") val cert: Certificate,
-    @SerializedName("RawCert") val rawCert: String,
-    @SerializedName("Validity") val validity: CertificateValidity
+        @SerializedName("Cert") val cert: Certificate,
+        @SerializedName("RawCert") val rawCert: String,
+        @SerializedName("Validity") val validity: CertificateValidity,
+        var primary: Boolean
 )
 
 data class Certificate(
@@ -134,8 +135,8 @@ class Site {
     val id: String
     val staticHostmap: HashMap<String, StaticHosts>
     val unsafeRoutes: List<UnsafeRoute>
-    var cert: CertificateInfo? = null
-    var ca: Array<CertificateInfo>
+    val certInfos: ArrayList<CertificateInfo> = ArrayList()
+    lateinit var caInfos: Array<CertificateInfo>
     val lhDuration: Int
     val port: Int
     val mtu: Int
@@ -154,6 +155,9 @@ class Site {
     // Strong representation of the site config
     @Expose(serialize = false)
     val config: String
+
+    @Expose(serialize = false)
+    lateinit var primaryCertInfo: CertificateInfo
     
     constructor(siteDir: File) {
         val gson = Gson()
@@ -176,26 +180,23 @@ class Site {
         connected = false
         status = "Disconnected"
 
-        try {
-            val rawDetails = mobileNebula.MobileNebula.parseCerts(incomingSite.cert)
-            val certs = gson.fromJson(rawDetails, Array<CertificateInfo>::class.java)
-            if (certs.isEmpty()) {
-                throw IllegalArgumentException("No certificate found")
+        incomingSite.certs?.forEach { certContainer ->
+            val certInfo = getCertDetails(certContainer.cert, gson) ?: return
+            certInfo.primary = certContainer.primary
+            if (certInfo.primary) {
+                this.primaryCertInfo = certInfo
             }
-            cert = certs[0]
-            if (!cert!!.validity.valid) {
-                errors.add("Certificate is invalid: ${cert!!.validity.reason}")
-            }
-
-        } catch (err: Exception) {
-            errors.add("Error while loading certificate: ${err.message}")
+            this.certInfos.add(certInfo)
         }
+
+        // Upgrade the old cert property if present
+        upgradeCert(incomingSite, gson)
 
         try {
             val rawCa = mobileNebula.MobileNebula.parseCerts(incomingSite.ca)
-            ca = gson.fromJson(rawCa, Array<CertificateInfo>::class.java)
+            caInfos = gson.fromJson(rawCa, Array<CertificateInfo>::class.java)
             var hasErrors = false
-            ca.forEach {
+            caInfos.forEach {
                 if (!it.validity.valid) {
                     hasErrors = true
                 }
@@ -206,7 +207,7 @@ class Site {
             }
 
         } catch (err: Exception) {
-            ca = arrayOf()
+            caInfos = arrayOf()
             errors.add("Error while loading certificate authorities: ${err.message}")
         }
 
@@ -219,8 +220,65 @@ class Site {
         }
     }
 
+    // Upgrades cert -> certs in the stored site config if needed
+    private fun upgradeCert(site: IncomingSite, gson: Gson) {
+        if (site.cert == null) {
+            // Nothing to do
+            return
+        }
+
+        val context = MainActivity.getContext()!!
+        // Try to get the details
+        val certInfo = getCertDetails(site.cert!!, gson) ?: return
+
+        // Push this cert in as the primary certificate
+        certInfo.primary
+        certInfos.add(certInfo)
+
+        // Upgrade the persisted object
+        site.cert = null
+        site.certs = arrayListOf(IncomingCert(certInfo.cert.fingerprint, certInfo.rawCert,true, null))
+
+        // Get the old key contents and delete the key
+        val oldKeyPath = File(path).resolve("key")
+        val oldKeyFile = EncFile(context).openRead(oldKeyPath)
+        val key = oldKeyFile.readText()
+        oldKeyFile.close()
+        oldKeyPath.delete()
+        // /data/data/net.defined.mobile_nebula/files/sites/8554c7fc-c2a5-4cba-9bc4-fe6e0eb3129a
+
+        // Write to the new path
+        val newKeyFile = EncFile(context).openWrite(File(path).resolve("key.${certInfo.cert.fingerprint}"))
+        newKeyFile.use { it.write(key) }
+        newKeyFile.close()
+
+        site.save(context)
+    }
+
+    private fun getCertDetails(rawCert: String, gson: Gson): CertificateInfo? {
+        var cert: CertificateInfo? = null
+        try {
+            val rawDetails = mobileNebula.MobileNebula.parseCerts(rawCert)
+            val certs = gson.fromJson(rawDetails, Array<CertificateInfo>::class.java)
+            if (certs.isEmpty()) {
+                throw IllegalArgumentException("No certificate found")
+            }
+
+            cert = certs[0]
+
+            if (!cert.validity.valid) {
+                errors.add("Certificate is invalid: ${cert.validity.reason}")
+            }
+
+        } catch (err: Exception) {
+            errors.add("Error while loading certificate: ${err.message}")
+        }
+
+        return cert
+    }
+
     fun getKey(context: Context): String? {
-        val f = EncFile(context).openRead(File(path).resolve("key"))
+        val f = EncFile(context).openRead(File(path).resolve("key.${primaryCertInfo.cert.fingerprint}"))
         val k = f.readText()
         f.close()
         return k
@@ -238,12 +296,21 @@ data class UnsafeRoute(
     val mtu: Int?
 )
 
+data class IncomingCert(
+    // fingerprint is the cert fingerprint, only used as part of the key file name
+    val fingerprint: String,
+    val cert: String,
+    val primary: Boolean,
+    @Expose(serialize = false)
+    var key: String?
+)
+
 class IncomingSite(
     val name: String,
     val id: String,
     val staticHostmap: HashMap<String, StaticHosts>,
     val unsafeRoutes: List<UnsafeRoute>?,
-    val cert: String,
+    var certs: List<IncomingCert>?,
     val ca: String,
     val lhDuration: Int,
     val port: Int,
@@ -251,8 +318,9 @@ class IncomingSite(
     val cipher: String,
     val sortKey: Int?,
     var logVerbosity: String?,
-    @Expose(serialize = false)
-    var key: String?
+
+    @Deprecated("certs is the new property")
+    var cert: String?
 ) {
 
     fun save(context: Context) {
@@ -261,13 +329,16 @@ class IncomingSite(
             siteDir.mkdir()
         }
 
-        if (key != null) {
-            val f = EncFile(context).openWrite(siteDir.resolve("key"))
-            f.use { it.write(key) }
-            f.close()
+        certs?.forEach { cert ->
+            if (cert.key != null) {
+                val f = EncFile(context).openWrite(siteDir.resolve("key.${cert.fingerprint}"))
+                f.use { it.write(cert.key) }
+                f.close()
+            }
+
+            cert.key = null
         }
 
-        key = null
         val gson = Gson()
         val confFile = siteDir.resolve("config.json")
         confFile.writeText(gson.toJson(this))

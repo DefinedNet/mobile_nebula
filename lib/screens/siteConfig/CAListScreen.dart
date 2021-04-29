@@ -77,7 +77,7 @@ class _CAListScreenState extends State<CAListScreen> {
         onPressed: () {
           Utils.openPage(context, (context) {
             return CertificateDetailsScreen(
-                certificate: ca,
+                ca,
                 onDelete: () {
                   setState(() {
                     changed = true;

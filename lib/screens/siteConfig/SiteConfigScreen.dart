@@ -11,9 +11,10 @@ import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
 import 'package:mobile_nebula/components/config/ConfigSection.dart';
 import 'package:mobile_nebula/models/Site.dart';
+import 'package:mobile_nebula/screens/siteConfig/AddCertificateScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/AdvancedScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/CAListScreen.dart';
-import 'package:mobile_nebula/screens/siteConfig/CertificateScreen.dart';
+import 'package:mobile_nebula/screens/siteConfig/CertificatesScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/StaticHostsScreen.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
@@ -105,10 +106,10 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
   }
 
   Widget _keys() {
-    final certError = site.cert == null || !site.cert.validity.valid;
-    var caError = site.ca.length == 0;
+    final certError = site.primaryCertInfo == null || !site.primaryCertInfo.validity.valid;
+    var caError = site.caInfos.length == 0;
     if (!caError) {
-      site.ca.forEach((ca) {
+      site.caInfos.forEach((ca) {
         if (!ca.validity.valid) {
           caError = true;
         }
@@ -126,19 +127,29 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
                     child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                     padding: EdgeInsets.only(right: 5))
                 : Container(),
-            certError ? Text('Needs attention') : Text(site.cert.cert.details.name)
+            certError ? Text('Needs attention') : Text(site.primaryCertInfo.cert.details.name)
           ]),
           onPressed: () {
             Utils.openPage(context, (context) {
-              return CertificateScreen(
-                  cert: site.cert,
-                  onSave: (result) {
-                    setState(() {
-                      changed = true;
-                      site.cert = result.cert;
-                      site.key = result.key;
+              if (site.certInfos.length > 0) {
+                return CertificatesScreen(
+                    site: site,
+                    onSave: (newSite) {
+                      setState(() {
+                        changed = true;
+                        site = site;
+                      });
                     });
-                  });
+              }
+
+              return AddCertificateScreen(onSave: (certInfo) {
+                //TODO: onSave we may want to route them to the certificates screen somehow
+                changed = true;
+                certInfo.primary = true;
+                site.primaryCertInfo = certInfo;
+                site.certInfos.add(certInfo);
+                setState(() {});
+              });
             });
           },
         ),
@@ -151,16 +162,16 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
                       child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                       padding: EdgeInsets.only(right: 5))
                   : Container(),
-              caError ? Text('Needs attention') : Text(Utils.itemCountFormat(site.ca.length))
+              caError ? Text('Needs attention') : Text(Utils.itemCountFormat(site.caInfos.length))
             ]),
             onPressed: () {
               Utils.openPage(context, (context) {
                 return CAListScreen(
-                    cas: site.ca,
+                    cas: site.caInfos,
                     onSave: (ca) {
                       setState(() {
                         changed = true;
-                        site.ca = ca;
+                        site.caInfos = ca;
                       });
                     });
               });

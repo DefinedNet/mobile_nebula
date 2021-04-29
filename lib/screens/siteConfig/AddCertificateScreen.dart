@@ -1,56 +1,47 @@
 import 'dart:convert';
 
 import 'package:barcode_scan/barcode_scan.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:mobile_nebula/components/FormPage.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/components/SpecialSelectableText.dart';
 import 'package:mobile_nebula/components/config/ConfigButtonItem.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
-import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
 import 'package:mobile_nebula/components/config/ConfigSection.dart';
 import 'package:mobile_nebula/components/config/ConfigTextItem.dart';
 import 'package:mobile_nebula/models/Certificate.dart';
-import 'package:mobile_nebula/screens/siteConfig/CertificateDetailsScreen.dart';
 import 'package:mobile_nebula/services/share.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
-class CertificateResult {
-  CertificateInfo cert;
-  String key;
+import 'CertificateDetailsScreen.dart';
 
-  CertificateResult({this.cert, this.key});
-}
+class AddCertificateScreen extends StatefulWidget {
+  const AddCertificateScreen({Key key, this.onSave, this.choosePrimary = false}) : super(key: key);
 
-class CertificateScreen extends StatefulWidget {
-  const CertificateScreen({Key key, this.cert, this.onSave}) : super(key: key);
-
-  final CertificateInfo cert;
-  final ValueChanged<CertificateResult> onSave;
+  final ValueChanged<CertificateInfo> onSave;
+  final choosePrimary;
 
   @override
-  _CertificateScreenState createState() => _CertificateScreenState();
+  _AddCertificateScreenState createState() => _AddCertificateScreenState();
 }
 
-class _CertificateScreenState extends State<CertificateScreen> {
+class _AddCertificateScreenState extends State<AddCertificateScreen> {
   String pubKey;
   String privKey;
-  bool changed = false;
 
-  CertificateInfo cert;
+  CertificateInfo certInfo;
 
   String inputType = 'paste';
-  bool shared = false;
 
   final pasteController = TextEditingController();
   static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
 
   @override
   void initState() {
-    cert = widget.cert;
+    _generateKeys();
     super.initState();
   }
 
@@ -62,62 +53,22 @@ class _CertificateScreenState extends State<CertificateScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> items = [];
-    bool hideSave = true;
-
-    if (cert == null) {
-      if (pubKey == null) {
-        items = _buildGenerate();
-      } else {
-        items.addAll(_buildShare());
-        items.addAll(_buildLoadCert());
-      }
-    } else {
-      items.addAll(_buildCertList());
-      hideSave = false;
+    if (pubKey == null) {
+      return Center(
+        child: PlatformCircularProgressIndicator(cupertino: (_, __) {
+          return CupertinoProgressIndicatorData(radius: 500);
+        }),
+      );
     }
 
-    return FormPage(
+    List<Widget> items = [];
+
+    items.addAll(_buildShare());
+    items.addAll(_buildLoadCert());
+
+    return SimplePage(
         title: 'Certificate',
-        changed: changed,
-        hideSave: hideSave,
-        onSave: () {
-          Navigator.pop(context);
-          if (widget.onSave != null) {
-            widget.onSave(CertificateResult(cert: cert, key: privKey));
-          }
-        },
         child: Column(children: items));
-  }
-
-  _buildCertList() {
-    //TODO: generate a full list
-    return [
-      ConfigSection(
-        children: [
-          ConfigPageItem(
-            content: Text(cert.cert.details.name),
-            onPressed: () {
-              Utils.openPage(context, (context) {
-                //TODO: wire on delete
-                return CertificateDetailsScreen(certificate: cert);
-              });
-            },
-          )
-        ],
-      )
-    ];
-  }
-
-  List<Widget> _buildGenerate() {
-    return [
-      ConfigSection(label: 'Please generate a new public and private key', children: [
-        ConfigButtonItem(
-          content: Text('Generate Keys'),
-          onPressed: () => _generateKeys(),
-        )
-      ])
-    ];
   }
 
   _generateKeys() async {
@@ -126,7 +77,6 @@ class _CertificateScreenState extends State<CertificateScreen> {
       Map<String, dynamic> keyPair = jsonDecode(kp);
 
       setState(() {
-        changed = true;
         pubKey = keyPair['PublicKey'];
         privKey = keyPair['PrivateKey'];
       });
@@ -148,9 +98,6 @@ class _CertificateScreenState extends State<CertificateScreen> {
               content: Text('Share Public Key'),
               onPressed: () async {
                 await Share.share(title: 'Please sign and return a certificate', text: pubKey, filename: 'device.pub');
-                setState(() {
-                  shared = true;
-                });
               },
             ),
           ])
@@ -198,14 +145,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
           ConfigButtonItem(
               content: Center(child: Text('Load Certificate')),
               onPressed: () {
-                _addCertEntry(pasteController.text, (err) {
-                  if (err != null) {
-                    return Utils.popError(context, 'Failed to parse certificate content', err);
-                  }
-
-                  pasteController.text = '';
-                  setState(() {});
-                });
+                _addCertEntry(pasteController.text);
               }),
         ],
       )
@@ -225,13 +165,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
                     return;
                   }
 
-                  _addCertEntry(content, (err) {
-                    if (err != null) {
-                      Utils.popError(context, 'Error loading certificate file', err);
-                    } else {
-                      setState(() {});
-                    }
-                  });
+                  _addCertEntry(content);
                 } catch (err) {
                   return Utils.popError(context, 'Failed to load certificate file', err.toString());
                 }
@@ -254,13 +188,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
 
                 var result = await BarcodeScanner.scan(options: options);
                 if (result.rawContent != "") {
-                  _addCertEntry(result.rawContent, (err) {
-                    if (err != null) {
-                      Utils.popError(context, 'Error loading certificate content', err);
-                    } else {
-                      setState(() {});
-                    }
-                  });
+                  _addCertEntry(result.rawContent);
                 }
               }),
         ],
@@ -268,9 +196,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
     ];
   }
 
-  _addCertEntry(String rawCert, ValueChanged<String> callback) async {
-    String error;
-
+  _addCertEntry(String rawCert) async {
     // Allow for app store review testing cert to override the generated key
     if (rawCert.trim() == _testCert) {
       privKey = _testKey;
@@ -280,20 +206,31 @@ class _CertificateScreenState extends State<CertificateScreen> {
       var rawCerts = await platform.invokeMethod("nebula.parseCerts", <String, String>{"certs": rawCert});
       List<dynamic> certs = jsonDecode(rawCerts);
       if (certs.length > 0) {
-        var tryCert = CertificateInfo.fromJson(certs.first);
-        if (tryCert.cert.details.isCa) {
-          return callback('A certificate authority is not appropriate for a client certificate.');
+        var tryCertInfo = CertificateInfo.fromJson(certs.first);
+        if (tryCertInfo.cert.details.isCa) {
+          return Utils.popError(context, 'Error loading certificate content', 'A certificate authority is not appropriate for a client certificate.');
+        } else if (!tryCertInfo.validity.valid) {
+          return Utils.popError(context, 'Certificate was invalid', tryCertInfo.validity.reason);
         }
-        //TODO: test that the pubkey matches the privkey
-        cert = tryCert;
+
+        //TODO: test that the pubkey we generated equals the pub key in the cert
+        certInfo = tryCertInfo;
+        certInfo.primary = !widget.choosePrimary;
+        certInfo.key = privKey;
       }
     } on PlatformException catch (err) {
-      error = err.details ?? err.message;
+      return Utils.popError(context, 'Error loading certificate content', err.details ?? err.message);
     }
 
-    if (callback != null) {
-      callback(error);
-    }
+    // We have a cert, pop this screen and replace it with the cert detail screen and a save dialog
+    Utils.openPage(context, (context) {
+      //TODO: thread on save
+      return CertificateDetailsScreen(certInfo, newCert: true, choosePrimary: widget.choosePrimary, onSave: (isPrimary) {
+        Navigator.pop(context);
+        certInfo.primary = isPrimary;
+        widget.onSave(certInfo);
+      });
+    });
   }
 }
 

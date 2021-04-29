@@ -59,7 +59,7 @@ class NebulaVpnService : VpnService() {
         // Link active site config in Main to avoid this
         site = Site(File(path))
 
-        if (site!!.cert == null) {
+        if (site!!.certInfos == null || site!!.certInfos.isEmpty()) {
             announceExit(id, "Site is missing a certificate")
             //TODO: can we signal failure?
             return super.onStartCommand(intent, flags, startId)
@@ -74,7 +74,7 @@ class NebulaVpnService : VpnService() {
         var ipNet: CIDR
 
         try {
-            ipNet = mobileNebula.MobileNebula.parseCIDR(site!!.cert!!.cert.details.ips[0])
+            ipNet = mobileNebula.MobileNebula.parseCIDR(site!!.primaryCertInfo!!.cert.details.ips[0])
         } catch (err: Exception) {
             return announceExit(site!!.id, err.message ?: "$err")
         }

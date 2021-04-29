@@ -26,9 +26,9 @@ class Site {
   List<UnsafeRoute> unsafeRoutes;
 
   // pki fields
-  List<CertificateInfo> ca;
-  CertificateInfo cert;
-  String key;
+  List<CertificateInfo> caInfos;
+  List<CertificateInfo> certInfos;
+  CertificateInfo primaryCertInfo;
 
   // lighthouse options
   int lhDuration; // in seconds
@@ -51,8 +51,8 @@ class Site {
       {this.name,
       id,
       staticHostmap,
-      ca,
-      this.cert,
+      caInfos,
+      certInfos,
       this.lhDuration = 0,
       this.port = 0,
       this.cipher = "aes",
@@ -67,7 +67,8 @@ class Site {
       : staticHostmap = staticHostmap ?? {},
         unsafeRoutes = unsafeRoutes ?? [],
         errors = errors ?? [],
-        ca = ca ?? [],
+        caInfos = caInfos ?? [],
+        certInfos = certInfos ?? [],
         id = id ?? uuid.v4();
 
   Site.fromJson(Map<String, dynamic> json) {
@@ -88,15 +89,21 @@ class Site {
       });
     }
 
-    List<dynamic> rawCA = json['ca'];
-    ca = [];
+    List<dynamic> rawCA = json['caInfos'];
+    caInfos = [];
     rawCA.forEach((val) {
-      ca.add(CertificateInfo.fromJson(val));
+      caInfos.add(CertificateInfo.fromJson(val));
     });
 
-    if (json['cert'] != null) {
-      cert = CertificateInfo.fromJson(json['cert']);
-    }
+    List<dynamic> rawCerts = json['certInfos'];
+    certInfos = [];
+    rawCerts.forEach((val) {
+      final certInfo = CertificateInfo.fromJson(val);
+      if (certInfo.primary) {
+        primaryCertInfo = certInfo;
+      }
+      certInfos.add(certInfo);
+    });
 
     lhDuration = json['lhDuration'];
     port = json['port'];
@@ -142,12 +149,11 @@ class Site {
       'id': id,
       'staticHostmap': staticHostmap,
       'unsafeRoutes': unsafeRoutes,
-      'ca': ca?.map((cert) {
+      'ca': caInfos?.map((cert) {
             return cert.rawCert;
           })?.join('\n') ??
           "",
-      'cert': cert?.rawCert,
-      'key': key,
+      'certs': certInfos,
       'lhDuration': lhDuration,
       'port': port,
       'mtu': mtu,

@@ -620,7 +620,7 @@ class _SpecialSelectableTextState extends State<SpecialSelectableText> with Auto
         toolbarOptions: widget.toolbarOptions,
         minLines: widget.minLines,
         maxLines: widget.maxLines ?? defaultTextStyle.maxLines,
-        selectionColor: themeData.textSelectionColor,
+        selectionColor: TextSelectionTheme.of(context).selectionColor,
         selectionControls: widget.selectionEnabled ? textSelectionControls : null,
         onSelectionChanged: _handleSelectionChanged,
         onSelectionHandleTapped: _handleSelectionHandleTapped,

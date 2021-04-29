@@ -2,6 +2,10 @@ class CertificateInfo {
   Certificate cert;
   String rawCert;
   CertificateValidity validity;
+  bool primary;
+
+  // Key is only present when a new certificate is being installed, provided to the backend by the UI
+  String key;
 
   CertificateInfo.debug({this.rawCert = ""})
       : this.cert = Certificate.debug(),
@@ -10,12 +14,22 @@ class CertificateInfo {
   CertificateInfo.fromJson(Map<String, dynamic> json)
       : cert = Certificate.fromJson(json['Cert']),
         rawCert = json['RawCert'],
+        primary = json['primary'],
         validity = CertificateValidity.fromJson(json['Validity']);
 
   CertificateInfo({this.cert, this.rawCert, this.validity});
 
   static List<CertificateInfo> fromJsonList(List<dynamic> list) {
     return list.map((v) => CertificateInfo.fromJson(v));
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'cert': rawCert,
+      'key': key,
+      'primary': primary,
+      'fingerprint': cert.fingerprint
+    };
   }
 }
 

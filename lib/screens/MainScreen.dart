@@ -73,7 +73,7 @@ class _MainScreenState extends State<MainScreen> {
     if (!ready) {
       return Center(
         child: PlatformCircularProgressIndicator(cupertino: (_, __) {
-          return CupertinoProgressIndicatorData(radius: 50);
+          return CupertinoProgressIndicatorData(radius: 500);
         }),
       );
     }
@@ -172,20 +172,22 @@ CjkKB3Rlc3QgY2EopYyK9wUwpfOOhgY6IHj4yrtHbq+rt4hXTYGrxuQOS0412uKT
 mUOcsdFcCZiXrj7ryQIG1+WfqA46w71A/lV4nAc=
 -----END NEBULA CERTIFICATE-----''';
 
+        var certInfo = CertificateInfo.debug(rawCert: cert);
+        certInfo.primary = true;
+        certInfo.key = '''-----BEGIN NEBULA X25519 PRIVATE KEY-----
+rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
+-----END NEBULA X25519 PRIVATE KEY-----''';
+
         var s = Site(
           name: "DEBUG TEST",
           id: uuid.v4(),
           staticHostmap: {
             "10.1.0.1": StaticHost(lighthouse: true, destinations: [IPAndPort(ip: '10.1.1.53', port: 4242), IPAndPort(ip: '1::1', port: 4242)])
           },
-          ca: [CertificateInfo.debug(rawCert: ca)],
-          cert: CertificateInfo.debug(rawCert: cert),
+          caInfos: [CertificateInfo.debug(rawCert: ca)],
+          certInfos: [certInfo],
           unsafeRoutes: [UnsafeRoute(route: '10.3.3.3/32', via: '10.1.0.1')]
         );
-
-        s.key = '''-----BEGIN NEBULA X25519 PRIVATE KEY-----
-rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
------END NEBULA X25519 PRIVATE KEY-----''';
 
         var err = await s.save();
         if (err != null) {
