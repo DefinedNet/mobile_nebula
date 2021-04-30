@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:mobile_nebula/models/HostInfo.dart';
 import 'package:mobile_nebula/models/UnsafeRoute.dart';
+import 'package:mobile_nebula/models/IPAndPort.dart';
 import 'package:uuid/uuid.dart';
 import 'Certificate.dart';
 import 'StaticHosts.dart';
@@ -24,6 +25,7 @@ class Site {
   // static_host_map
   Map<String, StaticHost> staticHostmap;
   List<UnsafeRoute> unsafeRoutes;
+  List<String> dnsResolvers;
 
   // pki fields
   List<CertificateInfo> ca;
@@ -63,9 +65,11 @@ class Site {
       this.logFile,
       this.logVerbosity = 'info',
       errors,
-      unsafeRoutes})
+      unsafeRoutes,
+      dnsResolvers})
       : staticHostmap = staticHostmap ?? {},
         unsafeRoutes = unsafeRoutes ?? [],
+        dnsResolvers = dnsResolvers ?? [],
         errors = errors ?? [],
         ca = ca ?? [],
         id = id ?? uuid.v4();
@@ -87,6 +91,12 @@ class Site {
         unsafeRoutes.add(UnsafeRoute.fromJson(val));
       });
     }
+
+    List<dynamic> rawDNSResolvers = json['dnsResolvers'];
+    dnsResolvers = [];
+    (rawDNSResolvers ?? []).forEach((val) {
+      dnsResolvers.add(val);
+    });
 
     List<dynamic> rawCA = json['ca'];
     ca = [];
@@ -142,6 +152,7 @@ class Site {
       'id': id,
       'staticHostmap': staticHostmap,
       'unsafeRoutes': unsafeRoutes,
+      'dnsResolvers': dnsResolvers,
       'ca': ca?.map((cert) {
             return cert.rawCert;
           })?.join('\n') ??
