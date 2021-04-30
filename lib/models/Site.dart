@@ -27,7 +27,7 @@ class Site {
 
   // pki fields
   List<CertificateInfo> ca;
-  CertificateInfo cert;
+  CertificateInfo certInfo;
   String key;
 
   // lighthouse options
@@ -52,7 +52,7 @@ class Site {
       id,
       staticHostmap,
       ca,
-      this.cert,
+      this.certInfo,
       this.lhDuration = 0,
       this.port = 0,
       this.cipher = "aes",
@@ -95,7 +95,7 @@ class Site {
     });
 
     if (json['cert'] != null) {
-      cert = CertificateInfo.fromJson(json['cert']);
+      certInfo = CertificateInfo.fromJson(json['cert']);
     }
 
     lhDuration = json['lhDuration'];
@@ -146,7 +146,7 @@ class Site {
             return cert.rawCert;
           })?.join('\n') ??
           "",
-      'cert': cert?.rawCert,
+      'cert': certInfo?.rawCert,
       'key': key,
       'lhDuration': lhDuration,
       'port': port,

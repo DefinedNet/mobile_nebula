@@ -263,9 +263,11 @@ class IncomingSite(
         }
 
         if (key != null) {
-            val f = EncFile(context).openWrite(siteDir.resolve("key"))
-            f.use { it.write(key) }
-            f.close()
+            val keyFile = siteDir.resolve("key")
+            keyFile.delete()
+            val encFile = EncFile(context).openWrite(keyFile)
+            encFile.use { it.write(key) }
+            encFile.close()
         }
 
         key = null

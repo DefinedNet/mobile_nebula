@@ -8,12 +8,13 @@ import 'package:mobile_nebula/services/utils.dart';
 /// SimplePage with a form and built in validation and confirmation to discard changes if any are made
 class FormPage extends StatefulWidget {
   const FormPage(
-      {Key key, this.title, @required this.child, @required this.onSave, @required this.changed, this.hideSave = false})
+      {Key key, this.title, @required this.child, @required this.onSave, @required this.changed, this.hideSave = false, this.scrollController})
       : super(key: key);
 
   final String title;
   final Function onSave;
   final Widget child;
+  final ScrollController scrollController;
 
   /// If you need the page to progress to a certain point before saving, control it here
   final bool hideSave;
@@ -50,6 +51,7 @@ class _FormPageState extends State<FormPage> {
         child: SimplePage(
           leadingAction: _buildLeader(context),
           trailingActions: _buildTrailer(context),
+          scrollController: widget.scrollController,
           title: widget.title,
           child: Form(
               key: _formKey,
