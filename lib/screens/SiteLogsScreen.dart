@@ -54,7 +54,10 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
         refreshController.loadComplete();
       },
       refreshController: refreshController,
-      child: Container(padding: EdgeInsets.all(5), constraints: logBoxConstraints(context), child: SpecialSelectableText(logs.trim(), style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14))),
+      child: Container(
+          padding: EdgeInsets.all(5),
+          constraints: logBoxConstraints(context),
+          child: SpecialSelectableText(logs.trim(), style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14))),
       bottomBar: _buildBottomBar(),
     );
   }
@@ -78,7 +81,10 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
             padding: padding,
             icon: Icon(context.platformIcons.share, size: 30),
             onPressed: () {
-              Share.shareFile(title: '${widget.site.name} logs', filePath: widget.site.logFile, filename: '${widget.site.name}.log');
+              Share.shareFile(
+                  title: '${widget.site.name} logs',
+                  filePath: widget.site.logFile,
+                  filename: '${widget.site.name}.log');
             },
           )),
           Expanded(
@@ -94,7 +100,8 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
             padding: padding,
             icon: Icon(context.platformIcons.downArrow, size: 30),
             onPressed: () async {
-              controller.animateTo(controller.position.maxScrollExtent, duration: const Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
+              controller.animateTo(controller.position.maxScrollExtent,
+                  duration: const Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
             },
           )),
         ]));

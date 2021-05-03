@@ -216,7 +216,6 @@ class Site {
       });
 
       return hosts;
-
     } on PlatformException catch (err) {
       //TODO: fix this message
       throw err.details ?? err.message ?? err.toString();
@@ -239,7 +238,6 @@ class Site {
       });
 
       return hosts;
-
     } on PlatformException catch (err) {
       throw err.details ?? err.message ?? err.toString();
     } catch (err) {
@@ -251,7 +249,6 @@ class Site {
     try {
       var res = await Future.wait([this.listHostmap(), this.listPendingHostmap()]);
       return {"active": res[0], "pending": res[1]};
-
     } on PlatformException catch (err) {
       throw err.details ?? err.message ?? err.toString();
     } catch (err) {
@@ -265,14 +262,14 @@ class Site {
 
   Future<HostInfo> getHostInfo(String vpnIp, bool pending) async {
     try {
-      var ret = await platform.invokeMethod("active.getHostInfo", <String, dynamic>{"id": id, "vpnIp": vpnIp, "pending": pending});
+      var ret = await platform
+          .invokeMethod("active.getHostInfo", <String, dynamic>{"id": id, "vpnIp": vpnIp, "pending": pending});
       final h = jsonDecode(ret);
       if (h == null) {
         return null;
       }
 
       return HostInfo.fromJson(h);
-
     } on PlatformException catch (err) {
       throw err.details ?? err.message ?? err.toString();
     } catch (err) {
@@ -282,14 +279,14 @@ class Site {
 
   Future<HostInfo> setRemoteForTunnel(String vpnIp, String addr) async {
     try {
-      var ret = await platform.invokeMethod("active.setRemoteForTunnel", <String, dynamic>{"id": id, "vpnIp": vpnIp, "addr": addr});
+      var ret = await platform
+          .invokeMethod("active.setRemoteForTunnel", <String, dynamic>{"id": id, "vpnIp": vpnIp, "addr": addr});
       final h = jsonDecode(ret);
       if (h == null) {
         return null;
       }
 
       return HostInfo.fromJson(h);
-
     } on PlatformException catch (err) {
       throw err.details ?? err.message ?? err.toString();
     } catch (err) {
@@ -300,7 +297,6 @@ class Site {
   Future<bool> closeTunnel(String vpnIp) async {
     try {
       return await platform.invokeMethod("active.closeTunnel", <String, dynamic>{"id": id, "vpnIp": vpnIp});
-
     } on PlatformException catch (err) {
       throw err.details ?? err.message ?? err.toString();
     } catch (err) {

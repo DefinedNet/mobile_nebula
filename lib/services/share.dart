@@ -44,8 +44,7 @@ class Share {
       throw FlutterError('FilePath cannot be null');
     }
 
-    final bool success =
-    await _channel.invokeMethod('shareFile', <String, dynamic>{
+    final bool success = await _channel.invokeMethod('shareFile', <String, dynamic>{
       'title': title,
       'filePath': filePath,
       'filename': filename,

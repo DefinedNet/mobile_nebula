@@ -12,7 +12,8 @@ import 'package:mobile_nebula/services/utils.dart';
 
 /// Displays the details of a CertificateInfo object. Respects incomplete objects (missing validity or rawCert)
 class CertificateDetailsScreen extends StatefulWidget {
-  const CertificateDetailsScreen({Key key, this.certInfo, this.onDelete, this.onSave, this.onReplace}) : super(key: key);
+  const CertificateDetailsScreen({Key key, this.certInfo, this.onDelete, this.onSave, this.onReplace})
+      : super(key: key);
 
   final CertificateInfo certInfo;
 
@@ -78,8 +79,7 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
     return ConfigSection(children: <Widget>[
       ConfigItem(label: Text('Name'), content: SpecialSelectableText(certInfo.cert.details.name)),
       ConfigItem(
-          label: Text('Type'),
-          content: Text(certInfo.cert.details.isCa ? 'CA certificate' : 'Client certificate')),
+          label: Text('Type'), content: Text(certInfo.cert.details.isCa ? 'CA certificate' : 'Client certificate')),
     ]);
   }
 
@@ -106,18 +106,17 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
   Widget _buildFilters() {
     List<Widget> items = [];
     if (certInfo.cert.details.groups.length > 0) {
-      items.add(ConfigItem(
-          label: Text('Groups'), content: SpecialSelectableText(certInfo.cert.details.groups.join(', '))));
+      items.add(
+          ConfigItem(label: Text('Groups'), content: SpecialSelectableText(certInfo.cert.details.groups.join(', '))));
     }
 
     if (certInfo.cert.details.ips.length > 0) {
-      items
-          .add(ConfigItem(label: Text('IPs'), content: SpecialSelectableText(certInfo.cert.details.ips.join(', '))));
+      items.add(ConfigItem(label: Text('IPs'), content: SpecialSelectableText(certInfo.cert.details.ips.join(', '))));
     }
 
     if (certInfo.cert.details.subnets.length > 0) {
-      items.add(ConfigItem(
-          label: Text('Subnets'), content: SpecialSelectableText(certInfo.cert.details.subnets.join(', '))));
+      items.add(
+          ConfigItem(label: Text('Subnets'), content: SpecialSelectableText(certInfo.cert.details.subnets.join(', '))));
     }
 
     return items.length > 0
@@ -141,8 +140,8 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
         certInfo.rawCert != null
             ? ConfigItem(
                 label: Text('PEM Format'),
-                content: SpecialSelectableText(certInfo.rawCert,
-                    style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
+                content:
+                    SpecialSelectableText(certInfo.rawCert, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
                 crossAxisAlignment: CrossAxisAlignment.start)
             : Container(),
       ],
@@ -155,26 +154,26 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
     }
 
     return Padding(
-      padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
-      child: SizedBox(
-        width: double.infinity,
-        child: PlatformButton(
-          child: Text('Replace certificate'),
-          color: CupertinoColors.systemRed.resolveFrom(context),
-          onPressed: () {
-            Utils.openPage(context, (context) {
-              return AddCertificateScreen(
-                  onReplace: (result) {
-                    setState(() {
-                      changed = true;
-                      certResult = result;
-                      certInfo = certResult.certInfo;
+        padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
+        child: SizedBox(
+            width: double.infinity,
+            child: PlatformButton(
+                child: Text('Replace certificate'),
+                color: CupertinoColors.systemRed.resolveFrom(context),
+                onPressed: () {
+                  Utils.openPage(context, (context) {
+                    return AddCertificateScreen(onReplace: (result) {
+                      setState(() {
+                        changed = true;
+                        certResult = result;
+                        certInfo = certResult.certInfo;
+                      });
+                      // Slam the page back to the top
+                      controller.animateTo(0,
+                          duration: const Duration(milliseconds: 10), curve: Curves.linearToEaseOut);
                     });
-                    // Slam the page back to the top
-                    controller.animateTo(0, duration: const Duration(milliseconds: 10), curve: Curves.linearToEaseOut);
                   });
-                });
-          })));
+                })));
   }
 
   Widget _buildDelete() {

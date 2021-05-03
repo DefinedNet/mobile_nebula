@@ -72,9 +72,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
     items.addAll(_buildShare());
     items.addAll(_buildLoadCert());
 
-    return SimplePage(
-        title: 'Certificate',
-        child: Column(children: items));
+    return SimplePage(title: 'Certificate', child: Column(children: items));
   }
 
   _generateKeys() async {
@@ -215,8 +213,8 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
       if (certs.length > 0) {
         var tryCertInfo = CertificateInfo.fromJson(certs.first);
         if (tryCertInfo.cert.details.isCa) {
-          return Utils.popError(context, 'Error loading certificate content', 'A certificate authority is not appropriate for a client certificate.');
-
+          return Utils.popError(context, 'Error loading certificate content',
+              'A certificate authority is not appropriate for a client certificate.');
         } else if (!tryCertInfo.validity.valid) {
           return Utils.popError(context, 'Certificate was invalid', tryCertInfo.validity.reason);
         }
@@ -232,10 +230,12 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
 
         // We have a cert, pop the details screen where they can hit save
         Utils.openPage(context, (context) {
-          return CertificateDetailsScreen(certInfo: tryCertInfo, onSave: () {
-            Navigator.pop(context);
-            widget.onSave(CertificateResult(certInfo: tryCertInfo, key: privKey));
-          });
+          return CertificateDetailsScreen(
+              certInfo: tryCertInfo,
+              onSave: () {
+                Navigator.pop(context);
+                widget.onSave(CertificateResult(certInfo: tryCertInfo, key: privKey));
+              });
         });
       }
     } on PlatformException catch (err) {

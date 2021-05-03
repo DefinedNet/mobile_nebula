@@ -45,14 +45,16 @@ class SimplePage extends StatelessWidget {
   final VoidCallback onLoading;
   final RefreshController refreshController;
 
-
   @override
   Widget build(BuildContext context) {
     Widget realChild = child;
     var addScrollbar = this.scrollbar;
 
     if (scrollable == SimpleScrollable.vertical || scrollable == SimpleScrollable.both) {
-      realChild = SingleChildScrollView(scrollDirection: Axis.vertical, child: realChild, controller: refreshController == null ? scrollController : null);
+      realChild = SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: realChild,
+          controller: refreshController == null ? scrollController : null);
       addScrollbar = true;
     }
 
@@ -67,15 +69,15 @@ class SimplePage extends StatelessWidget {
           footerTriggerDistance: -100,
           maxUnderScrollExtent: 100,
           child: SmartRefresher(
-              scrollController: scrollController,
-              onRefresh: onRefresh,
-              onLoading: onLoading,
-              controller: refreshController,
-              child: realChild,
-              enablePullUp: onLoading != null,
-              enablePullDown: onRefresh != null,
-              footer: ClassicFooter(loadStyle: LoadStyle.ShowWhenLoading),
-              ));
+            scrollController: scrollController,
+            onRefresh: onRefresh,
+            onLoading: onLoading,
+            controller: refreshController,
+            child: realChild,
+            enablePullUp: onLoading != null,
+            enablePullDown: onRefresh != null,
+            footer: ClassicFooter(loadStyle: LoadStyle.ShowWhenLoading),
+          ));
       addScrollbar = true;
     }
 

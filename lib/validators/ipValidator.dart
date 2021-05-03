@@ -7,15 +7,19 @@ bool ipValidator(String str, bool enableIPV6) {
   }
 
   switch (ia.type) {
-    case InternetAddressType.IPv6: {
-      if (enableIPV6) {
+    case InternetAddressType.IPv6:
+      {
+        if (enableIPV6) {
+          return true;
+        }
+      }
+      break;
+
+    case InternetAddressType.IPv4:
+      {
         return true;
       }
-    }
-    break;
-
-    case InternetAddressType.IPv4: { return true; }
-    break;
+      break;
   }
 
   return false;
