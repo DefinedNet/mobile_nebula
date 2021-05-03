@@ -48,9 +48,14 @@ class NebulaVpnService : VpnService() {
 
         val path = intent?.getStringExtra("path")
         val id = intent?.getStringExtra("id")
-        
+
         if (running) {
-            announceExit(id, "Trying to run nebula but it is already running")
+            // if the UI triggers this twice, check if we are already running the requested site. if not, return an error.
+            // otherwise, just ignore the request since we handled it the first time.
+            if (site!!.id != id) {
+                announceExit(id, "Trying to run nebula but it is already running")
+            }
+
             //TODO: can we signal failure?
             return super.onStartCommand(intent, flags, startId)
         }
