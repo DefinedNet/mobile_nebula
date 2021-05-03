@@ -39,6 +39,7 @@ class NebulaVpnService : VpnService() {
     private var nebula: mobileNebula.Nebula? = null
     private var vpnInterface: ParcelFileDescriptor? = null
     private var didSleep = false
+    private var networkCallback: NetworkCallback = NetworkCallback();
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.getStringExtra("COMMAND") == "STOP") {
@@ -128,19 +129,26 @@ class NebulaVpnService : VpnService() {
         val builder = NetworkRequest.Builder()
         builder.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
 
-        connectivityManager.registerNetworkCallback(builder.build(),
-                object : ConnectivityManager.NetworkCallback () {
-                    override fun onAvailable(network: Network?) {
-                        super.onAvailable(network)
-                        nebula!!.rebind("network change")
-                    }
-
-                    override fun onLost(network: Network?) {
-                        super.onLost(network)
-                        nebula!!.rebind("network change")
-                    }
-                })
+        connectivityManager.registerNetworkCallback(builder.build(), networkCallback)
     }
+
+    private fun unregisterNetworkCallback() {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connectivityManager.unregisterNetworkCallback(networkCallback)
+    }
+
+    inner class NetworkCallback() : ConnectivityManager.NetworkCallback () {
+        override fun onAvailable(network: Network?) {
+            super.onAvailable(network)
+            nebula!!.rebind("network change")
+        }
+
+        override fun onLost(network: Network?) {
+            super.onLost(network)
+            nebula!!.rebind("network change")
+        }
+    }
+
 
     private fun registerSleep() {
         val receiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -163,6 +171,7 @@ class NebulaVpnService : VpnService() {
     }
 
     private fun stopVpn() {
+        unregisterNetworkCallback()
         nebula?.stop()
         vpnInterface?.close()
         running = false
