@@ -1,0 +1,34 @@
+name: gofmt
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - '.github/workflows/gofmt.yml'
+      - '.github/workflows/gofmt.sh'
+      - '**.go'
+jobs:
+
+  gofmt:
+    name: Run gofmt
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Set up Go 1.16
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Install goimports
+        working-directory: nebula
+        run: |
+          go get golang.org/x/tools/cmd/goimports
+          go build golang.org/x/tools/cmd/goimports
+
+      - name: gofmt
+        run: $GITHUB_WORKSPACE/.github/workflows/gofmt.sh
