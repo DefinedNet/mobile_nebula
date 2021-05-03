@@ -97,11 +97,6 @@ class NebulaVpnService : VpnService() {
             builder.addRoute(ipNet.network, ipNet.maskSize.toInt())
         }
 
-        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        cm.allNetworks.forEach { network ->
-            cm.getLinkProperties(network).dnsServers.forEach { builder.addDnsServer(it) }
-        }
-
         try {
             vpnInterface = builder.establish()
             nebula = mobileNebula.MobileNebula.newNebula(site!!.config, site!!.getKey(this), site!!.logFile, vpnInterface!!.fd.toLong())
