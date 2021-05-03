@@ -2,34 +2,73 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:mobile_nebula/components/SimplePage.dart';
+import 'package:mobile_nebula/components/FormPage.dart';
 import 'package:mobile_nebula/components/SpecialSelectableText.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
 import 'package:mobile_nebula/components/config/ConfigSection.dart';
 import 'package:mobile_nebula/models/Certificate.dart';
+import 'package:mobile_nebula/screens/siteConfig/AddCertificateScreen.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 /// Displays the details of a CertificateInfo object. Respects incomplete objects (missing validity or rawCert)
 class CertificateDetailsScreen extends StatefulWidget {
-  const CertificateDetailsScreen({Key key, this.certificate, this.onDelete}) : super(key: key);
+  const CertificateDetailsScreen({Key key, this.certInfo, this.onDelete, this.onSave, this.onReplace}) : super(key: key);
 
-  final CertificateInfo certificate;
+  final CertificateInfo certInfo;
+
+  // onDelete is used to remove a CA cert
   final Function onDelete;
+
+  // onSave is used to install a new certificate
+  final Function onSave;
+
+  // onReplace is used to install a new certificate over top of the old one
+  final ValueChanged<CertificateResult> onReplace;
 
   @override
   _CertificateDetailsScreenState createState() => _CertificateDetailsScreenState();
 }
 
 class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
+  bool changed = false;
+  CertificateResult certResult;
+  CertificateInfo certInfo;
+  ScrollController controller = ScrollController();
+
+  @override
+  void initState() {
+    certInfo = widget.certInfo;
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SimplePage(
+    return FormPage(
       title: 'Certificate Details',
+      scrollController: controller,
+      changed: widget.onSave != null || changed,
+      onSave: () {
+        if (widget.onSave != null) {
+          Navigator.pop(context);
+          widget.onSave();
+        } else if (widget.onReplace != null) {
+          Navigator.pop(context);
+          widget.onReplace(certResult);
+        }
+      },
+      hideSave: widget.onSave == null && widget.onReplace == null,
       child: Column(children: [
         _buildID(),
         _buildFilters(),
         _buildValid(),
         _buildAdvanced(),
+        _buildReplace(),
         _buildDelete(),
       ]),
     );
@@ -37,17 +76,17 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
 
   Widget _buildID() {
     return ConfigSection(children: <Widget>[
-      ConfigItem(label: Text('Name'), content: SpecialSelectableText(widget.certificate.cert.details.name)),
+      ConfigItem(label: Text('Name'), content: SpecialSelectableText(certInfo.cert.details.name)),
       ConfigItem(
           label: Text('Type'),
-          content: Text(widget.certificate.cert.details.isCa ? 'CA certificate' : 'Client certificate')),
+          content: Text(certInfo.cert.details.isCa ? 'CA certificate' : 'Client certificate')),
     ]);
   }
 
   Widget _buildValid() {
     var valid = Text('yes');
-    if (widget.certificate.validity != null && !widget.certificate.validity.valid) {
-      valid = Text(widget.certificate.validity.valid ? 'yes' : widget.certificate.validity.reason,
+    if (certInfo.validity != null && !certInfo.validity.valid) {
+      valid = Text(certInfo.validity.valid ? 'yes' : certInfo.validity.reason,
           style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(context)));
     }
     return ConfigSection(
@@ -56,33 +95,33 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
         ConfigItem(label: Text('Valid?'), content: valid),
         ConfigItem(
             label: Text('Created'),
-            content: SpecialSelectableText(widget.certificate.cert.details.notBefore.toLocal().toString())),
+            content: SpecialSelectableText(certInfo.cert.details.notBefore.toLocal().toString())),
         ConfigItem(
             label: Text('Expires'),
-            content: SpecialSelectableText(widget.certificate.cert.details.notAfter.toLocal().toString())),
+            content: SpecialSelectableText(certInfo.cert.details.notAfter.toLocal().toString())),
       ],
     );
   }
 
   Widget _buildFilters() {
     List<Widget> items = [];
-    if (widget.certificate.cert.details.groups.length > 0) {
+    if (certInfo.cert.details.groups.length > 0) {
       items.add(ConfigItem(
-          label: Text('Groups'), content: SpecialSelectableText(widget.certificate.cert.details.groups.join(', '))));
+          label: Text('Groups'), content: SpecialSelectableText(certInfo.cert.details.groups.join(', '))));
     }
 
-    if (widget.certificate.cert.details.ips.length > 0) {
+    if (certInfo.cert.details.ips.length > 0) {
       items
-          .add(ConfigItem(label: Text('IPs'), content: SpecialSelectableText(widget.certificate.cert.details.ips.join(', '))));
+          .add(ConfigItem(label: Text('IPs'), content: SpecialSelectableText(certInfo.cert.details.ips.join(', '))));
     }
 
-    if (widget.certificate.cert.details.subnets.length > 0) {
+    if (certInfo.cert.details.subnets.length > 0) {
       items.add(ConfigItem(
-          label: Text('Subnets'), content: SpecialSelectableText(widget.certificate.cert.details.subnets.join(', '))));
+          label: Text('Subnets'), content: SpecialSelectableText(certInfo.cert.details.subnets.join(', '))));
     }
 
     return items.length > 0
-        ? ConfigSection(label: widget.certificate.cert.details.isCa ? 'FILTERS' : 'DETAILS', children: items)
+        ? ConfigSection(label: certInfo.cert.details.isCa ? 'FILTERS' : 'DETAILS', children: items)
         : Container();
   }
 
@@ -91,18 +130,18 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
       children: <Widget>[
         ConfigItem(
             label: Text('Fingerprint'),
-            content: SpecialSelectableText(widget.certificate.cert.fingerprint,
+            content: SpecialSelectableText(certInfo.cert.fingerprint,
                 style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
             crossAxisAlignment: CrossAxisAlignment.start),
         ConfigItem(
             label: Text('Public Key'),
-            content: SpecialSelectableText(widget.certificate.cert.details.publicKey,
+            content: SpecialSelectableText(certInfo.cert.details.publicKey,
                 style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
             crossAxisAlignment: CrossAxisAlignment.start),
-        widget.certificate.rawCert != null
+        certInfo.rawCert != null
             ? ConfigItem(
                 label: Text('PEM Format'),
-                content: SpecialSelectableText(widget.certificate.rawCert,
+                content: SpecialSelectableText(certInfo.rawCert,
                     style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
                 crossAxisAlignment: CrossAxisAlignment.start)
             : Container(),
@@ -110,12 +149,40 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
     );
   }
 
+  Widget _buildReplace() {
+    if (widget.onReplace == null) {
+      return Container();
+    }
+
+    return Padding(
+      padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
+      child: SizedBox(
+        width: double.infinity,
+        child: PlatformButton(
+          child: Text('Replace certificate'),
+          color: CupertinoColors.systemRed.resolveFrom(context),
+          onPressed: () {
+            Utils.openPage(context, (context) {
+              return AddCertificateScreen(
+                  onReplace: (result) {
+                    setState(() {
+                      changed = true;
+                      certResult = result;
+                      certInfo = certResult.certInfo;
+                    });
+                    // Slam the page back to the top
+                    controller.animateTo(0, duration: const Duration(milliseconds: 10), curve: Curves.linearToEaseOut);
+                  });
+                });
+          })));
+  }
+
   Widget _buildDelete() {
     if (widget.onDelete == null) {
       return Container();
     }
 
-    var title = widget.certificate.cert.details.isCa ? 'Delete CA?' : 'Delete cert?';
+    var title = certInfo.cert.details.isCa ? 'Delete CA?' : 'Delete cert?';
 
     return Padding(
         padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),

@@ -179,7 +179,7 @@ mUOcsdFcCZiXrj7ryQIG1+WfqA46w71A/lV4nAc=
             "10.1.0.1": StaticHost(lighthouse: true, destinations: [IPAndPort(ip: '10.1.1.53', port: 4242), IPAndPort(ip: '1::1', port: 4242)])
           },
           ca: [CertificateInfo.debug(rawCert: ca)],
-          cert: CertificateInfo.debug(rawCert: cert),
+          certInfo: CertificateInfo.debug(rawCert: cert),
           unsafeRoutes: [UnsafeRoute(route: '10.3.3.3/32', via: '10.1.0.1')]
         );
 

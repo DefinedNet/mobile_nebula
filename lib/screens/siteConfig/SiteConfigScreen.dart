@@ -13,11 +13,13 @@ import 'package:mobile_nebula/components/config/ConfigSection.dart';
 import 'package:mobile_nebula/models/Site.dart';
 import 'package:mobile_nebula/screens/siteConfig/AdvancedScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/CAListScreen.dart';
-import 'package:mobile_nebula/screens/siteConfig/CertificateScreen.dart';
+import 'package:mobile_nebula/screens/siteConfig/AddCertificateScreen.dart';
+import 'package:mobile_nebula/screens/siteConfig/CertificateDetailsScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/StaticHostsScreen.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 //TODO: Add a config test mechanism
+//TODO: Enforce a name
 
 class SiteConfigScreen extends StatefulWidget {
   const SiteConfigScreen({Key key, this.site, this.onSave}) : super(key: key);
@@ -100,12 +102,18 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
           content: PlatformTextFormField(
             placeholder: 'Required',
             controller: nameController,
+            validator: (name) {
+              if (name == null || name == "") {
+                return "A name is required";
+              }
+              return null;
+            },
           ))
     ]);
   }
 
   Widget _keys() {
-    final certError = site.cert == null || !site.cert.validity.valid;
+    final certError = site.certInfo == null || !site.certInfo.validity.valid;
     var caError = site.ca.length == 0;
     if (!caError) {
       site.ca.forEach((ca) {
@@ -126,16 +134,28 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
                     child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                     padding: EdgeInsets.only(right: 5))
                 : Container(),
-            certError ? Text('Needs attention') : Text(site.cert.cert.details.name)
+            certError ? Text('Needs attention') : Text(site.certInfo.cert.details.name)
           ]),
           onPressed: () {
             Utils.openPage(context, (context) {
-              return CertificateScreen(
-                  cert: site.cert,
+              if (site.certInfo != null) {
+                return CertificateDetailsScreen(
+                  certInfo: site.certInfo,
+                  onReplace: (result) {
+                    setState(() {
+                      changed = true;
+                      site.certInfo = result.certInfo;
+                      site.key = result.key;
+                    });
+                  }
+                );
+              }
+
+              return AddCertificateScreen(
                   onSave: (result) {
                     setState(() {
                       changed = true;
-                      site.cert = result.cert;
+                      site.certInfo = result.certInfo;
                       site.key = result.key;
                     });
                   });
