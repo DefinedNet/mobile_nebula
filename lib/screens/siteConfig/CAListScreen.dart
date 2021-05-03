@@ -201,7 +201,6 @@ class _CAListScreenState extends State<CAListScreen> {
                       setState(() {});
                     }
                   });
-
                 } catch (err) {
                   return Utils.popError(context, 'Failed to load CA file', err.toString());
                 }

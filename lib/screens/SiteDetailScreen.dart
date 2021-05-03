@@ -62,7 +62,6 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
         }
       }
       setState(() {});
-
     }, onError: (err) {
       setState(() {});
       Utils.popError(context, "Error", err);
@@ -111,7 +110,8 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
     List<Widget> items = [];
     site.errors.forEach((error) {
       items.add(ConfigItem(
-          labelWidth: 0, content: Padding(padding: EdgeInsets.symmetric(vertical: 10), child: SpecialSelectableText(error))));
+          labelWidth: 0,
+          content: Padding(padding: EdgeInsets.symmetric(vertical: 10), child: SpecialSelectableText(error))));
     });
 
     return ConfigSection(

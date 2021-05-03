@@ -148,19 +148,21 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                     });
                   }),
               ConfigPageItem(
-                  label: Text('Unsafe routes'),
-                  labelWidth: 150,
-                  content: Text(Utils.itemCountFormat(settings.unsafeRoutes.length), textAlign: TextAlign.end),
-                  onPressed: () {
-                    Utils.openPage(context, (context) {
-                      return UnsafeRoutesScreen(unsafeRoutes: settings.unsafeRoutes, onSave: (routes) {
-                        setState(() {
-                          settings.unsafeRoutes = routes;
-                          changed = true;
+                label: Text('Unsafe routes'),
+                labelWidth: 150,
+                content: Text(Utils.itemCountFormat(settings.unsafeRoutes.length), textAlign: TextAlign.end),
+                onPressed: () {
+                  Utils.openPage(context, (context) {
+                    return UnsafeRoutesScreen(
+                        unsafeRoutes: settings.unsafeRoutes,
+                        onSave: (routes) {
+                          setState(() {
+                            settings.unsafeRoutes = routes;
+                            changed = true;
+                          });
                         });
-                      });
-                    });
-                  },
+                  });
+                },
               )
             ],
           ),

@@ -161,16 +161,16 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
                 child: Text('Close Tunnel'),
                 color: CupertinoColors.systemRed.resolveFrom(context),
                 onPressed: () => Utils.confirmDelete(context, 'Close Tunnel?', () async {
-                  try {
-                    await widget.site.closeTunnel(hostInfo.vpnIp);
-                    if (widget.onChanged != null) {
-                      widget.onChanged();
-                    }
-                    Navigator.pop(context);
-                  } catch (err) {
-                    Utils.popError(context, 'Error while trying to close the tunnel', err);
-                  }
-                }, deleteLabel: 'Close'))));
+                      try {
+                        await widget.site.closeTunnel(hostInfo.vpnIp);
+                        if (widget.onChanged != null) {
+                          widget.onChanged();
+                        }
+                        Navigator.pop(context);
+                      } catch (err) {
+                        Utils.popError(context, 'Error while trying to close the tunnel', err);
+                      }
+                    }, deleteLabel: 'Close'))));
   }
 
   _getHostInfo() async {

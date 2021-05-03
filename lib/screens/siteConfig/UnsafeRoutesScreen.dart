@@ -83,12 +83,14 @@ class _UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
       content: Text('Add a new route'),
       onPressed: () {
         Utils.openPage(context, (context) {
-          return UnsafeRouteScreen(route: UnsafeRoute(), onSave: (route) {
-            setState(() {
-              changed = true;
-              unsafeRoutes[UniqueKey()] = route;
-            });
-          });
+          return UnsafeRouteScreen(
+              route: UnsafeRoute(),
+              onSave: (route) {
+                setState(() {
+                  changed = true;
+                  unsafeRoutes[UniqueKey()] = route;
+                });
+              });
         });
       },
     ));

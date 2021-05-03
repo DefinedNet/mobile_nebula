@@ -87,18 +87,19 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildNoSites() {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Center(child: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 8.0),
-            child: Text('Welcome to Nebula!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 8.0),
+                child: Text('Welcome to Nebula!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+              ),
+              Text('You don\'t have any site configurations installed yet. Hit the plus button above to get started.',
+                  textAlign: TextAlign.center),
+            ],
           ),
-          Text('You don\'t have any site configurations installed yet. Hit the plus button above to get started.',
-              textAlign: TextAlign.center),
-        ],
-      ),
-    ));
+        ));
   }
 
   Widget _buildSites() {
@@ -146,10 +147,7 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     // The theme here is to remove the hardcoded canvas border reordering forces on us
-    return Theme(
-        data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
-        child: child
-    );
+    return Theme(data: Theme.of(context).copyWith(canvasColor: Colors.transparent), child: child);
   }
 
   Widget _debugSave() {
@@ -173,15 +171,16 @@ mUOcsdFcCZiXrj7ryQIG1+WfqA46w71A/lV4nAc=
 -----END NEBULA CERTIFICATE-----''';
 
         var s = Site(
-          name: "DEBUG TEST",
-          id: uuid.v4(),
-          staticHostmap: {
-            "10.1.0.1": StaticHost(lighthouse: true, destinations: [IPAndPort(ip: '10.1.1.53', port: 4242), IPAndPort(ip: '1::1', port: 4242)])
-          },
-          ca: [CertificateInfo.debug(rawCert: ca)],
-          certInfo: CertificateInfo.debug(rawCert: cert),
-          unsafeRoutes: [UnsafeRoute(route: '10.3.3.3/32', via: '10.1.0.1')]
-        );
+            name: "DEBUG TEST",
+            id: uuid.v4(),
+            staticHostmap: {
+              "10.1.0.1": StaticHost(
+                  lighthouse: true,
+                  destinations: [IPAndPort(ip: '10.1.1.53', port: 4242), IPAndPort(ip: '1::1', port: 4242)])
+            },
+            ca: [CertificateInfo.debug(rawCert: ca)],
+            certInfo: CertificateInfo.debug(rawCert: cert),
+            unsafeRoutes: [UnsafeRoute(route: '10.3.3.3/32', via: '10.1.0.1')]);
 
         s.key = '''-----BEGIN NEBULA X25519 PRIVATE KEY-----
 rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
@@ -239,7 +238,8 @@ rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
     }
 
     if (hasErrors) {
-      Utils.popError(context, "Site Error(s)", "1 or more sites have errors and need your attention, problem sites have a red border.");
+      Utils.popError(context, "Site Error(s)",
+          "1 or more sites have errors and need your attention, problem sites have a red border.");
     }
 
     sites.sort((a, b) {

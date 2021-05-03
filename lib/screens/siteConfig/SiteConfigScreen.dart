@@ -140,25 +140,23 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
             Utils.openPage(context, (context) {
               if (site.certInfo != null) {
                 return CertificateDetailsScreen(
-                  certInfo: site.certInfo,
-                  onReplace: (result) {
-                    setState(() {
-                      changed = true;
-                      site.certInfo = result.certInfo;
-                      site.key = result.key;
+                    certInfo: site.certInfo,
+                    onReplace: (result) {
+                      setState(() {
+                        changed = true;
+                        site.certInfo = result.certInfo;
+                        site.key = result.key;
+                      });
                     });
-                  }
-                );
               }
 
-              return AddCertificateScreen(
-                  onSave: (result) {
-                    setState(() {
-                      changed = true;
-                      site.certInfo = result.certInfo;
-                      site.key = result.key;
-                    });
-                  });
+              return AddCertificateScreen(onSave: (result) {
+                setState(() {
+                  changed = true;
+                  site.certInfo = result.certInfo;
+                  site.key = result.key;
+                });
+              });
             });
           },
         ),

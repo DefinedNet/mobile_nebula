@@ -8,7 +8,13 @@ import 'package:mobile_nebula/services/utils.dart';
 /// SimplePage with a form and built in validation and confirmation to discard changes if any are made
 class FormPage extends StatefulWidget {
   const FormPage(
-      {Key key, this.title, @required this.child, @required this.onSave, @required this.changed, this.hideSave = false, this.scrollController})
+      {Key key,
+      this.title,
+      @required this.child,
+      @required this.onSave,
+      @required this.changed,
+      this.hideSave = false,
+      this.scrollController})
       : super(key: key);
 
   final String title;

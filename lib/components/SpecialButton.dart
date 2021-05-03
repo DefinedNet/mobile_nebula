@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 
 // This is a button that pushes the bare minimum onto you, it doesn't even respect button themes - unless you tell it to
 class SpecialButton extends StatefulWidget {
-  const SpecialButton({Key key, this.child, this.color, this.onPressed, this.useButtonTheme = false, this.decoration}) : super(key: key);
+  const SpecialButton({Key key, this.child, this.color, this.onPressed, this.useButtonTheme = false, this.decoration})
+      : super(key: key);
 
   final Widget child;
   final Color color;
@@ -33,12 +34,12 @@ class _SpecialButtonState extends State<SpecialButton> with SingleTickerProvider
     return Material(
         textStyle: textStyle,
         child: Ink(
-          decoration: widget.decoration,
-          color: widget.color,
-          child: InkWell(
-            child: widget.child,
-            onTap: widget.onPressed,
-          )));
+            decoration: widget.decoration,
+            color: widget.color,
+            child: InkWell(
+              child: widget.child,
+              onTap: widget.onPressed,
+            )));
   }
 
   Widget _buildGeneric() {
@@ -48,22 +49,21 @@ class _SpecialButtonState extends State<SpecialButton> with SingleTickerProvider
     }
 
     return Container(
-      decoration: widget.decoration,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTapDown: _handleTapDown,
-        onTapUp: _handleTapUp,
-        onTapCancel: _handleTapCancel,
-        onTap: widget.onPressed,
-        child: Semantics(
-          button: true,
-          child: FadeTransition(
-            opacity: _opacityAnimation,
-            child: DefaultTextStyle(style: textStyle, child: Container(child: widget.child, color: widget.color)),
+        decoration: widget.decoration,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: _handleTapDown,
+          onTapUp: _handleTapUp,
+          onTapCancel: _handleTapCancel,
+          onTap: widget.onPressed,
+          child: Semantics(
+            button: true,
+            child: FadeTransition(
+              opacity: _opacityAnimation,
+              child: DefaultTextStyle(style: textStyle, child: Container(child: widget.child, color: widget.color)),
+            ),
           ),
-        ),
-      )
-    );
+        ));
   }
 
   // Eyeballed values. Feel free to tweak.

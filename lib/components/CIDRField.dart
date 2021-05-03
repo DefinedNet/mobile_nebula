@@ -56,42 +56,42 @@ class _CIDRFieldState extends State<CIDRField> {
 
     return Container(
         child: Row(children: <Widget>[
-          Expanded(
-              child: Padding(
-                  padding: EdgeInsets.fromLTRB(6, 6, 2, 6),
-                  child: IPField(
-                    help: widget.ipHelp,
-                    ipOnly: true,
-                    textPadding: EdgeInsets.all(0),
-                    textInputAction: TextInputAction.next,
-                    textAlign: TextAlign.end,
-                    focusNode: widget.focusNode,
-                    nextFocusNode: bitsFocus,
-                    onChanged: (val) {
-                      cidr.ip = val;
-                      widget.onChanged(cidr);
-                    },
-                    controller: widget.ipController,
-                  ))),
-          Text("/"),
-          Container(
-              width: Utils.textSize("bits", textStyle).width + 12,
-              padding: EdgeInsets.fromLTRB(2, 6, 6, 6),
-              child: SpecialTextField(
-                keyboardType: TextInputType.number,
-                focusNode: bitsFocus,
-                nextFocusNode: widget.nextFocusNode,
-                controller: widget.bitsController,
+      Expanded(
+          child: Padding(
+              padding: EdgeInsets.fromLTRB(6, 6, 2, 6),
+              child: IPField(
+                help: widget.ipHelp,
+                ipOnly: true,
+                textPadding: EdgeInsets.all(0),
+                textInputAction: TextInputAction.next,
+                textAlign: TextAlign.end,
+                focusNode: widget.focusNode,
+                nextFocusNode: bitsFocus,
                 onChanged: (val) {
-                  cidr.bits = int.tryParse(val ?? "");
+                  cidr.ip = val;
                   widget.onChanged(cidr);
                 },
-                maxLength: 2,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                textInputAction: widget.textInputAction ?? TextInputAction.done,
-                placeholder: 'bits',
-              ))
-        ]));
+                controller: widget.ipController,
+              ))),
+      Text("/"),
+      Container(
+          width: Utils.textSize("bits", textStyle).width + 12,
+          padding: EdgeInsets.fromLTRB(2, 6, 6, 6),
+          child: SpecialTextField(
+            keyboardType: TextInputType.number,
+            focusNode: bitsFocus,
+            nextFocusNode: widget.nextFocusNode,
+            controller: widget.bitsController,
+            onChanged: (val) {
+              cidr.bits = int.tryParse(val ?? "");
+              widget.onChanged(cidr);
+            },
+            maxLength: 2,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            textInputAction: widget.textInputAction ?? TextInputAction.done,
+            placeholder: 'bits',
+          ))
+    ]));
   }
 
   @override

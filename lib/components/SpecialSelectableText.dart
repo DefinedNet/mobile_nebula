@@ -23,15 +23,15 @@ import 'package:flutter/gestures.dart';
 const int iOSHorizontalOffset = -2;
 
 class _TextSpanEditingController extends TextEditingController {
-  _TextSpanEditingController({@required TextSpan textSpan}):
-        assert(textSpan != null),
+  _TextSpanEditingController({@required TextSpan textSpan})
+      : assert(textSpan != null),
         _textSpan = textSpan,
         super(text: textSpan.toPlainText());
 
   final TextSpan _textSpan;
 
   @override
-  TextSpan buildTextSpan({TextStyle style ,bool withComposing}) {
+  TextSpan buildTextSpan({TextStyle style, bool withComposing}) {
     // This does not care about composing.
     return TextSpan(
       style: style,
@@ -49,7 +49,7 @@ class _TextSpanEditingController extends TextEditingController {
 class _SpecialSelectableTextSelectionGestureDetectorBuilder extends TextSelectionGestureDetectorBuilder {
   _SpecialSelectableTextSelectionGestureDetectorBuilder({
     @required _SpecialSelectableTextState state,
-  }) : _state = state,
+  })  : _state = state,
         super(delegate: state);
 
   final _SpecialSelectableTextState _state;
@@ -109,8 +109,7 @@ class _SpecialSelectableTextSelectionGestureDetectorBuilder extends TextSelectio
           break;
       }
     }
-    if (_state.widget.onTap != null)
-      _state.widget.onTap();
+    if (_state.widget.onTap != null) _state.widget.onTap();
   }
 
   @override
@@ -202,40 +201,40 @@ class SpecialSelectableText extends StatefulWidget {
   /// must not be null. If specified, the [maxLines] argument must be greater
   /// than zero.
   const SpecialSelectableText(
-      this.data, {
-        Key key,
-        this.focusNode,
-        this.style,
-        this.strutStyle,
-        this.textAlign,
-        this.textDirection,
-        this.textScaleFactor,
-        this.showCursor = false,
-        this.autofocus = false,
-        ToolbarOptions toolbarOptions,
-        this.minLines,
-        this.maxLines,
-        this.cursorWidth = 2.0,
-        this.cursorRadius,
-        this.cursorColor,
-        this.dragStartBehavior = DragStartBehavior.start,
-        this.enableInteractiveSelection = true,
-        this.onTap,
-        this.scrollPhysics,
-        this.textHeightBehavior,
-        this.textWidthBasis,
-      }) :  assert(showCursor != null),
+    this.data, {
+    Key key,
+    this.focusNode,
+    this.style,
+    this.strutStyle,
+    this.textAlign,
+    this.textDirection,
+    this.textScaleFactor,
+    this.showCursor = false,
+    this.autofocus = false,
+    ToolbarOptions toolbarOptions,
+    this.minLines,
+    this.maxLines,
+    this.cursorWidth = 2.0,
+    this.cursorRadius,
+    this.cursorColor,
+    this.dragStartBehavior = DragStartBehavior.start,
+    this.enableInteractiveSelection = true,
+    this.onTap,
+    this.scrollPhysics,
+    this.textHeightBehavior,
+    this.textWidthBasis,
+  })  : assert(showCursor != null),
         assert(autofocus != null),
         assert(dragStartBehavior != null),
         assert(maxLines == null || maxLines > 0),
         assert(minLines == null || minLines > 0),
         assert(
-        (maxLines == null) || (minLines == null) || (maxLines >= minLines),
-        'minLines can\'t be greater than maxLines',
+          (maxLines == null) || (minLines == null) || (maxLines >= minLines),
+          'minLines can\'t be greater than maxLines',
         ),
         assert(
-        data != null,
-        'A non-null String must be provided to a SpecialSelectableText widget.',
+          data != null,
+          'A non-null String must be provided to a SpecialSelectableText widget.',
         ),
         textSpan = null,
         toolbarOptions = toolbarOptions ??
@@ -252,40 +251,40 @@ class SpecialSelectableText extends StatefulWidget {
   ///
   /// The [autofocus] and [dragStartBehavior] arguments must not be null.
   const SpecialSelectableText.rich(
-      this.textSpan, {
-        Key key,
-        this.focusNode,
-        this.style,
-        this.strutStyle,
-        this.textAlign,
-        this.textDirection,
-        this.textScaleFactor,
-        this.showCursor = false,
-        this.autofocus = false,
-        ToolbarOptions toolbarOptions,
-        this.minLines,
-        this.maxLines,
-        this.cursorWidth = 2.0,
-        this.cursorRadius,
-        this.cursorColor,
-        this.dragStartBehavior = DragStartBehavior.start,
-        this.enableInteractiveSelection = true,
-        this.onTap,
-        this.scrollPhysics,
-        this.textHeightBehavior,
-        this.textWidthBasis,
-      }) :  assert(showCursor != null),
+    this.textSpan, {
+    Key key,
+    this.focusNode,
+    this.style,
+    this.strutStyle,
+    this.textAlign,
+    this.textDirection,
+    this.textScaleFactor,
+    this.showCursor = false,
+    this.autofocus = false,
+    ToolbarOptions toolbarOptions,
+    this.minLines,
+    this.maxLines,
+    this.cursorWidth = 2.0,
+    this.cursorRadius,
+    this.cursorColor,
+    this.dragStartBehavior = DragStartBehavior.start,
+    this.enableInteractiveSelection = true,
+    this.onTap,
+    this.scrollPhysics,
+    this.textHeightBehavior,
+    this.textWidthBasis,
+  })  : assert(showCursor != null),
         assert(autofocus != null),
         assert(dragStartBehavior != null),
         assert(maxLines == null || maxLines > 0),
         assert(minLines == null || minLines > 0),
         assert(
-        (maxLines == null) || (minLines == null) || (maxLines >= minLines),
-        'minLines can\'t be greater than maxLines',
+          (maxLines == null) || (minLines == null) || (maxLines >= minLines),
+          'minLines can\'t be greater than maxLines',
         ),
         assert(
-        textSpan != null,
-        'A non-null TextSpan must be provided to a SpecialSelectableText.rich widget.',
+          textSpan != null,
+          'A non-null TextSpan must be provided to a SpecialSelectableText.rich widget.',
         ),
         data = null,
         toolbarOptions = toolbarOptions ??
@@ -434,13 +433,17 @@ class SpecialSelectableText extends StatefulWidget {
     properties.add(DoubleProperty('cursorWidth', cursorWidth, defaultValue: 2.0));
     properties.add(DiagnosticsProperty<Radius>('cursorRadius', cursorRadius, defaultValue: null));
     properties.add(DiagnosticsProperty<Color>('cursorColor', cursorColor, defaultValue: null));
-    properties.add(FlagProperty('selectionEnabled', value: selectionEnabled, defaultValue: true, ifFalse: 'selection disabled'));
+    properties.add(
+        FlagProperty('selectionEnabled', value: selectionEnabled, defaultValue: true, ifFalse: 'selection disabled'));
     properties.add(DiagnosticsProperty<ScrollPhysics>('scrollPhysics', scrollPhysics, defaultValue: null));
-    properties.add(DiagnosticsProperty<TextHeightBehavior>('textHeightBehavior', textHeightBehavior, defaultValue: null));
+    properties
+        .add(DiagnosticsProperty<TextHeightBehavior>('textHeightBehavior', textHeightBehavior, defaultValue: null));
   }
 }
 
-class _SpecialSelectableTextState extends State<SpecialSelectableText> with AutomaticKeepAliveClientMixin implements TextSelectionGestureDetectorBuilderDelegate {
+class _SpecialSelectableTextState extends State<SpecialSelectableText>
+    with AutomaticKeepAliveClientMixin
+    implements TextSelectionGestureDetectorBuilderDelegate {
   EditableTextState get _editableText => editableTextKey.currentState;
 
   _TextSpanEditingController _controller;
@@ -468,18 +471,14 @@ class _SpecialSelectableTextState extends State<SpecialSelectableText> with Auto
   void initState() {
     super.initState();
     _selectionGestureDetectorBuilder = _SpecialSelectableTextSelectionGestureDetectorBuilder(state: this);
-    _controller = _TextSpanEditingController(
-        textSpan: widget.textSpan ?? TextSpan(text: widget.data)
-    );
+    _controller = _TextSpanEditingController(textSpan: widget.textSpan ?? TextSpan(text: widget.data));
   }
 
   @override
   void didUpdateWidget(SpecialSelectableText oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.data != oldWidget.data || widget.textSpan != oldWidget.textSpan) {
-      _controller = _TextSpanEditingController(
-          textSpan: widget.textSpan ?? TextSpan(text: widget.data)
-      );
+      _controller = _TextSpanEditingController(textSpan: widget.textSpan ?? TextSpan(text: widget.data));
     }
     if (_effectiveFocusNode.hasFocus && _controller.selection.isCollapsed) {
       _showSelectionHandles = false;
@@ -525,20 +524,15 @@ class _SpecialSelectableTextState extends State<SpecialSelectableText> with Auto
   bool _shouldShowSelectionHandles(SelectionChangedCause cause) {
     // When the text field is activated by something that doesn't trigger the
     // selection overlay, we shouldn't show the handles either.
-    if (!_selectionGestureDetectorBuilder.shouldShowSelectionToolbar)
-      return false;
+    if (!_selectionGestureDetectorBuilder.shouldShowSelectionToolbar) return false;
 
-    if (_controller.selection.isCollapsed)
-      return false;
+    if (_controller.selection.isCollapsed) return false;
 
-    if (cause == SelectionChangedCause.keyboard)
-      return false;
+    if (cause == SelectionChangedCause.keyboard) return false;
 
-    if (cause == SelectionChangedCause.longPress)
-      return true;
+    if (cause == SelectionChangedCause.longPress) return true;
 
-    if (_controller.text.isNotEmpty)
-      return true;
+    if (_controller.text.isNotEmpty) return true;
 
     return false;
   }
@@ -555,9 +549,10 @@ class _SpecialSelectableTextState extends State<SpecialSelectableText> with Auto
     assert(debugCheckHasMediaQuery(context));
     assert(debugCheckHasDirectionality(context));
     assert(
-    !(widget.style != null && widget.style.inherit == false &&
-        (widget.style.fontSize == null || widget.style.textBaseline == null)),
-    'inherit false style must supply fontSize and textBaseline',
+      !(widget.style != null &&
+          widget.style.inherit == false &&
+          (widget.style.fontSize == null || widget.style.textBaseline == null)),
+      'inherit false style must supply fontSize and textBaseline',
     );
 
     final ThemeData themeData = Theme.of(context);
@@ -596,8 +591,7 @@ class _SpecialSelectableTextState extends State<SpecialSelectableText> with Auto
 
     final DefaultTextStyle defaultTextStyle = DefaultTextStyle.of(context);
     TextStyle effectiveTextStyle = widget.style;
-    if (widget.style == null || widget.style.inherit)
-      effectiveTextStyle = defaultTextStyle.style.merge(widget.style);
+    if (widget.style == null || widget.style.inherit) effectiveTextStyle = defaultTextStyle.style.merge(widget.style);
     if (MediaQuery.boldTextOverride(context))
       effectiveTextStyle = effectiveTextStyle.merge(const TextStyle(fontWeight: FontWeight.bold));
     final Widget child = RepaintBoundary(
@@ -648,13 +642,12 @@ class _SpecialSelectableTextState extends State<SpecialSelectableText> with Auto
         _effectiveFocusNode.requestFocus();
       },
       child: _selectionGestureDetectorBuilder.buildGestureDetector(
-        behavior: HitTestBehavior.translucent,
-        child: RawKeyboardListener(
-          focusNode: _keyFocusNode,
-          onKey: _onKey,
-          child: child,
-        )
-      ),
+          behavior: HitTestBehavior.translucent,
+          child: RawKeyboardListener(
+            focusNode: _keyFocusNode,
+            onKey: _onKey,
+            child: child,
+          )),
     );
   }
 

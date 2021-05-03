@@ -48,18 +48,32 @@ class _AboutScreenState extends State<AboutScreen> {
       title: 'About',
       child: Column(children: [
         ConfigSection(children: <Widget>[
-          ConfigItem(label: Text('App version'), labelWidth: 150, content: _buildText('${packageInfo.version}-${packageInfo.buildNumber} (sha: $gitSha)')),
-          ConfigItem(label: Text('Nebula version'), labelWidth: 150, content: _buildText('$nebulaVersion ($goVersion)')),
-          ConfigItem(label: Text('Flutter version'), labelWidth: 150, content: _buildText(flutterVersion['frameworkVersion'])),
-          ConfigItem(label: Text('Dart version'), labelWidth: 150, content: _buildText(flutterVersion['dartSdkVersion'])),
+          ConfigItem(
+              label: Text('App version'),
+              labelWidth: 150,
+              content: _buildText('${packageInfo.version}-${packageInfo.buildNumber} (sha: $gitSha)')),
+          ConfigItem(
+              label: Text('Nebula version'), labelWidth: 150, content: _buildText('$nebulaVersion ($goVersion)')),
+          ConfigItem(
+              label: Text('Flutter version'), labelWidth: 150, content: _buildText(flutterVersion['frameworkVersion'])),
+          ConfigItem(
+              label: Text('Dart version'), labelWidth: 150, content: _buildText(flutterVersion['dartSdkVersion'])),
         ]),
         ConfigSection(children: <Widget>[
           //TODO: wire up these other pages
 //          ConfigPageItem(label: Text('Changelog'), labelWidth: 300, onPressed: () => Utils.launchUrl('https://defined.net/mobile/changelog', context)),
-          ConfigPageItem(label: Text('Privacy policy'), labelWidth: 300, onPressed: () => Utils.launchUrl('https://defined.net/privacy-policy', context)),
+          ConfigPageItem(
+              label: Text('Privacy policy'),
+              labelWidth: 300,
+              onPressed: () => Utils.launchUrl('https://defined.net/privacy-policy', context)),
 //          ConfigPageItem(label: Text('Licenses'), labelWidth: 300, onPressed: () => Utils.launchUrl('https://defined.net/mobile/license', context)),
         ]),
-        Padding(padding: EdgeInsets.only(top: 20), child: Text('Copyright © 2020 Defined Networking, Inc', textAlign: TextAlign.center,)),
+        Padding(
+            padding: EdgeInsets.only(top: 20),
+            child: Text(
+              'Copyright © 2020 Defined Networking, Inc',
+              textAlign: TextAlign.center,
+            )),
       ]),
     );
   }
