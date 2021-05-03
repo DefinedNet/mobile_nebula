@@ -1,0 +1,27 @@
+name: Flutter format
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - '.github/workflows/flutterfmt.yml'
+      - '.github/workflows/flutterfmt.sh'
+      - '**.dart'
+jobs:
+
+  gofmt:
+    name: Run flutter format
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Install flutter
+        uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '2.0.5'
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: flutter format
+        run: $GITHUB_WORKSPACE/.github/workflows/flutterfmt.sh
