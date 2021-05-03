@@ -9,7 +9,7 @@ Currently using flutter 2.0.5
 
 Copy env.sh.example to env.sh and update your PATH variable to expose both flutter and go bin directories
 
-  ```export PATH="$PATH:/path/to/go/bin:/path/to/flutter/bin```
+  ```export PATH="$PATH:/path/to/go/bin:/path/to/flutter/bin"```
 
 
 # Formatting
