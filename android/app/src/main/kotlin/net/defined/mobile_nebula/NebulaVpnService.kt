@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.*
 import android.os.*
+import android.system.OsConstants
 import android.util.Log
 import androidx.annotation.RequiresApi
 import mobileNebula.CIDR
@@ -90,6 +91,8 @@ class NebulaVpnService : VpnService() {
                 .addRoute(ipNet.network, ipNet.maskSize.toInt())
                 .setMtu(site!!.mtu)
                 .setSession(TAG)
+                .allowFamily(OsConstants.AF_INET)
+                .allowFamily(OsConstants.AF_INET6);
 
         // Add our unsafe routes
         site!!.unsafeRoutes.forEach { unsafeRoute ->
