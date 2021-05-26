@@ -38,6 +38,14 @@ class Settings {
     _set('logWrap', enabled);
   }
 
+  bool get logLocalTZ {
+    return _getBool('logLocalTZ', false);
+  }
+
+  set logLocalTZ(bool enabled) {
+    _set('logLocalTZ', enabled);
+  }
+
   String _getString(String key, String defaultValue) {
     final val = _settings[key];
     if (val is String) {

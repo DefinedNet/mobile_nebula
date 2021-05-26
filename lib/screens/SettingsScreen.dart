@@ -34,7 +34,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     List<Widget> colorSection = [];
+    List<Widget> logSection = [];
 
+    // System Color Configs
     colorSection.add(ConfigItem(
       label: Text('Use system colors'),
       labelWidth: 200,
@@ -63,10 +65,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             )),
       ));
     }
-
-    List<Widget> items = [];
-    items.add(ConfigSection(children: colorSection));
-    items.add(ConfigItem(
+    // Log Configs
+    logSection.add(ConfigItem(
       label: Text('Wrap log output'),
       labelWidth: 200,
       content: Align(
@@ -81,6 +81,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           )),
     ));
+    logSection.add(ConfigItem(
+      label: Text('Use Local Time Zone'),
+      labelWidth: 200,
+      content: Align(
+          alignment: Alignment.centerRight,
+          child: Switch.adaptive(
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            value: settings.logLocalTZ,
+            onChanged: (value) {
+              setState(() {
+                settings.logLocalTZ = value;
+              });
+            },
+          )),
+    ));
+
+    List<Widget> items = [];
+    items.add(ConfigSection(children: colorSection));
+    items.add(ConfigSection(children: logSection));
     items.add(ConfigSection(children: [
       ConfigPageItem(
         label: Text('About'),
