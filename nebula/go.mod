@@ -15,7 +15,7 @@ require (
 	github.com/prometheus/common v0.23.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/sirupsen/logrus v1.8.1
-	github.com/slackhq/nebula v1.4.0
+	github.com/slackhq/nebula v1.4.1-0.20210603170404-d13f4b5948f4
 	github.com/songgao/water v0.0.0-20200317203138-2b4b6d7c09d8 // indirect
 	github.com/vishvananda/netlink v1.1.0 // indirect
 	github.com/vishvananda/netns v0.0.0-20210104183010-2eb08e3e575f // indirect
