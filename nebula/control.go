@@ -79,7 +79,7 @@ func (n *Nebula) Stop() {
 }
 
 func (n *Nebula) Rebind(reason string) {
-	n.l.Infof("Rebinding UDP listener and updating lighthouses due to %s", reason)
+	n.l.Debugln("Rebinding UDP listener and updating lighthouses due to %s", reason)
 	n.c.RebindUDPServer()
 }
 
