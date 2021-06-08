@@ -56,11 +56,10 @@ class Utils {
   /// Builds a simple leading widget that pops the current screen.
   /// Provide your own onPressed to override that behavior, just remember you have to pop
   static Widget leadingBackWidget(BuildContext context, {label = 'Back', Function onPressed}) {
-    if (Platform.isAndroid) {
-      return IconButton(
+    if (Platform.isIOS) {
+      return CupertinoButton(
+        child: Row(children: <Widget>[Icon(context.platformIcons.back), Text(label)]),
         padding: EdgeInsets.zero,
-        icon: Icon(context.platformIcons.back),
-        tooltip: label,
         onPressed: () {
           if (onPressed == null) {
             Navigator.pop(context);
@@ -71,9 +70,10 @@ class Utils {
       );
     }
 
-    return CupertinoButton(
-      child: Row(children: <Widget>[Icon(context.platformIcons.back), Text(label)]),
+    return IconButton(
       padding: EdgeInsets.zero,
+      icon: Icon(context.platformIcons.back),
+      tooltip: label,
       onPressed: () {
         if (onPressed == null) {
           Navigator.pop(context);
@@ -121,7 +121,11 @@ class Utils {
         });
   }
 
-  static popError(BuildContext context, String title, String error) {
+  static popError(BuildContext context, String title, String error, {StackTrace stack}) {
+    if (stack != null) {
+      error += '\n${stack.toString()}';
+    }
+
     showDialog(
         context: context,
         barrierDismissible: false,
