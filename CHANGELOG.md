@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.41] - 2020-06-09
+
 ### Added
 
 - Added an option to wrap logs in the hamburger menu. (#10)
@@ -40,3 +42,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial public release.
 
 [0.0.38]: https://github.com/DefinedNet/mobile_nebula/releases/tag/v0.0.38
+[0.0.41]: https://github.com/DefinedNet/mobile_nebula/releases/tag/v0.0.41
