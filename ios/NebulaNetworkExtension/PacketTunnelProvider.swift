@@ -6,21 +6,21 @@ import SwiftyJSON
 class PacketTunnelProvider: NEPacketTunnelProvider {
     private var networkMonitor: NWPathMonitor?
     private var ifname: String?
-    
+
     private var site: Site?
-    private var _log = OSLog(subsystem: "net.defined.mobileNebula", category: "PacketTunnelProvider")
+    private var _log = OSLog(subsystem: "org.mooco.mobilenebula", category: "PacketTunnelProvider")
     private var nebula: MobileNebulaNebula?
     private var didSleep = false
     private var cachedRouteDescription: String?
-    
+
     // This is the system completionHandler, only set when we expect the UI to ask us to actually start so that errors can flow back to the UI
     private var startCompleter: ((Error?) -> Void)?
-    
+
     private func log(_ message: StaticString, _ args: Any...) {
         os_log(message, log: _log, args)
     }
-    
-    override func startTunnel(options: [String : NSObject]?, completionHandler: @escaping (Error?) -> Void) {       
+
+    override func startTunnel(options: [String : NSObject]?, completionHandler: @escaping (Error?) -> Void) {
         // There is currently no way to get initialization errors back to the UI via completionHandler here
         // `expectStart` is sent only via the UI which means we should wait for the real start command which has another completion handler the UI can intercept
         // In the end we need to call this completionHandler to inform the system of our state
@@ -28,12 +28,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             startCompleter = completionHandler
             return
         }
-        
+
         // VPN is being booted out of band of the UI. Use the system completion handler as there will be nothing to route initialization errors to but we still need to report
         // success/fail by the presence of an error or nil
         start(completionHandler: completionHandler)
     }
-    
+
     private func start(completionHandler: @escaping (Error?) -> Void) {
         let proto = self.protocolConfiguration as! NETunnelProviderProtocol
         var config: Data
@@ -49,7 +49,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         }
 
         let _site = site!
-        _log = OSLog(subsystem: "net.defined.mobileNebula:\(_site.name)", category: "PacketTunnelProvider")
+        _log = OSLog(subsystem: "org.mooco.mobilenebula:\(_site.name)", category: "PacketTunnelProvider")
 
         do {
             key = try _site.getKey()
@@ -111,30 +111,30 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             completionHandler(nil)
         })
     }
-    
+
 //TODO: Sleep/wake get called aggresively and do nothing to help us here, we should locate why that is and make these work appropriately
 //    override func sleep(completionHandler: @escaping () -> Void) {
 //        nebula!.sleep()
 //        completionHandler()
 //    }
-    
+
     private func startNetworkMonitor() {
         networkMonitor = NWPathMonitor()
         networkMonitor!.pathUpdateHandler = self.pathUpdate
         networkMonitor!.start(queue: DispatchQueue(label: "NetworkMonitor"))
     }
-    
+
     private func stopNetworkMonitor() {
         self.networkMonitor?.cancel()
         networkMonitor = nil
     }
-    
+
     override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
         nebula?.stop()
         stopNetworkMonitor()
         completionHandler()
     }
-        
+
     private func pathUpdate(path: Network.NWPath) {
         let routeDescription = collectAddresses(endpoints: path.gateways)
         if routeDescription != cachedRouteDescription {
@@ -145,7 +145,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             cachedRouteDescription = routeDescription
         }
     }
-    
+
     private func collectAddresses(endpoints: [Network.NWEndpoint]) -> String {
         var str: [String] = []
         endpoints.forEach{ endpoint in
@@ -158,19 +158,19 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 return
             }
         }
-        
+
         return str.sorted().joined(separator: ", ")
     }
-    
+
     override func handleAppMessage(_ data: Data, completionHandler: ((Data?) -> Void)? = nil) {
         guard let call = try? JSONDecoder().decode(IPCRequest.self, from: data) else {
             log("Failed to decode IPCRequest from network extension")
             return
         }
-        
+
         var error: Error?
         var data: JSON?
-        
+
         // start command has special treatment due to needing to call two completers
         if call.command == "start" {
             self.start() { error in
@@ -179,20 +179,20 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                     if error == nil {
                         // Clean boot, no errors
                         self.startCompleter!(nil)
-                        
+
                     } else {
                         // We encountered an error, we can just pass NSError() here since ios throws it away
                         // But we will provide it in the event we can intercept the error without doing this workaround sometime in the future
                         self.startCompleter!(error!.localizedDescription)
                     }
                 }
-                
+
                 // Notify the UI if we have a completionHandler
                 if completionHandler != nil {
                     if error == nil {
                         // No response data, this is expected on a clean start
                         completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .success, message: nil)))
-                        
+
                     } else {
                         // Error response has
                         completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .error, message: JSON(error!.localizedDescription))))
@@ -201,13 +201,13 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             }
             return
         }
-        
+
         if nebula == nil {
             // Respond with an empty success message in the event a command comes in before we've truly started
             log("Received command but do not have a nebula instance")
             return completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .success, message: nil)))
         }
-        
+
         //TODO: try catch over all this
         switch call.command {
         case "listHostmap": (data, error) = listHostmap(pending: false)
@@ -215,39 +215,38 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         case "getHostInfo": (data, error) = getHostInfo(args: call.arguments!)
         case "setRemoteForTunnel": (data, error) = setRemoteForTunnel(args: call.arguments!)
         case "closeTunnel": (data, error) = closeTunnel(args: call.arguments!)
-            
+
         default:
             error = "Unknown IPC message type \(call.command)"
         }
-        
+
         if (error != nil) {
             completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .error, message: JSON(error?.localizedDescription ?? "Unknown error"))))
         } else {
             completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .success, message: data)))
         }
     }
-    
+
     private func listHostmap(pending: Bool) -> (JSON?, Error?) {
         var err: NSError?
         let res = nebula!.listHostmap(pending, error: &err)
         return (JSON(res), err)
     }
-    
+
     private func getHostInfo(args: JSON) -> (JSON?, Error?) {
         var err: NSError?
         let res = nebula!.getHostInfo(byVpnIp: args["vpnIp"].string, pending: args["pending"].boolValue, error: &err)
         return (JSON(res), err)
     }
-    
+
     private func setRemoteForTunnel(args: JSON) -> (JSON?, Error?) {
         var err: NSError?
         let res = nebula!.setRemoteForTunnel(args["vpnIp"].string, addr: args["addr"].string, error: &err)
         return (JSON(res), err)
     }
-    
+
     private func closeTunnel(args: JSON) -> (JSON?, Error?) {
         let res = nebula!.closeTunnel(args["vpnIp"].string)
         return (JSON(res), nil)
     }
 }
-

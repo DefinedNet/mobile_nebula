@@ -1,6 +1,6 @@
 import Foundation
 
-let groupName = "group.net.defined.mobileNebula"
+let groupName = "group.org.mooco.mobilenebula"
 
 class KeyChain {
     class func save(key: String, data: Data) -> Bool {
@@ -35,7 +35,7 @@ class KeyChain {
             return nil
         }
     }
-    
+
     class func delete(key: String) -> Bool {
        let query: [String: Any] = [
            kSecClass as String       : kSecClassGenericPassword,
@@ -64,4 +64,3 @@ extension Data {
         return self.withUnsafeBytes { $0.load(as: T.self) }
     }
 }
-

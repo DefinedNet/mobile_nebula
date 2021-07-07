@@ -13,7 +13,7 @@ class IPCResponse: Codable {
     var type: IPCResponseType
     //TODO: change message to data?
     var message: JSON?
-    
+
     init(type: IPCResponseType, message: JSON?) {
         self.type = type
         self.message = message
@@ -23,12 +23,12 @@ class IPCResponse: Codable {
 class IPCRequest: Codable {
     var command: String
     var arguments: JSON?
-    
+
     init(command: String, arguments: JSON?) {
         self.command = command
         self.arguments = arguments
     }
-    
+
     init(command: String) {
         self.command = command
     }
@@ -38,7 +38,7 @@ struct CertificateInfo: Codable {
     var cert: Certificate
     var rawCert: String
     var validity: CertificateValidity
-    
+
     enum CodingKeys: String, CodingKey {
         case cert = "Cert"
         case rawCert = "RawCert"
@@ -50,7 +50,7 @@ struct Certificate: Codable {
     var fingerprint: String
     var signature: String
     var details: CertificateDetails
-    
+
     /// An empty initilizer to make error reporting easier
     init() {
         fingerprint = ""
@@ -69,7 +69,7 @@ struct CertificateDetails: Codable {
     var subnets: [String]
     var isCa: Bool
     var issuer: String
-    
+
     /// An empty initilizer to make error reporting easier
     init() {
         name = ""
@@ -87,7 +87,7 @@ struct CertificateDetails: Codable {
 struct CertificateValidity: Codable {
     var valid: Bool
     var reason: String
-    
+
     enum CodingKeys: String, CodingKey {
         case valid = "Valid"
         case reason = "Reason"
@@ -117,7 +117,7 @@ class Site: Codable {
     // Stored in manager
     var name: String
     var id: String
-    
+
     // Stored in proto
     var staticHostmap: Dictionary<String, StaticHosts>
     var unsafeRoutes: [UnsafeRoute]
@@ -132,12 +132,12 @@ class Site: Codable {
     var connected: Bool? //TODO: active is a better name
     var status: String?
     var logFile: String?
-    
+
     // A list of error encountered when trying to rehydrate a site from config
     var errors: [String]
-    
+
     var manager: NETunnelProviderManager?
-    
+
     // Creates a new site from a vpn manager instance
     convenience init(manager: NETunnelProviderManager) throws {
         //TODO: Throw an error and have Sites delete the site, notify the user instead of using !
@@ -147,7 +147,7 @@ class Site: Codable {
         self.connected = statusMap[manager.connection.status]
         self.status = statusString[manager.connection.status]
     }
-    
+
     convenience init(proto: NETunnelProviderProtocol) throws {
         let dict = proto.providerConfiguration
         let config = dict?["config"] as? Data ?? Data()
@@ -155,25 +155,25 @@ class Site: Codable {
         let incoming = try decoder.decode(IncomingSite.self, from: config)
         self.init(incoming: incoming)
     }
-    
+
     init(incoming: IncomingSite) {
         var err: NSError?
-        
+
         errors = []
         name = incoming.name
         id = incoming.id
         staticHostmap = incoming.staticHostmap
         unsafeRoutes = incoming.unsafeRoutes ?? []
-        
+
         do {
             let rawCert = incoming.cert
             let rawDetails = MobileNebulaParseCerts(rawCert, &err)
             if (err != nil) {
                 throw err!
             }
-            
+
             var certs: [CertificateInfo]
-            
+
             certs = try JSONDecoder().decode([CertificateInfo].self, from: rawDetails.data(using: .utf8)!)
             if (certs.count == 0) {
                 throw "No certificate found"
@@ -182,11 +182,11 @@ class Site: Codable {
             if (!cert!.validity.valid) {
                 errors.append("Certificate is invalid: \(cert!.validity.reason)")
             }
-            
+
         } catch {
             errors.append("Error while loading certificate: \(error.localizedDescription)")
         }
-        
+
         do {
             let rawCa = incoming.ca
             let rawCaDetails = MobileNebulaParseCerts(rawCa, &err)
@@ -194,31 +194,31 @@ class Site: Codable {
                 throw err!
             }
             ca = try JSONDecoder().decode([CertificateInfo].self, from: rawCaDetails.data(using: .utf8)!)
-            
+
             var hasErrors = false
             ca.forEach { cert in
                 if (!cert.validity.valid) {
                     hasErrors = true
                 }
             }
-            
+
             if (hasErrors) {
                 errors.append("There are issues with 1 or more ca certificates")
             }
-            
+
         } catch {
             ca = []
             errors.append("Error while loading certificate authorities: \(error.localizedDescription)")
         }
-        
+
         lhDuration = incoming.lhDuration
         port = incoming.port
         cipher = incoming.cipher
         sortKey = incoming.sortKey ?? 0
         logVerbosity = incoming.logVerbosity ?? "info"
         mtu = incoming.mtu ?? 1300
-        logFile = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.net.defined.mobileNebula")?.appendingPathComponent(id).appendingPathExtension("log").path
-        
+        logFile = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.org.mooco.mobilenebula")?.appendingPathComponent(id).appendingPathExtension("log").path
+
         if (errors.isEmpty) {
             do {
                 let encoder = JSONEncoder()
@@ -235,7 +235,7 @@ class Site: Codable {
             }
         }
     }
-    
+
     // Gets the private key from the keystore, we don't always need it in memory
     func getKey() throws -> String {
         guard let keyData = KeyChain.load(key: "\(id).key") else {
@@ -245,7 +245,7 @@ class Site: Codable {
         //TODO: make sure this is valid on return!
         return String(decoding: keyData, as: UTF8.self)
     }
-    
+
     // Limits what we export to the UI
     private enum CodingKeys: String, CodingKey {
         case name
@@ -293,7 +293,7 @@ struct IncomingSite: Codable {
     var sortKey: Int?
     var logVerbosity: String?
     var key: String?
-    
+
     func save(manager: NETunnelProviderManager?, callback: @escaping (Error?) -> ()) {
 #if targetEnvironment(simulator)
         let fileManager = FileManager.default
@@ -308,7 +308,7 @@ struct IncomingSite: Codable {
         } catch {
             return callback(error)
         }
-        
+
         callback(nil)
 #else
         if (manager != nil) {
@@ -317,19 +317,19 @@ struct IncomingSite: Codable {
                 if (error != nil) {
                     return callback(error)
                 }
-                
+
                 return self.finish(manager: manager!, callback: callback)
             }
             return
         }
-        
+
         return finish(manager: NETunnelProviderManager(), callback: callback)
 #endif
     }
-    
+
     private func finish(manager: NETunnelProviderManager, callback: @escaping (Error?) -> ()) {
         var config = self
-        
+
         // Store the private key if it was provided
         if (config.key != nil) {
             //TODO: should we ensure the resulting data is big enough? (conversion didn't fail)
@@ -338,7 +338,7 @@ struct IncomingSite: Codable {
                 return callback("failed to store key material in keychain")
             }
         }
-        
+
         // Zero out the key so that we don't save it in the profile
         config.key = nil
 
@@ -353,10 +353,10 @@ struct IncomingSite: Codable {
         } catch {
             return callback(error)
         }
-        
+
         proto.providerConfiguration = ["config": rawConfig]
         proto.serverAddress = "Nebula"
-        
+
         // Finish up the manager, this is what stores everything at the system level
         manager.protocolConfiguration = proto
         //TODO: cert name?        manager.protocolConfiguration?.username

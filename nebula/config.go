@@ -74,7 +74,13 @@ func newConfig() *config {
 					Host:  "any",
 				},
 			},
-			Inbound: []configFirewallRule{},
+			Inbound: []configFirewallRule{
+        {
+					Port:  "any",
+					Proto: "any",
+					Host:  "any",
+				},
+      },
 		},
 	}
 }

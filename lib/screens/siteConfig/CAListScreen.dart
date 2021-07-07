@@ -33,7 +33,7 @@ class _CAListScreenState extends State<CAListScreen> {
   bool changed = false;
   var inputType = "paste";
   final pasteController = TextEditingController();
-  static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
+  static const platform = MethodChannel('org.mooco.mobilenebula/NebulaVpnService');
   var error = "";
 
   @override

@@ -18,7 +18,7 @@ import io.flutter.plugins.GeneratedPluginRegistrant
 const val TAG = "nebula"
 const val VPN_PERMISSIONS_CODE = 0x0F
 const val VPN_START_CODE = 0x10
-const val CHANNEL = "net.defined.mobileNebula/NebulaVpnService"
+const val CHANNEL = "org.mooco.mobilenebula/NebulaVpnService"
 
 class MainActivity: FlutterActivity() {
     private var sites: Sites? = null

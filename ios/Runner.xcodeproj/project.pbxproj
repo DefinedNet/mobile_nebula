@@ -282,12 +282,12 @@
 				TargetAttributes = {
 					43AA89532444DA6500EDC39C = {
 						CreatedOnToolsVersion = 11.4;
-						DevelopmentTeam = 576H3XS7FP;
+						DevelopmentTeam = 55X6RF4VV8;
 						ProvisioningStyle = Automatic;
 					};
 					97C146ED1CF9000F007C117D = {
 						CreatedOnToolsVersion = 7.3.1;
-						DevelopmentTeam = 576H3XS7FP;
+						DevelopmentTeam = 55X6RF4VV8;
 						LastSwiftMigration = 1100;
 					};
 				};
@@ -580,7 +580,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 576H3XS7FP;
+				DEVELOPMENT_TEAM = 55X6RF4VV8;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -595,7 +595,7 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				MARKETING_VERSION = 0.0.41;
-				PRODUCT_BUNDLE_IDENTIFIER = net.defined.mobileNebula;
+				PRODUCT_BUNDLE_IDENTIFIER = org.mooco.mobilenebula;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -615,7 +615,7 @@
 				CODE_SIGN_ENTITLEMENTS = NebulaNetworkExtension/NebulaNetworkExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 576H3XS7FP;
+				DEVELOPMENT_TEAM = 55X6RF4VV8;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -629,7 +629,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = net.defined.mobileNebula.NebulaNetworkExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = org.mooco.mobilenebula.NebulaNetworkExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -651,7 +651,7 @@
 				CODE_SIGN_ENTITLEMENTS = NebulaNetworkExtension/NebulaNetworkExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 576H3XS7FP;
+				DEVELOPMENT_TEAM = 55X6RF4VV8;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -664,7 +664,7 @@
 				MARKETING_VERSION = 0.0.41;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = net.defined.mobileNebula.NebulaNetworkExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = org.mooco.mobilenebula.NebulaNetworkExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -684,7 +684,7 @@
 				CODE_SIGN_ENTITLEMENTS = NebulaNetworkExtension/NebulaNetworkExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 576H3XS7FP;
+				DEVELOPMENT_TEAM = 55X6RF4VV8;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -697,7 +697,7 @@
 				MARKETING_VERSION = 0.0.41;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = net.defined.mobileNebula.NebulaNetworkExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = org.mooco.mobilenebula.NebulaNetworkExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -820,7 +820,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 576H3XS7FP;
+				DEVELOPMENT_TEAM = 55X6RF4VV8;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -835,7 +835,7 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				MARKETING_VERSION = 0.0.41;
-				PRODUCT_BUNDLE_IDENTIFIER = net.defined.mobileNebula;
+				PRODUCT_BUNDLE_IDENTIFIER = org.mooco.mobilenebula;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -853,7 +853,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 576H3XS7FP;
+				DEVELOPMENT_TEAM = 55X6RF4VV8;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -868,7 +868,7 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				MARKETING_VERSION = 0.0.41;
-				PRODUCT_BUNDLE_IDENTIFIER = net.defined.mobileNebula;
+				PRODUCT_BUNDLE_IDENTIFIER = org.mooco.mobilenebula;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;

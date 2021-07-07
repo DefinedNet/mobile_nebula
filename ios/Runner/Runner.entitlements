@@ -8,11 +8,11 @@
 	</array>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.net.defined.mobileNebula</string>
+		<string>group.org.mooco.mobilenebula</string>
 	</array>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)group.net.defined.mobileNebula</string>
+		<string>$(AppIdentifierPrefix)group.org.mooco.mobilenebula</string>
 	</array>
 </dict>
 </plist>

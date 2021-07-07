@@ -34,7 +34,7 @@ class _MainScreenState extends State<MainScreen> {
   bool ready = false;
   List<Site> sites;
 
-  static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
+  static const platform = MethodChannel('org.mooco.mobilenebula/NebulaVpnService');
 
   @override
   void initState() {

@@ -34,7 +34,7 @@ class SiteDetailScreen extends StatefulWidget {
 class _SiteDetailScreenState extends State<SiteDetailScreen> {
   Site site;
   StreamSubscription onChange;
-  static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
+  static const platform = MethodChannel('org.mooco.mobilenebula/NebulaVpnService');
   bool changed = false;
   List<HostInfo> activeHosts;
   List<HostInfo> pendingHosts;

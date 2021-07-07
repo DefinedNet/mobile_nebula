@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class Share {
-  static const _channel = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
+  static const _channel = MethodChannel('org.mooco.mobilenebula/NebulaVpnService');
 
   /// Shares a string of text
   /// - title: Title of message or subject if sending an email

@@ -11,7 +11,7 @@ import 'StaticHosts.dart';
 var uuid = Uuid();
 
 class Site {
-  static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
+  static const platform = MethodChannel('org.mooco.mobilenebula/NebulaVpnService');
   EventChannel _updates;
 
   /// Signals that something about this site has changed. onError is called with an error string if there was an error
