@@ -50,7 +50,7 @@ PODS:
   - SDWebImageFLPlugin (0.4.0):
     - FLAnimatedImage (>= 1.0.11)
     - SDWebImage/Core (~> 5.6)
-  - SwiftProtobuf (1.8.0)
+  - SwiftProtobuf (1.9.0)
   - SwiftyJSON (5.0.1)
   - url_launcher (0.0.1):
     - Flutter
@@ -101,7 +101,7 @@ SPEC CHECKSUMS:
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   SDWebImage: 84000f962cbfa70c07f19d2234cbfcf5d779b5dc
   SDWebImageFLPlugin: 6c2295fb1242d44467c6c87dc5db6b0a13228fd8
-  SwiftProtobuf: 2cbd9409689b7df170d82a92a33443c8e3e14a70
+  SwiftProtobuf: ecbec1be9036d15655f6b3443a1c4ea693c97932
   SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
 
