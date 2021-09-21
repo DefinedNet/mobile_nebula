@@ -5,7 +5,6 @@ import SwiftyJSON
 
 class PacketTunnelProvider: NEPacketTunnelProvider {
     private var networkMonitor: NWPathMonitor?
-    private var ifname: String?
     
     private var site: Site?
     private var _log = OSLog(subsystem: "net.defined.mobileNebula", category: "PacketTunnelProvider")
@@ -56,19 +55,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         } catch {
             return completionHandler(error)
         }
-
-        let fileDescriptor = (self.packetFlow.value(forKeyPath: "socket.fileDescriptor") as? Int32) ?? -1
-        if fileDescriptor < 0 {
-            return completionHandler("Starting tunnel failed: Could not determine file descriptor")
+        
+        let fileDescriptor = tunnelFileDescriptor
+        if fileDescriptor == nil {
+            return completionHandler("Unable to locate the tun file descriptor")
         }
-
-        var ifnameSize = socklen_t(IFNAMSIZ)
-        let ifnamePtr = UnsafeMutablePointer<CChar>.allocate(capacity: Int(ifnameSize))
-        ifnamePtr.initialize(repeating: 0, count: Int(ifnameSize))
-        if getsockopt(fileDescriptor, 2 /* SYSPROTO_CONTROL */, 2 /* UTUN_OPT_IFNAME */, ifnamePtr, &ifnameSize) == 0 {
-            self.ifname = String(cString: ifnamePtr)
-        }
-        ifnamePtr.deallocate()
+        let tunFD = Int(fileDescriptor!)
 
         // This is set to 127.0.0.1 because it has to be something..
         let tunnelNetworkSettings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: "127.0.0.1")
@@ -100,7 +92,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             }
 
             var err: NSError?
-            self.nebula = MobileNebulaNewNebula(String(data: config, encoding: .utf8), key, self.site!.logFile, Int(fileDescriptor), &err)
+            self.nebula = MobileNebulaNewNebula(String(data: config, encoding: .utf8), key, self.site!.logFile, tunFD, &err)
             self.startNetworkMonitor()
 
             if err != nil {
@@ -248,6 +240,38 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private func closeTunnel(args: JSON) -> (JSON?, Error?) {
         let res = nebula!.closeTunnel(args["vpnIp"].string)
         return (JSON(res), nil)
+    }
+    
+    private var tunnelFileDescriptor: Int32? {
+        var ctlInfo = ctl_info()
+        withUnsafeMutablePointer(to: &ctlInfo.ctl_name) {
+            $0.withMemoryRebound(to: CChar.self, capacity: MemoryLayout.size(ofValue: $0.pointee)) {
+                _ = strcpy($0, "com.apple.net.utun_control")
+            }
+        }
+        for fd: Int32 in 0...1024 {
+            var addr = sockaddr_ctl()
+            var ret: Int32 = -1
+            var len = socklen_t(MemoryLayout.size(ofValue: addr))
+            withUnsafeMutablePointer(to: &addr) {
+                $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                    ret = getpeername(fd, $0, &len)
+                }
+            }
+            if ret != 0 || addr.sc_family != AF_SYSTEM {
+                continue
+            }
+            if ctlInfo.ctl_id == 0 {
+                ret = ioctl(fd, CTLIOCGINFO, &ctlInfo)
+                if ret != 0 {
+                    continue
+                }
+            }
+            if addr.sc_id == ctlInfo.ctl_id {
+                return fd
+            }
+        }
+        return nil
     }
 }
 
