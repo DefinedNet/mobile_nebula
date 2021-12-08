@@ -1,7 +1,6 @@
 package mobileNebula
 
 import (
-	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,6 +11,10 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/slackhq/nebula"
+	nc "github.com/slackhq/nebula/config"
+	"github.com/slackhq/nebula/iputil"
+	"github.com/slackhq/nebula/udp"
+	"github.com/slackhq/nebula/util"
 )
 
 type Nebula struct {
@@ -40,17 +43,17 @@ func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebul
 	}
 	l.SetOutput(f)
 
-	config := nebula.NewConfig(l)
-	err = config.LoadString(yamlConfig)
+	c := nc.NewC(l)
+	err = c.LoadString(yamlConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load config: %s", err)
 	}
 
 	//TODO: inject our version
-	c, err := nebula.Main(config, false, "", l, &tunFd)
+	ctrl, err := nebula.Main(c, false, "", l, &tunFd)
 	if err != nil {
 		switch v := err.(type) {
-		case nebula.ContextualError:
+		case util.ContextualError:
 			v.Log(l)
 			return nil, v.Unwrap()
 		default:
@@ -59,7 +62,7 @@ func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebul
 		}
 	}
 
-	return &Nebula{c, l}, nil
+	return &Nebula{ctrl, l}, nil
 }
 
 func (n *Nebula) Log(v string) {
@@ -94,7 +97,7 @@ func (n *Nebula) ListHostmap(pending bool) (string, error) {
 }
 
 func (n *Nebula) GetHostInfoByVpnIp(vpnIp string, pending bool) (string, error) {
-	b, err := json.Marshal(n.c.GetHostInfoByVpnIP(stringIpToInt(vpnIp), pending))
+	b, err := json.Marshal(n.c.GetHostInfoByVpnIp(stringIpToInt(vpnIp), pending))
 	if err != nil {
 		return "", err
 	}
@@ -107,7 +110,7 @@ func (n *Nebula) CloseTunnel(vpnIp string) bool {
 }
 
 func (n *Nebula) SetRemoteForTunnel(vpnIp string, addr string) (string, error) {
-	udpAddr := nebula.NewUDPAddrFromString(addr)
+	udpAddr := udp.NewAddrFromString(addr)
 	if udpAddr == nil {
 		return "", errors.New("could not parse udp address")
 	}
@@ -126,10 +129,6 @@ func (n *Nebula) Sleep() {
 	}
 }
 
-func stringIpToInt(ip string) uint32 {
-	n := net.ParseIP(ip)
-	if len(n) == 16 {
-		return binary.BigEndian.Uint32(n[12:16])
-	}
-	return binary.BigEndian.Uint32(n)
+func stringIpToInt(ip string) iputil.VpnIp {
+	return iputil.Ip2VpnIp(net.ParseIP(ip))
 }
