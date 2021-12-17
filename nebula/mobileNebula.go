@@ -14,6 +14,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/slackhq/nebula"
 	"github.com/slackhq/nebula/cert"
+	nc "github.com/slackhq/nebula/config"
+	"github.com/slackhq/nebula/util"
 	"golang.org/x/crypto/curve25519"
 	"gopkg.in/yaml.v2"
 )
@@ -127,16 +129,16 @@ func TestConfig(configData string, key string) error {
 	l := logrus.New()
 	l.SetOutput(bytes.NewBuffer([]byte{}))
 
-	config := nebula.NewConfig(l)
-	err = config.LoadString(yamlConfig)
+	c := nc.NewC(l)
+	err = c.LoadString(yamlConfig)
 	if err != nil {
 		return fmt.Errorf("failed to load config: %s", err)
 	}
 
-	_, err = nebula.Main(config, true, "", l, nil)
+	_, err = nebula.Main(c, true, "", l, nil)
 	if err != nil {
 		switch v := err.(type) {
-		case nebula.ContextualError:
+		case util.ContextualError:
 			return v.Unwrap()
 		default:
 			return err
@@ -150,9 +152,9 @@ func GetConfigSetting(configData string, setting string) string {
 	l := logrus.New()
 	l.SetOutput(ioutil.Discard)
 
-	config := nebula.NewConfig(l)
-	config.LoadString(configData)
-	return config.GetString(setting, "")
+	c := nc.NewC(l)
+	c.LoadString(configData)
+	return c.GetString(setting, "")
 }
 
 func ParseCIDR(cidr string) (*CIDR, error) {
