@@ -211,6 +211,8 @@ github.com/sirupsen/logrus v1.8.1/go.mod h1:yWOB1SBYBC5VeMP7gHvWumXLIWorT60ONWic
 github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e/go.mod h1:XV66xRDqSt+GTGFMVlhk3ULuV0y9ZmzeVGR4mloJI3M=
 github.com/slackhq/nebula v1.5.1-0.20211208034030-e31006d546d0 h1:oKwjlwUbrwL0ycCUgmyJ/N5jxNM8F0pMsObn+Ev5dAg=
 github.com/slackhq/nebula v1.5.1-0.20211208034030-e31006d546d0/go.mod h1:xaCM6wqbFk/NRmmUe1bv88fWBm3a1UioXJVIpR52WlE=
+github.com/slackhq/nebula v1.5.2 h1:wuIOHsOnrNw3rQx8yPxXiGu8wAtAxxtUI/K8W7Vj7EI=
+github.com/slackhq/nebula v1.5.2/go.mod h1:xaCM6wqbFk/NRmmUe1bv88fWBm3a1UioXJVIpR52WlE=
 github.com/songgao/water v0.0.0-20200317203138-2b4b6d7c09d8 h1:TG/diQgUe0pntT/2D9tmUCz4VNwm9MfrtPr0SU2qSX8=
 github.com/songgao/water v0.0.0-20200317203138-2b4b6d7c09d8/go.mod h1:P5HUIBuIWKbyjl083/loAegFkfbFNx5i2qEP4CNbm7E=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
