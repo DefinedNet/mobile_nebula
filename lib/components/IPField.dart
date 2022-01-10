@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_nebula/components/SpecialTextField.dart';
+
 import '../services/utils.dart';
 
 class IPField extends StatelessWidget {
@@ -34,12 +35,14 @@ class IPField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var textStyle = CupertinoTheme.of(context).textTheme.textStyle;
-    final double ipWidth = ipOnly ? Utils.textSize("000000000000000", textStyle).width + 12 : null;
+    final double ipWidth =
+        ipOnly ? Utils.textSize("000000000000000", textStyle).width + 12 : null;
 
     return SizedBox(
         width: ipWidth,
         child: SpecialTextField(
-          keyboardType: ipOnly ? TextInputType.numberWithOptions(decimal: true) : null,
+          keyboardType:
+              ipOnly ? TextInputType.numberWithOptions(decimal: true) : null,
           textAlign: textAlign,
           autofocus: autoFocus,
           focusNode: focusNode,
@@ -47,8 +50,12 @@ class IPField extends StatelessWidget {
           controller: controller,
           onChanged: onChanged,
           maxLength: ipOnly ? 15 : null,
-          maxLengthEnforced: ipOnly ? true : false,
-          inputFormatters: ipOnly ? [IPTextInputFormatter()] : [FilteringTextInputFormatter.allow(RegExp(r'[^\s]+'))],
+          maxLengthEnforcement: ipOnly
+              ? MaxLengthEnforcement.enforced
+              : MaxLengthEnforcement.none,
+          inputFormatters: ipOnly
+              ? [IPTextInputFormatter()]
+              : [FilteringTextInputFormatter.allow(RegExp(r'[^\s]+'))],
           textInputAction: this.textInputAction,
           placeholder: help,
         ));
@@ -59,7 +66,8 @@ class IPTextInputFormatter extends TextInputFormatter {
   final Pattern whitelistedPattern = RegExp(r'[\d\.,]+');
 
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     return _selectionAwareTextManipulation(
       newValue,
       (String substring) {
@@ -84,9 +92,12 @@ TextEditingValue _selectionAwareTextManipulation(
   if (selectionStartIndex < 0 || selectionEndIndex < 0) {
     manipulatedText = substringManipulation(value.text);
   } else {
-    final String beforeSelection = substringManipulation(value.text.substring(0, selectionStartIndex));
-    final String inSelection = substringManipulation(value.text.substring(selectionStartIndex, selectionEndIndex));
-    final String afterSelection = substringManipulation(value.text.substring(selectionEndIndex));
+    final String beforeSelection =
+        substringManipulation(value.text.substring(0, selectionStartIndex));
+    final String inSelection = substringManipulation(
+        value.text.substring(selectionStartIndex, selectionEndIndex));
+    final String afterSelection =
+        substringManipulation(value.text.substring(selectionEndIndex));
     manipulatedText = beforeSelection + inSelection + afterSelection;
     if (value.selection.baseOffset > value.selection.extentOffset) {
       manipulatedSelection = value.selection.copyWith(
@@ -102,7 +113,9 @@ TextEditingValue _selectionAwareTextManipulation(
   }
   return TextEditingValue(
     text: manipulatedText,
-    selection: manipulatedSelection ?? const TextSelection.collapsed(offset: -1),
-    composing: manipulatedText == value.text ? value.composing : TextRange.empty,
+    selection:
+        manipulatedSelection ?? const TextSelection.collapsed(offset: -1),
+    composing:
+        manipulatedText == value.text ? value.composing : TextRange.empty,
   );
 }

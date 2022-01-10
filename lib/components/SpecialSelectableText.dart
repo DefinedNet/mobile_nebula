@@ -5,12 +5,12 @@
 // @dart = 2.8
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 
 //TODO: please let us delete this file
 
@@ -31,7 +31,8 @@ class _TextSpanEditingController extends TextEditingController {
   final TextSpan _textSpan;
 
   @override
-  TextSpan buildTextSpan({TextStyle style, bool withComposing}) {
+  TextSpan buildTextSpan(
+      {BuildContext context, TextStyle style, bool withComposing}) {
     // This does not care about composing.
     return TextSpan(
       style: style,
@@ -46,7 +47,8 @@ class _TextSpanEditingController extends TextEditingController {
   }
 }
 
-class _SpecialSelectableTextSelectionGestureDetectorBuilder extends TextSelectionGestureDetectorBuilder {
+class _SpecialSelectableTextSelectionGestureDetectorBuilder
+    extends TextSelectionGestureDetectorBuilder {
   _SpecialSelectableTextSelectionGestureDetectorBuilder({
     @required _SpecialSelectableTextState state,
   })  : _state = state,
@@ -420,24 +422,40 @@ class SpecialSelectableText extends StatefulWidget {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<String>('data', data, defaultValue: null));
-    properties.add(DiagnosticsProperty<FocusNode>('focusNode', focusNode, defaultValue: null));
-    properties.add(DiagnosticsProperty<TextStyle>('style', style, defaultValue: null));
-    properties.add(DiagnosticsProperty<bool>('autofocus', autofocus, defaultValue: false));
-    properties.add(DiagnosticsProperty<bool>('showCursor', showCursor, defaultValue: false));
+    properties
+        .add(DiagnosticsProperty<String>('data', data, defaultValue: null));
+    properties.add(DiagnosticsProperty<FocusNode>('focusNode', focusNode,
+        defaultValue: null));
+    properties.add(
+        DiagnosticsProperty<TextStyle>('style', style, defaultValue: null));
+    properties.add(
+        DiagnosticsProperty<bool>('autofocus', autofocus, defaultValue: false));
+    properties.add(DiagnosticsProperty<bool>('showCursor', showCursor,
+        defaultValue: false));
     properties.add(IntProperty('minLines', minLines, defaultValue: null));
     properties.add(IntProperty('maxLines', maxLines, defaultValue: null));
-    properties.add(EnumProperty<TextAlign>('textAlign', textAlign, defaultValue: null));
-    properties.add(EnumProperty<TextDirection>('textDirection', textDirection, defaultValue: null));
-    properties.add(DoubleProperty('textScaleFactor', textScaleFactor, defaultValue: null));
-    properties.add(DoubleProperty('cursorWidth', cursorWidth, defaultValue: 2.0));
-    properties.add(DiagnosticsProperty<Radius>('cursorRadius', cursorRadius, defaultValue: null));
-    properties.add(DiagnosticsProperty<Color>('cursorColor', cursorColor, defaultValue: null));
     properties.add(
-        FlagProperty('selectionEnabled', value: selectionEnabled, defaultValue: true, ifFalse: 'selection disabled'));
-    properties.add(DiagnosticsProperty<ScrollPhysics>('scrollPhysics', scrollPhysics, defaultValue: null));
+        EnumProperty<TextAlign>('textAlign', textAlign, defaultValue: null));
+    properties.add(EnumProperty<TextDirection>('textDirection', textDirection,
+        defaultValue: null));
+    properties.add(
+        DoubleProperty('textScaleFactor', textScaleFactor, defaultValue: null));
     properties
-        .add(DiagnosticsProperty<TextHeightBehavior>('textHeightBehavior', textHeightBehavior, defaultValue: null));
+        .add(DoubleProperty('cursorWidth', cursorWidth, defaultValue: 2.0));
+    properties.add(DiagnosticsProperty<Radius>('cursorRadius', cursorRadius,
+        defaultValue: null));
+    properties.add(DiagnosticsProperty<Color>('cursorColor', cursorColor,
+        defaultValue: null));
+    properties.add(FlagProperty('selectionEnabled',
+        value: selectionEnabled,
+        defaultValue: true,
+        ifFalse: 'selection disabled'));
+    properties.add(DiagnosticsProperty<ScrollPhysics>(
+        'scrollPhysics', scrollPhysics,
+        defaultValue: null));
+    properties.add(DiagnosticsProperty<TextHeightBehavior>(
+        'textHeightBehavior', textHeightBehavior,
+        defaultValue: null));
   }
 }
 
@@ -450,18 +468,21 @@ class _SpecialSelectableTextState extends State<SpecialSelectableText>
 
   FocusNode _keyFocusNode = FocusNode();
   FocusNode _focusNode;
-  FocusNode get _effectiveFocusNode => widget.focusNode ?? (_focusNode ??= FocusNode());
+  FocusNode get _effectiveFocusNode =>
+      widget.focusNode ?? (_focusNode ??= FocusNode());
 
   bool _showSelectionHandles = false;
 
-  _SpecialSelectableTextSelectionGestureDetectorBuilder _selectionGestureDetectorBuilder;
+  _SpecialSelectableTextSelectionGestureDetectorBuilder
+      _selectionGestureDetectorBuilder;
 
   // API for TextSelectionGestureDetectorBuilderDelegate.
   @override
   bool forcePressEnabled;
 
   @override
-  final GlobalKey<EditableTextState> editableTextKey = GlobalKey<EditableTextState>();
+  final GlobalKey<EditableTextState> editableTextKey =
+      GlobalKey<EditableTextState>();
 
   @override
   bool get selectionEnabled => widget.selectionEnabled;
@@ -470,15 +491,19 @@ class _SpecialSelectableTextState extends State<SpecialSelectableText>
   @override
   void initState() {
     super.initState();
-    _selectionGestureDetectorBuilder = _SpecialSelectableTextSelectionGestureDetectorBuilder(state: this);
-    _controller = _TextSpanEditingController(textSpan: widget.textSpan ?? TextSpan(text: widget.data));
+    _selectionGestureDetectorBuilder =
+        _SpecialSelectableTextSelectionGestureDetectorBuilder(state: this);
+    _controller = _TextSpanEditingController(
+        textSpan: widget.textSpan ?? TextSpan(text: widget.data));
   }
 
   @override
   void didUpdateWidget(SpecialSelectableText oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.data != oldWidget.data || widget.textSpan != oldWidget.textSpan) {
-      _controller = _TextSpanEditingController(textSpan: widget.textSpan ?? TextSpan(text: widget.data));
+    if (widget.data != oldWidget.data ||
+        widget.textSpan != oldWidget.textSpan) {
+      _controller = _TextSpanEditingController(
+          textSpan: widget.textSpan ?? TextSpan(text: widget.data));
     }
     if (_effectiveFocusNode.hasFocus && _controller.selection.isCollapsed) {
       _showSelectionHandles = false;
@@ -491,7 +516,8 @@ class _SpecialSelectableTextState extends State<SpecialSelectableText>
     super.dispose();
   }
 
-  void _handleSelectionChanged(TextSelection selection, SelectionChangedCause cause) {
+  void _handleSelectionChanged(
+      TextSelection selection, SelectionChangedCause cause) {
     final bool willShowSelectionHandles = _shouldShowSelectionHandles(cause);
     if (willShowSelectionHandles != _showSelectionHandles) {
       setState(() {
@@ -524,7 +550,8 @@ class _SpecialSelectableTextState extends State<SpecialSelectableText>
   bool _shouldShowSelectionHandles(SelectionChangedCause cause) {
     // When the text field is activated by something that doesn't trigger the
     // selection overlay, we shouldn't show the handles either.
-    if (!_selectionGestureDetectorBuilder.shouldShowSelectionToolbar) return false;
+    if (!_selectionGestureDetectorBuilder.shouldShowSelectionToolbar)
+      return false;
 
     if (_controller.selection.isCollapsed) return false;
 
@@ -544,8 +571,10 @@ class _SpecialSelectableTextState extends State<SpecialSelectableText>
   Widget build(BuildContext context) {
     super.build(context); // See AutomaticKeepAliveClientMixin.
     assert(() {
-      return _controller._textSpan.visitChildren((InlineSpan span) => span.runtimeType == TextSpan);
-    }(), 'SpecialSelectableText only supports TextSpan; Other type of InlineSpan is not allowed');
+      return _controller._textSpan
+          .visitChildren((InlineSpan span) => span.runtimeType == TextSpan);
+    }(),
+        'SpecialSelectableText only supports TextSpan; Other type of InlineSpan is not allowed');
     assert(debugCheckHasMediaQuery(context));
     assert(debugCheckHasDirectionality(context));
     assert(
@@ -574,7 +603,8 @@ class _SpecialSelectableTextState extends State<SpecialSelectableText>
         cursorOpacityAnimates = true;
         cursorColor ??= CupertinoTheme.of(context).primaryColor;
         cursorRadius ??= const Radius.circular(2.0);
-        cursorOffset = Offset(iOSHorizontalOffset / MediaQuery.of(context).devicePixelRatio, 0);
+        cursorOffset = Offset(
+            iOSHorizontalOffset / MediaQuery.of(context).devicePixelRatio, 0);
         break;
 
       case TargetPlatform.android:
@@ -591,22 +621,27 @@ class _SpecialSelectableTextState extends State<SpecialSelectableText>
 
     final DefaultTextStyle defaultTextStyle = DefaultTextStyle.of(context);
     TextStyle effectiveTextStyle = widget.style;
-    if (widget.style == null || widget.style.inherit) effectiveTextStyle = defaultTextStyle.style.merge(widget.style);
+    if (widget.style == null || widget.style.inherit)
+      effectiveTextStyle = defaultTextStyle.style.merge(widget.style);
     if (MediaQuery.boldTextOverride(context))
-      effectiveTextStyle = effectiveTextStyle.merge(const TextStyle(fontWeight: FontWeight.bold));
+      effectiveTextStyle = effectiveTextStyle
+          .merge(const TextStyle(fontWeight: FontWeight.bold));
     final Widget child = RepaintBoundary(
       child: EditableText(
         key: editableTextKey,
         style: effectiveTextStyle,
         readOnly: true,
-        textWidthBasis: widget.textWidthBasis ?? defaultTextStyle.textWidthBasis,
-        textHeightBehavior: widget.textHeightBehavior ?? defaultTextStyle.textHeightBehavior,
+        textWidthBasis:
+            widget.textWidthBasis ?? defaultTextStyle.textWidthBasis,
+        textHeightBehavior:
+            widget.textHeightBehavior ?? defaultTextStyle.textHeightBehavior,
         showSelectionHandles: _showSelectionHandles,
         showCursor: widget.showCursor,
         controller: _controller,
         focusNode: focusNode,
         strutStyle: widget.strutStyle ?? const StrutStyle(),
-        textAlign: widget.textAlign ?? defaultTextStyle.textAlign ?? TextAlign.start,
+        textAlign:
+            widget.textAlign ?? defaultTextStyle.textAlign ?? TextAlign.start,
         textDirection: widget.textDirection,
         textScaleFactor: widget.textScaleFactor,
         autofocus: widget.autofocus,
@@ -615,7 +650,8 @@ class _SpecialSelectableTextState extends State<SpecialSelectableText>
         minLines: widget.minLines,
         maxLines: widget.maxLines ?? defaultTextStyle.maxLines,
         selectionColor: themeData.textSelectionColor,
-        selectionControls: widget.selectionEnabled ? textSelectionControls : null,
+        selectionControls:
+            widget.selectionEnabled ? textSelectionControls : null,
         onSelectionChanged: _handleSelectionChanged,
         onSelectionHandleTapped: _handleSelectionHandleTapped,
         rendererIgnoresPointer: true,
@@ -635,7 +671,8 @@ class _SpecialSelectableTextState extends State<SpecialSelectableText>
     return Semantics(
       onTap: () {
         if (!_controller.selection.isValid)
-          _controller.selection = TextSelection.collapsed(offset: _controller.text.length);
+          _controller.selection =
+              TextSelection.collapsed(offset: _controller.text.length);
         _effectiveFocusNode.requestFocus();
       },
       onLongPress: () {
@@ -663,13 +700,15 @@ class _SpecialSelectableTextState extends State<SpecialSelectableText>
     if (event.data.isControlPressed) {
       // Handle select all
       if (event.logicalKey == LogicalKeyboardKey.keyA) {
-        _controller.selection = TextSelection(baseOffset: 0, extentOffset: _controller.text.length);
+        _controller.selection =
+            TextSelection(baseOffset: 0, extentOffset: _controller.text.length);
         return;
       }
 
       // Handle copy
       if (event.logicalKey == LogicalKeyboardKey.keyC) {
-        Clipboard.setData(ClipboardData(text: _controller.selection.textInside(_controller.text)));
+        Clipboard.setData(ClipboardData(
+            text: _controller.selection.textInside(_controller.text)));
         return;
       }
     }

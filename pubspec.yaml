@@ -30,7 +30,7 @@ dependencies:
   uuid: ^3.0.4
   package_info: ^2.0.0
   url_launcher: ^6.0.6
-  pull_to_refresh: ^1.6.5
+  pull_to_refresh: ^2.0.0
 
 dev_dependencies:
   flutter_test:
