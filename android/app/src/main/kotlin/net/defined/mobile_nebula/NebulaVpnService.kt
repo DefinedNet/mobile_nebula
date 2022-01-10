@@ -91,6 +91,7 @@ class NebulaVpnService : VpnService() {
                 .addRoute(ipNet.network, ipNet.maskSize.toInt())
                 .setMtu(site!!.mtu)
                 .setSession(TAG)
+                .setMetered(false)
                 .allowFamily(OsConstants.AF_INET)
                 .allowFamily(OsConstants.AF_INET6);
 
