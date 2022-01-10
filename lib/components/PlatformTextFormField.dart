@@ -33,8 +33,7 @@ class PlatformTextFormField extends FormField<String> {
       ValueChanged<String> onSaved})
       : super(
             key: key,
-            initialValue:
-                controller != null ? controller.text : (initialValue ?? ''),
+            initialValue: controller != null ? controller.text : (initialValue ?? ''),
             onSaved: onSaved,
             validator: (str) {
               if (validator != null) {
@@ -53,40 +52,35 @@ class PlatformTextFormField extends FormField<String> {
                 field.didChange(value);
               }
 
-              return Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                    SpecialTextField(
-                        key: widgetKey,
-                        controller: state._effectiveController,
-                        focusNode: focusNode,
-                        nextFocusNode: nextFocusNode,
-                        keyboardType: keyboardType,
-                        textInputAction: textInputAction,
+              return Column(crossAxisAlignment: CrossAxisAlignment.end, children: <Widget>[
+                SpecialTextField(
+                    key: widgetKey,
+                    controller: state._effectiveController,
+                    focusNode: focusNode,
+                    nextFocusNode: nextFocusNode,
+                    keyboardType: keyboardType,
+                    textInputAction: textInputAction,
+                    textAlign: textAlign,
+                    autofocus: autofocus,
+                    maxLines: maxLines,
+                    maxLength: maxLength,
+                    maxLengthEnforcement: maxLengthEnforcement,
+                    onChanged: onChangedHandler,
+                    keyboardAppearance: keyboardAppearance,
+                    minLines: minLines,
+                    expands: expands,
+                    textAlignVertical: textAlignVertical,
+                    placeholder: placeholder,
+                    inputFormatters: inputFormatters,
+                    suffix: suffix),
+                field.hasError
+                    ? Text(
+                        field.errorText,
+                        style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
                         textAlign: textAlign,
-                        autofocus: autofocus,
-                        maxLines: maxLines,
-                        maxLength: maxLength,
-                        maxLengthEnforcement: maxLengthEnforcement,
-                        onChanged: onChangedHandler,
-                        keyboardAppearance: keyboardAppearance,
-                        minLines: minLines,
-                        expands: expands,
-                        textAlignVertical: textAlignVertical,
-                        placeholder: placeholder,
-                        inputFormatters: inputFormatters,
-                        suffix: suffix),
-                    field.hasError
-                        ? Text(
-                            field.errorText,
-                            style: TextStyle(
-                                color: CupertinoColors.systemRed
-                                    .resolveFrom(field.context),
-                                fontSize: 13),
-                            textAlign: textAlign,
-                          )
-                        : Container(height: 0)
-                  ]);
+                      )
+                    : Container(height: 0)
+              ]);
             });
 
   final TextEditingController controller;
@@ -98,8 +92,7 @@ class PlatformTextFormField extends FormField<String> {
 class _PlatformTextFormFieldState extends FormFieldState<String> {
   TextEditingController _controller;
 
-  TextEditingController get _effectiveController =>
-      widget.controller ?? _controller;
+  TextEditingController get _effectiveController => widget.controller ?? _controller;
 
   @override
   PlatformTextFormField get widget => super.widget;
@@ -122,8 +115,7 @@ class _PlatformTextFormFieldState extends FormFieldState<String> {
       widget.controller?.addListener(_handleControllerChanged);
 
       if (oldWidget.controller != null && widget.controller == null)
-        _controller =
-            TextEditingController.fromValue(oldWidget.controller.value);
+        _controller = TextEditingController.fromValue(oldWidget.controller.value);
       if (widget.controller != null) {
         setValue(widget.controller.text);
         if (oldWidget.controller == null) _controller = null;
@@ -153,7 +145,6 @@ class _PlatformTextFormFieldState extends FormFieldState<String> {
     // notifications for changes originating from within this class -- for
     // example, the reset() method. In such cases, the FormField value will
     // already have been set.
-    if (_effectiveController.text != value)
-      didChange(_effectiveController.text);
+    if (_effectiveController.text != value) didChange(_effectiveController.text);
   }
 }

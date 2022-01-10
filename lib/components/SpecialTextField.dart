@@ -164,16 +164,14 @@ class _SpecialTextFieldState extends State<SpecialTextField> {
           var start = widget.controller.selection.start;
 
           // Insert our paste buffer into the selection, which can be 0 selected text (normal caret)
-          widget.controller.text =
-              widget.controller.selection.textBefore(widget.controller.text) +
-                  text +
-                  widget.controller.selection.textAfter(widget.controller.text);
+          widget.controller.text = widget.controller.selection.textBefore(widget.controller.text) +
+              text +
+              widget.controller.selection.textAfter(widget.controller.text);
 
           // Adjust our caret to be at the end of the pasted contents, need to take into account the size of the selection
           // We may want runes instead of
           end += text.length - (end - start);
-          widget.controller.selection =
-              TextSelection(baseOffset: end, extentOffset: end);
+          widget.controller.selection = TextSelection(baseOffset: end, extentOffset: end);
         });
 
         return;
@@ -181,31 +179,24 @@ class _SpecialTextFieldState extends State<SpecialTextField> {
 
       // Handle select all
       if (event.logicalKey == LogicalKeyboardKey.keyA) {
-        widget.controller.selection = TextSelection(
-            baseOffset: 0, extentOffset: widget.controller.text.length);
+        widget.controller.selection = TextSelection(baseOffset: 0, extentOffset: widget.controller.text.length);
         return;
       }
 
       // Handle copy
       if (event.logicalKey == LogicalKeyboardKey.keyC) {
-        Clipboard.setData(ClipboardData(
-            text: widget.controller.selection
-                .textInside(widget.controller.text)));
+        Clipboard.setData(ClipboardData(text: widget.controller.selection.textInside(widget.controller.text)));
         return;
       }
 
       // Handle cut
       if (event.logicalKey == LogicalKeyboardKey.keyX) {
-        Clipboard.setData(ClipboardData(
-            text: widget.controller.selection
-                .textInside(widget.controller.text)));
+        Clipboard.setData(ClipboardData(text: widget.controller.selection.textInside(widget.controller.text)));
 
         var start = widget.controller.selection.start;
-        widget.controller.text =
-            widget.controller.selection.textBefore(widget.controller.text) +
-                widget.controller.selection.textAfter(widget.controller.text);
-        widget.controller.selection =
-            TextSelection(baseOffset: start, extentOffset: start);
+        widget.controller.text = widget.controller.selection.textBefore(widget.controller.text) +
+            widget.controller.selection.textAfter(widget.controller.text);
+        widget.controller.selection = TextSelection(baseOffset: start, extentOffset: start);
         return;
       }
     }

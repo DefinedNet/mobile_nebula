@@ -18,7 +18,7 @@ jobs:
       - name: Install flutter
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: '2.0.5'
+          flutter-version: '2.8.0'
 
       - name: Check out code
         uses: actions/checkout@v2
