@@ -18,7 +18,7 @@ class SpecialTextField extends StatefulWidget {
       this.minLines,
       this.maxLines,
       this.maxLength,
-      this.maxLengthEnforced,
+      this.maxLengthEnforcement,
       this.style,
       this.keyboardType,
       this.textInputAction,
@@ -41,7 +41,7 @@ class SpecialTextField extends StatefulWidget {
   final int minLines;
   final int maxLines;
   final int maxLength;
-  final bool maxLengthEnforced;
+  final MaxLengthEnforcement maxLengthEnforcement;
   final Widget suffix;
   final TextStyle style;
   final TextInputType keyboardType;
@@ -92,7 +92,7 @@ class _SpecialTextFieldState extends State<SpecialTextField> {
             minLines: widget.minLines,
             maxLines: widget.maxLines,
             maxLength: widget.maxLength,
-            maxLengthEnforced: widget.maxLengthEnforced,
+            maxLengthEnforcement: widget.maxLengthEnforcement,
             keyboardType: widget.keyboardType,
             keyboardAppearance: widget.keyboardAppearance,
             textInputAction: widget.textInputAction,

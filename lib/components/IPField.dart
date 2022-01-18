@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_nebula/components/SpecialTextField.dart';
+
 import '../services/utils.dart';
 
 class IPField extends StatelessWidget {
@@ -47,7 +48,7 @@ class IPField extends StatelessWidget {
           controller: controller,
           onChanged: onChanged,
           maxLength: ipOnly ? 15 : null,
-          maxLengthEnforced: ipOnly ? true : false,
+          maxLengthEnforcement: ipOnly ? MaxLengthEnforcement.enforced : MaxLengthEnforcement.none,
           inputFormatters: ipOnly ? [IPTextInputFormatter()] : [FilteringTextInputFormatter.allow(RegExp(r'[^\s]+'))],
           textInputAction: this.textInputAction,
           placeholder: help,
