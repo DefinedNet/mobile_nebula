@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/FormPage.dart';
-import 'package:mobile_nebula/components/SpecialSelectableText.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
 import 'package:mobile_nebula/components/config/ConfigSection.dart';
 import 'package:mobile_nebula/models/Certificate.dart';
@@ -77,7 +76,7 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
 
   Widget _buildID() {
     return ConfigSection(children: <Widget>[
-      ConfigItem(label: Text('Name'), content: SpecialSelectableText(certInfo.cert.details.name)),
+      ConfigItem(label: Text('Name'), content: SelectableText(certInfo.cert.details.name)),
       ConfigItem(
           label: Text('Type'), content: Text(certInfo.cert.details.isCa ? 'CA certificate' : 'Client certificate')),
     ]);
@@ -95,10 +94,10 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
         ConfigItem(label: Text('Valid?'), content: valid),
         ConfigItem(
             label: Text('Created'),
-            content: SpecialSelectableText(certInfo.cert.details.notBefore.toLocal().toString())),
+            content: SelectableText(certInfo.cert.details.notBefore.toLocal().toString())),
         ConfigItem(
             label: Text('Expires'),
-            content: SpecialSelectableText(certInfo.cert.details.notAfter.toLocal().toString())),
+            content: SelectableText(certInfo.cert.details.notAfter.toLocal().toString())),
       ],
     );
   }
@@ -107,16 +106,16 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
     List<Widget> items = [];
     if (certInfo.cert.details.groups.length > 0) {
       items.add(
-          ConfigItem(label: Text('Groups'), content: SpecialSelectableText(certInfo.cert.details.groups.join(', '))));
+          ConfigItem(label: Text('Groups'), content: SelectableText(certInfo.cert.details.groups.join(', '))));
     }
 
     if (certInfo.cert.details.ips.length > 0) {
-      items.add(ConfigItem(label: Text('IPs'), content: SpecialSelectableText(certInfo.cert.details.ips.join(', '))));
+      items.add(ConfigItem(label: Text('IPs'), content: SelectableText(certInfo.cert.details.ips.join(', '))));
     }
 
     if (certInfo.cert.details.subnets.length > 0) {
       items.add(
-          ConfigItem(label: Text('Subnets'), content: SpecialSelectableText(certInfo.cert.details.subnets.join(', '))));
+          ConfigItem(label: Text('Subnets'), content: SelectableText(certInfo.cert.details.subnets.join(', '))));
     }
 
     return items.length > 0
@@ -129,19 +128,19 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
       children: <Widget>[
         ConfigItem(
             label: Text('Fingerprint'),
-            content: SpecialSelectableText(certInfo.cert.fingerprint,
+            content: SelectableText(certInfo.cert.fingerprint,
                 style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
             crossAxisAlignment: CrossAxisAlignment.start),
         ConfigItem(
             label: Text('Public Key'),
-            content: SpecialSelectableText(certInfo.cert.details.publicKey,
+            content: SelectableText(certInfo.cert.details.publicKey,
                 style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
             crossAxisAlignment: CrossAxisAlignment.start),
         certInfo.rawCert != null
             ? ConfigItem(
                 label: Text('PEM Format'),
                 content:
-                    SpecialSelectableText(certInfo.rawCert, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
+                SelectableText(certInfo.rawCert, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
                 crossAxisAlignment: CrossAxisAlignment.start)
             : Container(),
       ],

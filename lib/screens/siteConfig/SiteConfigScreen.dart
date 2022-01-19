@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_nebula/components/FormPage.dart';
 import 'package:mobile_nebula/components/PlatformTextFormField.dart';
-import 'package:mobile_nebula/components/SpecialSelectableText.dart';
 import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
 import 'package:mobile_nebula/components/config/ConfigSection.dart';
@@ -92,7 +91,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
       data = err.toString();
     }
 
-    return ConfigSection(label: 'DEBUG', children: [ConfigItem(labelWidth: 0, content: SpecialSelectableText(data))]);
+    return ConfigSection(label: 'DEBUG', children: [ConfigItem(labelWidth: 0, content: SelectableText(data))]);
   }
 
   Widget _main() {
