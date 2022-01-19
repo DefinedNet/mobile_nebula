@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
-import 'package:mobile_nebula/components/SpecialSelectableText.dart';
 import 'package:mobile_nebula/models/Site.dart';
 import 'package:mobile_nebula/services/settings.dart';
 import 'package:mobile_nebula/services/share.dart';
@@ -57,7 +56,7 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
       child: Container(
           padding: EdgeInsets.all(5),
           constraints: logBoxConstraints(context),
-          child: SpecialSelectableText(logs.trim(), style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14))),
+          child: SelectableText(logs.trim(), style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14))),
       bottomBar: _buildBottomBar(),
     );
   }
