@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/FormPage.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
@@ -156,7 +155,7 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
         padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
         child: SizedBox(
             width: double.infinity,
-            child: PlatformButton(
+            child: PlatformElevatedButton(
                 child: Text('Replace certificate'),
                 color: CupertinoColors.systemRed.resolveFrom(context),
                 onPressed: () {
@@ -186,7 +185,7 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
         padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
         child: SizedBox(
             width: double.infinity,
-            child: PlatformButton(
+            child: PlatformElevatedButton(
                 child: Text('Delete'),
                 color: CupertinoColors.systemRed.resolveFrom(context),
                 onPressed: () => Utils.confirmDelete(context, title, () async {

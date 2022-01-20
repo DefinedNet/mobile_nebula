@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
 import 'package:mobile_nebula/components/config/ConfigSection.dart';

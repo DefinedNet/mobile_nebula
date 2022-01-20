@@ -1,12 +1,10 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobile_nebula/components/SpecialTextField.dart';
 //TODO: reset doesn't update the ui but clears the field
 
 class PlatformTextFormField extends FormField<String> {
-  //TODO: autovalidate, enabled?
+  //TODO: auto-validate, enabled?
   PlatformTextFormField(
       {Key key,
       widgetKey,

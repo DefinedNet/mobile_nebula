@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/components/config/ConfigCheckboxItem.dart';
@@ -156,7 +155,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
         padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
         child: SizedBox(
             width: double.infinity,
-            child: PlatformButton(
+            child: PlatformElevatedButton(
                 child: Text('Close Tunnel'),
                 color: CupertinoColors.systemRed.resolveFrom(context),
                 onPressed: () => Utils.confirmDelete(context, 'Close Tunnel?', () async {

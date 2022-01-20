@@ -8,7 +8,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/screens/MainScreen.dart';
 import 'package:mobile_nebula/services/settings.dart';
 
-//TODO: EventChannel might be better than the streamcontroller we are using now
+//TODO: EventChannel might be better than the stream controller we are using now
 
 void main() => runApp(Main());
 

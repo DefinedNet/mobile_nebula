@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobile_nebula/models/IPAndPort.dart';
 import 'package:mobile_nebula/validators/dnsValidator.dart';
 import 'package:mobile_nebula/validators/ipValidator.dart';
@@ -7,7 +6,7 @@ import 'package:mobile_nebula/validators/ipValidator.dart';
 import 'IPAndPortField.dart';
 
 class IPAndPortFormField extends FormField<IPAndPort> {
-  //TODO: onSaved, validator, autovalidate, enabled?
+  //TODO: onSaved, validator, auto-validate, enabled?
   IPAndPortFormField({
     Key key,
     ipOnly = false,

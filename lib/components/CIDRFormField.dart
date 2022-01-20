@@ -1,11 +1,10 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobile_nebula/components/CIDRField.dart';
 import 'package:mobile_nebula/models/CIDR.dart';
 import 'package:mobile_nebula/validators/ipValidator.dart';
 
 class CIDRFormField extends FormField<CIDR> {
-  //TODO: onSaved, validator, autovalidate, enabled?
+  //TODO: onSaved, validator, auto-validate, enabled?
   CIDRFormField({
     Key key,
     autoFocus = false,
