@@ -61,14 +61,7 @@ class SpecialTextField extends StatefulWidget {
 }
 
 class _SpecialTextFieldState extends State<SpecialTextField> {
-  FocusNode _focusNode = FocusNode();
   List<TextInputFormatter> formatters;
-
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    super.dispose();
-  }
 
   @override
   void initState() {
