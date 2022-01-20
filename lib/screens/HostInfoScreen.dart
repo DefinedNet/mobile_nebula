@@ -74,18 +74,12 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
   Widget _buildDetails() {
     return ConfigSection(children: <Widget>[
       ConfigItem(
-          label: Text('Lighthouse'),
-          labelWidth: 150,
-          content: SelectableText(widget.isLighthouse ? 'Yes' : 'No')),
+          label: Text('Lighthouse'), labelWidth: 150, content: SelectableText(widget.isLighthouse ? 'Yes' : 'No')),
       ConfigItem(label: Text('Local Index'), labelWidth: 150, content: SelectableText('${hostInfo.localIndex}')),
+      ConfigItem(label: Text('Remote Index'), labelWidth: 150, content: SelectableText('${hostInfo.remoteIndex}')),
       ConfigItem(
-          label: Text('Remote Index'), labelWidth: 150, content: SelectableText('${hostInfo.remoteIndex}')),
-      ConfigItem(
-          label: Text('Message Counter'),
-          labelWidth: 150,
-          content: SelectableText('${hostInfo.messageCounter}')),
-      ConfigItem(
-          label: Text('Cached Packets'), labelWidth: 150, content: SelectableText('${hostInfo.cachedPackets}')),
+          label: Text('Message Counter'), labelWidth: 150, content: SelectableText('${hostInfo.messageCounter}')),
+      ConfigItem(label: Text('Cached Packets'), labelWidth: 150, content: SelectableText('${hostInfo.cachedPackets}')),
     ]);
   }
 

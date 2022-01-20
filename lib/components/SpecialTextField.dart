@@ -75,42 +75,42 @@ class _SpecialTextFieldState extends State<SpecialTextField> {
   @override
   Widget build(BuildContext context) {
     return PlatformTextField(
-      autocorrect: widget.autocorrect,
-      minLines: widget.minLines,
-      maxLines: widget.maxLines,
-      maxLength: widget.maxLength,
-      maxLengthEnforcement: widget.maxLengthEnforcement,
-      keyboardType: widget.keyboardType,
-      keyboardAppearance: widget.keyboardAppearance,
-      textInputAction: widget.textInputAction,
-      textCapitalization: widget.textCapitalization,
-      textAlign: widget.textAlign,
-      textAlignVertical: widget.textAlignVertical,
-      autofocus: widget.autofocus,
-      focusNode: widget.focusNode,
-      onChanged: widget.onChanged,
-      enabled: widget.enabled,
-      onSubmitted: (_) {
-        if (widget.nextFocusNode != null) {
-          FocusScope.of(context).requestFocus(widget.nextFocusNode);
-        }
-      },
-      expands: widget.expands,
-      inputFormatters: formatters,
-      material: (_, __) => MaterialTextFieldData(
-          decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
-              isDense: true,
-              hintText: widget.placeholder,
-              counterText: '',
-              suffix: widget.suffix)),
-      cupertino: (_, __) => CupertinoTextFieldData(
-          decoration: BoxDecoration(),
-          padding: EdgeInsets.zero,
-          placeholder: widget.placeholder,
-          suffix: widget.suffix),
-      style: widget.style,
-      controller: widget.controller);
+        autocorrect: widget.autocorrect,
+        minLines: widget.minLines,
+        maxLines: widget.maxLines,
+        maxLength: widget.maxLength,
+        maxLengthEnforcement: widget.maxLengthEnforcement,
+        keyboardType: widget.keyboardType,
+        keyboardAppearance: widget.keyboardAppearance,
+        textInputAction: widget.textInputAction,
+        textCapitalization: widget.textCapitalization,
+        textAlign: widget.textAlign,
+        textAlignVertical: widget.textAlignVertical,
+        autofocus: widget.autofocus,
+        focusNode: widget.focusNode,
+        onChanged: widget.onChanged,
+        enabled: widget.enabled,
+        onSubmitted: (_) {
+          if (widget.nextFocusNode != null) {
+            FocusScope.of(context).requestFocus(widget.nextFocusNode);
+          }
+        },
+        expands: widget.expands,
+        inputFormatters: formatters,
+        material: (_, __) => MaterialTextFieldData(
+            decoration: InputDecoration(
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.zero,
+                isDense: true,
+                hintText: widget.placeholder,
+                counterText: '',
+                suffix: widget.suffix)),
+        cupertino: (_, __) => CupertinoTextFieldData(
+            decoration: BoxDecoration(),
+            padding: EdgeInsets.zero,
+            placeholder: widget.placeholder,
+            suffix: widget.suffix),
+        style: widget.style,
+        controller: widget.controller);
   }
 }
