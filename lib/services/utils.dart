@@ -1,11 +1,8 @@
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 

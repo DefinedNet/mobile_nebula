@@ -32,7 +32,7 @@ class SimplePage extends StatelessWidget {
   final SimpleScrollable scrollable;
   final ScrollController scrollController;
 
-  /// Set this to true to force draw a scrollbar without a scroll view, this is helpful for pages with Reorderable listviews
+  /// Set this to true to force draw a scrollbar without a scroll view, this is helpful for pages with Reorder-able listviews
   /// This is set to true if you have any scrollable other than none
   final bool scrollbar;
   final Widget bottomBar;

@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/FormPage.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
@@ -93,11 +92,9 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
       children: <Widget>[
         ConfigItem(label: Text('Valid?'), content: valid),
         ConfigItem(
-            label: Text('Created'),
-            content: SelectableText(certInfo.cert.details.notBefore.toLocal().toString())),
+            label: Text('Created'), content: SelectableText(certInfo.cert.details.notBefore.toLocal().toString())),
         ConfigItem(
-            label: Text('Expires'),
-            content: SelectableText(certInfo.cert.details.notAfter.toLocal().toString())),
+            label: Text('Expires'), content: SelectableText(certInfo.cert.details.notAfter.toLocal().toString())),
       ],
     );
   }
@@ -105,8 +102,7 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
   Widget _buildFilters() {
     List<Widget> items = [];
     if (certInfo.cert.details.groups.length > 0) {
-      items.add(
-          ConfigItem(label: Text('Groups'), content: SelectableText(certInfo.cert.details.groups.join(', '))));
+      items.add(ConfigItem(label: Text('Groups'), content: SelectableText(certInfo.cert.details.groups.join(', '))));
     }
 
     if (certInfo.cert.details.ips.length > 0) {
@@ -114,8 +110,7 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
     }
 
     if (certInfo.cert.details.subnets.length > 0) {
-      items.add(
-          ConfigItem(label: Text('Subnets'), content: SelectableText(certInfo.cert.details.subnets.join(', '))));
+      items.add(ConfigItem(label: Text('Subnets'), content: SelectableText(certInfo.cert.details.subnets.join(', '))));
     }
 
     return items.length > 0
@@ -128,8 +123,8 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
       children: <Widget>[
         ConfigItem(
             label: Text('Fingerprint'),
-            content: SelectableText(certInfo.cert.fingerprint,
-                style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
+            content:
+                SelectableText(certInfo.cert.fingerprint, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
             crossAxisAlignment: CrossAxisAlignment.start),
         ConfigItem(
             label: Text('Public Key'),
@@ -139,8 +134,7 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
         certInfo.rawCert != null
             ? ConfigItem(
                 label: Text('PEM Format'),
-                content:
-                SelectableText(certInfo.rawCert, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
+                content: SelectableText(certInfo.rawCert, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
                 crossAxisAlignment: CrossAxisAlignment.start)
             : Container(),
       ],
@@ -156,7 +150,7 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
         padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
         child: SizedBox(
             width: double.infinity,
-            child: PlatformButton(
+            child: PlatformElevatedButton(
                 child: Text('Replace certificate'),
                 color: CupertinoColors.systemRed.resolveFrom(context),
                 onPressed: () {
@@ -186,7 +180,7 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
         padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
         child: SizedBox(
             width: double.infinity,
-            child: PlatformButton(
+            child: PlatformElevatedButton(
                 child: Text('Delete'),
                 color: CupertinoColors.systemRed.resolveFrom(context),
                 onPressed: () => Utils.confirmDelete(context, title, () async {

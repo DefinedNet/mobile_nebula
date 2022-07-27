@@ -1,6 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobile_nebula/validators/dnsValidator.dart';
 import 'package:mobile_nebula/validators/ipValidator.dart';
 
@@ -9,7 +7,7 @@ import 'IPField.dart';
 //TODO: reset doesn't update the ui but clears the field
 
 class IPFormField extends FormField<String> {
-  //TODO: validator, autovalidate, enabled?
+  //TODO: validator, auto-validate, enabled?
   IPFormField({
     Key key,
     ipOnly = false,
