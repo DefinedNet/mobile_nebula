@@ -3,19 +3,19 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		43498725289B484C00476B19 /* MobileNebula.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43498724289B484C00476B19 /* MobileNebula.xcframework */; };
+		43498726289B484C00476B19 /* MobileNebula.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43498724289B484C00476B19 /* MobileNebula.xcframework */; };
 		437F72592469AAC500A0C4B9 /* Site.swift in Sources */ = {isa = PBXBuildFile; fileRef = 437F72582469AAC500A0C4B9 /* Site.swift */; };
 		437F725E2469AC5700A0C4B9 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 437F725C2469AC5700A0C4B9 /* Keychain.swift */; };
 		437F725F2469B4B000A0C4B9 /* Site.swift in Sources */ = {isa = PBXBuildFile; fileRef = 437F72582469AAC500A0C4B9 /* Site.swift */; };
 		437F72602469B4B300A0C4B9 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 437F725C2469AC5700A0C4B9 /* Keychain.swift */; };
-		43871C9B2444DD39004F9075 /* MobileNebula.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43871C9A2444DD39004F9075 /* MobileNebula.framework */; };
 		43871C9D2444E2EC004F9075 /* Sites.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43871C9C2444E2EC004F9075 /* Sites.swift */; };
-		43871C9E2444E61F004F9075 /* MobileNebula.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43871C9A2444DD39004F9075 /* MobileNebula.framework */; };
 		43AA894F2444D8BC00EDC39C /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43AA894E2444D8BC00EDC39C /* NetworkExtension.framework */; };
 		43AA89572444DA6500EDC39C /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43AA89562444DA6500EDC39C /* PacketTunnelProvider.swift */; };
 		43AA895C2444DA6500EDC39C /* NebulaNetworkExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 43AA89542444DA6500EDC39C /* NebulaNetworkExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -69,10 +69,10 @@
 		384887B4785D38431E800D3A /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		41927814D2E140A347A01067 /* Pods-NebulaNetworkExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NebulaNetworkExtension.debug.xcconfig"; path = "Target Support Files/Pods-NebulaNetworkExtension/Pods-NebulaNetworkExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		43498724289B484C00476B19 /* MobileNebula.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = MobileNebula.xcframework; sourceTree = SOURCE_ROOT; };
 		436DE7A226EFF18500BB2950 /* CtlInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CtlInfo.h; sourceTree = "<group>"; };
 		437F72582469AAC500A0C4B9 /* Site.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Site.swift; sourceTree = "<group>"; };
 		437F725C2469AC5700A0C4B9 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
-		43871C9A2444DD39004F9075 /* MobileNebula.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = MobileNebula.framework; sourceTree = "<group>"; };
 		43871C9C2444E2EC004F9075 /* Sites.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sites.swift; sourceTree = "<group>"; };
 		43AA894C2444D8BC00EDC39C /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		43AA894E2444D8BC00EDC39C /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
@@ -107,7 +107,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				43AA89622444DAA500EDC39C /* NetworkExtension.framework in Frameworks */,
-				43871C9B2444DD39004F9075 /* MobileNebula.framework in Frameworks */,
+				43498726289B484C00476B19 /* MobileNebula.xcframework in Frameworks */,
 				E91B9DAD4A83866D0AF1DAE1 /* Pods_NebulaNetworkExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -117,8 +117,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				43AA894F2444D8BC00EDC39C /* NetworkExtension.framework in Frameworks */,
+				43498725289B484C00476B19 /* MobileNebula.xcframework in Frameworks */,
 				4CF2F06A02A63B862C9F6F03 /* Pods_Runner.framework in Frameworks */,
-				43871C9E2444E61F004F9075 /* MobileNebula.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -141,8 +141,8 @@
 			isa = PBXGroup;
 			children = (
 				437F725C2469AC5700A0C4B9 /* Keychain.swift */,
-				43871C9A2444DD39004F9075 /* MobileNebula.framework */,
 				43AA89562444DA6500EDC39C /* PacketTunnelProvider.swift */,
+				43498724289B484C00476B19 /* MobileNebula.xcframework */,
 				43AA89582444DA6500EDC39C /* Info.plist */,
 				43AA89592444DA6500EDC39C /* NebulaNetworkExtension.entitlements */,
 				437F72582469AAC500A0C4B9 /* Site.swift */,
@@ -230,7 +230,6 @@
 			buildConfigurationList = 43AA895D2444DA6500EDC39C /* Build configuration list for PBXNativeTarget "NebulaNetworkExtension" */;
 			buildPhases = (
 				2C0A52E24BC9F327251CBAD2 /* [CP] Check Pods Manifest.lock */,
-				43AA89632444DAD100EDC39C /* ShellScript */,
 				43AA89502444DA6500EDC39C /* Sources */,
 				43AA89512444DA6500EDC39C /* Frameworks */,
 				43AA89522444DA6500EDC39C /* Resources */,
@@ -409,24 +408,6 @@
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed\n/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" thin\n";
 		};
-		43AA89632444DAD100EDC39C /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "cd ..\n./gen-artifacts.sh ios\n";
-			showEnvVarsInLog = 0;
-		};
 		9740EEB61CF901F6004384FC /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -577,7 +558,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 576H3XS7FP;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -595,7 +576,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				MARKETING_VERSION = 0.0.43;
+				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.defined.mobileNebula;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -615,7 +596,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = NebulaNetworkExtension/NebulaNetworkExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 576H3XS7FP;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -630,7 +611,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 0.0.43;
+				MARKETING_VERSION = 0.1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "";
@@ -656,7 +637,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = NebulaNetworkExtension/NebulaNetworkExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 576H3XS7FP;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -671,7 +652,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 0.0.43;
+				MARKETING_VERSION = 0.1.0;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = net.defined.mobileNebula.NebulaNetworkExtension;
@@ -694,7 +675,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = NebulaNetworkExtension/NebulaNetworkExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 576H3XS7FP;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -709,7 +690,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 0.0.43;
+				MARKETING_VERSION = 0.1.0;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = net.defined.mobileNebula.NebulaNetworkExtension;
@@ -835,7 +816,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 576H3XS7FP;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -853,7 +834,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				MARKETING_VERSION = 0.0.43;
+				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.defined.mobileNebula;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -871,7 +852,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 576H3XS7FP;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -889,7 +870,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				MARKETING_VERSION = 0.0.43;
+				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.defined.mobileNebula;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";

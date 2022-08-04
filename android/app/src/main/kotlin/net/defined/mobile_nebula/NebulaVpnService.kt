@@ -137,12 +137,12 @@ class NebulaVpnService : VpnService() {
     }
 
     inner class NetworkCallback() : ConnectivityManager.NetworkCallback () {
-        override fun onAvailable(network: Network?) {
+        override fun onAvailable(network: Network) {
             super.onAvailable(network)
             nebula!!.rebind("network change")
         }
 
-        override fun onLost(network: Network?) {
+        override fun onLost(network: Network) {
             super.onLost(network)
             nebula!!.rebind("network change")
         }

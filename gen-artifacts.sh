@@ -9,9 +9,9 @@ cd nebula
 
 if [ "$1" = "ios" ]; then
   # Build for nebula for iOS
-  make MobileNebula.framework
-  rm -rf ../ios/NebulaNetworkExtension/MobileNebula.framework
-  cp -r MobileNebula.framework ../ios/NebulaNetworkExtension/
+  make MobileNebula.xcframework
+  rm -rf ../ios/MobileNebula.xcframework
+  cp -r MobileNebula.xcframework ../ios/
 
 elif [ "$1" = "android" ]; then
   # Build nebula for android
