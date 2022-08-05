@@ -32,6 +32,8 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   bool ready = false;
   List<Site> sites;
+  // A set of widgets to display in a column that represents an error blocking us from moving forward entirely
+  List<Widget> error;
 
   static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
 
@@ -69,6 +71,14 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildBody() {
+    if (error != null) {
+      return Center(child: Padding(child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: error,
+      ), padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10)));
+    }
+
     if (!ready) {
       return Center(
         child: PlatformCircularProgressIndicator(cupertino: (_, __) {
@@ -197,7 +207,44 @@ rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
 
   _loadSites() async {
     if (Platform.isAndroid) {
-      await platform.invokeMethod("android.requestPermissions");
+      try {
+        await platform.invokeMethod("android.requestPermissions");
+
+      } on PlatformException catch (err) {
+        if (err.code == "PERMISSIONS") {
+          setState(() {
+            error = [
+              Text("Permissions Required",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                "VPN permissions are required for nebula to run, click the button below request and accept the appropriate permissions.",
+                textAlign: TextAlign.center
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  error = null;
+                  _loadSites();
+                },
+                child: Text("Request Permissions")
+              ),
+            ];
+          });
+        } else {
+          setState(() {
+            error = [
+              Text("Unknown Error", style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(err.message, textAlign: TextAlign.center)
+            ];
+          });
+        }
+      } catch (err) {
+        setState(() {
+          error = [
+            Text("Unknown Error", style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(err.message, textAlign: TextAlign.center)
+          ];
+        });
+      }
     }
 
     //TODO: This can throw, we need to show an error dialog
