@@ -14,6 +14,7 @@ type config struct {
 	Stats         configStats         `yaml:"stats"`
 	Handshakes    configHandshakes    `yaml:"handshakes"`
 	Firewall      configFirewall      `yaml:"firewall"`
+	Relays        configRelays        `yaml:"relays"`
 }
 
 func newConfig() *config {
@@ -36,6 +37,9 @@ func newConfig() *config {
 		Punchy: configPunchy{
 			Punch: true,
 			Delay: "1s",
+		},
+		Relays: configRelays{
+			UseRelays: true,
 		},
 		Cipher: "aes",
 		SSHD: configSSHD{
@@ -199,4 +203,10 @@ type configFirewallRule struct {
 	CIDR   string   `yaml:"cidr,omitempty"`
 	CASha  string   `yaml:"ca_sha,omitempty"`
 	CAName string   `yaml:"ca_name,omitempty"`
+}
+
+type configRelays struct {
+	AmRelay   bool     `yaml:"am_relay,omitempty"`
+	UseRelays bool     `yaml:"use_relays"`
+	relays    []string `yaml:"relays,omitempty"`
 }

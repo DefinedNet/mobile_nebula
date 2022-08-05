@@ -49,3 +49,5 @@ lib/generated_plugin_registrant.dart
 /local.properties
 /.gradle/
 *.keystore
+/nebula/MobileNebula.xcframework/
+/ios/MobileNebula.xcframework/
