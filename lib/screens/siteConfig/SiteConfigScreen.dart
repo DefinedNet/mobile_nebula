@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart' as fpw;
 import 'package:mobile_nebula/components/FormPage.dart';
 import 'package:mobile_nebula/components/PlatformTextFormField.dart';
 import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
@@ -36,11 +38,16 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
   bool newSite = false;
   bool debug = false;
   Site site;
+  String pubKey;
+  String privKey;
 
+  static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
   final nameController = TextEditingController();
 
   @override
   void initState() {
+    //NOTE: this is slightly wasteful since a keypair will be generated every time this page is opened
+    _generateKeys();
     if (widget.site == null) {
       newSite = true;
       site = Site();
@@ -54,6 +61,14 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (pubKey == null) {
+      return Center(
+        child: fpw.PlatformCircularProgressIndicator(cupertino: (_, __) {
+          return fpw.CupertinoProgressIndicatorData(radius: 50);
+        }),
+      );
+    }
+
     return FormPage(
         title: newSite ? 'New Site' : 'Edit Site',
         changed: changed,
@@ -121,7 +136,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
       });
     }
 
-    return ConfigSection(
+    return ConfigSection( 
       label: "IDENTITY",
       children: [
         ConfigPageItem(
@@ -139,6 +154,8 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
               if (site.certInfo != null) {
                 return CertificateDetailsScreen(
                     certInfo: site.certInfo,
+                    pubKey: pubKey,
+                    privKey: privKey,
                     onReplace: (result) {
                       setState(() {
                         changed = true;
@@ -148,7 +165,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
                     });
               }
 
-              return AddCertificateScreen(onSave: (result) {
+              return AddCertificateScreen(pubKey: pubKey, privKey: privKey, onSave: (result) {
                 setState(() {
                   changed = true;
                   site.certInfo = result.certInfo;
@@ -242,5 +259,19 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
             })
       ],
     );
+  }
+
+  _generateKeys() async {
+    try {
+      var kp = await platform.invokeMethod("nebula.generateKeyPair");
+      Map<String, dynamic> keyPair = jsonDecode(kp);
+
+      setState(() {
+        pubKey = keyPair['PublicKey'];
+        privKey = keyPair['PrivateKey'];
+      });
+    } on PlatformException catch (err) {
+      Utils.popError(context, 'Failed to generate key pair', err.details ?? err.message);
+    }
   }
 }

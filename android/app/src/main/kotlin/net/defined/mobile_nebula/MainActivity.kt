@@ -49,6 +49,7 @@ class MainActivity: FlutterActivity() {
                 "nebula.parseCerts" -> nebulaParseCerts(call, result)
                 "nebula.generateKeyPair" -> nebulaGenerateKeyPair(result)
                 "nebula.renderConfig" -> nebulaRenderConfig(call, result)
+                "nebula.verifyCertAndKey" -> nebulaVerifyCertAndKey(call, result)
 
                 "listSites" -> listSites(result)
                 "deleteSite" -> deleteSite(call, result)
@@ -102,6 +103,25 @@ class MainActivity: FlutterActivity() {
         val config = call.arguments as String
         val yaml = mobileNebula.MobileNebula.renderConfig(config, "<hidden>")
         return result.success(yaml)
+    }
+
+    private fun nebulaVerifyCertAndKey(call: MethodCall, result: MethodChannel.Result) {
+        val cert = call.argument<String>("cert")
+        if (cert == "") {
+            return result.error("required_argument", "cert is a required argument", null)
+        }
+
+        val key = call.argument<String>("key")
+        if (key == "") {
+            return result.error("required_argument", "key is a required argument", null)
+        }
+
+        return try {
+            val json = mobileNebula.MobileNebula.verifyCertAndKey(cert, key)
+            result.success(json)
+        } catch (err: Exception) {
+            result.error("unhandled_error", err.message, null)
+        }
     }
 
     private fun listSites(result: MethodChannel.Result) {

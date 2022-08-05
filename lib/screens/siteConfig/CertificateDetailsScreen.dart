@@ -10,7 +10,7 @@ import 'package:mobile_nebula/services/utils.dart';
 
 /// Displays the details of a CertificateInfo object. Respects incomplete objects (missing validity or rawCert)
 class CertificateDetailsScreen extends StatefulWidget {
-  const CertificateDetailsScreen({Key key, this.certInfo, this.onDelete, this.onSave, this.onReplace})
+  const CertificateDetailsScreen({Key key, this.certInfo, this.onDelete, this.onSave, this.onReplace, this.pubKey, this.privKey})
       : super(key: key);
 
   final CertificateInfo certInfo;
@@ -23,6 +23,9 @@ class CertificateDetailsScreen extends StatefulWidget {
 
   // onReplace is used to install a new certificate over top of the old one
   final ValueChanged<CertificateResult> onReplace;
+
+  final String pubKey;
+  final String privKey;
 
   @override
   _CertificateDetailsScreenState createState() => _CertificateDetailsScreenState();
@@ -164,7 +167,7 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
                       // Slam the page back to the top
                       controller.animateTo(0,
                           duration: const Duration(milliseconds: 10), curve: Curves.linearToEaseOut);
-                    });
+                    }, pubKey: widget.pubKey, privKey: widget.privKey, );
                   });
                 })));
   }

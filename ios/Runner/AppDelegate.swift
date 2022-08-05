@@ -34,6 +34,7 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
             case "nebula.parseCerts": return self.nebulaParseCerts(call: call, result: result)
             case "nebula.generateKeyPair": return self.nebulaGenerateKeyPair(result: result)
             case "nebula.renderConfig": return self.nebulaRenderConfig(call: call, result: result)
+            case "nebula.verifyCertAndKey": return self.nebulaVerifyCertAndKey(call: call, result: result)
                 
             case "listSites": return self.listSites(result: result)
             case "deleteSite": return self.deleteSite(call: call, result: result)
@@ -69,6 +70,21 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
         }
         
         return result(json)
+    }
+    
+    func nebulaVerifyCertAndKey(call: FlutterMethodCall, result: FlutterResult) {
+        guard let args = call.arguments as? Dictionary<String, String> else { return result(NoArgumentsError()) }
+        guard let cert = args["cert"] else { return result(MissingArgumentError(message: "cert is a required argument")) }
+        guard let key = args["key"] else { return result(MissingArgumentError(message: "key is a required argument")) }
+        
+        var err: NSError?
+        var validd: ObjCBool = false
+        let valid = MobileNebulaVerifyCertAndKey(cert, key, &validd, &err)
+        if (err != nil) {  
+            return result(CallFailedError(message: "Error while verifying certificate and private key", details: err!.localizedDescription))
+        }
+        
+        return result(valid)
     }
     
     func nebulaGenerateKeyPair(result: FlutterResult) {

@@ -250,6 +250,20 @@ func x25519Keypair() ([]byte, []byte, error) {
 	return pubkey[:], privkey[:], nil
 }
 
-//func VerifyCertAndKey(cert string, key string) (string, error) {
-//
-//}
+func VerifyCertAndKey(rawCert string, pemPrivateKey string) (bool, error) {
+	rawKey, _, err := cert.UnmarshalX25519PrivateKey([]byte(pemPrivateKey))
+	if err != nil {
+		return false, fmt.Errorf("error while unmarshaling private key: %s", err)
+	}
+
+	nebulaCert, _, err := cert.UnmarshalNebulaCertificateFromPEM([]byte(rawCert))
+	if err != nil {
+		return false, fmt.Errorf("error while unmarshaling cert: %s", err)
+	}
+
+	if err = nebulaCert.VerifyPrivateKey(rawKey); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
