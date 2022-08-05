@@ -24,12 +24,15 @@ class CertificateResult {
 }
 
 class AddCertificateScreen extends StatefulWidget {
-  const AddCertificateScreen({Key key, this.onSave, this.onReplace}) : super(key: key);
+  const AddCertificateScreen({Key key, this.onSave, this.onReplace, this.pubKey, this.privKey}) : super(key: key);
 
   // onSave will pop a new CertificateDetailsScreen
   final ValueChanged<CertificateResult> onSave;
   // onReplace will return the CertificateResult, assuming the previous screen is a CertificateDetailsScreen
   final ValueChanged<CertificateResult> onReplace;
+
+  final String pubKey;
+  final String privKey;
 
   @override
   _AddCertificateScreenState createState() => _AddCertificateScreenState();
@@ -37,54 +40,36 @@ class AddCertificateScreen extends StatefulWidget {
 
 class _AddCertificateScreenState extends State<AddCertificateScreen> {
   String pubKey;
-  String privKey;
+  bool showKey = false;
 
   String inputType = 'paste';
 
+  final keyController = TextEditingController();
   final pasteController = TextEditingController();
   static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
 
   @override
   void initState() {
-    _generateKeys();
+    pubKey = widget.pubKey;
+    keyController.text = widget.privKey;
     super.initState();
   }
 
   @override
   void dispose() {
     pasteController.dispose();
+    keyController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (pubKey == null) {
-      return Center(
-        child: PlatformCircularProgressIndicator(cupertino: (_, __) {
-          return CupertinoProgressIndicatorData(radius: 500);
-        }),
-      );
-    }
-
     List<Widget> items = [];
     items.addAll(_buildShare());
+    items.add(_buildKey());
     items.addAll(_buildLoadCert());
 
     return SimplePage(title: 'Certificate', child: Column(children: items));
-  }
-
-  _generateKeys() async {
-    try {
-      var kp = await platform.invokeMethod("nebula.generateKeyPair");
-      Map<String, dynamic> keyPair = jsonDecode(kp);
-
-      setState(() {
-        pubKey = keyPair['PublicKey'];
-        privKey = keyPair['PrivateKey'];
-      });
-    } on PlatformException catch (err) {
-      Utils.popError(context, 'Failed to generate key pair', err.details ?? err.message);
-    }
   }
 
   List<Widget> _buildShare() {
@@ -134,6 +119,33 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
     }
 
     return items;
+  }
+
+  Widget _buildKey() {
+    if (!showKey) {
+      return Padding(
+          padding: EdgeInsets.only(top: 20, bottom: 10, left: 10, right: 10),
+          child: SizedBox(
+              width: double.infinity,
+              child: PlatformElevatedButton(
+                  child: Text('Show/Import Private Key'),
+                  color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                  onPressed: () => Utils.confirmDelete(context, 'Show/Import Private Key?', () {
+                    setState(() {
+                      showKey = true;
+                    });
+                  }, deleteLabel: 'Yes'))));
+    }
+
+    return ConfigSection(
+      label: 'Import a private key generated on another device',
+      children: [
+        ConfigTextItem(
+          controller: keyController,
+          style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)
+        ),
+      ],
+    );
   }
 
   List<Widget> _addPaste() {
@@ -201,7 +213,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
   _addCertEntry(String rawCert) async {
     // Allow for app store review testing cert to override the generated key
     if (rawCert.trim() == _testCert) {
-      privKey = _testKey;
+      keyController.text = _testKey;
     }
 
     try {
@@ -217,12 +229,20 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
           return Utils.popError(context, 'Certificate was invalid', tryCertInfo.validity.reason);
         }
 
-        //TODO: test that the pubkey we generated equals the pub key in the cert
+        var certMatch = await platform.invokeMethod(
+            "nebula.verifyCertAndKey",
+            <String, String>{"cert": rawCert, "key": keyController.text}
+        );
+        if (!certMatch) {
+          // The method above will throw if there is a mismatch, this is just here in case we introduce a bug in the future
+          return Utils.popError(context, 'Error loading certificate content',
+              'The provided certificates public key is not compatible with the private key.');
+        }
 
         // If we are replacing we just return the results now
         if (widget.onReplace != null) {
           Navigator.pop(context);
-          widget.onReplace(CertificateResult(certInfo: tryCertInfo, key: privKey));
+          widget.onReplace(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
           return;
         }
 
@@ -232,7 +252,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
               certInfo: tryCertInfo,
               onSave: () {
                 Navigator.pop(context);
-                widget.onSave(CertificateResult(certInfo: tryCertInfo, key: privKey));
+                widget.onSave(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
               });
         });
       }
