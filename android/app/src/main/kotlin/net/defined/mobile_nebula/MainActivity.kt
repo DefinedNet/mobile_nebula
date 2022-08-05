@@ -336,7 +336,8 @@ class MainActivity: FlutterActivity() {
                 return result.success(null)
             }
 
-            return result.error("denied", "User did not grant permission", null)
+            //NOTE: flutter side doesn't care about the message currently, only the code
+            return result.error("PERMISSIONS", "User did not grant permission", null)
 
         } else if (requestCode == VPN_START_CODE) {
             // We are processing a response for permissions while starting the VPN (or reusing code in the event we already have perms)
