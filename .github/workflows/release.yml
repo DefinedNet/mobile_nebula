@@ -23,8 +23,8 @@ jobs:
         run: |
           #BUILD=${GITHUB_REF#refs/tags/v}
           BUILD="0.0.99+10"
-          export BUILD_NAME="${BUILD%+*}"
-          export BUILD_NUMBER="${BUILD##*+}"
+          echo "BUILD_NAME=${BUILD%+*}" >> $GITHUB_ENV
+          echo "BUILD_NUMBER=${BUILD##*+}" >> $GITHUB_ENV
 
       - name: build ios
         run: flutter build ipa --build-name "$BUILD_NAME" --build-number "$BUILD_NUMBER"
