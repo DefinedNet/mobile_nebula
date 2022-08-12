@@ -1,0 +1,30 @@
+name: Create release and upload to Apple and Google
+on:
+  #  push:
+  #    tags:
+  #      - 'v[0-9]+.[0-9]+.[0-9]*'
+  pull_request:
+
+jobs:
+  build:
+    name: Build ios and android package
+    runs-on: macos-latest
+    steps:
+
+      - name: Install flutter
+        uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '2.8.1'
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: get build name and number
+        run: |
+          #BUILD=${GITHUB_REF#refs/tags/v}
+          BUILD="0.0.99+10"
+          export BUILD_NAME="${BUILD%+*}"
+          export BUILD_NUMBER="${BUILD##*+}"
+
+      - name: build ios
+        run: flutter build ipa --build-name "$BUILD_NAME" --build-number "$BUILD_NUMBER"
