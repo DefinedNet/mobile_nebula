@@ -11,6 +11,11 @@ jobs:
     runs-on: macos-latest
     steps:
 
+      - name: Set up Go 1.18
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+
       - name: Install flutter
         uses: subosito/flutter-action@v1
         with:
@@ -21,10 +26,20 @@ jobs:
 
       - name: get build name and number
         run: |
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          gomobile init
+
           #BUILD=${GITHUB_REF#refs/tags/v}
           BUILD="0.0.99+10"
           echo "BUILD_NAME=${BUILD%+*}" >> $GITHUB_ENV
           echo "BUILD_NUMBER=${BUILD##*+}" >> $GITHUB_ENV
+          touch env.sh
+
+      - name: Import certificates
+        uses: Apple-Actions/import-codesign-certs@v1
+        with:
+          p12-file-base64: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_P12_BASE64 }}
+          p12-password: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_PASSWORD }}
 
       - name: build ios
         run: flutter build ipa --build-name "$BUILD_NAME" --build-number "$BUILD_NUMBER"
