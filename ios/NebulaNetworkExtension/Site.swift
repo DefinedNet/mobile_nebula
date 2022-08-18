@@ -51,7 +51,7 @@ struct Certificate: Codable {
     var signature: String
     var details: CertificateDetails
     
-    /// An empty initilizer to make error reporting easier
+    /// An empty initializer to make error reporting easier
     init() {
         fingerprint = ""
         signature = ""
@@ -70,7 +70,7 @@ struct CertificateDetails: Codable {
     var isCa: Bool
     var issuer: String
     
-    /// An empty initilizer to make error reporting easier
+    /// An empty initializer to make error reporting easier
     init() {
         name = ""
         notBefore = ""

@@ -131,7 +131,7 @@ class ShareCopy: UIActivityItemProvider {
         }
         
         // the type of the placeholder item is used to
-        // display correct activity types by UIActivityControler
+        // display correct activity types by UIActivityController
         super.init(placeholderItem: self.content)
     }
 
