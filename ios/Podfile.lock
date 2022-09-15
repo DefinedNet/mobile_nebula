@@ -1,8 +1,4 @@
 PODS:
-  - barcode_scan (0.0.1):
-    - Flutter
-    - MTBBarcodeScanner
-    - SwiftProtobuf
   - DKImagePickerController/Core (4.3.0):
     - DKImagePickerController/ImageDataManager
     - DKImagePickerController/Resource
@@ -39,7 +35,8 @@ PODS:
     - Flutter
   - FLAnimatedImage (1.0.12)
   - Flutter (1.0.0)
-  - MTBBarcodeScanner (5.0.11)
+  - flutter_barcode_scanner (2.0.0):
+    - Flutter
   - package_info (0.0.1):
     - Flutter
   - path_provider_ios (0.0.1):
@@ -50,15 +47,14 @@ PODS:
   - SDWebImageFLPlugin (0.4.0):
     - FLAnimatedImage (>= 1.0.11)
     - SDWebImage/Core (~> 5.6)
-  - SwiftProtobuf (1.9.0)
   - SwiftyJSON (5.0.1)
   - url_launcher_ios (0.0.1):
     - Flutter
 
 DEPENDENCIES:
-  - barcode_scan (from `.symlinks/plugins/barcode_scan/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
+  - flutter_barcode_scanner (from `.symlinks/plugins/flutter_barcode_scanner/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - path_provider_ios (from `.symlinks/plugins/path_provider_ios/ios`)
   - SwiftyJSON (~> 5.0)
@@ -69,19 +65,17 @@ SPEC REPOS:
     - DKImagePickerController
     - DKPhotoGallery
     - FLAnimatedImage
-    - MTBBarcodeScanner
     - SDWebImage
     - SDWebImageFLPlugin
-    - SwiftProtobuf
     - SwiftyJSON
 
 EXTERNAL SOURCES:
-  barcode_scan:
-    :path: ".symlinks/plugins/barcode_scan/ios"
   file_picker:
     :path: ".symlinks/plugins/file_picker/ios"
   Flutter:
     :path: Flutter
+  flutter_barcode_scanner:
+    :path: ".symlinks/plugins/flutter_barcode_scanner/ios"
   package_info:
     :path: ".symlinks/plugins/package_info/ios"
   path_provider_ios:
@@ -90,21 +84,19 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
-  barcode_scan: a5c27959edfafaa0c771905bad0b29d6d39e4479
   DKImagePickerController: 397702a3590d4958fad336e9a77079935c500ddb
   DKPhotoGallery: e880aef16c108333240e1e7327896f2ea380f4f0
   file_picker: 3e6c3790de664ccf9b882732d9db5eaf6b8d4eb1
   FLAnimatedImage: 4a0b56255d9b05f18b6dd7ee06871be5d3b89e31
-  Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
-  MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  flutter_barcode_scanner: 7a1144744c28dc0c57a8de7218ffe5ec59a9e4bf
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   path_provider_ios: 7d7ce634493af4477d156294792024ec3485acd5
   SDWebImage: 84000f962cbfa70c07f19d2234cbfcf5d779b5dc
   SDWebImageFLPlugin: 6c2295fb1242d44467c6c87dc5db6b0a13228fd8
-  SwiftProtobuf: ecbec1be9036d15655f6b3443a1c4ea693c97932
   SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
   url_launcher_ios: 02f1989d4e14e998335b02b67a7590fa34f971af
 
 PODFILE CHECKSUM: 92e176614f91c6517d4254a0edec8b66f076c77e
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.11.3

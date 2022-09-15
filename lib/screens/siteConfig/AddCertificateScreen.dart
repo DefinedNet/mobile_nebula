@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/components/config/ConfigButtonItem.dart';
@@ -196,13 +196,14 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
           ConfigButtonItem(
               content: Text('Scan a QR code'),
               onPressed: () async {
-                var options = ScanOptions(
-                  restrictFormat: [BarcodeFormat.qr],
-                );
+                try {
+                  var result = await FlutterBarcodeScanner.scanBarcode('#ff6666', 'Cancel', true, ScanMode.QR);
+                  if (result != "") {
+                    _addCertEntry(result);
+                  }
 
-                var result = await BarcodeScanner.scan(options: options);
-                if (result.rawContent != "") {
-                  _addCertEntry(result.rawContent);
+                } catch (err) {
+                  return Utils.popError(context, 'Error scanning QR code', err);
                 }
               }),
         ],

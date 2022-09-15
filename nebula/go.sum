@@ -212,6 +212,8 @@ github.com/sirupsen/logrus v1.8.1 h1:dJKuHgqk1NNQlqoA6BTlM1Wf9DOH3NBjQyu0h9+AZZE
 github.com/sirupsen/logrus v1.8.1/go.mod h1:yWOB1SBYBC5VeMP7gHvWumXLIWorT60ONWic61uBYv0=
 github.com/slackhq/nebula v1.6.0 h1:1M2txSJq5Jef/A68Kw6SwdLS0PMtjhx4X509ZBHtG54=
 github.com/slackhq/nebula v1.6.0/go.mod h1:UmkqnXe4O53QwToSl/gG7sM4BroQwAB7dd4hUaT6MlI=
+github.com/slackhq/nebula v1.6.1-0.20220808174409-c2259f14a7d2 h1:shDXcZRNq5hpsHsRm7hhI5iiLp38QlPF5llqVgi5XMQ=
+github.com/slackhq/nebula v1.6.1-0.20220808174409-c2259f14a7d2/go.mod h1:UmkqnXe4O53QwToSl/gG7sM4BroQwAB7dd4hUaT6MlI=
 github.com/songgao/water v0.0.0-20200317203138-2b4b6d7c09d8 h1:TG/diQgUe0pntT/2D9tmUCz4VNwm9MfrtPr0SU2qSX8=
 github.com/songgao/water v0.0.0-20200317203138-2b4b6d7c09d8/go.mod h1:P5HUIBuIWKbyjl083/loAegFkfbFNx5i2qEP4CNbm7E=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

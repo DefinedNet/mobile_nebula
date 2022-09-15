@@ -133,13 +133,13 @@ class SiteUpdater: NSObject, FlutterStreamHandler {
             let connected = self.site.connected
             self.site.status = statusString[self.site.manager!.connection.status]
             self.site.connected = statusMap[self.site.manager!.connection.status]
-            
+
             // Check to see if we just moved to connected and if we have a start function to call when that happens
             if self.site.connected! && connected != self.site.connected && self.startFunc != nil {
                 self.startFunc!()
                 self.startFunc = nil
             }
-            
+
             let d: Dictionary<String, Any> = [
                 "connected": self.site.connected!,
                 "status": self.site.status!,

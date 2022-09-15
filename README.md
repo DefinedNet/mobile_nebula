@@ -1,16 +1,19 @@
 # Dependencies
 
 - [`flutter`](https://flutter.dev/docs/get-started/install)
-- [`gomobile`](https://godoc.org/golang.org/x/mobile/cmd/gomobile)
+- [`gomobile`](https://pkg.go.dev/golang.org/x/mobile/cmd/gomobile)
 - [`android-studio`](https://developer.android.com/studio)
 - [Enable NDK](https://developer.android.com/studio/projects/install-ndk) Check local.properties for current NDK version
 
-Currently using flutter 2.0.5
+Currently using flutter 3.3.2
+
+on Apple arm will need to run
+
+`gem install ffi -- --enable-libffi-alloc`
 
 Copy env.sh.example to env.sh and update your PATH variable to expose both flutter and go bin directories
 
   ```export PATH="$PATH:/path/to/go/bin:/path/to/flutter/bin"```
-
 
 # Formatting
 
@@ -20,7 +23,6 @@ Use:
 ```sh
 flutter format lib/ test/ -l 120
 ```
-
 
 # Release
 

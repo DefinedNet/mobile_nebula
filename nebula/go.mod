@@ -6,7 +6,7 @@ go 1.18
 
 require (
 	github.com/sirupsen/logrus v1.8.1
-	github.com/slackhq/nebula v1.6.0
+	github.com/slackhq/nebula v1.6.1-0.20220808174409-c2259f14a7d2
 	golang.org/x/crypto v0.0.0-20220331220935-ae2d96664a29
 	gopkg.in/yaml.v2 v2.4.0
 )

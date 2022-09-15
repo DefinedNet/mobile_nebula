@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:mobile_nebula/components/FormPage.dart';
 import 'package:mobile_nebula/components/config/ConfigButtonItem.dart';
 import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
@@ -215,19 +215,20 @@ class _CAListScreenState extends State<CAListScreen> {
           ConfigButtonItem(
               content: Text('Scan a QR code'),
               onPressed: () async {
-                var options = ScanOptions(
-                  restrictFormat: [BarcodeFormat.qr],
-                );
+                try {
+                  var result = await FlutterBarcodeScanner.scanBarcode('#ff6666', 'Cancel', true, ScanMode.QR);
+                  if (result != "") {
+                    _addCAEntry(result, (err) {
+                      if (err != null) {
+                        Utils.popError(context, 'Error loading CA content', err);
+                      } else {
+                        setState(() {});
+                      }
+                    });
+                  }
 
-                var result = await BarcodeScanner.scan(options: options);
-                if (result.rawContent != "") {
-                  _addCAEntry(result.rawContent, (err) {
-                    if (err != null) {
-                      Utils.popError(context, 'Error loading CA content', err);
-                    } else {
-                      setState(() {});
-                    }
-                  });
+                } catch (err) {
+                  return Utils.popError(context, 'Error scanning QR code', err);
                 }
               })
         ],
