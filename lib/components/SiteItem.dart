@@ -4,7 +4,7 @@ import 'package:mobile_nebula/models/Site.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 class SiteItem extends StatelessWidget {
-  const SiteItem({Key key, this.site, this.onPressed}) : super(key: key);
+  const SiteItem({Key? key, required this.site, this.onPressed}) : super(key: key);
 
   final Site site;
   final onPressed;
