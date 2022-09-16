@@ -8,7 +8,7 @@ import 'IPField.dart';
 //TODO: Support initialValue
 class CIDRField extends StatefulWidget {
   const CIDRField({
-    Key key,
+    Key? key,
     this.ipHelp = "ip address",
     this.autoFocus = false,
     this.focusNode,
@@ -21,12 +21,12 @@ class CIDRField extends StatefulWidget {
 
   final String ipHelp;
   final bool autoFocus;
-  final FocusNode focusNode;
-  final FocusNode nextFocusNode;
-  final ValueChanged<CIDR> onChanged;
-  final TextInputAction textInputAction;
-  final TextEditingController ipController;
-  final TextEditingController bitsController;
+  final FocusNode? focusNode;
+  final FocusNode? nextFocusNode;
+  final ValueChanged<CIDR>? onChanged;
+  final TextInputAction? textInputAction;
+  final TextEditingController? ipController;
+  final TextEditingController? bitsController;
 
   @override
   _CIDRFieldState createState() => _CIDRFieldState();
@@ -44,7 +44,7 @@ class _CIDRFieldState extends State<CIDRField> {
   void initState() {
     //TODO: this won't track external controller changes appropriately
     cidr.ip = widget.ipController?.text ?? "";
-    cidr.bits = int.tryParse(widget.bitsController?.text ?? "");
+    cidr.bits = int.tryParse(widget.bitsController?.text ?? "") ?? 0;
     super.initState();
   }
 
@@ -66,8 +66,12 @@ class _CIDRFieldState extends State<CIDRField> {
                 focusNode: widget.focusNode,
                 nextFocusNode: bitsFocus,
                 onChanged: (val) {
+                  if (widget.onChanged == null) {
+                    return;
+                  }
+
                   cidr.ip = val;
-                  widget.onChanged(cidr);
+                  widget.onChanged!(cidr);
                 },
                 controller: widget.ipController,
               ))),
@@ -81,8 +85,12 @@ class _CIDRFieldState extends State<CIDRField> {
             nextFocusNode: widget.nextFocusNode,
             controller: widget.bitsController,
             onChanged: (val) {
-              cidr.bits = int.tryParse(val ?? "");
-              widget.onChanged(cidr);
+              if (widget.onChanged == null) {
+                return;
+              }
+
+              cidr.bits = int.tryParse(val) ?? 0;
+              widget.onChanged!(cidr);
             },
             maxLength: 2,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
