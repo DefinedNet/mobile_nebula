@@ -11,7 +11,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class SiteTunnelsScreen extends StatefulWidget {
   const SiteTunnelsScreen({
-    required Key key,
+    Key? key,
     required this.site,
     required this.tunnels,
     required this.pending,
