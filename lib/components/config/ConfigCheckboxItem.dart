@@ -3,14 +3,14 @@ import 'package:mobile_nebula/components/SpecialButton.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 class ConfigCheckboxItem extends StatelessWidget {
-  const ConfigCheckboxItem({Key key, this.label, this.content, this.labelWidth = 100, this.onChanged, this.checked})
+  const ConfigCheckboxItem({Key? key, this.label, this.content, this.labelWidth = 100, this.onChanged, this.checked = false})
       : super(key: key);
 
-  final Widget label;
-  final Widget content;
+  final Widget? label;
+  final Widget? content;
   final double labelWidth;
   final bool checked;
-  final Function onChanged;
+  final Function? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class ConfigCheckboxItem extends StatelessWidget {
         child: item,
         onPressed: () {
           if (onChanged != null) {
-            onChanged();
+            onChanged!();
           }
         },
       );

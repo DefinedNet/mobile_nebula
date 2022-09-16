@@ -7,7 +7,7 @@ import 'package:mobile_nebula/services/utils.dart';
 
 class ConfigPageItem extends StatelessWidget {
   const ConfigPageItem(
-      {Key key,
+      {Key? key,
       this.label,
       this.content,
       this.labelWidth = 100,
@@ -15,8 +15,8 @@ class ConfigPageItem extends StatelessWidget {
       this.crossAxisAlignment = CrossAxisAlignment.center})
       : super(key: key);
 
-  final Widget label;
-  final Widget content;
+  final Widget? label;
+  final Widget? content;
   final double labelWidth;
   final CrossAxisAlignment crossAxisAlignment;
   final onPressed;
@@ -29,7 +29,7 @@ class ConfigPageItem extends StatelessWidget {
       final origTheme = Theme.of(context);
       theme = origTheme.copyWith(
           textTheme:
-              origTheme.textTheme.copyWith(button: origTheme.textTheme.button.copyWith(fontWeight: FontWeight.normal)));
+              origTheme.textTheme.copyWith(button: origTheme.textTheme.button!.copyWith(fontWeight: FontWeight.normal)));
       return Theme(data: theme, child: _buildContent(context));
     } else {
       final origTheme = CupertinoTheme.of(context);
