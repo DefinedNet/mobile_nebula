@@ -14,13 +14,19 @@ import 'package:mobile_nebula/services/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class HostInfoScreen extends StatefulWidget {
-  const HostInfoScreen({Key key, this.hostInfo, this.isLighthouse, this.pending, this.onChanged, this.site})
-      : super(key: key);
+  const HostInfoScreen({
+    Key? key,
+    required this.hostInfo,
+    required this.isLighthouse,
+    required this.pending,
+    this.onChanged,
+    required this.site,
+  }) : super(key: key);
 
   final bool isLighthouse;
   final bool pending;
   final HostInfo hostInfo;
-  final Function onChanged;
+  final Function? onChanged;
   final Site site;
 
   @override
@@ -30,7 +36,7 @@ class HostInfoScreen extends StatefulWidget {
 //TODO: have a config option to refresh hostmaps on a cadence (applies to 3 screens so far)
 
 class _HostInfoScreenState extends State<HostInfoScreen> {
-  HostInfo hostInfo;
+  late HostInfo hostInfo;
   RefreshController refreshController = RefreshController(initialRefresh: false);
 
   @override
@@ -64,9 +70,9 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
           ? ConfigPageItem(
               label: Text('Certificate'),
               labelWidth: 150,
-              content: Text(hostInfo.cert.details.name),
+              content: Text(hostInfo.cert!.details.name),
               onPressed: () => Utils.openPage(
-                  context, (context) => CertificateDetailsScreen(certInfo: CertificateInfo(cert: hostInfo.cert))))
+                  context, (context) => CertificateDetailsScreen(certInfo: CertificateInfo(cert: hostInfo.cert!))))
           : Container(),
     ]);
   }
@@ -116,7 +122,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
               _setHostInfo(h);
             }
           } catch (err) {
-            Utils.popError(context, 'Error while changing the remote', err);
+            Utils.popError(context, 'Error while changing the remote', err.toString());
           }
         },
       ));
@@ -156,11 +162,11 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
                       try {
                         await widget.site.closeTunnel(hostInfo.vpnIp);
                         if (widget.onChanged != null) {
-                          widget.onChanged();
+                          widget.onChanged!();
                         }
                         Navigator.pop(context);
                       } catch (err) {
-                        Utils.popError(context, 'Error while trying to close the tunnel', err);
+                        Utils.popError(context, 'Error while trying to close the tunnel', err.toString());
                       }
                     }, deleteLabel: 'Close'))));
   }
@@ -174,7 +180,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
 
       _setHostInfo(h);
     } catch (err) {
-      Utils.popError(context, 'Failed to refresh host info', err);
+      Utils.popError(context, 'Failed to refresh host info', err.toString());
     }
   }
 

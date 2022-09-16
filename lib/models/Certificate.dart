@@ -1,7 +1,7 @@
 class CertificateInfo {
   Certificate cert;
-  String rawCert;
-  CertificateValidity validity;
+  String? rawCert;
+  CertificateValidity? validity;
 
   CertificateInfo.debug({this.rawCert = ""})
       : this.cert = Certificate.debug(),
@@ -12,7 +12,7 @@ class CertificateInfo {
         rawCert = json['RawCert'],
         validity = CertificateValidity.fromJson(json['Validity']);
 
-  CertificateInfo({required this.cert, required this.rawCert, required this.validity});
+  CertificateInfo({required this.cert, this.rawCert, this.validity});
 
   static List<CertificateInfo> fromJsonList(List<dynamic> list) {
     return list.map((v) => CertificateInfo.fromJson(v)).toList();
