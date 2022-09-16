@@ -11,7 +11,7 @@ import 'package:mobile_nebula/services/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class SiteLogsScreen extends StatefulWidget {
-  const SiteLogsScreen({Key key, this.site}) : super(key: key);
+  const SiteLogsScreen({Key? key, required this.site}) : super(key: key);
 
   final Site site;
 
