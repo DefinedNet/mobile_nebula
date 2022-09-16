@@ -41,7 +41,7 @@ class _UnsafeRouteScreenState extends State<UnsafeRouteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var routeCIDR = CIDR.fromString(route.route);
+    var routeCIDR = route.route == null ? CIDR() : CIDR.fromString(route.route!);
 
     return FormPage(
         title: widget.onDelete == null ? 'New Unsafe Route' : 'Edit Unsafe Route',
@@ -62,7 +62,7 @@ class _UnsafeRouteScreenState extends State<UnsafeRouteScreen> {
             ConfigItem(
                 label: Text('Via'),
                 content: IPFormField(
-                    initialValue: route.via,
+                    initialValue: route.via ?? '',
                     ipOnly: true,
                     help: 'nebula ip',
                     textAlign: TextAlign.end,

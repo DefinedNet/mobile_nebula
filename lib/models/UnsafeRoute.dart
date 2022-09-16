@@ -1,8 +1,8 @@
 class UnsafeRoute {
-  String route;
-  String via;
+  String? route;
+  String? via;
 
-  UnsafeRoute({required this.route, required this.via});
+  UnsafeRoute({this.route, this.via});
 
   factory UnsafeRoute.fromJson(Map<String, dynamic> json) {
     return UnsafeRoute(

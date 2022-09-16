@@ -8,7 +8,11 @@ import 'package:mobile_nebula/screens/siteConfig/UnsafeRouteScreen.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 class UnsafeRoutesScreen extends StatefulWidget {
-  const UnsafeRoutesScreen({Key key, @required this.unsafeRoutes, @required this.onSave}) : super(key: key);
+  const UnsafeRoutesScreen({
+    Key? key,
+    required this.unsafeRoutes,
+    required this.onSave,
+  }) : super(key: key);
 
   final List<UnsafeRoute> unsafeRoutes;
   final ValueChanged<List<UnsafeRoute>> onSave;
@@ -18,11 +22,12 @@ class UnsafeRoutesScreen extends StatefulWidget {
 }
 
 class _UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
-  Map<Key, UnsafeRoute> unsafeRoutes = {};
+  late Map<Key, UnsafeRoute> unsafeRoutes;
   bool changed = false;
 
   @override
   void initState() {
+    unsafeRoutes = {};
     widget.unsafeRoutes.forEach((route) {
       unsafeRoutes[UniqueKey()] = route;
     });
@@ -43,9 +48,7 @@ class _UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
 
   _onSave() {
     Navigator.pop(context);
-    if (widget.onSave != null) {
-      widget.onSave(unsafeRoutes.values.toList());
-    }
+    widget.onSave(unsafeRoutes.values.toList());
   }
 
   List<Widget> _buildRoutes() {
@@ -53,7 +56,7 @@ class _UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
     List<Widget> items = [];
     unsafeRoutes.forEach((key, route) {
       items.add(ConfigPageItem(
-        label: Text(route.route),
+        label: Text(route.route ?? ''),
         labelWidth: ipWidth,
         content: Text('via ${route.via}', textAlign: TextAlign.end),
         onPressed: () {
