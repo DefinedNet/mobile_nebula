@@ -9,7 +9,7 @@ import 'package:mobile_nebula/services/utils.dart';
 import 'package:package_info/package_info.dart';
 
 class AboutScreen extends StatefulWidget {
-  const AboutScreen({Key key}) : super(key: key);
+  const AboutScreen({required Key key}) : super(key: key);
 
   @override
   _AboutScreenState createState() => _AboutScreenState();
@@ -17,7 +17,7 @@ class AboutScreen extends StatefulWidget {
 
 class _AboutScreenState extends State<AboutScreen> {
   bool ready = false;
-  PackageInfo packageInfo;
+  PackageInfo? packageInfo;
 
   @override
   void initState() {
@@ -33,6 +33,7 @@ class _AboutScreenState extends State<AboutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // packageInfo is null until ready is true
     if (!ready) {
       return Center(
         child: PlatformCircularProgressIndicator(cupertino: (_, __) {
@@ -48,13 +49,13 @@ class _AboutScreenState extends State<AboutScreen> {
           ConfigItem(
               label: Text('App version'),
               labelWidth: 150,
-              content: _buildText('${packageInfo.version}-${packageInfo.buildNumber} (sha: $gitSha)')),
+              content: _buildText('${packageInfo!.version}-${packageInfo!.buildNumber} (sha: $gitSha)')),
           ConfigItem(
               label: Text('Nebula version'), labelWidth: 150, content: _buildText('$nebulaVersion ($goVersion)')),
           ConfigItem(
-              label: Text('Flutter version'), labelWidth: 150, content: _buildText(flutterVersion['frameworkVersion'])),
+              label: Text('Flutter version'), labelWidth: 150, content: _buildText(flutterVersion['frameworkVersion'] ?? 'Unknown')),
           ConfigItem(
-              label: Text('Dart version'), labelWidth: 150, content: _buildText(flutterVersion['dartSdkVersion'])),
+              label: Text('Dart version'), labelWidth: 150, content: _buildText(flutterVersion['dartSdkVersion'] ?? 'Unknown')),
         ]),
         ConfigSection(children: <Widget>[
           //TODO: wire up these other pages
