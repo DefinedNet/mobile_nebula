@@ -12,107 +12,75 @@ var uuid = Uuid();
 
 class Site {
   static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
-  EventChannel _updates;
+  late EventChannel _updates;
 
   /// Signals that something about this site has changed. onError is called with an error string if there was an error
   StreamController _change = StreamController.broadcast();
 
   // Identifiers
-  String name;
-  String id;
+  late String name;
+  late String id;
 
   // static_host_map
-  Map<String, StaticHost> staticHostmap;
-  List<UnsafeRoute> unsafeRoutes;
+  late Map<String, StaticHost> staticHostmap;
+  late List<UnsafeRoute> unsafeRoutes;
 
   // pki fields
-  List<CertificateInfo> ca;
-  CertificateInfo certInfo;
-  String key;
+  late List<CertificateInfo> ca;
+  late String? key;
+  late CertificateInfo? certInfo;
 
   // lighthouse options
-  int lhDuration; // in seconds
+  late int lhDuration; // in seconds
 
   // listen settings
-  int port;
-  int mtu;
+  late int port;
+  late int mtu;
 
-  String cipher;
-  int sortKey;
-  bool connected;
-  String status;
-  String logFile;
-  String logVerbosity;
+  late String cipher;
+  late int sortKey;
+  late bool connected;
+  late String status;
+  late String logFile;
+  late String logVerbosity;
 
   // A list of errors encountered while loading the site
-  List<String> errors;
+  late List<String> errors;
 
-  Site(
-      {this.name,
-      id,
-      staticHostmap,
-      ca,
-      this.certInfo,
-      this.lhDuration = 0,
-      this.port = 0,
-      this.cipher = "aes",
-      this.sortKey,
-      this.mtu = 1300,
-      this.connected,
-      this.status,
-      this.logFile,
-      this.logVerbosity = 'info',
-      errors,
-      unsafeRoutes})
-      : staticHostmap = staticHostmap ?? {},
-        unsafeRoutes = unsafeRoutes ?? [],
-        errors = errors ?? [],
-        ca = ca ?? [],
-        id = id ?? uuid.v4();
-
-  Site.fromJson(Map<String, dynamic> json) {
-    name = json['name'];
-    id = json['id'];
-
-    Map<String, dynamic> rawHostmap = json['staticHostmap'];
-    staticHostmap = {};
-    rawHostmap.forEach((key, val) {
-      staticHostmap[key] = StaticHost.fromJson(val);
-    });
-
-    List<dynamic> rawUnsafeRoutes = json['unsafeRoutes'];
-    unsafeRoutes = [];
-    if (rawUnsafeRoutes != null) {
-      rawUnsafeRoutes.forEach((val) {
-        unsafeRoutes.add(UnsafeRoute.fromJson(val));
-      });
-    }
-
-    List<dynamic> rawCA = json['ca'];
-    ca = [];
-    rawCA.forEach((val) {
-      ca.add(CertificateInfo.fromJson(val));
-    });
-
-    if (json['cert'] != null) {
-      certInfo = CertificateInfo.fromJson(json['cert']);
-    }
-
-    lhDuration = json['lhDuration'];
-    port = json['port'];
-    mtu = json['mtu'];
-    cipher = json['cipher'];
-    sortKey = json['sortKey'];
-    logFile = json['logFile'];
-    logVerbosity = json['logVerbosity'];
-    connected = json['connected'] ?? false;
-    status = json['status'] ?? "";
-
-    errors = [];
-    List<dynamic> rawErrors = json["errors"];
-    rawErrors.forEach((error) {
-      errors.add(error);
-    });
+  Site({
+    required String name,
+    String? id,
+    Map<String, StaticHost>? staticHostmap,
+    List<CertificateInfo>? ca,
+    CertificateInfo? certInfo,
+    int lhDuration = 0,
+    int port = 0,
+    String cipher = "aes",
+    required int sortKey,
+    int mtu = 1300,
+    required bool connected,
+    required String status,
+    required String logFile,
+    String logVerbosity = 'info',
+    List<String>? errors,
+    List<UnsafeRoute>? unsafeRoutes,
+  }) {
+    this.name = name;
+    this.id = id ?? uuid.v4();
+    this.staticHostmap = staticHostmap ?? {};
+    this.ca = ca ?? [];
+    this.certInfo = certInfo;
+    this.lhDuration = lhDuration;
+    this.port = port;
+    this.cipher = cipher;
+    this.sortKey = sortKey;
+    this.mtu = mtu;
+    this.connected = connected;
+    this.status = status;
+    this.logFile = logFile;
+    this.logVerbosity = logVerbosity;
+    this.errors = errors ?? [];
+    this.unsafeRoutes = unsafeRoutes ?? [];
 
     _updates = EventChannel('net.defined.nebula/$id');
     _updates.receiveBroadcastStream().listen((d) {
@@ -128,8 +96,59 @@ class Site {
       var error = err as PlatformException;
       this.status = error.details['status'];
       this.connected = error.details['connected'];
-      _change.addError(error.message);
+      _change.addError(error.message ?? 'An unexpected error occurred');
     });
+
+  }
+
+  factory Site.fromJson(Map<String, dynamic> json) {
+    Map<String, dynamic> rawHostmap = json['staticHostmap'];
+    Map<String, StaticHost> staticHostmap = {};
+    rawHostmap.forEach((key, val) {
+      staticHostmap[key] = StaticHost.fromJson(val);
+    });
+
+    List<dynamic> rawUnsafeRoutes = json['unsafeRoutes'];
+    List<UnsafeRoute> unsafeRoutes = [];
+    rawUnsafeRoutes.forEach((val) {
+      unsafeRoutes.add(UnsafeRoute.fromJson(val));
+    });
+
+    List<dynamic> rawCA = json['ca'];
+    List<CertificateInfo> ca = [];
+    rawCA.forEach((val) {
+      ca.add(CertificateInfo.fromJson(val));
+    });
+
+    CertificateInfo? certInfo;
+    if (json['cert'] != null) {
+      certInfo = CertificateInfo.fromJson(json['cert']);
+    }
+
+    List<dynamic> rawErrors = json["errors"];
+    List<String> errors = [];
+    rawErrors.forEach((error) {
+      errors.add(error);
+    });
+
+    return Site(
+      name: json['name'],
+      id: json['id'],
+      staticHostmap: staticHostmap,
+      ca: ca,
+      certInfo: certInfo,
+      lhDuration: json['lhDuration'],
+      port: json['port'],
+      cipher: json['cipher'],
+      sortKey: json['sortKey'],
+      mtu: json['mtu'],
+      connected: json['connected'] ?? false,
+      status: json['status'] ?? "",
+      logFile: json['logFile'],
+      logVerbosity: json['logVerbosity'],
+      errors: errors,
+      unsafeRoutes: unsafeRoutes,
+    );
   }
 
   Stream onChange() {
@@ -142,10 +161,9 @@ class Site {
       'id': id,
       'staticHostmap': staticHostmap,
       'unsafeRoutes': unsafeRoutes,
-      'ca': ca?.map((cert) {
+      'ca': ca.map((cert) {
             return cert.rawCert;
-          })?.join('\n') ??
-          "",
+          }).join('\n'),
       'cert': certInfo?.rawCert,
       'key': key,
       'lhDuration': lhDuration,
@@ -260,7 +278,7 @@ class Site {
     _change.close();
   }
 
-  Future<HostInfo> getHostInfo(String vpnIp, bool pending) async {
+  Future<HostInfo?> getHostInfo(String vpnIp, bool pending) async {
     try {
       var ret = await platform
           .invokeMethod("active.getHostInfo", <String, dynamic>{"id": id, "vpnIp": vpnIp, "pending": pending});
@@ -277,7 +295,7 @@ class Site {
     }
   }
 
-  Future<HostInfo> setRemoteForTunnel(String vpnIp, String addr) async {
+  Future<HostInfo?> setRemoteForTunnel(String vpnIp, String addr) async {
     try {
       var ret = await platform
           .invokeMethod("active.setRemoteForTunnel", <String, dynamic>{"id": id, "vpnIp": vpnIp, "addr": addr});
