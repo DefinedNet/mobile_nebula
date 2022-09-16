@@ -10,22 +10,30 @@ import 'package:mobile_nebula/services/utils.dart';
 
 /// Displays the details of a CertificateInfo object. Respects incomplete objects (missing validity or rawCert)
 class CertificateDetailsScreen extends StatefulWidget {
-  const CertificateDetailsScreen({Key key, this.certInfo, this.onDelete, this.onSave, this.onReplace, this.pubKey, this.privKey})
-      : super(key: key);
+  const CertificateDetailsScreen({
+    Key? key,
+    required this.certInfo,
+    this.onDelete,
+    this.onSave,
+    this.onReplace,
+    this.pubKey,
+    this.privKey,
+  }) : super(key: key);
 
   final CertificateInfo certInfo;
 
   // onDelete is used to remove a CA cert
-  final Function onDelete;
+  final Function? onDelete;
 
   // onSave is used to install a new certificate
-  final Function onSave;
+  final Function? onSave;
 
   // onReplace is used to install a new certificate over top of the old one
-  final ValueChanged<CertificateResult> onReplace;
+  final ValueChanged<CertificateResult>? onReplace;
 
-  final String pubKey;
-  final String privKey;
+  // pubKey and privKey should be set if onReplace is not null.
+  final String? pubKey;
+  final String? privKey;
 
   @override
   _CertificateDetailsScreenState createState() => _CertificateDetailsScreenState();
@@ -33,8 +41,8 @@ class CertificateDetailsScreen extends StatefulWidget {
 
 class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
   bool changed = false;
-  CertificateResult certResult;
-  CertificateInfo certInfo;
+  CertificateResult? certResult;
+  late CertificateInfo certInfo;
   ScrollController controller = ScrollController();
 
   @override
@@ -58,10 +66,10 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
       onSave: () {
         if (widget.onSave != null) {
           Navigator.pop(context);
-          widget.onSave();
+          widget.onSave!();
         } else if (widget.onReplace != null) {
           Navigator.pop(context);
-          widget.onReplace(certResult);
+          widget.onReplace!(certResult!);
         }
       },
       hideSave: widget.onSave == null && widget.onReplace == null,
@@ -86,8 +94,8 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
 
   Widget _buildValid() {
     var valid = Text('yes');
-    if (certInfo.validity != null && !certInfo.validity.valid) {
-      valid = Text(certInfo.validity.valid ? 'yes' : certInfo.validity.reason,
+    if (certInfo.validity != null && !certInfo.validity!.valid) {
+      valid = Text(certInfo.validity!.valid ? 'yes' : certInfo.validity!.reason,
           style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(context)));
     }
     return ConfigSection(
@@ -137,7 +145,7 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
         certInfo.rawCert != null
             ? ConfigItem(
                 label: Text('PEM Format'),
-                content: SelectableText(certInfo.rawCert, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
+                content: SelectableText(certInfo.rawCert!, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
                 crossAxisAlignment: CrossAxisAlignment.start)
             : Container(),
       ],
@@ -145,7 +153,7 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
   }
 
   Widget _buildReplace() {
-    if (widget.onReplace == null) {
+    if (widget.onReplace == null || widget.pubKey == null || widget.privKey == null) {
       return Container();
     }
 
@@ -162,12 +170,12 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
                       setState(() {
                         changed = true;
                         certResult = result;
-                        certInfo = certResult.certInfo;
+                        certInfo = result.certInfo;
                       });
                       // Slam the page back to the top
                       controller.animateTo(0,
                           duration: const Duration(milliseconds: 10), curve: Curves.linearToEaseOut);
-                    }, pubKey: widget.pubKey, privKey: widget.privKey, );
+                    }, pubKey: widget.pubKey!, privKey: widget.privKey!);
                   });
                 })));
   }
@@ -188,7 +196,7 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
                 color: CupertinoColors.systemRed.resolveFrom(context),
                 onPressed: () => Utils.confirmDelete(context, title, () async {
                       Navigator.pop(context);
-                      widget.onDelete();
+                      widget.onDelete!();
                     }))));
   }
 }
