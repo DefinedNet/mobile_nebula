@@ -17,10 +17,14 @@ import 'package:mobile_nebula/services/utils.dart';
 //TODO: In addition you will want to think about re-generation while the site is still active (This means storing multiple keys in secure storage)
 
 class CAListScreen extends StatefulWidget {
-  const CAListScreen({Key key, this.cas, @required this.onSave}) : super(key: key);
+  const CAListScreen({
+    Key? key,
+    required this.cas,
+    this.onSave,
+  }) : super(key: key);
 
   final List<CertificateInfo> cas;
-  final ValueChanged<List<CertificateInfo>> onSave;
+  final ValueChanged<List<CertificateInfo>>? onSave;
 
   @override
   _CAListScreenState createState() => _CAListScreenState();
@@ -59,7 +63,7 @@ class _CAListScreenState extends State<CAListScreen> {
         onSave: () {
           if (widget.onSave != null) {
             Navigator.pop(context);
-            widget.onSave(cas.values.map((ca) {
+            widget.onSave!(cas.values.map((ca) {
               return ca;
             }).toList());
           }
@@ -90,8 +94,8 @@ class _CAListScreenState extends State<CAListScreen> {
     return items;
   }
 
-  _addCAEntry(String ca, ValueChanged<String> callback) async {
-    String error;
+  _addCAEntry(String ca, ValueChanged<String?> callback) async {
+    String? error;
 
     //TODO: show an error popup
     try {
@@ -118,9 +122,7 @@ class _CAListScreenState extends State<CAListScreen> {
       error = err.details ?? err.message;
     }
 
-    if (callback != null) {
-      callback(error);
-    }
+    callback(error);
   }
 
   List<Widget> _addCA() {
@@ -130,9 +132,11 @@ class _CAListScreenState extends State<CAListScreen> {
           child: CupertinoSlidingSegmentedControl(
             groupValue: inputType,
             onValueChanged: (v) {
-              setState(() {
-                inputType = v;
-              });
+              if (v != null) {
+                setState(() {
+                  inputType = v;
+                });
+              }
             },
             children: {
               'paste': Text('Copy/Paste'),
@@ -228,7 +232,7 @@ class _CAListScreenState extends State<CAListScreen> {
                   }
 
                 } catch (err) {
-                  return Utils.popError(context, 'Error scanning QR code', err);
+                  return Utils.popError(context, 'Error scanning QR code', err.toString());
                 }
               })
         ],
