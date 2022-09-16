@@ -52,7 +52,7 @@ class Utils {
 
   /// Builds a simple leading widget that pops the current screen.
   /// Provide your own onPressed to override that behavior, just remember you have to pop
-  static Widget leadingBackWidget(BuildContext context, {label = 'Back', Function onPressed}) {
+  static Widget leadingBackWidget(BuildContext context, {label = 'Back', Function? onPressed}) {
     if (Platform.isIOS) {
       return CupertinoButton(
         child: Row(children: <Widget>[Icon(context.platformIcons.back), Text(label)]),
@@ -122,7 +122,7 @@ class Utils {
         });
   }
 
-  static popError(BuildContext context, String title, String error, {StackTrace stack}) {
+  static popError(BuildContext context, String title, String error, {StackTrace? stack}) {
     if (stack != null) {
       error += '\n${stack.toString()}';
     }
@@ -170,14 +170,14 @@ class Utils {
     return int.parse(parts[3]) | int.parse(parts[2]) << 8 | int.parse(parts[1]) << 16 | int.parse(parts[0]) << 24;
   }
 
-  static Future<String> pickFile(BuildContext context) async {
+  static Future<String?> pickFile(BuildContext context) async {
     await FilePicker.platform.clearTemporaryFiles();
     final result = await FilePicker.platform.pickFiles(allowMultiple: false);
     if (result == null) {
       return null;
     }
 
-    final file = File(result.files.first.path);
+    final file = File(result!.files.first.path!);
     return file.readAsString();
   }
 }
