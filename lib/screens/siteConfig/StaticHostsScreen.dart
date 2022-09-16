@@ -18,12 +18,20 @@ class _Hostmap {
   List<IPAndPort> destinations;
   bool lighthouse;
 
-  _Hostmap({this.focusNode, this.nebulaIp, destinations, this.lighthouse})
-      : destinations = destinations ?? <IPAndPort>[];
+  _Hostmap({
+    required this.focusNode,
+    required this.nebulaIp,
+    required this.destinations,
+    required this.lighthouse,
+  });
 }
 
 class StaticHostsScreen extends StatefulWidget {
-  const StaticHostsScreen({Key key, @required this.hostmap, @required this.onSave}) : super(key: key);
+  const StaticHostsScreen({
+    Key? key,
+    required this.hostmap,
+    required this.onSave,
+  }) : super(key: key);
 
   final Map<String, StaticHost> hostmap;
   final ValueChanged<Map<String, StaticHost>> onSave;
@@ -38,7 +46,7 @@ class _StaticHostsScreenState extends State<StaticHostsScreen> {
 
   @override
   void initState() {
-    widget.hostmap?.forEach((key, map) {
+    widget.hostmap.forEach((key, map) {
       _hostmap[UniqueKey()] =
           _Hostmap(focusNode: FocusNode(), nebulaIp: key, destinations: map.destinations, lighthouse: map.lighthouse);
     });
@@ -59,14 +67,12 @@ class _StaticHostsScreenState extends State<StaticHostsScreen> {
 
   _onSave() {
     Navigator.pop(context);
-    if (widget.onSave != null) {
-      Map<String, StaticHost> map = {};
-      _hostmap.forEach((_, host) {
-        map[host.nebulaIp] = StaticHost(destinations: host.destinations, lighthouse: host.lighthouse);
-      });
+    Map<String, StaticHost> map = {};
+    _hostmap.forEach((_, host) {
+      map[host.nebulaIp] = StaticHost(destinations: host.destinations, lighthouse: host.lighthouse);
+    });
 
-      widget.onSave(map);
-    }
+    widget.onSave(map);
   }
 
   List<Widget> _buildHosts() {
