@@ -15,35 +15,44 @@ class _IPAndPort {
   final FocusNode focusNode;
   IPAndPort destination;
 
-  _IPAndPort({this.focusNode, this.destination});
+  _IPAndPort({required this.focusNode, required this.destination});
 }
 
 class StaticHostmapScreen extends StatefulWidget {
-  const StaticHostmapScreen(
-      {Key key, this.nebulaIp, this.destinations, this.lighthouse = false, this.onDelete, @required this.onSave})
-      : super(key: key);
+  StaticHostmapScreen({
+    Key? key,
+    this.nebulaIp = '',
+    destinations,
+    this.lighthouse = false,
+    this.onDelete,
+    required this.onSave,
+  })
+  :
+    this.destinations = destinations ?? [],
+    super(key: key);
 
   final List<IPAndPort> destinations;
   final String nebulaIp;
   final bool lighthouse;
   final ValueChanged<Hostmap> onSave;
-  final Function onDelete;
+  final Function? onDelete;
 
   @override
   _StaticHostmapScreenState createState() => _StaticHostmapScreenState();
 }
 
 class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
-  Map<Key, _IPAndPort> _destinations = {};
-  String _nebulaIp;
-  bool _lighthouse;
+  late Map<Key, _IPAndPort> _destinations;
+  late String _nebulaIp;
+  late bool _lighthouse;
   bool changed = false;
 
   @override
   void initState() {
     _nebulaIp = widget.nebulaIp;
     _lighthouse = widget.lighthouse;
-    widget.destinations?.forEach((dest) {
+    _destinations = {};
+    widget.destinations.forEach((dest) {
       _destinations[UniqueKey()] = _IPAndPort(focusNode: FocusNode(), destination: dest);
     });
 
@@ -75,7 +84,9 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     textInputAction: TextInputAction.next,
                     onSaved: (v) {
-                      _nebulaIp = v;
+                      if (v != null) {
+                        _nebulaIp = v;
+                      }
                     })),
             ConfigItem(
               label: Text('Lighthouse'),
@@ -107,7 +118,7 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
                         color: CupertinoColors.systemRed.resolveFrom(context),
                         onPressed: () => Utils.confirmDelete(context, 'Delete host map?', () {
                           Navigator.of(context).pop();
-                          widget.onDelete();
+                          widget.onDelete!();
                         }),
                       )))
               : Container()
@@ -116,15 +127,13 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
 
   _onSave() {
     Navigator.pop(context);
-    if (widget.onSave != null) {
-      var map = Hostmap(nebulaIp: _nebulaIp, destinations: [], lighthouse: _lighthouse);
+    var map = Hostmap(nebulaIp: _nebulaIp, destinations: [], lighthouse: _lighthouse);
 
-      _destinations.forEach((_, dest) {
-        map.destinations.add(dest.destination);
-      });
+    _destinations.forEach((_, dest) {
+      map.destinations.add(dest.destination);
+    });
 
-      widget.onSave(map);
-    }
+    widget.onSave(map);
   }
 
   List<Widget> _buildHosts() {
@@ -152,7 +161,9 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
             noBorder: true,
             initialValue: dest.destination,
             onSaved: (v) {
-              dest.destination = v;
+              if (v != null) {
+                dest.destination = v;
+              }
             },
           )),
         ]),

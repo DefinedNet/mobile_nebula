@@ -1,12 +1,12 @@
 class IPAndPort {
-  String ip;
-  int port;
+  String? ip;
+  int? port;
 
-  IPAndPort({required this.ip, required this.port});
+  IPAndPort({this.ip, this.port});
 
   @override
   String toString() {
-    if (ip.contains(':')) {
+    if (ip != null && ip!.contains(':')) {
       return '[$ip]:$port';
     }
 
