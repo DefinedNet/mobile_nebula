@@ -1,5 +1,5 @@
 class CIDR {
-  CIDR({this.ip, this.bits});
+  CIDR({required this.ip, required this.bits});
 
   String ip;
   int bits;
@@ -13,13 +13,15 @@ class CIDR {
     return toString();
   }
 
-  CIDR.fromString(String val) {
+  factory CIDR.fromString(String val) {
     final parts = val.split('/');
     if (parts.length != 2) {
       throw 'Invalid CIDR string';
     }
 
-    ip = parts[0];
-    bits = int.parse(parts[1]);
+    return CIDR(
+      ip: parts[0],
+      bits: int.parse(parts[1]),
+    );
   }
 }

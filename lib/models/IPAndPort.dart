@@ -2,7 +2,7 @@ class IPAndPort {
   String ip;
   int port;
 
-  IPAndPort({this.ip, this.port});
+  IPAndPort({required this.ip, required this.port});
 
   @override
   String toString() {
@@ -17,10 +17,13 @@ class IPAndPort {
     return toString();
   }
 
-  IPAndPort.fromString(String val) {
+  factory IPAndPort.fromString(String val) {
     //TODO: Uri.parse is as close as I could get to parsing both ipv4 and v6 addresses with a port without bringing a whole mess of code into here
     final uri = Uri.parse("ugh://$val");
-    this.ip = uri.host;
-    this.port = uri.port;
+
+    return IPAndPort(
+        ip: uri.host,
+        port: uri.port,
+    );
   }
 }

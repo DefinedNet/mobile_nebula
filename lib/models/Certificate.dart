@@ -12,10 +12,10 @@ class CertificateInfo {
         rawCert = json['RawCert'],
         validity = CertificateValidity.fromJson(json['Validity']);
 
-  CertificateInfo({this.cert, this.rawCert, this.validity});
+  CertificateInfo({required this.cert, required this.rawCert, required this.validity});
 
   static List<CertificateInfo> fromJsonList(List<dynamic> list) {
-    return list.map((v) => CertificateInfo.fromJson(v));
+    return list.map((v) => CertificateInfo.fromJson(v)).toList();
   }
 }
 
@@ -59,8 +59,8 @@ class CertificateDetails {
 
   CertificateDetails.fromJson(Map<String, dynamic> json)
       : name = json['name'],
-        notBefore = DateTime.tryParse(json['notBefore']),
-        notAfter = DateTime.tryParse(json['notAfter']),
+        notBefore = DateTime.parse(json['notBefore']),
+        notAfter = DateTime.parse(json['notAfter']),
         publicKey = json['publicKey'],
         groups = List<String>.from(json['groups']),
         ips = List<String>.from(json['ips']),

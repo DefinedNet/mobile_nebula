@@ -2,13 +2,11 @@ import 'IPAndPort.dart';
 
 class StaticHost {
   bool lighthouse;
-  List<IPAndPort> destinations;
+  List<IPAndPort> destinations = [];
 
-  StaticHost({this.lighthouse, this.destinations});
+  StaticHost({required this.lighthouse, required this.destinations});
 
-  StaticHost.fromJson(Map<String, dynamic> json) {
-    lighthouse = json['lighthouse'];
-
+  factory StaticHost.fromJson(Map<String, dynamic> json) {
     var list = json['destinations'] as List<dynamic>;
     var result = <IPAndPort>[];
 
@@ -16,7 +14,10 @@ class StaticHost {
       result.add(IPAndPort.fromString(item));
     });
 
-    destinations = result;
+    return StaticHost(
+      lighthouse: json['lighthouse'],
+      destinations: result,
+    );
   }
 
   Map<String, dynamic> toJson() {

@@ -5,5 +5,5 @@ class Hostmap {
   List<IPAndPort> destinations;
   bool lighthouse;
 
-  Hostmap({this.nebulaIp, this.destinations, this.lighthouse});
+  Hostmap({required this.nebulaIp, required this.destinations, required this.lighthouse});
 }
