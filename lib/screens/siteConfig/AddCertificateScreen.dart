@@ -20,16 +20,22 @@ class CertificateResult {
   CertificateInfo certInfo;
   String key;
 
-  CertificateResult({this.certInfo, this.key});
+  CertificateResult({required this.certInfo, required this.key});
 }
 
 class AddCertificateScreen extends StatefulWidget {
-  const AddCertificateScreen({Key key, this.onSave, this.onReplace, this.pubKey, this.privKey}) : super(key: key);
+  const AddCertificateScreen({
+    Key? key,
+    required this.onSave,
+    this.onReplace,
+    required this.pubKey,
+    required this.privKey,
+  }) : super(key: key);
 
   // onSave will pop a new CertificateDetailsScreen
   final ValueChanged<CertificateResult> onSave;
   // onReplace will return the CertificateResult, assuming the previous screen is a CertificateDetailsScreen
-  final ValueChanged<CertificateResult> onReplace;
+  final ValueChanged<CertificateResult>? onReplace;
 
   final String pubKey;
   final String privKey;
@@ -39,7 +45,7 @@ class AddCertificateScreen extends StatefulWidget {
 }
 
 class _AddCertificateScreenState extends State<AddCertificateScreen> {
-  String pubKey;
+  late String pubKey;
   bool showKey = false;
 
   String inputType = 'paste';
@@ -98,9 +104,11 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
           child: CupertinoSlidingSegmentedControl(
             groupValue: inputType,
             onValueChanged: (v) {
-              setState(() {
-                inputType = v;
-              });
+              if (v != null) {
+                setState(() {
+                  inputType = v;
+                });
+              }
             },
             children: {
               'paste': Text('Copy/Paste'),
@@ -203,7 +211,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
                   }
 
                 } catch (err) {
-                  return Utils.popError(context, 'Error scanning QR code', err);
+                  return Utils.popError(context, 'Error scanning QR code', err.toString());
                 }
               }),
         ],
@@ -226,8 +234,8 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
         if (tryCertInfo.cert.details.isCa) {
           return Utils.popError(context, 'Error loading certificate content',
               'A certificate authority is not appropriate for a client certificate.');
-        } else if (!tryCertInfo.validity.valid) {
-          return Utils.popError(context, 'Certificate was invalid', tryCertInfo.validity.reason);
+        } else if (!tryCertInfo.validity!.valid) {
+          return Utils.popError(context, 'Certificate was invalid', tryCertInfo.validity!.reason);
         }
 
         var certMatch = await platform.invokeMethod(
@@ -243,7 +251,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
         // If we are replacing we just return the results now
         if (widget.onReplace != null) {
           Navigator.pop(context);
-          widget.onReplace(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
+          widget.onReplace!(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
           return;
         }
 
