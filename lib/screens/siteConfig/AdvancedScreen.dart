@@ -28,10 +28,23 @@ class Advanced {
   String verbosity;
   List<UnsafeRoute> unsafeRoutes;
   int mtu;
+
+  Advanced({
+    required this.lhDuration,
+    required this.port,
+    required this.cipher,
+    required this.verbosity,
+    required this.unsafeRoutes,
+    required this.mtu,
+  });
 }
 
 class AdvancedScreen extends StatefulWidget {
-  const AdvancedScreen({Key key, this.site, @required this.onSave}) : super(key: key);
+  const AdvancedScreen({
+    Key? key,
+    required this.site,
+    required this.onSave,
+  }) : super(key: key);
 
   final Site site;
   final ValueChanged<Advanced> onSave;
@@ -41,17 +54,19 @@ class AdvancedScreen extends StatefulWidget {
 }
 
 class _AdvancedScreenState extends State<AdvancedScreen> {
-  var settings = Advanced();
+  late Advanced settings;
   var changed = false;
 
   @override
   void initState() {
-    settings.lhDuration = widget.site.lhDuration;
-    settings.port = widget.site.port;
-    settings.cipher = widget.site.cipher;
-    settings.verbosity = widget.site.logVerbosity;
-    settings.unsafeRoutes = widget.site.unsafeRoutes;
-    settings.mtu = widget.site.mtu;
+    settings = Advanced(
+      lhDuration: widget.site.lhDuration,
+      port: widget.site.port,
+      cipher: widget.site.cipher,
+      verbosity: widget.site.logVerbosity,
+      unsafeRoutes: widget.site.unsafeRoutes,
+      mtu: widget.site.mtu,
+    );
     super.initState();
   }
 
@@ -177,7 +192,7 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                       return RenderedConfigScreen(config: config, name: widget.site.name);
                     });
                   } catch (err) {
-                    Utils.popError(context, 'Failed to render the site config', err);
+                    Utils.popError(context, 'Failed to render the site config', err.toString());
                   }
                 },
               )
