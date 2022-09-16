@@ -48,7 +48,7 @@ class Site {
   late List<String> errors;
 
   Site({
-    required String name,
+    String name = '',
     String? id,
     Map<String, StaticHost>? staticHostmap,
     List<CertificateInfo>? ca,

@@ -26,15 +26,17 @@ class CertificateResult {
 class AddCertificateScreen extends StatefulWidget {
   const AddCertificateScreen({
     Key? key,
-    required this.onSave,
+    this.onSave,
     this.onReplace,
     required this.pubKey,
     required this.privKey,
   }) : super(key: key);
 
-  // onSave will pop a new CertificateDetailsScreen
-  final ValueChanged<CertificateResult> onSave;
-  // onReplace will return the CertificateResult, assuming the previous screen is a CertificateDetailsScreen
+  // onSave will pop a new CertificateDetailsScreen.
+  // If onSave is null, onReplace must be set.
+  final ValueChanged<CertificateResult>? onSave;
+  // onReplace will return the CertificateResult, assuming the previous screen is a CertificateDetailsScreen.
+  // If onReplace is null, onSave must be set.
   final ValueChanged<CertificateResult>? onReplace;
 
   final String pubKey;
@@ -248,22 +250,24 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
               'The provided certificates public key is not compatible with the private key.');
         }
 
-        // If we are replacing we just return the results now
         if (widget.onReplace != null) {
+          // If we are replacing we just return the results now
           Navigator.pop(context);
-          widget.onReplace!(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
+          widget.onReplace!(CertificateResult(
+              certInfo: tryCertInfo, key: keyController.text));
           return;
+        } else if (widget.onSave != null) {
+          // We have a cert, pop the details screen where they can hit save
+          Utils.openPage(context, (context) {
+            return CertificateDetailsScreen(
+                certInfo: tryCertInfo,
+                onSave: () {
+                  Navigator.pop(context);
+                  widget.onSave!(CertificateResult(
+                      certInfo: tryCertInfo, key: keyController.text));
+                });
+          });
         }
-
-        // We have a cert, pop the details screen where they can hit save
-        Utils.openPage(context, (context) {
-          return CertificateDetailsScreen(
-              certInfo: tryCertInfo,
-              onSave: () {
-                Navigator.pop(context);
-                widget.onSave(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
-              });
-        });
       }
     } on PlatformException catch (err) {
       return Utils.popError(context, 'Error loading certificate content', err.details ?? err.message);
