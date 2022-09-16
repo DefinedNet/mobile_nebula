@@ -23,7 +23,7 @@ import 'package:uuid/uuid.dart';
 //TODO: add refresh
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({Key key}) : super(key: key);
+  const MainScreen({Key? key}) : super(key: key);
 
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -31,9 +31,9 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   bool ready = false;
-  List<Site> sites;
+  List<Site>? sites;
   // A set of widgets to display in a column that represents an error blocking us from moving forward entirely
-  List<Widget> error;
+  List<Widget>? error;
 
   static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
 
@@ -75,7 +75,7 @@ class _MainScreenState extends State<MainScreen> {
       return Center(child: Padding(child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: error,
+        children: error!,
       ), padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10)));
     }
 
@@ -85,10 +85,6 @@ class _MainScreenState extends State<MainScreen> {
           return CupertinoProgressIndicatorData(radius: 50);
         }),
       );
-    }
-
-    if (sites == null || sites.length == 0) {
-      return _buildNoSites();
     }
 
     return _buildSites();
@@ -112,8 +108,12 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildSites() {
+    if (sites == null || sites!.length == 0) {
+      return _buildNoSites();
+    }
+
     List<Widget> items = [];
-    sites.forEach((site) {
+    sites!.forEach((site) {
       items.add(SiteItem(
           key: Key(site.id),
           site: site,
@@ -134,17 +134,17 @@ class _MainScreenState extends State<MainScreen> {
           }
 
           setState(() {
-            final Site moved = sites.removeAt(oldI);
-            sites.insert(newI, moved);
+            final Site moved = sites!.removeAt(oldI);
+            sites!.insert(newI, moved);
           });
 
           for (var i = min(oldI, newI); i <= max(oldI, newI); i++) {
-            sites[i].sortKey = i;
+            sites![i].sortKey = i;
             try {
-              await sites[i].save();
+              await sites![i].save();
             } catch (err) {
               //TODO: display error at the end
-              print('ERR ${sites[i].name} - $err');
+              print('ERR ${sites![i].name} - $err');
             }
           }
 
@@ -233,7 +233,7 @@ rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
           setState(() {
             error = [
               Text("Unknown Error", style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(err.message, textAlign: TextAlign.center)
+              Text(err.message ?? 'An unknown error occurred', textAlign: TextAlign.center)
             ];
           });
         }
@@ -241,7 +241,7 @@ rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
         setState(() {
           error = [
             Text("Unknown Error", style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(err.message, textAlign: TextAlign.center)
+            Text(err.toString(), textAlign: TextAlign.center)
           ];
         });
       }
@@ -264,12 +264,12 @@ rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
           setState(() {});
         }, onError: (err) {
           setState(() {});
-          if (ModalRoute.of(context).isCurrent) {
+          if (ModalRoute.of(context)!.isCurrent) {
             Utils.popError(context, "${site.name} Error", err);
           }
         });
 
-        sites.add(site);
+        sites!.add(site);
       } catch (err) {
         //TODO: handle error
         print("$err site config: $rawSite");
@@ -288,7 +288,7 @@ rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
           "1 or more sites have errors and need your attention, problem sites have a red border.");
     }
 
-    sites.sort((a, b) {
+    sites!.sort((a, b) {
       return a.sortKey - b.sortKey;
     });
 
