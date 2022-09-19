@@ -94,8 +94,12 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                     maxLength: 5,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     onSaved: (val) {
+                      if (val == null) {
+                        val = settings.lhDuration.toString();
+                      }
+
                       setState(() {
-                        settings.lhDuration = int.parse(val);
+                        settings.lhDuration = int.parse(val!);
                       });
                     },
                   )),
@@ -110,8 +114,12 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                     maxLength: 5,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     onSaved: (val) {
+                      if (val == null) {
+                        val = settings.port.toString();
+                      }
+
                       setState(() {
-                        settings.port = int.parse(val);
+                        settings.port = int.parse(val!);
                       });
                     },
                   )),
@@ -125,8 +133,12 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                     maxLength: 5,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     onSaved: (val) {
+                      if (val == null) {
+                        val = settings.mtu.toString();
+                      }
+
                       setState(() {
-                        settings.mtu = int.parse(val);
+                        settings.mtu = int.parse(val!);
                       });
                     },
                   )),

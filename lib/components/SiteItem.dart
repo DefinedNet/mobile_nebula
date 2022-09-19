@@ -27,8 +27,8 @@ class SiteItem extends StatelessWidget {
   Widget _buildContent(BuildContext context) {
     final border = BorderSide(color: Utils.configSectionBorder(context));
     var ip = "Error";
-    if (site.certInfo != null && site.certInfo.cert.details.ips.length > 0) {
-      ip = site.certInfo.cert.details.ips[0];
+    if (site.certInfo != null && site.certInfo!.cert.details.ips.length > 0) {
+      ip = site.certInfo!.cert.details.ips[0];
     }
 
     return SpecialButton(
