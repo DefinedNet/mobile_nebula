@@ -26,10 +26,8 @@ class StaticHostmapScreen extends StatefulWidget {
     this.lighthouse = false,
     this.onDelete,
     required this.onSave,
-  })
-  :
-    this.destinations = destinations ?? [],
-    super(key: key);
+  })  : this.destinations = destinations ?? [],
+        super(key: key);
 
   final List<IPAndPort> destinations;
   final String nebulaIp;

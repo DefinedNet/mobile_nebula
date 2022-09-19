@@ -72,11 +72,14 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildBody() {
     if (error != null) {
-      return Center(child: Padding(child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: error!,
-      ), padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10)));
+      return Center(
+          child: Padding(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: error!,
+              ),
+              padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10)));
     }
 
     if (!ready) {
@@ -209,24 +212,20 @@ rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
     if (Platform.isAndroid) {
       try {
         await platform.invokeMethod("android.requestPermissions");
-
       } on PlatformException catch (err) {
         if (err.code == "PERMISSIONS") {
           setState(() {
             error = [
-              Text("Permissions Required",
-                style: TextStyle(fontWeight: FontWeight.bold)),
+              Text("Permissions Required", style: TextStyle(fontWeight: FontWeight.bold)),
               Text(
-                "VPN permissions are required for nebula to run, click the button below request and accept the appropriate permissions.",
-                textAlign: TextAlign.center
-              ),
+                  "VPN permissions are required for nebula to run, click the button below request and accept the appropriate permissions.",
+                  textAlign: TextAlign.center),
               ElevatedButton(
-                onPressed: () {
-                  error = null;
-                  _loadSites();
-                },
-                child: Text("Request Permissions")
-              ),
+                  onPressed: () {
+                    error = null;
+                    _loadSites();
+                  },
+                  child: Text("Request Permissions")),
             ];
           });
         } else {

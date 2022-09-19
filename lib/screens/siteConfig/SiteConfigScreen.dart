@@ -138,7 +138,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
       });
     }
 
-    return ConfigSection( 
+    return ConfigSection(
       label: "IDENTITY",
       children: [
         ConfigPageItem(
@@ -167,13 +167,16 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
                     });
               }
 
-              return AddCertificateScreen(pubKey: pubKey!, privKey: privKey!, onSave: (result) {
-                setState(() {
-                  changed = true;
-                  site.certInfo = result.certInfo;
-                  site.key = result.key;
-                });
-              });
+              return AddCertificateScreen(
+                  pubKey: pubKey!,
+                  privKey: privKey!,
+                  onSave: (result) {
+                    setState(() {
+                      changed = true;
+                      site.certInfo = result.certInfo;
+                      site.key = result.key;
+                    });
+                  });
             });
           },
         ),

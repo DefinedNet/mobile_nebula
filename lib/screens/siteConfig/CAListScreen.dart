@@ -230,7 +230,6 @@ class _CAListScreenState extends State<CAListScreen> {
                       }
                     });
                   }
-
                 } catch (err) {
                   return Utils.popError(context, 'Error scanning QR code', err.toString());
                 }

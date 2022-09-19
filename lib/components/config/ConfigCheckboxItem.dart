@@ -3,7 +3,8 @@ import 'package:mobile_nebula/components/SpecialButton.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 class ConfigCheckboxItem extends StatelessWidget {
-  const ConfigCheckboxItem({Key? key, this.label, this.content, this.labelWidth = 100, this.onChanged, this.checked = false})
+  const ConfigCheckboxItem(
+      {Key? key, this.label, this.content, this.labelWidth = 100, this.onChanged, this.checked = false})
       : super(key: key);
 
   final Widget? label;

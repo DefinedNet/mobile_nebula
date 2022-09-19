@@ -4,7 +4,8 @@ import 'package:mobile_nebula/services/utils.dart';
 import 'ConfigHeader.dart';
 
 class ConfigSection extends StatelessWidget {
-  const ConfigSection({Key? key, this.label, required this.children, this.borderColor, this.labelColor}) : super(key: key);
+  const ConfigSection({Key? key, this.label, required this.children, this.borderColor, this.labelColor})
+      : super(key: key);
 
   final List<Widget> children;
   final String? label;

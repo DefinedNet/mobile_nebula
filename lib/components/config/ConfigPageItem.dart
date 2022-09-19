@@ -28,8 +28,8 @@ class ConfigPageItem extends StatelessWidget {
     if (Platform.isAndroid) {
       final origTheme = Theme.of(context);
       theme = origTheme.copyWith(
-          textTheme:
-              origTheme.textTheme.copyWith(button: origTheme.textTheme.button!.copyWith(fontWeight: FontWeight.normal)));
+          textTheme: origTheme.textTheme
+              .copyWith(button: origTheme.textTheme.button!.copyWith(fontWeight: FontWeight.normal)));
       return Theme(data: theme, child: _buildContent(context));
     } else {
       final origTheme = CupertinoTheme.of(context);

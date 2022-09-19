@@ -10,12 +10,9 @@ import 'package:mobile_nebula/services/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class SiteTunnelsScreen extends StatefulWidget {
-  const SiteTunnelsScreen({
-    Key? key,
-    required this.site,
-    required this.tunnels,
-    required this.pending,
-    required this.onChanged}) : super(key: key);
+  const SiteTunnelsScreen(
+      {Key? key, required this.site, required this.tunnels, required this.pending, required this.onChanged})
+      : super(key: key);
 
   final Site site;
   final List<HostInfo> tunnels;

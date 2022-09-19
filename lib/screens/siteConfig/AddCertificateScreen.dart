@@ -141,19 +141,16 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
                   child: Text('Show/Import Private Key'),
                   color: CupertinoColors.secondaryLabel.resolveFrom(context),
                   onPressed: () => Utils.confirmDelete(context, 'Show/Import Private Key?', () {
-                    setState(() {
-                      showKey = true;
-                    });
-                  }, deleteLabel: 'Yes'))));
+                        setState(() {
+                          showKey = true;
+                        });
+                      }, deleteLabel: 'Yes'))));
     }
 
     return ConfigSection(
       label: 'Import a private key generated on another device',
       children: [
-        ConfigTextItem(
-          controller: keyController,
-          style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)
-        ),
+        ConfigTextItem(controller: keyController, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
       ],
     );
   }
@@ -211,7 +208,6 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
                   if (result != "") {
                     _addCertEntry(result);
                   }
-
                 } catch (err) {
                   return Utils.popError(context, 'Error scanning QR code', err.toString());
                 }
@@ -240,10 +236,8 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
           return Utils.popError(context, 'Certificate was invalid', tryCertInfo.validity!.reason);
         }
 
-        var certMatch = await platform.invokeMethod(
-            "nebula.verifyCertAndKey",
-            <String, String>{"cert": rawCert, "key": keyController.text}
-        );
+        var certMatch = await platform
+            .invokeMethod("nebula.verifyCertAndKey", <String, String>{"cert": rawCert, "key": keyController.text});
         if (!certMatch) {
           // The method above will throw if there is a mismatch, this is just here in case we introduce a bug in the future
           return Utils.popError(context, 'Error loading certificate content',
@@ -253,8 +247,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
         if (widget.onReplace != null) {
           // If we are replacing we just return the results now
           Navigator.pop(context);
-          widget.onReplace!(CertificateResult(
-              certInfo: tryCertInfo, key: keyController.text));
+          widget.onReplace!(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
           return;
         } else if (widget.onSave != null) {
           // We have a cert, pop the details screen where they can hit save
@@ -263,8 +256,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
                 certInfo: tryCertInfo,
                 onSave: () {
                   Navigator.pop(context);
-                  widget.onSave!(CertificateResult(
-                      certInfo: tryCertInfo, key: keyController.text));
+                  widget.onSave!(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
                 });
           });
         }

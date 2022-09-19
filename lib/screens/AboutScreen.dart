@@ -53,9 +53,13 @@ class _AboutScreenState extends State<AboutScreen> {
           ConfigItem(
               label: Text('Nebula version'), labelWidth: 150, content: _buildText('$nebulaVersion ($goVersion)')),
           ConfigItem(
-              label: Text('Flutter version'), labelWidth: 150, content: _buildText(flutterVersion['frameworkVersion'] ?? 'Unknown')),
+              label: Text('Flutter version'),
+              labelWidth: 150,
+              content: _buildText(flutterVersion['frameworkVersion'] ?? 'Unknown')),
           ConfigItem(
-              label: Text('Dart version'), labelWidth: 150, content: _buildText(flutterVersion['dartSdkVersion'] ?? 'Unknown')),
+              label: Text('Dart version'),
+              labelWidth: 150,
+              content: _buildText(flutterVersion['dartSdkVersion'] ?? 'Unknown')),
         ]),
         ConfigSection(children: <Widget>[
           //TODO: wire up these other pages

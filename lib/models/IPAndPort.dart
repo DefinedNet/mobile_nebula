@@ -22,8 +22,8 @@ class IPAndPort {
     final uri = Uri.parse("ugh://$val");
 
     return IPAndPort(
-        ip: uri.host,
-        port: uri.port,
+      ip: uri.host,
+      port: uri.port,
     );
   }
 }

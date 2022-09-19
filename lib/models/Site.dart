@@ -98,7 +98,6 @@ class Site {
       this.connected = error.details['connected'];
       _change.addError(error.message ?? 'An unexpected error occurred');
     });
-
   }
 
   factory Site.fromJson(Map<String, dynamic> json) {
@@ -162,8 +161,8 @@ class Site {
       'staticHostmap': staticHostmap,
       'unsafeRoutes': unsafeRoutes,
       'ca': ca.map((cert) {
-            return cert.rawCert;
-          }).join('\n'),
+        return cert.rawCert;
+      }).join('\n'),
       'cert': certInfo?.rawCert,
       'key': key,
       'lhDuration': lhDuration,
