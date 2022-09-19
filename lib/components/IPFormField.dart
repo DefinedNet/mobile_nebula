@@ -9,15 +9,15 @@ import 'IPField.dart';
 class IPFormField extends FormField<String> {
   //TODO: validator, auto-validate, enabled?
   IPFormField({
-    Key key,
+    Key? key,
     ipOnly = false,
     enableIPV6 = false,
     help = "ip address",
     autoFocus = false,
     focusNode,
     nextFocusNode,
-    ValueChanged<String> onChanged,
-    FormFieldSetter<String> onSaved,
+    ValueChanged<String>? onChanged,
+    FormFieldSetter<String>? onSaved,
     textPadding = const EdgeInsets.all(6.0),
     textInputAction,
     initialValue,
@@ -41,7 +41,7 @@ class IPFormField extends FormField<String> {
               return null;
             },
             builder: (FormFieldState<String> field) {
-              final _IPFormField state = field;
+              final _IPFormField state = field as _IPFormField;
 
               void onChangedHandler(String value) {
                 if (onChanged != null) {
@@ -64,7 +64,7 @@ class IPFormField extends FormField<String> {
                     textAlign: textAlign),
                 field.hasError
                     ? Text(
-                        field.errorText,
+                        field.errorText!,
                         style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
                         textAlign: textAlign,
                       )
@@ -72,19 +72,19 @@ class IPFormField extends FormField<String> {
               ]);
             });
 
-  final TextEditingController controller;
+  final TextEditingController? controller;
 
   @override
   _IPFormField createState() => _IPFormField();
 }
 
 class _IPFormField extends FormFieldState<String> {
-  TextEditingController _controller;
+  TextEditingController? _controller;
 
-  TextEditingController get _effectiveController => widget.controller ?? _controller;
+  TextEditingController get _effectiveController => widget.controller ?? _controller!;
 
   @override
-  IPFormField get widget => super.widget;
+  IPFormField get widget => super.widget as IPFormField;
 
   @override
   void initState() {
@@ -92,7 +92,7 @@ class _IPFormField extends FormFieldState<String> {
     if (widget.controller == null) {
       _controller = TextEditingController(text: widget.initialValue);
     } else {
-      widget.controller.addListener(_handleControllerChanged);
+      widget.controller!.addListener(_handleControllerChanged);
     }
   }
 
@@ -104,9 +104,9 @@ class _IPFormField extends FormFieldState<String> {
       widget.controller?.addListener(_handleControllerChanged);
 
       if (oldWidget.controller != null && widget.controller == null)
-        _controller = TextEditingController.fromValue(oldWidget.controller.value);
+        _controller = TextEditingController.fromValue(oldWidget.controller!.value);
       if (widget.controller != null) {
-        setValue(widget.controller.text);
+        setValue(widget.controller!.text);
         if (oldWidget.controller == null) _controller = null;
       }
     }
@@ -122,7 +122,7 @@ class _IPFormField extends FormFieldState<String> {
   void reset() {
     super.reset();
     setState(() {
-      _effectiveController.text = widget.initialValue;
+      _effectiveController.text = widget.initialValue ?? "";
     });
   }
 
