@@ -27,7 +27,7 @@ class Site {
 
   // pki fields
   late List<CertificateInfo> ca;
-  late String? key;
+  String? key;
   late CertificateInfo? certInfo;
 
   // lighthouse options
