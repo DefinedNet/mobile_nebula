@@ -16,9 +16,9 @@ if [ "$1" = "ios" ]; then
 elif [ "$1" = "android" ]; then
   # Build nebula for android
   make mobileNebula.aar
-  mkdir -p ../android/app/src/main/libs
-  rm -rf ../android/app/src/main/libs/mobileNebula.aar
-  cp mobileNebula.aar ../android/app/src/main/libs/mobileNebula.aar
+  mkdir -p ../android/mobileNebula
+  rm -rf ../android/mobileNebula/mobileNebula.aar
+  cp mobileNebula.aar ../android/mobileNebula/mobileNebula.aar
 
 else
   echo "Error: unsupported target os $1"
