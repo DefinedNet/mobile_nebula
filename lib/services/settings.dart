@@ -7,7 +7,6 @@ import 'package:mobile_nebula/services/storage.dart';
 class Settings {
   final _storage = Storage();
   StreamController _change = StreamController.broadcast();
-  var _ready = Completer<Settings>();
   var _settings = Map<String, dynamic>();
 
   bool get useSystemColors {
@@ -78,14 +77,11 @@ class Settings {
   }
 
   Settings._internal() {
-    _ready = Completer<Settings>();
-
     _storage.readFile("config.json").then((rawConfig) {
       if (rawConfig != null) {
         _settings = jsonDecode(rawConfig);
       }
 
-      _ready.complete();
       _change.add(null);
     });
   }
