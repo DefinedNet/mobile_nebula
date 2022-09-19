@@ -1,8 +1,8 @@
 class CIDR {
-  CIDR({this.ip, this.bits});
+  CIDR({this.ip = '', this.bits = 0});
 
-  String? ip;
-  int? bits;
+  String ip;
+  int bits;
 
   @override
   String toString() {

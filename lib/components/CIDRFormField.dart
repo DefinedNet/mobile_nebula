@@ -6,15 +6,15 @@ import 'package:mobile_nebula/validators/ipValidator.dart';
 class CIDRFormField extends FormField<CIDR> {
   //TODO: onSaved, validator, auto-validate, enabled?
   CIDRFormField({
-    Key key,
+    Key? key,
     autoFocus = false,
     enableIPV6 = false,
     focusNode,
     nextFocusNode,
-    ValueChanged<CIDR> onChanged,
-    FormFieldSetter<CIDR> onSaved,
+    ValueChanged<CIDR>? onChanged,
+    FormFieldSetter<CIDR>? onSaved,
     textInputAction,
-    CIDR initialValue,
+    CIDR? initialValue,
     this.ipController,
     this.bitsController,
   }) : super(
@@ -30,14 +30,14 @@ class CIDRFormField extends FormField<CIDR> {
                 return 'Please enter a valid ip address';
               }
 
-              if (cidr.bits == null || cidr.bits > 32 || cidr.bits < 0) {
+              if (cidr.bits > 32 || cidr.bits < 0) {
                 return "Please enter a valid number of bits";
               }
 
               return null;
             },
             builder: (FormFieldState<CIDR> field) {
-              final _CIDRFormField state = field;
+              final _CIDRFormField state = field as _CIDRFormField;
 
               void onChangedHandler(CIDR value) {
                 if (onChanged != null) {
@@ -57,50 +57,50 @@ class CIDRFormField extends FormField<CIDR> {
                   bitsController: state._effectiveBitsController,
                 ),
                 field.hasError
-                    ? Text(field.errorText,
+                    ? Text(field.errorText ?? "Unknown error",
                         style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
                         textAlign: TextAlign.end)
                     : Container(height: 0)
               ]);
             });
 
-  final TextEditingController ipController;
-  final TextEditingController bitsController;
+  final TextEditingController? ipController;
+  final TextEditingController? bitsController;
 
   @override
   _CIDRFormField createState() => _CIDRFormField();
 }
 
 class _CIDRFormField extends FormFieldState<CIDR> {
-  TextEditingController _ipController;
-  TextEditingController _bitsController;
+  TextEditingController? _ipController = TextEditingController();
+  TextEditingController? _bitsController = TextEditingController();
 
-  TextEditingController get _effectiveIPController => widget.ipController ?? _ipController;
-  TextEditingController get _effectiveBitsController => widget.bitsController ?? _bitsController;
+  TextEditingController get _effectiveIPController => widget.ipController ?? _ipController!;
+  TextEditingController get _effectiveBitsController => widget.bitsController ?? _bitsController!;
 
   @override
-  CIDRFormField get widget => super.widget;
+  CIDRFormField get widget => super.widget as CIDRFormField;
 
   @override
   void initState() {
     super.initState();
     if (widget.ipController == null) {
-      _ipController = TextEditingController(text: widget.initialValue.ip);
+      _ipController = TextEditingController(text: widget.initialValue?.ip);
     } else {
-      widget.ipController.addListener(_handleControllerChanged);
+      widget.ipController!.addListener(_handleControllerChanged);
     }
 
     if (widget.bitsController == null) {
       _bitsController = TextEditingController(text: widget.initialValue?.bits?.toString() ?? "");
     } else {
-      widget.bitsController.addListener(_handleControllerChanged);
+      widget.bitsController!.addListener(_handleControllerChanged);
     }
   }
 
   @override
   void didUpdateWidget(CIDRFormField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    var update = CIDR(ip: widget.ipController?.text, bits: int.tryParse(widget.bitsController?.text ?? "") ?? null);
+    var update = CIDR(ip: widget.ipController?.text ?? "", bits: int.tryParse(widget.bitsController?.text ?? "") ?? 0);
     bool shouldUpdate = false;
 
     if (widget.ipController != oldWidget.ipController) {
@@ -108,12 +108,12 @@ class _CIDRFormField extends FormFieldState<CIDR> {
       widget.ipController?.addListener(_handleControllerChanged);
 
       if (oldWidget.ipController != null && widget.ipController == null) {
-        _ipController = TextEditingController.fromValue(oldWidget.ipController.value);
+        _ipController = TextEditingController.fromValue(oldWidget.ipController!.value);
       }
 
       if (widget.ipController != null) {
         shouldUpdate = true;
-        update.ip = widget.ipController.text;
+        update.ip = widget.ipController!.text;
         if (oldWidget.ipController == null) _ipController = null;
       }
     }
@@ -123,12 +123,12 @@ class _CIDRFormField extends FormFieldState<CIDR> {
       widget.bitsController?.addListener(_handleControllerChanged);
 
       if (oldWidget.bitsController != null && widget.bitsController == null) {
-        _bitsController = TextEditingController.fromValue(oldWidget.bitsController.value);
+        _bitsController = TextEditingController.fromValue(oldWidget.bitsController!.value);
       }
 
       if (widget.bitsController != null) {
         shouldUpdate = true;
-        update.bits = int.parse(widget.bitsController.text);
+        update.bits = int.parse(widget.bitsController!.text);
         if (oldWidget.bitsController == null) _bitsController = null;
       }
     }
@@ -149,8 +149,8 @@ class _CIDRFormField extends FormFieldState<CIDR> {
   void reset() {
     super.reset();
     setState(() {
-      _effectiveIPController.text = widget.initialValue.ip;
-      _effectiveBitsController.text = widget.initialValue.bits.toString();
+      _effectiveIPController.text = widget.initialValue?.ip ?? "";
+      _effectiveBitsController.text = widget.initialValue?.bits.toString() ?? "";
     });
   }
 
@@ -163,7 +163,7 @@ class _CIDRFormField extends FormFieldState<CIDR> {
     // example, the reset() method. In such cases, the FormField value will
     // already have been set.
     final effectiveBits = int.parse(_effectiveBitsController.text);
-    if (_effectiveIPController.text != value.ip || effectiveBits != value.bits) {
+    if (value != null && (_effectiveIPController.text != value!.ip) || effectiveBits != value!.bits) {
       didChange(CIDR(ip: _effectiveIPController.text, bits: effectiveBits));
     }
   }
