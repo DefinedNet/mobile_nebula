@@ -1,39 +1,38 @@
 PODS:
-  - DKImagePickerController/Core (4.3.0):
+  - DKImagePickerController/Core (4.3.4):
     - DKImagePickerController/ImageDataManager
     - DKImagePickerController/Resource
-  - DKImagePickerController/ImageDataManager (4.3.0)
-  - DKImagePickerController/PhotoGallery (4.3.0):
+  - DKImagePickerController/ImageDataManager (4.3.4)
+  - DKImagePickerController/PhotoGallery (4.3.4):
     - DKImagePickerController/Core
     - DKPhotoGallery
-  - DKImagePickerController/Resource (4.3.0)
-  - DKPhotoGallery (0.0.15):
-    - DKPhotoGallery/Core (= 0.0.15)
-    - DKPhotoGallery/Model (= 0.0.15)
-    - DKPhotoGallery/Preview (= 0.0.15)
-    - DKPhotoGallery/Resource (= 0.0.15)
+  - DKImagePickerController/Resource (4.3.4)
+  - DKPhotoGallery (0.0.17):
+    - DKPhotoGallery/Core (= 0.0.17)
+    - DKPhotoGallery/Model (= 0.0.17)
+    - DKPhotoGallery/Preview (= 0.0.17)
+    - DKPhotoGallery/Resource (= 0.0.17)
     - SDWebImage
-    - SDWebImageFLPlugin
-  - DKPhotoGallery/Core (0.0.15):
+    - SwiftyGif
+  - DKPhotoGallery/Core (0.0.17):
     - DKPhotoGallery/Model
     - DKPhotoGallery/Preview
     - SDWebImage
-    - SDWebImageFLPlugin
-  - DKPhotoGallery/Model (0.0.15):
+    - SwiftyGif
+  - DKPhotoGallery/Model (0.0.17):
     - SDWebImage
-    - SDWebImageFLPlugin
-  - DKPhotoGallery/Preview (0.0.15):
+    - SwiftyGif
+  - DKPhotoGallery/Preview (0.0.17):
     - DKPhotoGallery/Model
     - DKPhotoGallery/Resource
     - SDWebImage
-    - SDWebImageFLPlugin
-  - DKPhotoGallery/Resource (0.0.15):
+    - SwiftyGif
+  - DKPhotoGallery/Resource (0.0.17):
     - SDWebImage
-    - SDWebImageFLPlugin
+    - SwiftyGif
   - file_picker (0.0.1):
     - DKImagePickerController/PhotoGallery
     - Flutter
-  - FLAnimatedImage (1.0.12)
   - Flutter (1.0.0)
   - flutter_barcode_scanner (2.0.0):
     - Flutter
@@ -41,12 +40,10 @@ PODS:
     - Flutter
   - path_provider_ios (0.0.1):
     - Flutter
-  - SDWebImage (5.8.0):
-    - SDWebImage/Core (= 5.8.0)
-  - SDWebImage/Core (5.8.0)
-  - SDWebImageFLPlugin (0.4.0):
-    - FLAnimatedImage (>= 1.0.11)
-    - SDWebImage/Core (~> 5.6)
+  - SDWebImage (5.13.3):
+    - SDWebImage/Core (= 5.13.3)
+  - SDWebImage/Core (5.13.3)
+  - SwiftyGif (5.4.3)
   - SwiftyJSON (5.0.1)
   - url_launcher_ios (0.0.1):
     - Flutter
@@ -64,9 +61,8 @@ SPEC REPOS:
   trunk:
     - DKImagePickerController
     - DKPhotoGallery
-    - FLAnimatedImage
     - SDWebImage
-    - SDWebImageFLPlugin
+    - SwiftyGif
     - SwiftyJSON
 
 EXTERNAL SOURCES:
@@ -84,16 +80,15 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
-  DKImagePickerController: 397702a3590d4958fad336e9a77079935c500ddb
-  DKPhotoGallery: e880aef16c108333240e1e7327896f2ea380f4f0
-  file_picker: 3e6c3790de664ccf9b882732d9db5eaf6b8d4eb1
-  FLAnimatedImage: 4a0b56255d9b05f18b6dd7ee06871be5d3b89e31
+  DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
+  DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
+  file_picker: 817ab1d8cd2da9d2da412a417162deee3500fc95
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_barcode_scanner: 7a1144744c28dc0c57a8de7218ffe5ec59a9e4bf
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   path_provider_ios: 7d7ce634493af4477d156294792024ec3485acd5
-  SDWebImage: 84000f962cbfa70c07f19d2234cbfcf5d779b5dc
-  SDWebImageFLPlugin: 6c2295fb1242d44467c6c87dc5db6b0a13228fd8
+  SDWebImage: af5bbffef2cde09f148d826f9733dcde1a9414cd
+  SwiftyGif: 6c3eafd0ce693cad58bb63d2b2fb9bacb8552780
   SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
   url_launcher_ios: 02f1989d4e14e998335b02b67a7590fa34f971af
 
