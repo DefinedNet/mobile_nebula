@@ -173,7 +173,11 @@ class _IPAndPortFormField extends FormFieldState<IPAndPort> {
     // example, the reset() method. In such cases, the FormField value will
     // already have been set.
     final effectivePort = int.parse(_effectivePortController.text);
-    if (value != null && (_effectiveIPController.text != value!.ip || effectivePort != value!.port)) {
+    if (value == null) {
+      return;
+    }
+
+    if (_effectiveIPController.text != value!.ip || effectivePort != value!.port) {
       didChange(IPAndPort(ip: _effectiveIPController.text, port: effectivePort));
     }
   }

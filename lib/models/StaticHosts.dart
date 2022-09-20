@@ -2,7 +2,7 @@ import 'IPAndPort.dart';
 
 class StaticHost {
   bool lighthouse;
-  List<IPAndPort> destinations = [];
+  List<IPAndPort> destinations;
 
   StaticHost({required this.lighthouse, required this.destinations});
 

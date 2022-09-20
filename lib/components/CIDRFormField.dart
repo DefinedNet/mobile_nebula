@@ -163,7 +163,11 @@ class _CIDRFormField extends FormFieldState<CIDR> {
     // example, the reset() method. In such cases, the FormField value will
     // already have been set.
     final effectiveBits = int.parse(_effectiveBitsController.text);
-    if (value != null && (_effectiveIPController.text != value!.ip) || effectiveBits != value!.bits) {
+    if (value == null) {
+      return;
+    }
+
+    if (_effectiveIPController.text != value!.ip || effectiveBits != value!.bits) {
       didChange(CIDR(ip: _effectiveIPController.text, bits: effectiveBits));
     }
   }

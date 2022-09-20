@@ -9,7 +9,7 @@ TextStyle basicTextStyle(BuildContext context) =>
 const double _headerFontSize = 13.0;
 
 class ConfigHeader extends StatelessWidget {
-  const ConfigHeader({Key? key, this.label = "", this.color}) : super(key: key);
+  const ConfigHeader({Key? key, required this.label, this.color}) : super(key: key);
 
   final String label;
   final Color? color;
