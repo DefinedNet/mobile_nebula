@@ -50,8 +50,8 @@ android {
 
     defaultConfig {
         applicationId "net.defined.mobile_nebula"
-        minSdkVersion 23 //flutter.minSdkVersion
-        targetSdkVersion flutter.targetSdkVersion
+        minSdkVersion 29 //flutter.minSdkVersion
+        targetSdkVersion 30 //flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
