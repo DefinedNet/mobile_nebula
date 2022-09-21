@@ -8,17 +8,17 @@ import 'IPAndPortField.dart';
 class IPAndPortFormField extends FormField<IPAndPort> {
   //TODO: onSaved, validator, auto-validate, enabled?
   IPAndPortFormField({
-    Key key,
+    Key? key,
     ipOnly = false,
     enableIPV6 = false,
     ipHelp = "ip address",
     autoFocus = false,
     focusNode,
     nextFocusNode,
-    ValueChanged<IPAndPort> onChanged,
-    FormFieldSetter<IPAndPort> onSaved,
+    ValueChanged<IPAndPort>? onChanged,
+    FormFieldSetter<IPAndPort>? onSaved,
     textInputAction,
-    IPAndPort initialValue,
+    IPAndPort? initialValue,
     noBorder,
     ipTextAlign = TextAlign.center,
     this.ipController,
@@ -36,14 +36,14 @@ class IPAndPortFormField extends FormField<IPAndPort> {
                 return ipOnly ? 'Please enter a valid ip address' : 'Please enter a valid ip address or dns name';
               }
 
-              if (ipAndPort.port == null || ipAndPort.port > 65535 || ipAndPort.port < 0) {
+              if (ipAndPort.port == null || ipAndPort.port! > 65535 || ipAndPort.port! < 0) {
                 return "Please enter a valid port";
               }
 
               return null;
             },
             builder: (FormFieldState<IPAndPort> field) {
-              final _IPAndPortFormField state = field;
+              final _IPAndPortFormField state = field as _IPAndPortFormField;
 
               void onChangedHandler(IPAndPort value) {
                 if (onChanged != null) {
@@ -67,42 +67,42 @@ class IPAndPortFormField extends FormField<IPAndPort> {
                   ipTextAlign: ipTextAlign,
                 ),
                 field.hasError
-                    ? Text(field.errorText,
+                    ? Text(field.errorText!,
                         style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13))
                     : Container(height: 0)
               ]);
             });
 
-  final TextEditingController ipController;
-  final TextEditingController portController;
+  final TextEditingController? ipController;
+  final TextEditingController? portController;
 
   @override
   _IPAndPortFormField createState() => _IPAndPortFormField();
 }
 
 class _IPAndPortFormField extends FormFieldState<IPAndPort> {
-  TextEditingController _ipController;
-  TextEditingController _portController;
+  TextEditingController? _ipController;
+  TextEditingController? _portController;
 
-  TextEditingController get _effectiveIPController => widget.ipController ?? _ipController;
-  TextEditingController get _effectivePortController => widget.portController ?? _portController;
+  TextEditingController get _effectiveIPController => widget.ipController ?? _ipController!;
+  TextEditingController get _effectivePortController => widget.portController ?? _portController!;
 
   @override
-  IPAndPortFormField get widget => super.widget;
+  IPAndPortFormField get widget => super.widget as IPAndPortFormField;
 
   @override
   void initState() {
     super.initState();
     if (widget.ipController == null) {
-      _ipController = TextEditingController(text: widget.initialValue.ip);
+      _ipController = TextEditingController(text: widget.initialValue?.ip ?? "");
     } else {
-      widget.ipController.addListener(_handleControllerChanged);
+      widget.ipController!.addListener(_handleControllerChanged);
     }
 
     if (widget.portController == null) {
       _portController = TextEditingController(text: widget.initialValue?.port?.toString() ?? "");
     } else {
-      widget.portController.addListener(_handleControllerChanged);
+      widget.portController!.addListener(_handleControllerChanged);
     }
   }
 
@@ -118,12 +118,12 @@ class _IPAndPortFormField extends FormFieldState<IPAndPort> {
       widget.ipController?.addListener(_handleControllerChanged);
 
       if (oldWidget.ipController != null && widget.ipController == null) {
-        _ipController = TextEditingController.fromValue(oldWidget.ipController.value);
+        _ipController = TextEditingController.fromValue(oldWidget.ipController!.value);
       }
 
       if (widget.ipController != null) {
         shouldUpdate = true;
-        update.ip = widget.ipController.text;
+        update.ip = widget.ipController!.text;
         if (oldWidget.ipController == null) _ipController = null;
       }
     }
@@ -133,12 +133,12 @@ class _IPAndPortFormField extends FormFieldState<IPAndPort> {
       widget.portController?.addListener(_handleControllerChanged);
 
       if (oldWidget.portController != null && widget.portController == null) {
-        _portController = TextEditingController.fromValue(oldWidget.portController.value);
+        _portController = TextEditingController.fromValue(oldWidget.portController!.value);
       }
 
       if (widget.portController != null) {
         shouldUpdate = true;
-        update.port = int.parse(widget.portController.text);
+        update.port = int.parse(widget.portController!.text);
         if (oldWidget.portController == null) _portController = null;
       }
     }
@@ -159,8 +159,8 @@ class _IPAndPortFormField extends FormFieldState<IPAndPort> {
   void reset() {
     super.reset();
     setState(() {
-      _effectiveIPController.text = widget.initialValue.ip;
-      _effectivePortController.text = widget.initialValue.port.toString();
+      _effectiveIPController.text = widget.initialValue?.ip ?? "";
+      _effectivePortController.text = widget.initialValue?.port?.toString() ?? "";
     });
   }
 
@@ -173,7 +173,11 @@ class _IPAndPortFormField extends FormFieldState<IPAndPort> {
     // example, the reset() method. In such cases, the FormField value will
     // already have been set.
     final effectivePort = int.parse(_effectivePortController.text);
-    if (_effectiveIPController.text != value.ip || effectivePort != value.port) {
+    if (value == null) {
+      return;
+    }
+
+    if (_effectiveIPController.text != value!.ip || effectivePort != value!.port) {
       didChange(IPAndPort(ip: _effectiveIPController.text, port: effectivePort));
     }
   }

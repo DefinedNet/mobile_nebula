@@ -4,7 +4,7 @@ import 'package:mobile_nebula/models/Site.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 class SiteItem extends StatelessWidget {
-  const SiteItem({Key key, this.site, this.onPressed}) : super(key: key);
+  const SiteItem({Key? key, required this.site, this.onPressed}) : super(key: key);
 
   final Site site;
   final onPressed;
@@ -27,8 +27,8 @@ class SiteItem extends StatelessWidget {
   Widget _buildContent(BuildContext context) {
     final border = BorderSide(color: Utils.configSectionBorder(context));
     var ip = "Error";
-    if (site.certInfo != null && site.certInfo.cert.details.ips.length > 0) {
-      ip = site.certInfo.cert.details.ips[0];
+    if (site.certInfo != null && site.certInfo!.cert.details.ips.length > 0) {
+      ip = site.certInfo!.cert.details.ips[0];
     }
 
     return SpecialButton(

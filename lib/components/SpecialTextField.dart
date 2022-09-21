@@ -5,7 +5,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 /// A normal TextField or CupertinoTextField that looks the same on all platforms
 class SpecialTextField extends StatefulWidget {
   const SpecialTextField(
-      {Key key,
+      {Key? key,
       this.placeholder,
       this.suffix,
       this.controller,
@@ -30,43 +30,44 @@ class SpecialTextField extends StatefulWidget {
       this.inputFormatters})
       : super(key: key);
 
-  final String placeholder;
-  final TextEditingController controller;
-  final FocusNode focusNode;
-  final FocusNode nextFocusNode;
-  final bool autocorrect;
-  final int minLines;
-  final int maxLines;
-  final int maxLength;
-  final MaxLengthEnforcement maxLengthEnforcement;
-  final Widget suffix;
-  final TextStyle style;
-  final TextInputType keyboardType;
-  final Brightness keyboardAppearance;
+  final String? placeholder;
+  final TextEditingController? controller;
+  final FocusNode? focusNode;
+  final FocusNode? nextFocusNode;
+  final bool? autocorrect;
+  final int? minLines;
+  final int? maxLines;
+  final int? maxLength;
+  final MaxLengthEnforcement? maxLengthEnforcement;
+  final Widget? suffix;
+  final TextStyle? style;
+  final TextInputType? keyboardType;
+  final Brightness? keyboardAppearance;
 
-  final TextInputAction textInputAction;
-  final TextCapitalization textCapitalization;
-  final TextAlign textAlign;
-  final TextAlignVertical textAlignVertical;
+  final TextInputAction? textInputAction;
+  final TextCapitalization? textCapitalization;
+  final TextAlign? textAlign;
+  final TextAlignVertical? textAlignVertical;
 
-  final bool autofocus;
-  final ValueChanged<String> onChanged;
-  final bool enabled;
-  final List<TextInputFormatter> inputFormatters;
-  final bool expands;
+  final bool? autofocus;
+  final ValueChanged<String>? onChanged;
+  final bool? enabled;
+  final List<TextInputFormatter>? inputFormatters;
+  final bool? expands;
 
   @override
   _SpecialTextFieldState createState() => _SpecialTextFieldState();
 }
 
 class _SpecialTextFieldState extends State<SpecialTextField> {
-  List<TextInputFormatter> formatters;
+  List<TextInputFormatter> formatters = [];
 
   @override
   void initState() {
-    formatters = widget.inputFormatters;
-    if (formatters == null || formatters.length == 0) {
+    if (widget.inputFormatters == null || formatters.length == 0) {
       formatters = [FilteringTextInputFormatter.allow(RegExp(r'[^\t]'))];
+    } else {
+      formatters = widget.inputFormatters!;
     }
 
     super.initState();

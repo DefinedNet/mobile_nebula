@@ -8,16 +8,16 @@ class IPField extends StatelessWidget {
   final String help;
   final bool ipOnly;
   final bool autoFocus;
-  final FocusNode focusNode;
-  final FocusNode nextFocusNode;
-  final ValueChanged<String> onChanged;
+  final FocusNode? focusNode;
+  final FocusNode? nextFocusNode;
+  final ValueChanged<String>? onChanged;
   final EdgeInsetsGeometry textPadding;
-  final TextInputAction textInputAction;
+  final TextInputAction? textInputAction;
   final controller;
   final textAlign;
 
   const IPField(
-      {Key key,
+      {Key? key,
       this.ipOnly = false,
       this.help = "ip address",
       this.autoFocus = false,
@@ -33,7 +33,7 @@ class IPField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var textStyle = CupertinoTheme.of(context).textTheme.textStyle;
-    final double ipWidth = ipOnly ? Utils.textSize("000000000000000", textStyle).width + 12 : null;
+    final double? ipWidth = ipOnly ? Utils.textSize("000000000000000", textStyle).width + 12 : null;
 
     return SizedBox(
         width: ipWidth,
@@ -64,7 +64,7 @@ class IPTextInputFormatter extends TextInputFormatter {
       (String substring) {
         return whitelistedPattern
             .allMatches(substring)
-            .map<String>((Match match) => match.group(0))
+            .map<String>((Match match) => match.group(0)!)
             .join()
             .replaceAll(RegExp(r','), '.');
       },
@@ -79,7 +79,7 @@ TextEditingValue _selectionAwareTextManipulation(
   final int selectionStartIndex = value.selection.start;
   final int selectionEndIndex = value.selection.end;
   String manipulatedText;
-  TextSelection manipulatedSelection;
+  TextSelection? manipulatedSelection;
   if (selectionStartIndex < 0 || selectionEndIndex < 0) {
     manipulatedText = substringManipulation(value.text);
   } else {

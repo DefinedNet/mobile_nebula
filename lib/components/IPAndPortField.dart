@@ -8,13 +8,13 @@ import 'IPField.dart';
 //TODO: Support initialValue
 class IPAndPortField extends StatefulWidget {
   const IPAndPortField({
-    Key key,
+    Key? key,
     this.ipOnly = false,
     this.ipHelp = "ip address",
     this.autoFocus = false,
     this.focusNode,
     this.nextFocusNode,
-    this.onChanged,
+    required this.onChanged,
     this.textInputAction,
     this.noBorder = false,
     this.ipTextAlign,
@@ -25,14 +25,14 @@ class IPAndPortField extends StatefulWidget {
   final String ipHelp;
   final bool ipOnly;
   final bool autoFocus;
-  final FocusNode focusNode;
-  final FocusNode nextFocusNode;
+  final FocusNode? focusNode;
+  final FocusNode? nextFocusNode;
   final ValueChanged<IPAndPort> onChanged;
-  final TextInputAction textInputAction;
+  final TextInputAction? textInputAction;
   final bool noBorder;
-  final TextAlign ipTextAlign;
-  final TextEditingController ipController;
-  final TextEditingController portController;
+  final TextAlign? ipTextAlign;
+  final TextEditingController? ipController;
+  final TextEditingController? portController;
 
   @override
   _IPAndPortFieldState createState() => _IPAndPortFieldState();

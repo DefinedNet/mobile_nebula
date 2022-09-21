@@ -34,7 +34,7 @@ class Storage {
     return directory.path;
   }
 
-  Future<String> readFile(String path) async {
+  Future<String?> readFile(String path) async {
     try {
       final parent = await localPath;
       final file = File(p.join(parent, path));

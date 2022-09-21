@@ -6,14 +6,14 @@ import 'package:mobile_nebula/components/SpecialTextField.dart';
 class PlatformTextFormField extends FormField<String> {
   //TODO: auto-validate, enabled?
   PlatformTextFormField(
-      {Key key,
+      {Key? key,
       widgetKey,
       this.controller,
       focusNode,
       nextFocusNode,
-      TextInputType keyboardType,
+      TextInputType? keyboardType,
       textInputAction,
-      List<TextInputFormatter> inputFormatters,
+      List<TextInputFormatter>? inputFormatters,
       textAlign,
       autofocus,
       maxLines = 1,
@@ -25,10 +25,10 @@ class PlatformTextFormField extends FormField<String> {
       expands,
       suffix,
       textAlignVertical,
-      String initialValue,
-      String placeholder,
-      FormFieldValidator<String> validator,
-      ValueChanged<String> onSaved})
+      String? initialValue,
+      String? placeholder,
+      FormFieldValidator<String>? validator,
+      ValueChanged<String?>? onSaved})
       : super(
             key: key,
             initialValue: controller != null ? controller.text : (initialValue ?? ''),
@@ -41,7 +41,7 @@ class PlatformTextFormField extends FormField<String> {
               return null;
             },
             builder: (FormFieldState<String> field) {
-              final _PlatformTextFormFieldState state = field;
+              final _PlatformTextFormFieldState state = field as _PlatformTextFormFieldState;
 
               void onChangedHandler(String value) {
                 if (onChanged != null) {
@@ -73,7 +73,7 @@ class PlatformTextFormField extends FormField<String> {
                     suffix: suffix),
                 field.hasError
                     ? Text(
-                        field.errorText,
+                        field.errorText!,
                         style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
                         textAlign: textAlign,
                       )
@@ -81,19 +81,19 @@ class PlatformTextFormField extends FormField<String> {
               ]);
             });
 
-  final TextEditingController controller;
+  final TextEditingController? controller;
 
   @override
   _PlatformTextFormFieldState createState() => _PlatformTextFormFieldState();
 }
 
 class _PlatformTextFormFieldState extends FormFieldState<String> {
-  TextEditingController _controller;
+  TextEditingController? _controller;
 
-  TextEditingController get _effectiveController => widget.controller ?? _controller;
+  TextEditingController get _effectiveController => widget.controller ?? _controller!;
 
   @override
-  PlatformTextFormField get widget => super.widget;
+  PlatformTextFormField get widget => super.widget as PlatformTextFormField;
 
   @override
   void initState() {
@@ -101,7 +101,7 @@ class _PlatformTextFormFieldState extends FormFieldState<String> {
     if (widget.controller == null) {
       _controller = TextEditingController(text: widget.initialValue);
     } else {
-      widget.controller.addListener(_handleControllerChanged);
+      widget.controller!.addListener(_handleControllerChanged);
     }
   }
 
@@ -113,9 +113,9 @@ class _PlatformTextFormFieldState extends FormFieldState<String> {
       widget.controller?.addListener(_handleControllerChanged);
 
       if (oldWidget.controller != null && widget.controller == null)
-        _controller = TextEditingController.fromValue(oldWidget.controller.value);
+        _controller = TextEditingController.fromValue(oldWidget.controller!.value);
       if (widget.controller != null) {
-        setValue(widget.controller.text);
+        setValue(widget.controller!.text);
         if (oldWidget.controller == null) _controller = null;
       }
     }
@@ -131,7 +131,7 @@ class _PlatformTextFormFieldState extends FormFieldState<String> {
   void reset() {
     super.reset();
     setState(() {
-      _effectiveController.text = widget.initialValue;
+      _effectiveController.text = widget.initialValue ?? "";
     });
   }
 

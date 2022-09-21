@@ -10,26 +10,28 @@ import 'package:mobile_nebula/services/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class SiteTunnelsScreen extends StatefulWidget {
-  const SiteTunnelsScreen({Key key, this.site, this.tunnels, this.pending, this.onChanged}) : super(key: key);
+  const SiteTunnelsScreen(
+      {Key? key, required this.site, required this.tunnels, required this.pending, required this.onChanged})
+      : super(key: key);
 
   final Site site;
   final List<HostInfo> tunnels;
   final bool pending;
-  final Function(List<HostInfo>) onChanged;
+  final Function(List<HostInfo>)? onChanged;
 
   @override
   _SiteTunnelsScreenState createState() => _SiteTunnelsScreenState();
 }
 
 class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
-  Site site;
-  List<HostInfo> tunnels;
+  late Site site;
+  late List<HostInfo> tunnels;
   RefreshController refreshController = RefreshController(initialRefresh: false);
 
   @override
   void initState() {
     site = widget.site;
-    tunnels = widget.tunnels ?? [];
+    tunnels = widget.tunnels;
     _sortTunnels();
     super.initState();
   }
@@ -67,7 +69,7 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
                 })),
         label: Row(children: <Widget>[Padding(child: icon, padding: EdgeInsets.only(right: 10)), Text(hostInfo.vpnIp)]),
         labelWidth: ipWidth,
-        content: Container(alignment: Alignment.centerRight, child: Text(hostInfo.cert?.details?.name ?? "")),
+        content: Container(alignment: Alignment.centerRight, child: Text(hostInfo.cert?.details.name ?? "")),
       ));
     });
 
@@ -121,11 +123,11 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
 
       _sortTunnels();
       if (widget.onChanged != null) {
-        widget.onChanged(tunnels);
+        widget.onChanged!(tunnels);
       }
       setState(() {});
     } catch (err) {
-      Utils.popError(context, 'Error while fetching hostmap', err);
+      Utils.popError(context, 'Error while fetching hostmap', err.toString());
     }
   }
 }

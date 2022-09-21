@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/components/config/ConfigButtonItem.dart';
@@ -20,16 +20,24 @@ class CertificateResult {
   CertificateInfo certInfo;
   String key;
 
-  CertificateResult({this.certInfo, this.key});
+  CertificateResult({required this.certInfo, required this.key});
 }
 
 class AddCertificateScreen extends StatefulWidget {
-  const AddCertificateScreen({Key key, this.onSave, this.onReplace, this.pubKey, this.privKey}) : super(key: key);
+  const AddCertificateScreen({
+    Key? key,
+    this.onSave,
+    this.onReplace,
+    required this.pubKey,
+    required this.privKey,
+  }) : super(key: key);
 
-  // onSave will pop a new CertificateDetailsScreen
-  final ValueChanged<CertificateResult> onSave;
-  // onReplace will return the CertificateResult, assuming the previous screen is a CertificateDetailsScreen
-  final ValueChanged<CertificateResult> onReplace;
+  // onSave will pop a new CertificateDetailsScreen.
+  // If onSave is null, onReplace must be set.
+  final ValueChanged<CertificateResult>? onSave;
+  // onReplace will return the CertificateResult, assuming the previous screen is a CertificateDetailsScreen.
+  // If onReplace is null, onSave must be set.
+  final ValueChanged<CertificateResult>? onReplace;
 
   final String pubKey;
   final String privKey;
@@ -39,7 +47,7 @@ class AddCertificateScreen extends StatefulWidget {
 }
 
 class _AddCertificateScreenState extends State<AddCertificateScreen> {
-  String pubKey;
+  late String pubKey;
   bool showKey = false;
 
   String inputType = 'paste';
@@ -98,9 +106,11 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
           child: CupertinoSlidingSegmentedControl(
             groupValue: inputType,
             onValueChanged: (v) {
-              setState(() {
-                inputType = v;
-              });
+              if (v != null) {
+                setState(() {
+                  inputType = v;
+                });
+              }
             },
             children: {
               'paste': Text('Copy/Paste'),
@@ -131,19 +141,16 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
                   child: Text('Show/Import Private Key'),
                   color: CupertinoColors.secondaryLabel.resolveFrom(context),
                   onPressed: () => Utils.confirmDelete(context, 'Show/Import Private Key?', () {
-                    setState(() {
-                      showKey = true;
-                    });
-                  }, deleteLabel: 'Yes'))));
+                        setState(() {
+                          showKey = true;
+                        });
+                      }, deleteLabel: 'Yes'))));
     }
 
     return ConfigSection(
       label: 'Import a private key generated on another device',
       children: [
-        ConfigTextItem(
-          controller: keyController,
-          style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)
-        ),
+        ConfigTextItem(controller: keyController, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
       ],
     );
   }
@@ -196,13 +203,13 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
           ConfigButtonItem(
               content: Text('Scan a QR code'),
               onPressed: () async {
-                var options = ScanOptions(
-                  restrictFormat: [BarcodeFormat.qr],
-                );
-
-                var result = await BarcodeScanner.scan(options: options);
-                if (result.rawContent != "") {
-                  _addCertEntry(result.rawContent);
+                try {
+                  var result = await FlutterBarcodeScanner.scanBarcode('#ff6666', 'Cancel', true, ScanMode.QR);
+                  if (result != "") {
+                    _addCertEntry(result);
+                  }
+                } catch (err) {
+                  return Utils.popError(context, 'Error scanning QR code', err.toString());
                 }
               }),
         ],
@@ -225,36 +232,34 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
         if (tryCertInfo.cert.details.isCa) {
           return Utils.popError(context, 'Error loading certificate content',
               'A certificate authority is not appropriate for a client certificate.');
-        } else if (!tryCertInfo.validity.valid) {
-          return Utils.popError(context, 'Certificate was invalid', tryCertInfo.validity.reason);
+        } else if (!tryCertInfo.validity!.valid) {
+          return Utils.popError(context, 'Certificate was invalid', tryCertInfo.validity!.reason);
         }
 
-        var certMatch = await platform.invokeMethod(
-            "nebula.verifyCertAndKey",
-            <String, String>{"cert": rawCert, "key": keyController.text}
-        );
+        var certMatch = await platform
+            .invokeMethod("nebula.verifyCertAndKey", <String, String>{"cert": rawCert, "key": keyController.text});
         if (!certMatch) {
           // The method above will throw if there is a mismatch, this is just here in case we introduce a bug in the future
           return Utils.popError(context, 'Error loading certificate content',
               'The provided certificates public key is not compatible with the private key.');
         }
 
-        // If we are replacing we just return the results now
         if (widget.onReplace != null) {
+          // If we are replacing we just return the results now
           Navigator.pop(context);
-          widget.onReplace(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
+          widget.onReplace!(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
           return;
+        } else if (widget.onSave != null) {
+          // We have a cert, pop the details screen where they can hit save
+          Utils.openPage(context, (context) {
+            return CertificateDetailsScreen(
+                certInfo: tryCertInfo,
+                onSave: () {
+                  Navigator.pop(context);
+                  widget.onSave!(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
+                });
+          });
         }
-
-        // We have a cert, pop the details screen where they can hit save
-        Utils.openPage(context, (context) {
-          return CertificateDetailsScreen(
-              certInfo: tryCertInfo,
-              onSave: () {
-                Navigator.pop(context);
-                widget.onSave(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
-              });
-        });
       }
     } on PlatformException catch (err) {
       return Utils.popError(context, 'Error loading certificate content', err.details ?? err.message);

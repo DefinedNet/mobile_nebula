@@ -33,7 +33,7 @@ class Share {
 
             } catch (err: Exception) {
                 Log.println(Log.ERROR, "", "Share: Error")
-                result.error(err.message, null, null)
+                result.error(err.message ?: "Unknown error", null, null)
             }
         }
 
@@ -67,7 +67,7 @@ class Share {
 
             } catch (err: Exception) {
                 Log.println(Log.ERROR, "", "Share: Error")
-                result.error(err.message, null, null)
+                result.error(err.message ?: "Unknown error", null, null)
             }
         }
 
@@ -107,7 +107,7 @@ class Share {
 
             } catch (err: Exception) {
                 Log.println(Log.ERROR, "", "Share: Error")
-                return result.error(err.message, null, null)
+                return result.error(err.message ?: "Unknown error", null, null)
             }
 
             result.success(true)

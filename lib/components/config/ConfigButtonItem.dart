@@ -5,9 +5,9 @@ import 'package:mobile_nebula/services/utils.dart';
 
 // A config item that detects tapping and calls back on a tap
 class ConfigButtonItem extends StatelessWidget {
-  const ConfigButtonItem({Key key, this.content, this.onPressed}) : super(key: key);
+  const ConfigButtonItem({Key? key, this.content, this.onPressed}) : super(key: key);
 
-  final Widget content;
+  final Widget? content;
   final onPressed;
 
   @override

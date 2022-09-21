@@ -10,18 +10,23 @@ import 'package:mobile_nebula/models/UnsafeRoute.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 class UnsafeRouteScreen extends StatefulWidget {
-  const UnsafeRouteScreen({Key key, this.route, this.onDelete, @required this.onSave}) : super(key: key);
+  const UnsafeRouteScreen({
+    Key? key,
+    required this.route,
+    required this.onSave,
+    this.onDelete,
+  }) : super(key: key);
 
   final UnsafeRoute route;
   final ValueChanged<UnsafeRoute> onSave;
-  final Function onDelete;
+  final Function? onDelete;
 
   @override
   _UnsafeRouteScreenState createState() => _UnsafeRouteScreenState();
 }
 
 class _UnsafeRouteScreenState extends State<UnsafeRouteScreen> {
-  UnsafeRoute route;
+  late UnsafeRoute route;
   bool changed = false;
 
   FocusNode routeFocus = FocusNode();
@@ -36,7 +41,7 @@ class _UnsafeRouteScreenState extends State<UnsafeRouteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var routeCIDR = route?.route == null ? CIDR() : CIDR.fromString(route?.route);
+    var routeCIDR = route.route == null ? CIDR() : CIDR.fromString(route.route!);
 
     return FormPage(
         title: widget.onDelete == null ? 'New Unsafe Route' : 'Edit Unsafe Route',
@@ -57,7 +62,7 @@ class _UnsafeRouteScreenState extends State<UnsafeRouteScreen> {
             ConfigItem(
                 label: Text('Via'),
                 content: IPFormField(
-                    initialValue: route?.via ?? "",
+                    initialValue: route.via ?? '',
                     ipOnly: true,
                     help: 'nebula ip',
                     textAlign: TextAlign.end,
@@ -66,7 +71,9 @@ class _UnsafeRouteScreenState extends State<UnsafeRouteScreen> {
                     focusNode: viaFocus,
                     nextFocusNode: mtuFocus,
                     onSaved: (v) {
-                      route.via = v;
+                      if (v != null) {
+                        route.via = v;
+                      }
                     })),
 //TODO: Android doesn't appear to support route based MTU, figure this out
 //            ConfigItem(
@@ -94,7 +101,7 @@ class _UnsafeRouteScreenState extends State<UnsafeRouteScreen> {
                         color: CupertinoColors.systemRed.resolveFrom(context),
                         onPressed: () => Utils.confirmDelete(context, 'Delete unsafe route?', () {
                           Navigator.of(context).pop();
-                          widget.onDelete();
+                          widget.onDelete!();
                         }),
                       )))
               : Container()
@@ -103,8 +110,6 @@ class _UnsafeRouteScreenState extends State<UnsafeRouteScreen> {
 
   _onSave() {
     Navigator.pop(context);
-    if (widget.onSave != null) {
-      widget.onSave(route);
-    }
+    widget.onSave(route);
   }
 }

@@ -4,10 +4,14 @@ import 'package:mobile_nebula/services/utils.dart';
 
 class ConfigItem extends StatelessWidget {
   const ConfigItem(
-      {Key key, this.label, this.content, this.labelWidth = 100, this.crossAxisAlignment = CrossAxisAlignment.center})
+      {Key? key,
+      this.label,
+      required this.content,
+      this.labelWidth = 100,
+      this.crossAxisAlignment = CrossAxisAlignment.center})
       : super(key: key);
 
-  final Widget label;
+  final Widget? label;
   final Widget content;
   final double labelWidth;
   final CrossAxisAlignment crossAxisAlignment;

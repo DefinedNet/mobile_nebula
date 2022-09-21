@@ -1,0 +1,6 @@
+configurations.maybeCreate("default")
+exec {
+    workingDir '../../'
+    commandLine './gen-artifacts.sh', 'android'
+}
+artifacts.add("default", file('mobileNebula.aar'))

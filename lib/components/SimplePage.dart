@@ -13,9 +13,9 @@ enum SimpleScrollable {
 
 class SimplePage extends StatelessWidget {
   const SimplePage(
-      {Key key,
-      this.title,
-      @required this.child,
+      {Key? key,
+      required this.title,
+      required this.child,
       this.leadingAction,
       this.trailingActions = const [],
       this.scrollable = SimpleScrollable.vertical,
@@ -30,20 +30,20 @@ class SimplePage extends StatelessWidget {
   final String title;
   final Widget child;
   final SimpleScrollable scrollable;
-  final ScrollController scrollController;
+  final ScrollController? scrollController;
 
   /// Set this to true to force draw a scrollbar without a scroll view, this is helpful for pages with Reorder-able listviews
   /// This is set to true if you have any scrollable other than none
   final bool scrollbar;
-  final Widget bottomBar;
+  final Widget? bottomBar;
 
   /// If no leading action is provided then a default "Back" widget than pops the page will be provided
-  final Widget leadingAction;
+  final Widget? leadingAction;
   final List<Widget> trailingActions;
 
-  final VoidCallback onRefresh;
-  final VoidCallback onLoading;
-  final RefreshController refreshController;
+  final VoidCallback? onRefresh;
+  final VoidCallback? onLoading;
+  final RefreshController? refreshController;
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +72,7 @@ class SimplePage extends StatelessWidget {
             scrollController: scrollController,
             onRefresh: onRefresh,
             onLoading: onLoading,
-            controller: refreshController,
+            controller: refreshController!,
             child: realChild,
             enablePullUp: onLoading != null,
             enablePullDown: onRefresh != null,
@@ -88,7 +88,7 @@ class SimplePage extends StatelessWidget {
     if (bottomBar != null) {
       realChild = Column(children: [
         Expanded(child: realChild),
-        bottomBar,
+        bottomBar!,
       ]);
     }
 

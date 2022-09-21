@@ -6,7 +6,7 @@ go 1.18
 
 require (
 	github.com/sirupsen/logrus v1.8.1
-	github.com/slackhq/nebula v1.6.0
+	github.com/slackhq/nebula v1.6.1-0.20220919174748-4c0ae3df5ef7
 	golang.org/x/crypto v0.0.0-20220331220935-ae2d96664a29
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -33,7 +33,6 @@ require (
 	github.com/songgao/water v0.0.0-20200317203138-2b4b6d7c09d8 // indirect
 	github.com/vishvananda/netlink v1.1.0 // indirect
 	github.com/vishvananda/netns v0.0.0-20211101163701-50045581ed74 // indirect
-	golang.org/x/mobile v0.0.0-20220722155234-aaac322e2105 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
 	golang.org/x/net v0.0.0-20220403103023-749bd193bc2b // indirect
 	golang.org/x/sys v0.0.0-20220406155245-289d7a0edf71 // indirect

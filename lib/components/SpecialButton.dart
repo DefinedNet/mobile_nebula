@@ -5,15 +5,15 @@ import 'package:flutter/material.dart';
 
 // This is a button that pushes the bare minimum onto you, it doesn't even respect button themes - unless you tell it to
 class SpecialButton extends StatefulWidget {
-  const SpecialButton({Key key, this.child, this.color, this.onPressed, this.useButtonTheme = false, this.decoration})
+  const SpecialButton({Key? key, this.child, this.color, this.onPressed, this.useButtonTheme = false, this.decoration})
       : super(key: key);
 
-  final Widget child;
-  final Color color;
+  final Widget? child;
+  final Color? color;
   final bool useButtonTheme;
-  final BoxDecoration decoration;
+  final BoxDecoration? decoration;
 
-  final Function onPressed;
+  final GestureTapCallback? onPressed;
 
   @override
   _SpecialButtonState createState() => _SpecialButtonState();
@@ -59,7 +59,7 @@ class _SpecialButtonState extends State<SpecialButton> with SingleTickerProvider
           child: Semantics(
             button: true,
             child: FadeTransition(
-              opacity: _opacityAnimation,
+              opacity: _opacityAnimation!,
               child: DefaultTextStyle(style: textStyle, child: Container(child: widget.child, color: widget.color)),
             ),
           ),
@@ -71,8 +71,8 @@ class _SpecialButtonState extends State<SpecialButton> with SingleTickerProvider
   static const Duration kFadeInDuration = Duration(milliseconds: 100);
   final Tween<double> _opacityTween = Tween<double>(begin: 1.0);
 
-  AnimationController _animationController;
-  Animation<double> _opacityAnimation;
+  AnimationController? _animationController;
+  Animation<double>? _opacityAnimation;
 
   @override
   void initState() {
@@ -82,7 +82,7 @@ class _SpecialButtonState extends State<SpecialButton> with SingleTickerProvider
       value: 0.0,
       vsync: this,
     );
-    _opacityAnimation = _animationController.drive(CurveTween(curve: Curves.decelerate)).drive(_opacityTween);
+    _opacityAnimation = _animationController!.drive(CurveTween(curve: Curves.decelerate)).drive(_opacityTween);
     _setTween();
   }
 
@@ -98,8 +98,7 @@ class _SpecialButtonState extends State<SpecialButton> with SingleTickerProvider
 
   @override
   void dispose() {
-    _animationController.dispose();
-    _animationController = null;
+    _animationController?.dispose();
     super.dispose();
   }
 
@@ -127,14 +126,14 @@ class _SpecialButtonState extends State<SpecialButton> with SingleTickerProvider
   }
 
   void _animate() {
-    if (_animationController.isAnimating) {
+    if (_animationController == null || _animationController!.isAnimating) {
       return;
     }
 
     final bool wasHeldDown = _buttonHeldDown;
     final TickerFuture ticker = _buttonHeldDown
-        ? _animationController.animateTo(1.0, duration: kFadeOutDuration)
-        : _animationController.animateTo(0.0, duration: kFadeInDuration);
+        ? _animationController!.animateTo(1.0, duration: kFadeOutDuration)
+        : _animationController!.animateTo(0.0, duration: kFadeInDuration);
 
     ticker.then<void>((void value) {
       if (mounted && wasHeldDown != _buttonHeldDown) {

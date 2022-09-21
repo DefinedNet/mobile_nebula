@@ -22,9 +22,13 @@ import 'package:mobile_nebula/services/utils.dart';
 //TODO: Enforce a name
 
 class SiteConfigScreen extends StatefulWidget {
-  const SiteConfigScreen({Key key, this.site, this.onSave}) : super(key: key);
+  const SiteConfigScreen({
+    Key? key,
+    this.site,
+    required this.onSave,
+  }) : super(key: key);
 
-  final Site site;
+  final Site? site;
 
   // This is called after the target OS has saved the configuration
   final ValueChanged<Site> onSave;
@@ -37,9 +41,9 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
   bool changed = false;
   bool newSite = false;
   bool debug = false;
-  Site site;
-  String pubKey;
-  String privKey;
+  late Site site;
+  String? pubKey;
+  String? privKey;
 
   static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
   final nameController = TextEditingController();
@@ -52,7 +56,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
       newSite = true;
       site = Site();
     } else {
-      site = widget.site;
+      site = widget.site!;
       nameController.text = site.name;
     }
 
@@ -61,7 +65,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (pubKey == null) {
+    if (pubKey == null || privKey == null) {
       return Center(
         child: fpw.PlatformCircularProgressIndicator(cupertino: (_, __) {
           return fpw.CupertinoProgressIndicatorData(radius: 50);
@@ -81,9 +85,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
           }
 
           Navigator.pop(context);
-          if (widget.onSave != null) {
-            widget.onSave(site);
-          }
+          widget.onSave(site);
         },
         child: Column(
           children: <Widget>[
@@ -126,17 +128,17 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
   }
 
   Widget _keys() {
-    final certError = site.certInfo == null || !site.certInfo.validity.valid;
+    final certError = site.certInfo == null || site.certInfo!.validity == null || !site.certInfo!.validity!.valid;
     var caError = site.ca.length == 0;
     if (!caError) {
       site.ca.forEach((ca) {
-        if (!ca.validity.valid) {
+        if (ca.validity == null || !ca.validity!.valid) {
           caError = true;
         }
       });
     }
 
-    return ConfigSection( 
+    return ConfigSection(
       label: "IDENTITY",
       children: [
         ConfigPageItem(
@@ -147,13 +149,13 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
                     child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                     padding: EdgeInsets.only(right: 5))
                 : Container(),
-            certError ? Text('Needs attention') : Text(site.certInfo.cert.details.name)
+            certError ? Text('Needs attention') : Text(site.certInfo?.cert.details.name ?? 'Unknown certificate')
           ]),
           onPressed: () {
             Utils.openPage(context, (context) {
               if (site.certInfo != null) {
                 return CertificateDetailsScreen(
-                    certInfo: site.certInfo,
+                    certInfo: site.certInfo!,
                     pubKey: pubKey,
                     privKey: privKey,
                     onReplace: (result) {
@@ -165,13 +167,16 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
                     });
               }
 
-              return AddCertificateScreen(pubKey: pubKey, privKey: privKey, onSave: (result) {
-                setState(() {
-                  changed = true;
-                  site.certInfo = result.certInfo;
-                  site.key = result.key;
-                });
-              });
+              return AddCertificateScreen(
+                  pubKey: pubKey!,
+                  privKey: privKey!,
+                  onSave: (result) {
+                    setState(() {
+                      changed = true;
+                      site.certInfo = result.certInfo;
+                      site.key = result.key;
+                    });
+                  });
             });
           },
         ),

@@ -6,31 +6,48 @@ class HostInfo {
   int remoteIndex;
   List<UDPAddress> remoteAddresses;
   int cachedPackets;
-  Certificate cert;
-  UDPAddress currentRemote;
+  Certificate? cert;
+  UDPAddress? currentRemote;
   int messageCounter;
 
-  HostInfo.fromJson(Map<String, dynamic> json) {
-    vpnIp = json['vpnIp'];
-    localIndex = json['localIndex'];
-    remoteIndex = json['remoteIndex'];
-    cachedPackets = json['cachedPackets'];
+  HostInfo({
+    required this.vpnIp,
+    required this.localIndex,
+    required this.remoteIndex,
+    required this.remoteAddresses,
+    required this.cachedPackets,
+    required this.messageCounter,
+    this.cert,
+    this.currentRemote,
+  });
 
+  factory HostInfo.fromJson(Map<String, dynamic> json) {
+    UDPAddress? currentRemote;
     if (json['currentRemote'] != null) {
       currentRemote = UDPAddress.fromJson(json['currentRemote']);
     }
 
+    Certificate? cert;
     if (json['cert'] != null) {
       cert = Certificate.fromJson(json['cert']);
     }
 
     List<dynamic> addrs = json['remoteAddrs'];
-    remoteAddresses = [];
-    addrs?.forEach((val) {
+    List<UDPAddress> remoteAddresses = [];
+    addrs.forEach((val) {
       remoteAddresses.add(UDPAddress.fromJson(val));
     });
 
-    messageCounter = json['messageCounter'];
+    return HostInfo(
+      vpnIp: json['vpnIp'],
+      localIndex: json['localIndex'],
+      remoteIndex: json['remoteIndex'],
+      remoteAddresses: remoteAddresses,
+      cachedPackets: json['cachedPackets'],
+      messageCounter: json['messageCounter'],
+      cert: cert,
+      currentRemote: currentRemote,
+    );
   }
 }
 

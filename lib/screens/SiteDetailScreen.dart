@@ -20,24 +20,24 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 //TODO: ios is now the problem with connecting screwing our ability to query the hostmap (its a race)
 
 class SiteDetailScreen extends StatefulWidget {
-  const SiteDetailScreen({Key key, this.site, this.onChanged}) : super(key: key);
+  const SiteDetailScreen({Key? key, required this.site, this.onChanged}) : super(key: key);
 
   final Site site;
-  final Function onChanged;
+  final Function? onChanged;
 
   @override
   _SiteDetailScreenState createState() => _SiteDetailScreenState();
 }
 
 class _SiteDetailScreenState extends State<SiteDetailScreen> {
-  Site site;
-  StreamSubscription onChange;
+  late Site site;
+  late StreamSubscription onChange;
   static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
   bool changed = false;
-  List<HostInfo> activeHosts;
-  List<HostInfo> pendingHosts;
+  List<HostInfo>? activeHosts;
+  List<HostInfo>? pendingHosts;
   RefreshController refreshController = RefreshController(initialRefresh: false);
-  bool lastState;
+  late bool lastState;
 
   @override
   void initState() {
@@ -80,7 +80,7 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
         title: site.name,
         leadingAction: Utils.leadingBackWidget(context, onPressed: () {
           if (changed && widget.onChanged != null) {
-            widget.onChanged();
+            widget.onChanged!();
           }
           Navigator.pop(context);
         }),
@@ -162,13 +162,13 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
     if (activeHosts == null) {
       active = SizedBox(height: 20, width: 20, child: PlatformCircularProgressIndicator());
     } else {
-      active = Text(Utils.itemCountFormat(activeHosts.length, singleSuffix: "tunnel", multiSuffix: "tunnels"));
+      active = Text(Utils.itemCountFormat(activeHosts!.length, singleSuffix: "tunnel", multiSuffix: "tunnels"));
     }
 
     if (pendingHosts == null) {
       pending = SizedBox(height: 20, width: 20, child: PlatformCircularProgressIndicator());
     } else {
-      pending = Text(Utils.itemCountFormat(pendingHosts.length, singleSuffix: "tunnel", multiSuffix: "tunnels"));
+      pending = Text(Utils.itemCountFormat(pendingHosts!.length, singleSuffix: "tunnel", multiSuffix: "tunnels"));
     }
 
     return ConfigSection(
@@ -176,11 +176,13 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
       children: <Widget>[
         ConfigPageItem(
             onPressed: () {
+              if (activeHosts == null) return;
+
               Utils.openPage(
                   context,
                   (context) => SiteTunnelsScreen(
                       pending: false,
-                      tunnels: activeHosts,
+                      tunnels: activeHosts!,
                       site: site,
                       onChanged: (hosts) {
                         setState(() {
@@ -192,11 +194,13 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
             content: Container(alignment: Alignment.centerRight, child: active)),
         ConfigPageItem(
             onPressed: () {
+              if (pendingHosts == null) return;
+
               Utils.openPage(
                   context,
                   (context) => SiteTunnelsScreen(
                       pending: true,
-                      tunnels: pendingHosts,
+                      tunnels: pendingHosts!,
                       site: site,
                       onChanged: (hosts) {
                         setState(() {
@@ -250,7 +254,7 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
       pendingHosts = maps["pending"];
       setState(() {});
     } catch (err) {
-      Utils.popError(context, 'Error while fetching hostmaps', err);
+      Utils.popError(context, 'Error while fetching hostmaps', err.toString());
     }
   }
 
@@ -267,7 +271,7 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
     }
 
     if (widget.onChanged != null) {
-      widget.onChanged();
+      widget.onChanged!();
     }
     return true;
   }
