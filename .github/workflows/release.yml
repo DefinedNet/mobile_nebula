@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     name: Build ios and android package
-    runs-on: self-hosted #macos-latest
+    runs-on: macos-latest
     steps:
       - name: Set up Go 1.19.1
         uses: actions/setup-go@v2
@@ -23,37 +23,13 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Install the Apple certificate and provisioning profile
+      - name: Install the appstore connect api key
         env:
-          BUILD_CERTIFICATE_BASE64: ${{ secrets.APPLE_BUILD_CERTIFICATE_BASE64 }}
-          P12_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APP_PROVISION_PROFILE_BASE64: ${{ secrets.APPLE_APP_PROVISIONING_PROFILE }}
-          EXT_PROVISION_PROFILE_BASE64: ${{ secrets.APPLE_EXT_PROVISIONING_PROFILE }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          AC_API_KEY_SECRET_BASE64: ${{ secrets.AC_API_KEY_SECRET_BASE64 }}
         run: |
-          # create variables
-          CERTIFICATE_PATH="$RUNNER_TEMP/build_certificate.p12"
-          APP_PP_PATH="$RUNNER_TEMP/app_pp.mobileprovision"
-          EXT_PP_PATH="$RUNNER_TEMP/ext_pp.mobileprovision"
-          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
-
-          # import certificate and provisioning profile from secrets
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output "$CERTIFICATE_PATH"
-          echo -n "$APP_PROVISION_PROFILE_BASE64" | base64 --decode --output "$APP_PP_PATH"
-          echo -n "$EXT_PROVISION_PROFILE_BASE64" | base64 --decode --output "$EXT_PP_PATH"
-
-          # create temporary keychain
-          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-
-          # import certificate to keychain
-          security import "$CERTIFICATE_PATH" -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
-          security list-keychain -d user -s "$KEYCHAIN_PATH"
-
-          # apply provisioning profile
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp "$APP_PP_PATH" "$EXT_PP_PATH" ~/Library/MobileDevice/Provisioning\ Profiles
+          AC_API_KEY_SECRET_PATH="$RUNNER_TEMP/key.p8"
+          echo "APP_STORE_CONNECT_API_KEY_KEY_FILEPATH=$AC_API_KEY_SECRET_PATH" >> $GITHUB_ENV
+          echo -n "$AC_API_KEY_SECRET_BASE64" | base64 --decode --output "$AC_API_KEY_SECRET_PATH"
 
       - name: get build name and number, install dependencies
         run: |
@@ -73,23 +49,21 @@ jobs:
           touch env.sh
 
       - name: build ios
+        env:
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.AC_API_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.AC_API_KEY_ISSUER_ID }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
         run: |
+
           echo "Build: $BUILD_NAME"
           echo "Build number: $GITHUB_RUN_NUMBER"
-          flutter build ipa --build-name "$BUILD_NAME" --build-number "$GITHUB_RUN_NUMBER" --release -v
-          ls -l build/
-          ls -l build/ios/
-          ls -l build/ios/ipa/
-#          xcrun altool --upload-app --type ios -f build/ios/ipa/*.ipa --apiKey your_api_key --apiIssuer your_issuer_id
+          cd ios
+          pod install
+          fastlane beta
 
       - name: collect ipa artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: release-ipa
-          path: build/ios/ipa/*.ipa
-
-      - name: Clean up keychain and provisioning profile
-        if: ${{ always() }}
-        run: |
-          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
-          rm ~/Library/MobileDevice/Provisioning\ Profiles/*
+          name: MobileNebula.ipa
+          path: ios/MobileNebula.ipa
