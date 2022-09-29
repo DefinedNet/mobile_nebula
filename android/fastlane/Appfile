@@ -1,0 +1,2 @@
+package_name("net.defined.mobile_nebula")
+json_key_file(ENV['GOOGLE_PLAY_API_JWT_PATH'])
