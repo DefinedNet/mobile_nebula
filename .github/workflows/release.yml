@@ -58,7 +58,7 @@ jobs:
           echo "GOOGLE_PLAY_KEYSTORE_PATH=$GOOGLE_PLAY_KEYSTORE_PATH" >> $GITHUB_ENV
           echo -n "$GOOGLE_PLAY_KEYSTORE_BASE64" | base64 --decode --output "$GOOGLE_PLAY_KEYSTORE_PATH"
 
-      - name: get build name and number, install dependencies
+      - name: Get build name and number, install dependencies
         run: |
           go install golang.org/x/mobile/cmd/gomobile@latest
           gomobile init
@@ -76,10 +76,8 @@ jobs:
           #echo "BUILD_NAME=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
           echo "BUILD_NAME=0.1.0" >> $GITHUB_ENV
 
-      - name: build iOS
+      - name: Build iOS
         env:
-          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.AC_API_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.AC_API_KEY_ISSUER_ID }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
         run: |
@@ -87,28 +85,28 @@ jobs:
           pod install
           fastlane build
 
-      - name: collect ios artifacts
+      - name: Collect iOS artifacts
         uses: actions/upload-artifact@v3
         with:
           name: MobileNebula.ipa
           path: ios/MobileNebula.ipa
           retention-days: 5
 
-      - name: build Android
+      - name: Build Android
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
           GOOGLE_PLAY_KEYSTORE_PASSWORD: ${{ secrets.GOOGLE_PLAY_KEYSTORE_PASSWORD }}
         run: |
           flutter build appbundle --build-number="$BUILD_NUMBER" --build-name="$BUILD_NAME"
 
-      - name: collect android artifacts
+      - name: Collect Android artifacts
         uses: actions/upload-artifact@v3
         with:
           name: MobileNebula.aab
           path: build/app/outputs/bundle/release/app-release.aab
           retention-days: 5
 
-      - name: publish to ios TestFlight
+      - name: Publish to iOS TestFlight
         env:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.AC_API_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.AC_API_KEY_ISSUER_ID }}
@@ -116,7 +114,7 @@ jobs:
           cd ios
           fastlane release
 
-      - name: publish to android internal track
+      - name: Publish to Android internal track
         run: |
           cd android
           fastlane release
@@ -142,7 +140,7 @@ jobs:
           asset_name: MobileNebula.aab
           asset_content_type: text/plain
 
-      - name: Upload release IOS app
+      - name: Upload release iOS app
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

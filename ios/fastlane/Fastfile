@@ -22,8 +22,8 @@ platform :ios do
     # Do some things like setting up a temporary keystore to host secrets in CI
     setup_ci
 
-    # Authenticate with Apple app store connect
-    app_store_connect_api_key
+#     # Authenticate with Apple app store connect
+#     app_store_connect_api_key
 
     # Change signing behavior to work in CI
     update_code_signing_settings(
