@@ -1,4 +1,4 @@
-git_url("https://github.com/nbrownus/mobile_nebula_match.git")
+git_url("https://github.com/DefinedNet/mobile_nebula_match.git")
 
 storage_mode("git")
 
