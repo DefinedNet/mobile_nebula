@@ -75,7 +75,9 @@ jobs:
           cd android
           fastlane release_build_number
           echo "BUILD_NUMBER=$(cat ../release_build_number)" >> $GITHUB_ENV
-          echo "BUILD_NAME=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+          BUILD_NAME="${GITHUB_REF#refs/tags/v}" # strip the front refs/tags/v off
+          BUILD_NAME="${BUILD_NAME%-*}" # strip the junk build number off
+          echo "BUILD_NAME=$BUILD_NAME" >> $GITHUB_ENV
 
       - name: Build iOS
         env:
