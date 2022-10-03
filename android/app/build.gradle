@@ -25,12 +25,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
-def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-}
-
 android {
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
@@ -58,24 +52,17 @@ android {
 
     signingConfigs {
         release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['password']
-            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
-            storePassword keystoreProperties['password']
+            keyAlias 'key'
+            storeFile System.getenv('GOOGLE_PLAY_KEYSTORE_PATH') ? file(System.getenv('GOOGLE_PLAY_KEYSTORE_PATH')) : null
+            keyPassword System.getenv('GOOGLE_PLAY_KEYSTORE_PASSWORD')
+            storePassword System.getenv('GOOGLE_PLAY_KEYSTORE_PASSWORD')
         }
     }
 
     buildTypes {
         release {
-//            signingConfig signingConfigs.release
-//
-//            // We are disabling minification and proguard because it wrecks the crypto for storing keys
-//            // Ideally we would turn these on. We had issues with gson as well but resolved those with proguardFiles
-//            shrinkResources false
-//            minifyEnabled false
-//            useProguard false
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-//
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             resValue 'string', 'app_name', '"Nebula"'
         }
 
@@ -96,3 +83,4 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation project(':mobileNebula')
 }
+

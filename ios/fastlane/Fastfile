@@ -1,0 +1,84 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Push a new beta build to TestFlight"
+
+  lane :build do
+    # Do some things like setting up a temporary keystore to host secrets in CI
+    setup_ci
+
+#     # Authenticate with Apple app store connect
+#     app_store_connect_api_key
+
+    # Change signing behavior to work in CI
+    update_code_signing_settings(
+      # Automatic signing seems to be a good thing to have on in dev but will not work in CI
+      use_automatic_signing: false,
+      # The default value for this is iOS Development which is not appropriate for release
+      code_sign_identity: "Apple Distribution",
+    )
+
+    # Find our signing certs and profiles, these come from a private repository and managed by `fastlane match`
+    match(type: 'appstore', app_identifier: ["net.defined.mobileNebula","net.defined.mobileNebula.NebulaNetworkExtension"], readonly: true)
+
+    # Update our main program to have the correct provisioning profile from Apple
+    update_project_provisioning(
+      xcodeproj: "Runner.xcodeproj",
+      target_filter: "Runner",
+      # This comes from match() above
+      profile:ENV["sigh_net.defined.mobileNebula_appstore_profile-path"],
+      build_configuration: "Release"
+    )
+
+    # Update our network extension to have the correct provisioning profile from Apple
+    update_project_provisioning(
+      xcodeproj: "Runner.xcodeproj",
+      target_filter: "NebulaNetworkExtension",
+      # This comes from match() above
+      profile:ENV["sigh_net.defined.mobileNebula.NebulaNetworkExtension_appstore_profile-path"],
+      build_configuration: "Release"
+    )
+
+    increment_build_number(
+        xcodeproj: "Runner.xcodeproj",
+        build_number: ENV['BUILD_NUMBER']
+    )
+
+    increment_version_number(
+        xcodeproj: "Runner.xcodeproj",
+        version_number: ENV['BUILD_NAME']
+    )
+
+    build_app(
+      output_name: "MobileNebula.ipa",
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      export_method: "app-store",
+    )
+  end
+
+  lane :release do
+    # Do some things like setting up a temporary keystore to host secrets in CI
+    setup_ci
+
+    # Authenticate with Apple app store connect
+    app_store_connect_api_key
+
+    upload_to_testflight(skip_waiting_for_build_processing: true)
+  end
+end

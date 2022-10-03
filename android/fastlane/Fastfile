@@ -1,0 +1,50 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+platform :android do
+  lane :release_build_number do
+    nextCode = sprintf("%s", latest_googleplay_version_code + 1)
+    File.write("../../release_build_number", nextCode)
+  end
+
+  desc "Deploy a new version to the Google Play"
+  lane :release do
+    upload_to_play_store(
+      track: 'internal',
+      aab: '../build/app/outputs/bundle/release/app-release.aab'
+    )
+  end
+end
+
+def latest_googleplay_version_code
+  productionVersionCodes = google_play_track_version_codes(track: 'production')
+  #NOTE: we do not have a beta track right now
+  #betaVersionCodes = google_play_track_version_codes(track: 'beta')
+  alphaVersionCodes = google_play_track_version_codes(track: 'alpha')
+  internalVersionCodes = google_play_track_version_codes(track: 'internal')
+
+  # puts version codes from all tracks into the same array
+  versionCodes = [
+    productionVersionCodes,
+    #betaVersionCodes,
+    alphaVersionCodes,
+    internalVersionCodes
+  ].reduce([], :concat)
+
+  # returns the highest version code from array
+  return versionCodes.max
+end
