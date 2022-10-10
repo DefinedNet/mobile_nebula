@@ -18,8 +18,9 @@ import (
 )
 
 type Nebula struct {
-	c *nebula.Control
-	l *logrus.Logger
+	c      *nebula.Control
+	l      *logrus.Logger
+	config *nc.C
 }
 
 func init() {
@@ -62,7 +63,7 @@ func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebul
 		}
 	}
 
-	return &Nebula{ctrl, l}, nil
+	return &Nebula{ctrl, l, c}, nil
 }
 
 func (n *Nebula) Log(v string) {
@@ -84,6 +85,16 @@ func (n *Nebula) Stop() {
 func (n *Nebula) Rebind(reason string) {
 	n.l.Debugf("Rebinding UDP listener and updating lighthouses due to %s", reason)
 	n.c.RebindUDPServer()
+}
+
+func (n *Nebula) Reload(configData string, key string) error {
+	n.l.Info("Reloading Nebula")
+	yamlConfig, err := RenderConfig(configData, key)
+	if err != nil {
+		return err
+	}
+
+	return n.config.ReloadConfigString(yamlConfig)
 }
 
 func (n *Nebula) ListHostmap(pending bool) (string, error) {

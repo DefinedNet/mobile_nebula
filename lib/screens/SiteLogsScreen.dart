@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/models/Site.dart';
 import 'package:mobile_nebula/services/settings.dart';
@@ -39,8 +40,16 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final dnIcon = Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
+    final title = Row(children: [
+      widget.site.managed ?
+        Padding(padding: EdgeInsets.only(right: 10), child: SvgPicture.asset(dnIcon, width: 12)) :
+        Container(),
+      Expanded(child: Text(widget.site.name, style: TextStyle(fontWeight: FontWeight.bold)))
+    ]);
+
     return SimplePage(
-      title: widget.site.name,
+      title: title,
       scrollable: SimpleScrollable.both,
       scrollController: controller,
       onRefresh: () async {
@@ -113,6 +122,8 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
       setState(() {
         logs = v;
       });
+    } on FileSystemException {
+      Utils.popError(context, 'Error while reading logs', 'No log file was present');
     } catch (err) {
       Utils.popError(context, 'Error while reading logs', err.toString());
     }

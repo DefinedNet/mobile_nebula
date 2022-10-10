@@ -1,35 +1,53 @@
 package net.defined.mobile_nebula
 
 import android.app.Activity
+import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.net.VpnService
 import android.os.*
+import android.util.Log
 import androidx.annotation.NonNull
+import androidx.work.*
+import com.google.common.base.Throwables
+import com.google.common.util.concurrent.Futures
+import com.google.common.util.concurrent.FutureCallback
 import com.google.gson.Gson
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
+import java.io.File
+import java.util.concurrent.TimeUnit
 
 const val TAG = "nebula"
 const val VPN_PERMISSIONS_CODE = 0x0F
 const val VPN_START_CODE = 0x10
 const val CHANNEL = "net.defined.mobileNebula/NebulaVpnService"
+const val UPDATE_WORKER = "dnUpdater"
 
 class MainActivity: FlutterActivity() {
-    private var sites: Sites? = null
-    private var permResult: MethodChannel.Result? = null
-
     private var inMessenger: Messenger? = Messenger(IncomingHandler())
     private var outMessenger: Messenger? = null
 
+    private var apiClient: APIClient? = null
+    private var sites: Sites? = null
+    private var permResult: MethodChannel.Result? = null
+
+    private var ui: MethodChannel? = null
+
     private var activeSiteId: String? = null
 
+    private val workManager = WorkManager.getInstance(application)
+    private val refreshReceiver: BroadcastReceiver = RefreshReceiver()
+
     companion object {
+        const val ACTION_REFRESH_SITES = "net.defined.mobileNebula.REFRESH_SITES"
+
         private var appContext: Context? = null
         fun getContext(): Context? { return appContext }
     }
@@ -38,10 +56,11 @@ class MainActivity: FlutterActivity() {
         appContext = context
         //TODO: Initializing in the constructor leads to a context lacking info we need, figure out the right way to do this
         sites = Sites(flutterEngine)
-        
+
         GeneratedPluginRegistrant.registerWith(flutterEngine);
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
+        ui = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
+        ui!!.setMethodCallHandler { call, result ->
             when(call.method) {
                 "android.requestPermissions" -> androidPermissions(result)
                 "android.registerActiveSite" -> registerActiveSite(result)
@@ -50,6 +69,8 @@ class MainActivity: FlutterActivity() {
                 "nebula.generateKeyPair" -> nebulaGenerateKeyPair(result)
                 "nebula.renderConfig" -> nebulaRenderConfig(call, result)
                 "nebula.verifyCertAndKey" -> nebulaVerifyCertAndKey(call, result)
+
+                "dn.enroll" -> dnEnroll(call, result)
 
                 "listSites" -> listSites(result)
                 "deleteSite" -> deleteSite(call, result)
@@ -69,6 +90,30 @@ class MainActivity: FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        apiClient = APIClient(context)
+
+        registerReceiver(refreshReceiver, IntentFilter(ACTION_REFRESH_SITES))
+
+        enqueueDNUpdater()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        unregisterReceiver(refreshReceiver)
+    }
+
+    private fun enqueueDNUpdater() {
+        val workRequest = PeriodicWorkRequestBuilder<DNUpdateWorker>(15, TimeUnit.MINUTES).build()
+        workManager.enqueueUniquePeriodicWork(
+                UPDATE_WORKER,
+                ExistingPeriodicWorkPolicy.KEEP,
+                workRequest)
     }
 
     // This is called by the UI _after_ it has finished rendering the site list to avoid a race condition with detecting
@@ -124,6 +169,28 @@ class MainActivity: FlutterActivity() {
         }
     }
 
+    private fun dnEnroll(call: MethodCall, result: MethodChannel.Result) {
+        val code = call.arguments as String
+        if (code == "") {
+            return result.error("required_argument", "code is a required argument", null)
+        }
+
+        val site: IncomingSite
+        val siteDir: File
+        try {
+            site = apiClient!!.enroll(code)
+            siteDir = site.save(context)
+        } catch (err: Exception) {
+            return result.error("unhandled_error", err.message, null)
+        }
+
+        if (!validateOrDeleteSite(siteDir)) {
+            return result.error("failure", "Enrollment failed due to invalid config", null)
+        }
+
+        result.success(null)
+    }
+
     private fun listSites(result: MethodChannel.Result) {
         sites!!.refreshSites(activeSiteId)
         val sites = sites!!.getSites()
@@ -143,26 +210,37 @@ class MainActivity: FlutterActivity() {
 
     private fun saveSite(call: MethodCall, result: MethodChannel.Result) {
         val site: IncomingSite
+        val siteDir: File
         try {
             val gson = Gson()
             site = gson.fromJson(call.arguments as String, IncomingSite::class.java)
-            site.save(context)
+            siteDir = site.save(context)
 
         } catch (err: Exception) {
             //TODO: is toString the best or .message?
             return result.error("failure", err.toString(), null)
         }
 
-        val siteDir = context.filesDir.resolve("sites").resolve(site.id)
-        try {
-            // Try to render a full site, if this fails the config was bad somehow
-            Site(siteDir)
-        } catch (err: Exception) {
-            siteDir.deleteRecursively()
+        if (!validateOrDeleteSite(siteDir)) {
             return result.error("failure", "Site config was incomplete, please review and try again", null)
         }
 
         result.success(null)
+    }
+
+    private fun validateOrDeleteSite(siteDir: File): Boolean {
+        try {
+            // Try to render a full site, if this fails the config was bad somehow
+            val site = Site(context, siteDir)
+        } catch(err: java.io.FileNotFoundException) {
+            Log.e(TAG, "Site not found at ${siteDir}")
+            return false
+        } catch(err: Exception) {
+            Log.e(TAG, "Deleting site at ${siteDir} due to error: ${err}")
+            siteDir.deleteRecursively()
+            return false
+        }
+        return true
     }
 
     private fun startSite(call: MethodCall, result: MethodChannel.Result) {
@@ -171,12 +249,11 @@ class MainActivity: FlutterActivity() {
             return result.error("required_argument", "id is a required argument", null)
         }
 
-        var siteContainer: SiteContainer = sites!!.getSite(id!!) ?: return result.error("unknown_site", "No site with that id exists", null)
+        val siteContainer: SiteContainer = sites!!.getSite(id!!) ?: return result.error("unknown_site", "No site with that id exists", null)
 
-        siteContainer.site.connected = true
-        siteContainer.site.status = "Initializing..."
+        siteContainer.updater.setState(true, "Initializing...")
 
-        val intent = VpnService.prepare(this)
+        var intent = VpnService.prepare(this)
         if (intent != null) {
             //TODO: ensure this boots the correct bit, I bet it doesn't and we need to go back to the active symlink
             intent.putExtra("path", siteContainer.site.path)
@@ -184,7 +261,7 @@ class MainActivity: FlutterActivity() {
             startActivityForResult(intent, VPN_START_CODE)
 
         } else {
-            val intent = Intent(this, NebulaVpnService::class.java)
+            intent = Intent(this, NebulaVpnService::class.java)
             intent.putExtra("path", siteContainer.site.path)
             intent.putExtra("id", siteContainer.site.id)
             onActivityResult(VPN_START_CODE, Activity.RESULT_OK, intent)
@@ -254,7 +331,7 @@ class MainActivity: FlutterActivity() {
         }
 
         val pending = call.argument<Boolean>("pending") ?: false
-        
+
         if (outMessenger == null || activeSiteId == null || activeSiteId != id) {
             return result.success(null)
         }
@@ -302,7 +379,7 @@ class MainActivity: FlutterActivity() {
         })
         outMessenger?.send(msg)
     }
-    
+
     private fun activeCloseTunnel(call: MethodCall, result: MethodChannel.Result) {
         val id = call.argument<String>("id")
         if (id == "") {
@@ -355,7 +432,8 @@ class MainActivity: FlutterActivity() {
             return result.error("PERMISSIONS", "User did not grant permission", null)
 
         } else if (requestCode == VPN_START_CODE) {
-            // We are processing a response for permissions while starting the VPN (or reusing code in the event we already have perms)
+            // We are processing a response for permissions while starting the VPN
+           // (or reusing code in the event we already have perms)
             startService(data)
             if (outMessenger == null) {
                 bindService(data, connection, 0)
@@ -368,14 +446,15 @@ class MainActivity: FlutterActivity() {
     }
 
     /** Defines callbacks for service binding, passed to bindService()  */
-    val connection = object : ServiceConnection {
+    private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             outMessenger = Messenger(service)
+
             // We want to monitor the service for as long as we are connected to it.
             try {
                 val msg = Message.obtain(null, NebulaVpnService.MSG_REGISTER_CLIENT)
                 msg.replyTo = inMessenger
-                outMessenger?.send(msg)
+                outMessenger!!.send(msg)
 
             } catch (e: RemoteException) {
                 // In this case the service has crashed before we could even
@@ -386,7 +465,7 @@ class MainActivity: FlutterActivity() {
             }
 
             val msg = Message.obtain(null, NebulaVpnService.MSG_IS_RUNNING)
-            outMessenger?.send(msg)
+            outMessenger!!.send(msg)
         }
 
         override fun onServiceDisconnected(arg0: ComponentName) {
@@ -416,7 +495,7 @@ class MainActivity: FlutterActivity() {
         private fun isRunning(site: SiteContainer, msg: Message) {
             var status = "Disconnected"
             var connected = false
-            
+
             if (msg.arg1 == 1) {
                 status = "Connected"
                 connected = true
@@ -429,6 +508,32 @@ class MainActivity: FlutterActivity() {
         private fun serviceExited(site: SiteContainer, msg: Message) {
             activeSiteId = null
             site.updater.setState(false, "Disconnected", msg.data.getString("error"))
+            unbindVpnService()
         }
     }
+
+    private fun unbindVpnService() {
+        if (outMessenger != null) {
+            // Unregister ourselves
+            val msg = Message.obtain(null, NebulaVpnService.MSG_UNREGISTER_CLIENT)
+            msg.replyTo = inMessenger
+            outMessenger!!.send(msg)
+            // Unbind
+            unbindService(connection)
+        }
+        outMessenger = null
+    }
+
+    inner class RefreshReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent?) {
+            if (intent?.getAction() != ACTION_REFRESH_SITES) return
+            if (sites == null) return
+
+            Log.d(TAG, "Refreshing sites in MainActivity")
+
+            sites?.refreshSites(activeSiteId)
+            ui?.invokeMethod("refreshSites", null)
+        }
+    }
+
 }

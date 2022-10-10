@@ -14,7 +14,11 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
+    private let dnUpdater = DNUpdater()
+    private let apiClient = APIClient()
     private var sites: Sites?
+    private var ui: FlutterMethodChannel?
+    
     
     override func application(
         _ application: UIApplication,
@@ -22,19 +26,35 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     ) -> Bool {
         GeneratedPluginRegistrant.register(with: self)
         
+        
+        dnUpdater.updateAllLoop { site in
+            // Signal the site has changed in case the current site details screen is active
+            let container = self.sites?.getContainer(id: site.id)
+            if (container != nil) {
+                // Update references to the site with the new site config
+                container!.site = site
+                container!.updater.update(connected: site.connected ?? false, replaceSite: site)
+            }
+            
+            // Signal to the main screen to reload
+            self.ui?.invokeMethod("refreshSites", arguments: nil)
+        }
+        
         guard let controller = window?.rootViewController as? FlutterViewController else {
             fatalError("rootViewController is not type FlutterViewController")
         }
         
         sites = Sites(messenger: controller.binaryMessenger)
-        let channel = FlutterMethodChannel(name: ChannelName.vpn, binaryMessenger: controller.binaryMessenger)
+        ui = FlutterMethodChannel(name: ChannelName.vpn, binaryMessenger: controller.binaryMessenger)
         
-        channel.setMethodCallHandler({(call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+        ui!.setMethodCallHandler({(call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
             switch call.method {
             case "nebula.parseCerts": return self.nebulaParseCerts(call: call, result: result)
             case "nebula.generateKeyPair": return self.nebulaGenerateKeyPair(result: result)
             case "nebula.renderConfig": return self.nebulaRenderConfig(call: call, result: result)
             case "nebula.verifyCertAndKey": return self.nebulaVerifyCertAndKey(call: call, result: result)
+                
+            case "dn.enroll": return self.dnEnroll(call: call, result: result)
                 
             case "listSites": return self.listSites(result: result)
             case "deleteSite": return self.deleteSite(call: call, result: result)
@@ -107,6 +127,25 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
         }
         
         return result(yaml)
+    }
+    
+    func dnEnroll(call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let code = call.arguments as? String else { return result(NoArgumentsError()) }
+        
+        do {
+            let site = try apiClient.enroll(code: code)
+            
+            let oldSite = self.sites?.getSite(id: site.id)
+            site.save(manager: oldSite?.manager) { error in
+                if (error != nil) {
+                    return result(CallFailedError(message: "Failed to enroll", details: error!.localizedDescription))
+                }
+                
+                result(nil)
+            }
+        } catch {
+            return result(CallFailedError(message: "Error from DN api", details: error.localizedDescription))
+        }
     }
     
     func listSites(result: @escaping FlutterResult) {

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
@@ -37,28 +38,24 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
   List<HostInfo>? activeHosts;
   List<HostInfo>? pendingHosts;
   RefreshController refreshController = RefreshController(initialRefresh: false);
-  late bool lastState;
 
   @override
   void initState() {
     site = widget.site;
-    lastState = site.connected;
     if (site.connected) {
       _listHostmap();
     }
 
     onChange = site.onChange().listen((_) {
-      if (lastState != site.connected) {
-        //TODO: connected is set before the nebula object exists leading to a crash race, waiting for "Connected" status is a gross hack but keeps it alive
-        if (site.status == 'Connected') {
-          lastState = true;
-          _listHostmap();
-        } else {
-          lastState = false;
-          activeHosts = null;
-          pendingHosts = null;
-        }
+      // TODO: Gross hack... we get site.connected = true to trigger the toggle before the VPN service has started.
+      // If we fetch the hostmap now we'll never get a response. Wait until Nebula is running.
+      if (site.status == 'Connected') {
+        _listHostmap();
+      } else {
+        activeHosts = null;
+        pendingHosts = null;
       }
+
       setState(() {});
     }, onError: (err) {
       setState(() {});
@@ -76,8 +73,16 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final dnIcon = Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
+    final title = Row(children: [
+      site.managed ?
+        Padding(padding: EdgeInsets.only(right: 10), child: SvgPicture.asset(dnIcon, width: 12)) :
+        Container(),
+      Expanded(child: Text(site.name, style: TextStyle(fontWeight: FontWeight.bold)))
+    ]);
+
     return SimplePage(
-        title: site.name,
+        title: title,
         leadingAction: Utils.leadingBackWidget(context, onPressed: () {
           if (changed && widget.onChanged != null) {
             widget.onChanged!();

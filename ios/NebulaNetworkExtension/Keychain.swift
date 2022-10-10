@@ -3,17 +3,21 @@ import Foundation
 let groupName = "group.net.defined.mobileNebula"
 
 class KeyChain {
-    class func save(key: String, data: Data) -> Bool {
-        let query: [String: Any] = [
+    class func save(key: String, data: Data, managed: Bool) -> Bool {
+        var query: [String: Any] = [
             kSecClass as String       : kSecClassGenericPassword as String,
             kSecAttrAccount as String : key,
             kSecValueData as String   : data,
             kSecAttrAccessGroup as String: groupName,
         ]
+        
+        if (managed) {
+            query[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
+        }
 
-        SecItemDelete(query as CFDictionary)
-        let val = SecItemAdd(query as CFDictionary, nil)
-        return  val == 0
+        // Attempt to delete an existing key to allow for an overwrite
+        _ = self.delete(key: key)
+        return SecItemAdd(query as CFDictionary, nil) == 0
     }
 
     class func load(key: String) -> Data? {
@@ -38,10 +42,8 @@ class KeyChain {
     
     class func delete(key: String) -> Bool {
        let query: [String: Any] = [
-           kSecClass as String       : kSecClassGenericPassword,
+           kSecClass as String       : kSecClassGenericPassword as String,
            kSecAttrAccount as String : key,
-           kSecReturnData as String  : kCFBooleanTrue!,
-           kSecMatchLimit as String  : kSecMatchLimitOne,
            kSecAttrAccessGroup as String: groupName,
        ]
 

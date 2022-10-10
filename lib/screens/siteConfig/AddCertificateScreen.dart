@@ -77,7 +77,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
     items.add(_buildKey());
     items.addAll(_buildLoadCert());
 
-    return SimplePage(title: 'Certificate', child: Column(children: items));
+    return SimplePage(title: Text('Certificate'), child: Column(children: items));
   }
 
   List<Widget> _buildShare() {

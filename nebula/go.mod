@@ -1,10 +1,11 @@
 module github.com/DefinedNet/mobile_nebula/nebula
 
-go 1.18
+go 1.19
 
 // replace github.com/slackhq/nebula => /Volumes/T7/nate/src/github.com/slackhq/nebula
 
 require (
+	github.com/DefinedNet/dnapi v0.0.0-20221117210952-6f56f055f991
 	github.com/sirupsen/logrus v1.9.0
 	github.com/slackhq/nebula v1.6.2-0.20221116023309-813b64ffb179
 	golang.org/x/crypto v0.3.0

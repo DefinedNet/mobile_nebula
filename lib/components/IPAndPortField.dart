@@ -87,7 +87,7 @@ class _IPAndPortFieldState extends State<IPAndPortField> {
             nextFocusNode: widget.nextFocusNode,
             controller: widget.portController,
             onChanged: (val) {
-              _ipAndPort.port = int.tryParse(val ?? "");
+              _ipAndPort.port = int.tryParse(val);
               widget.onChanged(_ipAndPort);
             },
             maxLength: 5,

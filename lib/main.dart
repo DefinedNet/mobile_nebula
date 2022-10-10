@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart' show CupertinoThemeData, DefaultCupertinoLocalizations;
 import 'package:flutter/material.dart'
     show BottomSheetThemeData, Colors, DefaultMaterialLocalizations, Theme, ThemeData, ThemeMode;
@@ -6,11 +8,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/screens/MainScreen.dart';
+import 'package:mobile_nebula/screens/EnrollmentScreen.dart';
 import 'package:mobile_nebula/services/settings.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 //TODO: EventChannel might be better than the stream controller we are using now
 
-void main() => runApp(Main());
+void main() {
+  usePathUrlStrategy();
+  runApp(Main());
+}
 
 class Main extends StatelessWidget {
   // This widget is the root of your application.
@@ -26,6 +33,7 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   final settings = Settings();
   Brightness brightness = SchedulerBinding.instance.window.platformBrightness;
+  StreamController dnEnrolled = StreamController.broadcast();
 
   @override
   void initState() {
@@ -39,6 +47,12 @@ class _AppState extends State<App> {
     });
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    dnEnrolled.close();
+    super.dispose();
   }
 
   @override
@@ -93,7 +107,28 @@ class _AppState extends State<App> {
           cupertino: (_, __) => CupertinoAppData(
             theme: CupertinoThemeData(brightness: brightness),
           ),
-          home: MainScreen(),
+          onGenerateRoute: (settings) {
+            if (settings.name == '/') {
+              return platformPageRoute(context: context, builder: (context) => MainScreen(this.dnEnrolled.stream));
+            }
+
+            final uri = Uri.parse(settings.name!);
+            if (uri.path == EnrollmentScreen.routeName) {
+              String? code;
+              if (uri.hasFragment) {
+                final qp = Uri.splitQueryString(uri.fragment);
+                code = qp["code"];
+              }
+
+              // TODO: maybe implement this as a dialog instead of a page, you can stack multiple enrollment screens which is annoying in dev
+              return platformPageRoute(
+                  context: context,
+                  builder: (context) => EnrollmentScreen(code: code, stream: this.dnEnrolled),
+              );
+            }
+
+            return null;
+          },
         ),
       ),
     );

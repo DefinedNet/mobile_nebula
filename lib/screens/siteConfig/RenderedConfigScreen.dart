@@ -16,7 +16,7 @@ class RenderedConfigScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SimplePage(
-      title: 'Rendered Site Config',
+      title: Text('Rendered Site Config'),
       scrollable: SimpleScrollable.both,
       trailingActions: <Widget>[
         PlatformIconButton(

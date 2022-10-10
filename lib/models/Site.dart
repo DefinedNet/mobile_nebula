@@ -44,6 +44,11 @@ class Site {
   late String logFile;
   late String logVerbosity;
 
+  late bool managed;
+  // The following fields are present when managed = true
+  late String? rawConfig;
+  late DateTime? lastManagedUpdate;
+
   // A list of errors encountered while loading the site
   late List<String> errors;
 
@@ -64,6 +69,9 @@ class Site {
     String logVerbosity = 'info',
     List<String>? errors,
     List<UnsafeRoute>? unsafeRoutes,
+    bool managed = false,
+    String? rawConfig,
+    DateTime? lastManagedUpdate,
   }) {
     this.name = name;
     this.id = id ?? uuid.v4();
@@ -81,26 +89,75 @@ class Site {
     this.logVerbosity = logVerbosity;
     this.errors = errors ?? [];
     this.unsafeRoutes = unsafeRoutes ?? [];
+    this.managed = managed;
+    this.rawConfig = rawConfig;
+    this.lastManagedUpdate = lastManagedUpdate;
 
     _updates = EventChannel('net.defined.nebula/$id');
     _updates.receiveBroadcastStream().listen((d) {
       try {
-        this.status = d['status'];
-        this.connected = d['connected'];
+        _updateFromJson(d);
         _change.add(null);
       } catch (err) {
         //TODO: handle the error
         print(err);
       }
     }, onError: (err) {
+      _updateFromJson(err.details);
       var error = err as PlatformException;
-      this.status = error.details['status'];
-      this.connected = error.details['connected'];
       _change.addError(error.message ?? 'An unexpected error occurred');
     });
   }
 
   factory Site.fromJson(Map<String, dynamic> json) {
+    var decoded = Site._fromJson(json);
+    return Site(
+      name: decoded["name"],
+      id: decoded['id'],
+      staticHostmap: decoded['staticHostmap'],
+      ca: decoded['ca'],
+      certInfo: decoded['certInfo'],
+      lhDuration: decoded['lhDuration'],
+      port: decoded['port'],
+      cipher: decoded['cipher'],
+      sortKey: decoded['sortKey'],
+      mtu: decoded['mtu'],
+      connected: decoded['connected'],
+      status: decoded['status'],
+      logFile: decoded['logFile'],
+      logVerbosity: decoded['logVerbosity'],
+      errors: decoded['errors'],
+      unsafeRoutes: decoded['unsafeRoutes'],
+      managed: decoded['managed'],
+      rawConfig: decoded['rawConfig'],
+      lastManagedUpdate: decoded['lastManagedUpdate'],
+    );
+  }
+
+  _updateFromJson(String json) {
+    var decoded = Site._fromJson(jsonDecode(json));
+    this.name = decoded["name"];
+    this.id = decoded['id']; // TODO update EventChannel
+    this.staticHostmap = decoded['staticHostmap'];
+    this.ca = decoded['ca'];
+    this.certInfo = decoded['certInfo'];
+    this.lhDuration = decoded['lhDuration'];
+    this.port = decoded['port'];
+    this.cipher = decoded['cipher'];
+    this.sortKey = decoded['sortKey'];
+    this.mtu = decoded['mtu'];
+    this.connected = decoded['connected'];
+    this.status = decoded['status'];
+    this.logFile = decoded['logFile'];
+    this.logVerbosity = decoded['logVerbosity'];
+    this.errors = decoded['errors'];
+    this.unsafeRoutes = decoded['unsafeRoutes'];
+    this.managed = decoded['managed'];
+    this.rawConfig = decoded['rawConfig'];
+    this.lastManagedUpdate = decoded['lastManagedUpdate'];
+  }
+
+  static _fromJson(Map<String, dynamic> json) {
     Map<String, dynamic> rawHostmap = json['staticHostmap'];
     Map<String, StaticHost> staticHostmap = {};
     rawHostmap.forEach((key, val) {
@@ -130,24 +187,28 @@ class Site {
       errors.add(error);
     });
 
-    return Site(
-      name: json['name'],
-      id: json['id'],
-      staticHostmap: staticHostmap,
-      ca: ca,
-      certInfo: certInfo,
-      lhDuration: json['lhDuration'],
-      port: json['port'],
-      cipher: json['cipher'],
-      sortKey: json['sortKey'],
-      mtu: json['mtu'],
-      connected: json['connected'] ?? false,
-      status: json['status'] ?? "",
-      logFile: json['logFile'],
-      logVerbosity: json['logVerbosity'],
-      errors: errors,
-      unsafeRoutes: unsafeRoutes,
-    );
+    return {
+      "name": json["name"],
+      "id": json['id'],
+      "staticHostmap": staticHostmap,
+      "ca": ca,
+      "certInfo": certInfo,
+      "lhDuration": json['lhDuration'],
+      "port": json['port'],
+      "cipher": json['cipher'],
+      "sortKey": json['sortKey'],
+      "mtu": json['mtu'],
+      "connected": json['connected'] ?? false,
+      "status": json['status'] ?? "",
+      "logFile": json['logFile'],
+      "logVerbosity": json['logVerbosity'],
+      "errors": errors,
+      "unsafeRoutes": unsafeRoutes,
+      "managed": json['managed'] ?? false,
+      "rawConfig": json['rawConfig'],
+      "lastManagedUpdate": json["lastManagedUpdate"] == null ?
+        null : DateTime.parse(json["lastManagedUpdate"]),
+    };
   }
 
   Stream onChange() {
@@ -171,6 +232,8 @@ class Site {
       'cipher': cipher,
       'sortKey': sortKey,
       'logVerbosity': logVerbosity,
+      'managed': managed,
+      'rawConfig': rawConfig,
     };
   }
 

@@ -50,7 +50,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
     final title = widget.pending ? 'Pending' : 'Active';
 
     return SimplePage(
-        title: '$title Host Info',
+        title: Text('$title Host Info'),
         refreshController: refreshController,
         onRefresh: () async {
           await _getHostInfo();

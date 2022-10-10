@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart' as fpw;
+import 'package:intl/intl.dart';
 import 'package:mobile_nebula/components/FormPage.dart';
 import 'package:mobile_nebula/components/PlatformTextFormField.dart';
 import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
@@ -93,6 +94,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
             _keys(),
             _hosts(),
             _advanced(),
+            _managed(),
             kDebugMode ? _debugConfig() : Container(height: 0),
           ],
         ));
@@ -127,6 +129,26 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
     ]);
   }
 
+  Widget _managed() {
+    final formatter = DateFormat.yMMMMd('en_US').add_jm();
+    var lastUpdate = "Unknown";
+    if (site.lastManagedUpdate != null) {
+      lastUpdate = formatter.format(site.lastManagedUpdate!.toLocal());
+    }
+
+    return site.managed ? ConfigSection(
+      label: "MANAGED CONFIG",
+      children: <Widget>[
+        ConfigItem(
+          label: Text("Last Update"),
+          content: Wrap(alignment: WrapAlignment.end, crossAxisAlignment: WrapCrossAlignment.center, children: <Widget>[
+            Text(lastUpdate),
+          ]),
+        )
+      ]
+    ) : Container();
+  }
+
   Widget _keys() {
     final certError = site.certInfo == null || site.certInfo!.validity == null || !site.certInfo!.validity!.valid;
     var caError = site.ca.length == 0;
@@ -158,7 +180,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
                     certInfo: site.certInfo!,
                     pubKey: pubKey,
                     privKey: privKey,
-                    onReplace: (result) {
+                    onReplace: site.managed ? null : (result) {
                       setState(() {
                         changed = true;
                         site.certInfo = result.certInfo;
@@ -195,7 +217,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
               Utils.openPage(context, (context) {
                 return CAListScreen(
                     cas: site.ca,
-                    onSave: (ca) {
+                    onSave: site.managed ? null : (ca) {
                       setState(() {
                         changed = true;
                         site.ca = ca;
@@ -209,7 +231,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
 
   Widget _hosts() {
     return ConfigSection(
-      label: "Set up static hosts and lighthouses",
+      label: "LIGHTHOUSES / STATIC HOSTS",
       children: <Widget>[
         ConfigPageItem(
           label: Text('Hosts'),
@@ -227,7 +249,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
             Utils.openPage(context, (context) {
               return StaticHostsScreen(
                   hostmap: site.staticHostmap,
-                  onSave: (map) {
+                  onSave: site.managed ? null : (map) {
                     setState(() {
                       changed = true;
                       site.staticHostmap = map;
@@ -242,6 +264,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
 
   Widget _advanced() {
     return ConfigSection(
+      label: "ADVANCED",
       children: <Widget>[
         ConfigPageItem(
             label: Text('Advanced'),

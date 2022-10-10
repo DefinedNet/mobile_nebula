@@ -41,7 +41,7 @@ Update `version` in `pubspec.yaml` to reflect this release, then
 
 ## Android
 
-`flutter build appbundle --no-shrink`
+`flutter build appbundle`
 
 This will create an android app bundle at `build/app/outputs/bundle/release/`
 

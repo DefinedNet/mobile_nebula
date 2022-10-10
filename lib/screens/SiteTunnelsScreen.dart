@@ -38,6 +38,7 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
 
   @override
   void dispose() {
+    refreshController.dispose();
     super.dispose();
   }
 
@@ -83,7 +84,7 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
     final title = widget.pending ? 'Pending' : 'Active';
 
     return SimplePage(
-        title: "$title Tunnels",
+        title: Text('$title Tunnels'),
         leadingAction: Utils.leadingBackWidget(context, onPressed: () {
           Navigator.pop(context);
         }),

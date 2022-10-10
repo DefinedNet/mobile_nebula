@@ -32,7 +32,7 @@ class StaticHostmapScreen extends StatefulWidget {
   final List<IPAndPort> destinations;
   final String nebulaIp;
   final bool lighthouse;
-  final ValueChanged<Hostmap> onSave;
+  final ValueChanged<Hostmap>? onSave;
   final Function? onDelete;
 
   @override
@@ -66,7 +66,7 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
   @override
   Widget build(BuildContext context) {
     return FormPage(
-        title: widget.onDelete == null ? 'New Static Host' : 'Edit Static Host',
+        title: widget.onDelete == null ? widget.onSave == null ? 'View Static Host' : 'New Static Host' : 'Edit Static Host',
         changed: changed,
         onSave: _onSave,
         child: Column(children: [
@@ -74,7 +74,9 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
             ConfigItem(
                 label: Text('Nebula IP'),
                 labelWidth: 200,
-                content: IPFormField(
+                content: widget.onSave == null ?
+                  Text(_nebulaIp, textAlign: TextAlign.end) :
+                  IPFormField(
                     help: "Required",
                     initialValue: _nebulaIp,
                     ipOnly: true,
@@ -94,7 +96,7 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
                   child: Switch.adaptive(
                       value: _lighthouse,
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      onChanged: (v) {
+                      onChanged: widget.onSave == null ? null : (v) {
                         setState(() {
                           changed = true;
                           _lighthouse = v;
@@ -125,13 +127,16 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
 
   _onSave() {
     Navigator.pop(context);
-    var map = Hostmap(nebulaIp: _nebulaIp, destinations: [], lighthouse: _lighthouse);
+    if (widget.onSave != null) {
+      var map = Hostmap(
+          nebulaIp: _nebulaIp, destinations: [], lighthouse: _lighthouse);
 
-    _destinations.forEach((_, dest) {
-      map.destinations.add(dest.destination);
-    });
+      _destinations.forEach((_, dest) {
+        map.destinations.add(dest.destination);
+      });
 
-    widget.onSave(map);
+      widget.onSave!(map);
+    }
   }
 
   List<Widget> _buildHosts() {
@@ -142,7 +147,7 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
         key: key,
         label: Align(
             alignment: Alignment.centerLeft,
-            child: PlatformIconButton(
+            child: widget.onSave == null ? Container() : PlatformIconButton(
                 padding: EdgeInsets.zero,
                 icon: Icon(Icons.remove_circle, color: CupertinoColors.systemRed.resolveFrom(context)),
                 onPressed: () => setState(() {
@@ -152,28 +157,33 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
         labelWidth: 70,
         content: Row(children: <Widget>[
           Expanded(
-              child: IPAndPortFormField(
-            ipHelp: 'public ip or name',
-            ipTextAlign: TextAlign.end,
-            enableIPV6: true,
-            noBorder: true,
-            initialValue: dest.destination,
-            onSaved: (v) {
-              if (v != null) {
-                dest.destination = v;
-              }
-            },
-          )),
+              child: widget.onSave == null ?
+              Text(dest.destination.toString(), textAlign: TextAlign.end) :
+              IPAndPortFormField(
+                ipHelp: 'public ip or name',
+                ipTextAlign: TextAlign.end,
+                enableIPV6: true,
+                noBorder: true,
+                initialValue: dest.destination,
+                onSaved: (v) {
+                  if (v != null) {
+                    dest.destination = v;
+                  }
+                },
+              )),
         ]),
       ));
     });
 
-    items.add(ConfigButtonItem(
-        content: Text('Add another'),
-        onPressed: () => setState(() {
-              _addDestination();
-              _dismissKeyboard();
-            })));
+    if (widget.onSave != null) {
+      items.add(ConfigButtonItem(
+          content: Text('Add another'),
+          onPressed: () =>
+              setState(() {
+                _addDestination();
+                _dismissKeyboard();
+              })));
+    }
 
     return items;
   }

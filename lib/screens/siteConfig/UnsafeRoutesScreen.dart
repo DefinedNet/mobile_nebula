@@ -15,7 +15,7 @@ class UnsafeRoutesScreen extends StatefulWidget {
   }) : super(key: key);
 
   final List<UnsafeRoute> unsafeRoutes;
-  final ValueChanged<List<UnsafeRoute>> onSave;
+  final ValueChanged<List<UnsafeRoute>>? onSave;
 
   @override
   _UnsafeRoutesScreenState createState() => _UnsafeRoutesScreenState();
@@ -48,7 +48,9 @@ class _UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
 
   _onSave() {
     Navigator.pop(context);
-    widget.onSave(unsafeRoutes.values.toList());
+    if (widget.onSave != null) {
+      widget.onSave!(unsafeRoutes.values.toList());
+    }
   }
 
   List<Widget> _buildRoutes() {
@@ -56,6 +58,7 @@ class _UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
     List<Widget> items = [];
     unsafeRoutes.forEach((key, route) {
       items.add(ConfigPageItem(
+        disabled: widget.onSave == null,
         label: Text(route.route ?? ''),
         labelWidth: ipWidth,
         content: Text('via ${route.via}', textAlign: TextAlign.end),
@@ -80,21 +83,23 @@ class _UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
       ));
     });
 
-    items.add(ConfigButtonItem(
-      content: Text('Add a new route'),
-      onPressed: () {
-        Utils.openPage(context, (context) {
-          return UnsafeRouteScreen(
-              route: UnsafeRoute(),
-              onSave: (route) {
-                setState(() {
-                  changed = true;
-                  unsafeRoutes[UniqueKey()] = route;
+    if (widget.onSave != null) {
+      items.add(ConfigButtonItem(
+        content: Text('Add a new route'),
+        onPressed: () {
+          Utils.openPage(context, (context) {
+            return UnsafeRouteScreen(
+                route: UnsafeRoute(),
+                onSave: (route) {
+                  setState(() {
+                    changed = true;
+                    unsafeRoutes[UniqueKey()] = route;
+                  });
                 });
-              });
-        });
-      },
-    ));
+          });
+        },
+      ));
+    }
 
     return items;
   }

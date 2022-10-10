@@ -91,7 +91,7 @@ class _CIDRFormField extends FormFieldState<CIDR> {
     }
 
     if (widget.bitsController == null) {
-      _bitsController = TextEditingController(text: widget.initialValue?.bits?.toString() ?? "");
+      _bitsController = TextEditingController(text: widget.initialValue?.bits.toString() ?? "");
     } else {
       widget.bitsController!.addListener(_handleControllerChanged);
     }
