@@ -18,6 +18,7 @@ class NebulaVpnService : VpnService() {
 
     companion object {
         private const val TAG = "NebulaVpnService"
+        const val ACTION_STOP = "net.defined.mobile_nebula.STOP"
         const val MSG_REGISTER_CLIENT = 1
         const val MSG_UNREGISTER_CLIENT = 2
         const val MSG_IS_RUNNING = 3
@@ -40,10 +41,10 @@ class NebulaVpnService : VpnService() {
     private var nebula: mobileNebula.Nebula? = null
     private var vpnInterface: ParcelFileDescriptor? = null
     private var didSleep = false
-    private var networkCallback: NetworkCallback = NetworkCallback();
+    private var networkCallback: NetworkCallback = NetworkCallback()
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.getStringExtra("COMMAND") == "STOP") {
+        if (intent?.getAction() == ACTION_STOP) {
             stopVpn()
             return Service.START_NOT_STICKY
         }
@@ -103,7 +104,7 @@ class NebulaVpnService : VpnService() {
 
         try {
             vpnInterface = builder.establish()
-            nebula = mobileNebula.MobileNebula.newNebula(site!!.config, site!!.getKey(this), site!!.logFile, vpnInterface!!.fd.toLong())
+            nebula = mobileNebula.MobileNebula.newNebula(site!!.config, site!!.getKey(this), site!!.logFile, vpnInterface!!.detachFd().toLong())
 
         } catch (e: Exception) {
             Log.e(TAG, "Got an error $e")
@@ -115,7 +116,7 @@ class NebulaVpnService : VpnService() {
         registerNetworkCallback()
         //TODO: There is an open discussion around sleep killing tunnels or just changing mobile to tear down stale tunnels
         //registerSleep()
-        
+
         nebula!!.start()
         running = true
         sendSimple(MSG_IS_RUNNING, if (running) 1 else 0)
@@ -170,14 +171,25 @@ class NebulaVpnService : VpnService() {
     }
 
     private fun stopVpn() {
+        if (nebula == null) {
+            return stopSelf()
+        }
+
         unregisterNetworkCallback()
         nebula?.stop()
-        vpnInterface?.close()
+        nebula = null
         running = false
         announceExit(site?.id, null)
+        stopSelf()
     }
 
-    override fun onDestroy()  {
+    override fun onRevoke()  {
+        stopVpn()
+        //TODO: wait for the thread to exit
+        super.onRevoke()
+    }
+
+    override fun onDestroy() {
         stopVpn()
         //TODO: wait for the thread to exit
         super.onDestroy()
@@ -240,7 +252,7 @@ class NebulaVpnService : VpnService() {
             m.data.putString("data", res)
             msg.replyTo.send(m)
         }
-        
+
         private fun getHostInfo(msg: Message) {
             if (protect(msg)) { return }
 
@@ -258,7 +270,7 @@ class NebulaVpnService : VpnService() {
             m.data.putString("data", res)
             msg.replyTo.send(m)
         }
-        
+
         private fun closeTunnel(msg: Message) {
             if (protect(msg)) { return }
 

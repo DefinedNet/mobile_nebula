@@ -195,16 +195,11 @@ class MainActivity: FlutterActivity() {
 
     private fun stopSite() {
         val intent = Intent(this, NebulaVpnService::class.java)
-        intent.putExtra("COMMAND", "STOP")
+        intent.setAction(NebulaVpnService.ACTION_STOP)
 
-        //This is odd but stopService goes nowhere in my tests and this is correct
-        // according to the official example https://android.googlesource.com/platform/development/+/master/samples/ToyVpn/src/com/example/android/toyvpn/ToyVpnClient.java#116
+        // We can't stopService because we have to close the fd first. The service will call stopSelf when ready.
+        // See the official example: https://android.googlesource.com/platform/development/+/master/samples/ToyVpn/src/com/example/android/toyvpn/ToyVpnClient.java#116
         startService(intent)
-        //TODO: why doesn't this work!?!?
-//        if (serviceIntent != null) {
-//            Log.e(TAG, "stopping ${serviceIntent.toString()}")
-//            stopService(serviceIntent)
-//        }
     }
 
     private fun activeListHostmap(call: MethodCall, result: MethodChannel.Result) {
