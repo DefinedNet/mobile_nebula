@@ -18,7 +18,7 @@ class NebulaVpnService : VpnService() {
 
     companion object {
         private const val TAG = "NebulaVpnService"
-        const val ACTION_STOP = "STOP"
+        const val ACTION_STOP = "net.defined.mobile_nebula.STOP"
         const val MSG_REGISTER_CLIENT = 1
         const val MSG_UNREGISTER_CLIENT = 2
         const val MSG_IS_RUNNING = 3
