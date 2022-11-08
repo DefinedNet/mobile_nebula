@@ -92,9 +92,12 @@ class NebulaVpnService : VpnService() {
                 .addRoute(ipNet.network, ipNet.maskSize.toInt())
                 .setMtu(site!!.mtu)
                 .setSession(TAG)
-                .setMetered(false)
                 .allowFamily(OsConstants.AF_INET)
                 .allowFamily(OsConstants.AF_INET6);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            builder.setMetered(false);
+        }
 
         // Add our unsafe routes
         site!!.unsafeRoutes.forEach { unsafeRoute ->
