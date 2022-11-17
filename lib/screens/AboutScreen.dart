@@ -43,7 +43,7 @@ class _AboutScreenState extends State<AboutScreen> {
     }
 
     return SimplePage(
-      title: 'About',
+      title: Text('About'),
       child: Column(children: [
         ConfigSection(children: <Widget>[
           ConfigItem(

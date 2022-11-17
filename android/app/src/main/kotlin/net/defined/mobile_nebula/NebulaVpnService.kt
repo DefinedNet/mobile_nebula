@@ -10,6 +10,7 @@ import android.os.*
 import android.system.OsConstants
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.work.*
 import mobileNebula.CIDR
 import java.io.File
 
@@ -17,8 +18,11 @@ import java.io.File
 class NebulaVpnService : VpnService() {
 
     companion object {
-        private const val TAG = "NebulaVpnService"
+        const val TAG = "NebulaVpnService"
+
         const val ACTION_STOP = "net.defined.mobile_nebula.STOP"
+        const val ACTION_RELOAD = "net.defined.mobile_nebula.RELOAD"
+
         const val MSG_REGISTER_CLIENT = 1
         const val MSG_UNREGISTER_CLIENT = 2
         const val MSG_IS_RUNNING = 3
@@ -36,6 +40,10 @@ class NebulaVpnService : VpnService() {
     private lateinit var messenger: Messenger
     private val mClients = ArrayList<Messenger>()
 
+    private val reloadReceiver: BroadcastReceiver = ReloadReceiver()
+    private var workManager: WorkManager? = null
+
+    private var path: String? = null
     private var running: Boolean = false
     private var site: Site? = null
     private var nebula: mobileNebula.Nebula? = null
@@ -43,13 +51,17 @@ class NebulaVpnService : VpnService() {
     private var didSleep = false
     private var networkCallback: NetworkCallback = NetworkCallback()
 
+    override fun onCreate() {
+        workManager = WorkManager.getInstance(this)
+        super.onCreate()
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.getAction() == ACTION_STOP) {
             stopVpn()
             return Service.START_NOT_STICKY
         }
 
-        val path = intent?.getStringExtra("path")
         val id = intent?.getStringExtra("id")
 
         if (running) {
@@ -63,15 +75,20 @@ class NebulaVpnService : VpnService() {
             return super.onStartCommand(intent, flags, startId)
         }
 
+        path = intent?.getStringExtra("path")
         //TODO: if we fail to start, android will attempt a restart lacking all the intent data we need.
         // Link active site config in Main to avoid this
-        site = Site(File(path))
+        site = Site(this, File(path))
 
         if (site!!.cert == null) {
             announceExit(id, "Site is missing a certificate")
             //TODO: can we signal failure?
             return super.onStartCommand(intent, flags, startId)
         }
+
+        // Kick off a site update
+        val workRequest = OneTimeWorkRequestBuilder<DNUpdateWorker>().build()
+        workManager!!.enqueue(workRequest)
 
         // We don't actually start here. In order to properly capture boot errors we wait until an IPC connection is made
 
@@ -117,6 +134,7 @@ class NebulaVpnService : VpnService() {
         }
 
         registerNetworkCallback()
+        registerReloadReceiver()
         //TODO: There is an open discussion around sleep killing tunnels or just changing mobile to tear down stale tunnels
         //registerSleep()
 
@@ -173,12 +191,26 @@ class NebulaVpnService : VpnService() {
         registerReceiver(receiver, IntentFilter(PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED))
     }
 
+    private fun registerReloadReceiver() {
+        registerReceiver(reloadReceiver, IntentFilter(ACTION_RELOAD))
+    }
+
+    private fun unregisterReloadReceiver() {
+        unregisterReceiver(reloadReceiver)
+    }
+
+    private fun reload() {
+        site = Site(this, File(path))
+        nebula?.reload(site!!.config, site!!.getKey(this))
+    }
+
     private fun stopVpn() {
         if (nebula == null) {
             return stopSelf()
         }
 
         unregisterNetworkCallback()
+        unregisterReloadReceiver()
         nebula?.stop()
         nebula = null
         running = false
@@ -205,6 +237,18 @@ class NebulaVpnService : VpnService() {
             Log.e(TAG, "$err")
         }
         send(msg, id)
+    }
+
+    inner class ReloadReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent?) {
+            if (intent?.getAction() != ACTION_RELOAD) return
+            if (!running) return
+            if (intent?.getStringExtra("id") != site!!.id) return
+
+            Log.d(TAG, "Reloading Nebula")
+
+            reload()
+        }
     }
 
     /**

@@ -24,13 +24,15 @@ class SimplePage extends StatelessWidget {
       this.bottomBar,
       this.onRefresh,
       this.onLoading,
+      this.alignment,
       this.refreshController})
       : super(key: key);
 
-  final String title;
+  final Widget title;
   final Widget child;
   final SimpleScrollable scrollable;
   final ScrollController? scrollController;
+  final AlignmentGeometry? alignment;
 
   /// Set this to true to force draw a scrollbar without a scroll view, this is helpful for pages with Reorder-able listviews
   /// This is set to true if you have any scrollable other than none
@@ -85,6 +87,10 @@ class SimplePage extends StatelessWidget {
       realChild = Scrollbar(child: realChild);
     }
 
+    if (alignment != null) {
+      realChild = Align(alignment: this.alignment!, child: realChild);
+    }
+
     if (bottomBar != null) {
       realChild = Column(children: [
         Expanded(child: realChild),
@@ -95,7 +101,7 @@ class SimplePage extends StatelessWidget {
     return PlatformScaffold(
         backgroundColor: cupertino.CupertinoColors.systemGroupedBackground.resolveFrom(context),
         appBar: PlatformAppBar(
-          title: Text(title),
+          title: title,
           leading: leadingAction != null ? leadingAction : Utils.leadingBackWidget(context),
           trailingActions: trailingActions,
           cupertino: (_, __) => CupertinoNavigationBarData(

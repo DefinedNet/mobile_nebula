@@ -177,7 +177,7 @@ class Utils {
       return null;
     }
 
-    final file = File(result!.files.first.path!);
+    final file = File(result.files.first.path!);
     return file.readAsString();
   }
 }

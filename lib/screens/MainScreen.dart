@@ -1,6 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -14,41 +14,119 @@ import 'package:mobile_nebula/models/IPAndPort.dart';
 import 'package:mobile_nebula/models/Site.dart';
 import 'package:mobile_nebula/models/StaticHosts.dart';
 import 'package:mobile_nebula/models/UnsafeRoute.dart';
+import 'package:mobile_nebula/screens/EnrollmentScreen.dart';
 import 'package:mobile_nebula/screens/SettingsScreen.dart';
 import 'package:mobile_nebula/screens/SiteDetailScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/SiteConfigScreen.dart';
 import 'package:mobile_nebula/services/utils.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:uuid/uuid.dart';
 
-//TODO: add refresh
+/// Contains an expired CA and certificate
+const badDebugSave = {
+  'name': 'Bad Site',
+  'cert': '''-----BEGIN NEBULA CERTIFICATE-----
+CmIKBHRlc3QSCoKUoIUMgP7//w8ourrS+QUwjre3iAY6IDbmIX5cwd+UYVhLADLa
+A5PwucZPVrNtP0P9NJE0boM2SiBSGzy8bcuFWWK5aVArJGA9VDtLg1HuujBu8lOp
+VTgklxJAgbI1Xb1C9JC3a1Cnc6NPqWhnw+3VLoDXE9poBav09+zhw5DPDtgvQmxU
+Sbw6cAF4gPS4e/tZ5Kjc8QEvjk3HDQ==
+-----END NEBULA CERTIFICATE-----''',
+  'key': '''-----BEGIN NEBULA X25519 PRIVATE KEY-----
+rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
+-----END NEBULA X25519 PRIVATE KEY-----''',
+  'ca': '''-----BEGIN NEBULA CERTIFICATE-----
+CjkKB3Rlc3QgY2EopYyK9wUwpfOOhgY6IHj4yrtHbq+rt4hXTYGrxuQOS0412uKT
+4wi5wL503+SAQAESQPhWXuVGjauHS1Qqd3aNA3DY+X8CnAweXNEoJKAN/kjH+BBv
+mUOcsdFcCZiXrj7ryQIG1+WfqA46w71A/lV4nAc=
+-----END NEBULA CERTIFICATE-----''',
+};
+
+/// Contains an expired CA and certificate
+const goodDebugSave = {
+  'name': 'Good Site',
+  'cert': '''-----BEGIN NEBULA CERTIFICATE-----
+CmcKCmRlYnVnIGhvc3QSCYKAhFCA/v//DyiX0ZaaBjDjjPf5ETogyYzKdlRh7pW6
+yOd8+aMQAFPha2wuYixuq53ru9+qXC9KIJd3ow6qIiaHInT1dgJvy+122WK7g86+
+Z8qYtTZnox1cEkBYpC0SySrCp6jd/zeAFEJM6naPYgc6rmy/H/qveyQ6WAtbgLpK
+tM3EXbbOE9+fV/Ma6Oilf1SixO3ZBo30nRYL
+-----END NEBULA CERTIFICATE-----''',
+  'key': '''-----BEGIN NEBULA X25519 PRIVATE KEY-----
+vu9t0mNy8cD5x3CMVpQ/cdKpjdz46NBlcRqvJAQpO44=
+-----END NEBULA X25519 PRIVATE KEY-----''',
+  'ca': '''-----BEGIN NEBULA CERTIFICATE-----
+CjcKBWRlYnVnKOTQlpoGMOSM9/kROiCWNJUs7c4ZRzUn2LbeAEQrz2PVswnu9dcL
+Sn/2VNNu30ABEkCQtWxmCJqBr5Yd9vtDWCPo/T1JQmD3stBozcM6aUl1hP3zjURv
+MAIH7gzreMGgrH/yR6rZpIHR3DxJ3E0aHtEI
+-----END NEBULA CERTIFICATE-----''',
+};
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  const MainScreen(this.dnEnrollStream, {Key? key}) : super(key: key);
+
+  final Stream dnEnrollStream;
 
   @override
   _MainScreenState createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
-  bool ready = false;
   List<Site>? sites;
   // A set of widgets to display in a column that represents an error blocking us from moving forward entirely
   List<Widget>? error;
 
   static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
+  RefreshController refreshController = RefreshController();
+  ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
     _loadSites();
 
+    widget.dnEnrollStream.listen((_) {
+      _loadSites();
+    });
+
+    platform.setMethodCallHandler(handleMethodCall);
+
     super.initState();
   }
 
   @override
+  void dispose() {
+    scrollController.dispose();
+    refreshController.dispose();
+    super.dispose();
+  }
+
+  Future<dynamic> handleMethodCall(MethodCall call) async {
+    switch (call.method) {
+      case "refreshSites":
+        _loadSites();
+        break;
+      default:
+        print("ERR: Unexpected method call ${call.method}");
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    Widget? debugSite;
+
+    if (kDebugMode) {
+      debugSite = Row(
+        children: [
+          _debugSave(badDebugSave),
+          _debugSave(goodDebugSave),
+          _debugDNEnroll(),
+        ],
+        mainAxisAlignment: MainAxisAlignment.center,
+      );
+    }
+
     return SimplePage(
-      title: 'Nebula',
-      scrollable: SimpleScrollable.none,
+      title: Text('Nebula'),
+      scrollable: SimpleScrollable.vertical,
+      scrollController: scrollController,
       leadingAction: PlatformIconButton(
         padding: EdgeInsets.zero,
         icon: Icon(Icons.add, size: 28.0),
@@ -58,6 +136,12 @@ class _MainScreenState extends State<MainScreen> {
           });
         }),
       ),
+      refreshController: refreshController,
+      onRefresh: () {
+        print("onRefresh");
+        _loadSites();
+        refreshController.refreshCompleted();
+      },
       trailingActions: <Widget>[
         PlatformIconButton(
           padding: EdgeInsets.zero,
@@ -65,7 +149,7 @@ class _MainScreenState extends State<MainScreen> {
           onPressed: () => Utils.openPage(context, (_) => SettingsScreen()),
         ),
       ],
-      bottomBar: kDebugMode ? _debugSave() : null,
+      bottomBar: debugSite,
       child: _buildBody(),
     );
   }
@@ -80,14 +164,6 @@ class _MainScreenState extends State<MainScreen> {
                 children: error!,
               ),
               padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10)));
-    }
-
-    if (!ready) {
-      return Center(
-        child: PlatformCircularProgressIndicator(cupertino: (_, __) {
-          return CupertinoProgressIndicatorData(radius: 50);
-        }),
-      );
     }
 
     return _buildSites();
@@ -128,6 +204,8 @@ class _MainScreenState extends State<MainScreen> {
     });
 
     Widget child = ReorderableListView(
+        shrinkWrap: true,
+        scrollController: scrollController,
         padding: EdgeInsets.symmetric(vertical: 5),
         children: items,
         onReorder: (oldI, newI) async {
@@ -141,7 +219,11 @@ class _MainScreenState extends State<MainScreen> {
             sites!.insert(newI, moved);
           });
 
-          for (var i = min(oldI, newI); i <= max(oldI, newI); i++) {
+          for (var i = 0; i < sites!.length; i++) {
+            if (sites![i].sortKey == i) {
+              continue;
+            }
+
             sites![i].sortKey = i;
             try {
               await sites![i].save();
@@ -162,41 +244,25 @@ class _MainScreenState extends State<MainScreen> {
     return Theme(data: Theme.of(context).copyWith(canvasColor: Colors.transparent), child: child);
   }
 
-  Widget _debugSave() {
+  Widget _debugSave(Map<String, String> siteConfig) {
     return CupertinoButton(
-      key: Key('debug-save'),
-      child: Text("DEBUG SAVE"),
+      child: Text(siteConfig['name']!),
       onPressed: () async {
         var uuid = Uuid();
 
-        var cert = '''-----BEGIN NEBULA CERTIFICATE-----
-CmIKBHRlc3QSCoKUoIUMgP7//w8ourrS+QUwjre3iAY6IDbmIX5cwd+UYVhLADLa
-A5PwucZPVrNtP0P9NJE0boM2SiBSGzy8bcuFWWK5aVArJGA9VDtLg1HuujBu8lOp
-VTgklxJAgbI1Xb1C9JC3a1Cnc6NPqWhnw+3VLoDXE9poBav09+zhw5DPDtgvQmxU
-Sbw6cAF4gPS4e/tZ5Kjc8QEvjk3HDQ==
------END NEBULA CERTIFICATE-----''';
-
-        var ca = '''-----BEGIN NEBULA CERTIFICATE-----
-CjkKB3Rlc3QgY2EopYyK9wUwpfOOhgY6IHj4yrtHbq+rt4hXTYGrxuQOS0412uKT
-4wi5wL503+SAQAESQPhWXuVGjauHS1Qqd3aNA3DY+X8CnAweXNEoJKAN/kjH+BBv
-mUOcsdFcCZiXrj7ryQIG1+WfqA46w71A/lV4nAc=
------END NEBULA CERTIFICATE-----''';
-
         var s = Site(
-            name: "DEBUG TEST",
+            name: siteConfig['name']!,
             id: uuid.v4(),
             staticHostmap: {
               "10.1.0.1": StaticHost(
                   lighthouse: true,
                   destinations: [IPAndPort(ip: '10.1.1.53', port: 4242), IPAndPort(ip: '1::1', port: 4242)])
             },
-            ca: [CertificateInfo.debug(rawCert: ca)],
-            certInfo: CertificateInfo.debug(rawCert: cert),
+            ca: [CertificateInfo.debug(rawCert: siteConfig['ca'])],
+            certInfo: CertificateInfo.debug(rawCert: siteConfig['cert']),
             unsafeRoutes: [UnsafeRoute(route: '10.3.3.3/32', via: '10.1.0.1')]);
 
-        s.key = '''-----BEGIN NEBULA X25519 PRIVATE KEY-----
-rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
------END NEBULA X25519 PRIVATE KEY-----''';
+        s.key = siteConfig['key'];
 
         var err = await s.save();
         if (err != null) {
@@ -205,6 +271,15 @@ rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
           _loadSites();
         }
       },
+    );
+  }
+
+  Widget _debugDNEnroll() {
+    return CupertinoButton(
+      child: Text('DN Enroll'),
+      onPressed: () => Utils.openPage(context, (context) {
+        return EnrollmentScreen(allowCodeEntry: true);
+      }),
     );
   }
 
@@ -268,6 +343,7 @@ rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
           }
         });
 
+
         sites!.add(site);
       } catch (err) {
         //TODO: handle error
@@ -282,17 +358,14 @@ rmXnR1yvDZi1VPVmnNVY8NMsQpEpbbYlq7rul+ByQvg=
       platform.invokeMethod("android.registerActiveSite");
     }
 
-    if (hasErrors) {
-      Utils.popError(context, "Site Error(s)",
-          "1 or more sites have errors and need your attention, problem sites have a red border.");
-    }
-
     sites!.sort((a, b) {
+      if (a.sortKey == b.sortKey) {
+        return a.name.compareTo(b.name);
+      }
+
       return a.sortKey - b.sortKey;
     });
 
-    setState(() {
-      ready = true;
-    });
+    setState(() {});
   }
 }

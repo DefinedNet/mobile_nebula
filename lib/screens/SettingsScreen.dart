@@ -87,7 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ]));
 
     return SimplePage(
-      title: 'Settings',
+      title: Text('Settings'),
       child: Column(children: items),
     );
   }

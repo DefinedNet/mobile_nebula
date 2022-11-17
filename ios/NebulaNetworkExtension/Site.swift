@@ -13,7 +13,7 @@ class IPCResponse: Codable {
     var type: IPCResponseType
     //TODO: change message to data?
     var message: JSON?
-    
+
     init(type: IPCResponseType, message: JSON?) {
         self.type = type
         self.message = message
@@ -23,12 +23,12 @@ class IPCResponse: Codable {
 class IPCRequest: Codable {
     var command: String
     var arguments: JSON?
-    
+
     init(command: String, arguments: JSON?) {
         self.command = command
         self.arguments = arguments
     }
-    
+
     init(command: String) {
         self.command = command
     }
@@ -38,7 +38,7 @@ struct CertificateInfo: Codable {
     var cert: Certificate
     var rawCert: String
     var validity: CertificateValidity
-    
+
     enum CodingKeys: String, CodingKey {
         case cert = "Cert"
         case rawCert = "RawCert"
@@ -50,7 +50,7 @@ struct Certificate: Codable {
     var fingerprint: String
     var signature: String
     var details: CertificateDetails
-    
+
     /// An empty initilizer to make error reporting easier
     init() {
         fingerprint = ""
@@ -69,7 +69,7 @@ struct CertificateDetails: Codable {
     var subnets: [String]
     var isCa: Bool
     var issuer: String
-    
+
     /// An empty initilizer to make error reporting easier
     init() {
         name = ""
@@ -87,7 +87,7 @@ struct CertificateDetails: Codable {
 struct CertificateValidity: Codable {
     var valid: Bool
     var reason: String
-    
+
     enum CodingKeys: String, CodingKey {
         case valid = "Valid"
         case reason = "Reason"
@@ -117,7 +117,7 @@ class Site: Codable {
     // Stored in manager
     var name: String
     var id: String
-    
+
     // Stored in proto
     var staticHostmap: Dictionary<String, StaticHosts>
     var unsafeRoutes: [UnsafeRoute]
@@ -132,13 +132,21 @@ class Site: Codable {
     var connected: Bool? //TODO: active is a better name
     var status: String?
     var logFile: String?
-    
+    var managed: Bool
+    // The following fields are present if managed = true
+    var lastManagedUpdate: String?
+
+    /// If true then this site needs to be migrated to the filesystem. Should be handled by the initiator of the site
+    var needsToMigrateToFS: Bool = false
+
     // A list of error encountered when trying to rehydrate a site from config
     var errors: [String]
-    
+
     var manager: NETunnelProviderManager?
-    
-    // Creates a new site from a vpn manager instance
+
+    var incomingSite: IncomingSite?
+
+    /// Creates a new site from a vpn manager instance. Mainly used by the UI. A manager is required to be able to edit the system profile
     convenience init(manager: NETunnelProviderManager) throws {
         //TODO: Throw an error and have Sites delete the site, notify the user instead of using !
         let proto = manager.protocolConfiguration as! NETunnelProviderProtocol
@@ -147,33 +155,54 @@ class Site: Codable {
         self.connected = statusMap[manager.connection.status]
         self.status = statusString[manager.connection.status]
     }
-    
+
     convenience init(proto: NETunnelProviderProtocol) throws {
         let dict = proto.providerConfiguration
-        let config = dict?["config"] as? Data ?? Data()
+
+        if dict?["config"] != nil {
+            let config = dict?["config"] as? Data ?? Data()
+            let decoder = JSONDecoder()
+            let incoming = try decoder.decode(IncomingSite.self, from: config)
+            self.init(incoming: incoming)
+            self.needsToMigrateToFS = true
+            return
+        }
+
+        let id = dict?["id"] as? String ?? nil
+        if id == nil {
+            throw("Non-conforming site \(String(describing: dict))")
+        }
+
+        try self.init(path: SiteList.getSiteConfigFile(id: id!, createDir: false))
+    }
+
+    /// Creates a new site from a path on the filesystem. Mainly ussed by the VPN process or when in simulator where we lack a NEVPNManager
+    convenience init(path: URL) throws {
+        let config = try Data(contentsOf: path)
         let decoder = JSONDecoder()
         let incoming = try decoder.decode(IncomingSite.self, from: config)
         self.init(incoming: incoming)
     }
-    
+
     init(incoming: IncomingSite) {
         var err: NSError?
-        
+
+        incomingSite = incoming
         errors = []
         name = incoming.name
         id = incoming.id
         staticHostmap = incoming.staticHostmap
         unsafeRoutes = incoming.unsafeRoutes ?? []
-        
+
         do {
             let rawCert = incoming.cert
             let rawDetails = MobileNebulaParseCerts(rawCert, &err)
             if (err != nil) {
                 throw err!
             }
-            
+
             var certs: [CertificateInfo]
-            
+
             certs = try JSONDecoder().decode([CertificateInfo].self, from: rawDetails.data(using: .utf8)!)
             if (certs.count == 0) {
                 throw "No certificate found"
@@ -182,11 +211,11 @@ class Site: Codable {
             if (!cert!.validity.valid) {
                 errors.append("Certificate is invalid: \(cert!.validity.reason)")
             }
-            
+
         } catch {
             errors.append("Error while loading certificate: \(error.localizedDescription)")
         }
-        
+
         do {
             let rawCa = incoming.ca
             let rawCaDetails = MobileNebulaParseCerts(rawCa, &err)
@@ -194,31 +223,43 @@ class Site: Codable {
                 throw err!
             }
             ca = try JSONDecoder().decode([CertificateInfo].self, from: rawCaDetails.data(using: .utf8)!)
-            
+
             var hasErrors = false
             ca.forEach { cert in
                 if (!cert.validity.valid) {
                     hasErrors = true
                 }
             }
-            
+
             if (hasErrors) {
                 errors.append("There are issues with 1 or more ca certificates")
             }
-            
+
         } catch {
             ca = []
             errors.append("Error while loading certificate authorities: \(error.localizedDescription)")
         }
-        
+
+        do {
+            logFile = try SiteList.getSiteLogFile(id: self.id, createDir: true).path
+        } catch {
+            logFile = nil
+            errors.append("Unable to create the site directory: \(error.localizedDescription)")
+        }
+
         lhDuration = incoming.lhDuration
         port = incoming.port
         cipher = incoming.cipher
         sortKey = incoming.sortKey ?? 0
         logVerbosity = incoming.logVerbosity ?? "info"
         mtu = incoming.mtu ?? 1300
-        logFile = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.net.defined.mobileNebula")?.appendingPathComponent(id).appendingPathExtension("log").path
-        
+        managed = incoming.managed ?? false
+        lastManagedUpdate = incoming.lastManagedUpdate
+
+        if (managed && (try? getDNCredentials())?.invalid != false) {
+            errors.append("Unable to fetch managed updates - please re-enroll the device")
+        }
+
         if (errors.isEmpty) {
             do {
                 let encoder = JSONEncoder()
@@ -226,6 +267,7 @@ class Site: Codable {
                 let key = try getKey()
                 let strConfig = String(data: rawConfig, encoding: .utf8)
                 var err: NSError?
+
                 MobileNebulaTestConfig(strConfig, key, &err)
                 if (err != nil) {
                     throw err!
@@ -235,17 +277,53 @@ class Site: Codable {
             }
         }
     }
-    
+
     // Gets the private key from the keystore, we don't always need it in memory
     func getKey() throws -> String {
         guard let keyData = KeyChain.load(key: "\(id).key") else {
-            throw "failed to get key material from keychain"
+            throw "failed to get key from keychain"
         }
 
         //TODO: make sure this is valid on return!
         return String(decoding: keyData, as: UTF8.self)
     }
+
+    func getDNCredentials() throws -> DNCredentials {
+        if (!managed) {
+            throw "unmanaged site has no dn credentials"
+        }
+
+        let rawDNCredentials = KeyChain.load(key: "\(id).dnCredentials")
+        if rawDNCredentials == nil {
+            throw "failed to find dn credentials in keychain"
+        }
+
+        let decoder = JSONDecoder()
+        return try decoder.decode(DNCredentials.self, from: rawDNCredentials!)
+    }
+
+    func invalidateDNCredentials() throws {
+        let creds = try getDNCredentials()
+        creds.invalid = true
+        
+        if (!(try creds.save(siteID: self.id))) {
+            throw "failed to store dn credentials in keychain"
+        }
+    }
     
+    func validateDNCredentials() throws {
+        let creds = try getDNCredentials()
+        creds.invalid = false
+        
+        if (!(try creds.save(siteID: self.id))) {
+            throw "failed to store dn credentials in keychain"
+        }
+    }
+
+    func getConfig() throws -> Data {
+        return try self.incomingSite!.getConfig()
+    }
+
     // Limits what we export to the UI
     private enum CodingKeys: String, CodingKey {
         case name
@@ -264,6 +342,8 @@ class Site: Codable {
         case logVerbosity
         case errors
         case mtu
+        case managed
+        case lastManagedUpdate
     }
 }
 
@@ -276,6 +356,34 @@ class UnsafeRoute: Codable {
     var route: String
     var via: String
     var mtu: Int?
+}
+
+class DNCredentials: Codable {
+    var hostID: String
+    var privateKey: String
+    var counter: Int
+    var trustedKeys: String
+    var invalid: Bool {
+        get { return _invalid ?? false }
+        set { _invalid = newValue }
+    }
+    
+    private var _invalid: Bool?
+    
+    func save(siteID: String) throws -> Bool {
+        let encoder = JSONEncoder()
+        let rawDNCredentials = try encoder.encode(self)
+
+        return KeyChain.save(key: "\(siteID).dnCredentials", data: rawDNCredentials, managed: true)
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case hostID
+        case privateKey
+        case counter
+        case trustedKeys
+        case _invalid = "invalid"
+    }
 }
 
 // This class represents a site coming in from flutter, meant only to be saved and re-loaded as a proper Site
@@ -293,76 +401,97 @@ struct IncomingSite: Codable {
     var sortKey: Int?
     var logVerbosity: String?
     var key: String?
-    
-    func save(manager: NETunnelProviderManager?, callback: @escaping (Error?) -> ()) {
-#if targetEnvironment(simulator)
-        let fileManager = FileManager.default
-        let sitePath = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("sites").appendingPathComponent(self.id)
+    var managed: Bool?
+    // The following fields are present if managed = true
+    var dnCredentials: DNCredentials?
+    var lastManagedUpdate: String?
+
+    func getConfig() throws -> Data {
         let encoder = JSONEncoder()
+        var config = self
+
+        config.key = nil
+        config.dnCredentials = nil
+
+        return try encoder.encode(config)
+    }
+
+    func save(manager: NETunnelProviderManager?, saveToManager: Bool = true, callback: @escaping (Error?) -> ()) {
+        let configPath: URL
 
         do {
-            var config = self
-            config.key = nil
-            let rawConfig = try encoder.encode(config)
-            try rawConfig.write(to: sitePath)
+            configPath = try SiteList.getSiteConfigFile(id: self.id, createDir: true)
+
+        } catch {
+            callback(error)
+            return
+        }
+
+        print("Saving to \(configPath)")
+        do {
+            if (self.key != nil) {
+                let data = self.key!.data(using: .utf8)
+                if (!KeyChain.save(key: "\(self.id).key", data: data!, managed: self.managed ?? false)) {
+                    return callback("failed to store key material in keychain")
+                }
+            }
+
+            do {
+                if ((try self.dnCredentials?.save(siteID: self.id)) == false) {
+                    return callback("failed to store dn credentials in keychain")
+                }
+            } catch {
+                return callback(error)
+            }
+
+            try self.getConfig().write(to: configPath)
+
         } catch {
             return callback(error)
         }
-        
+
+
+#if targetEnvironment(simulator)
+        // We are on a simulator and there is no NEVPNManager for us to interact with
         callback(nil)
 #else
+        if saveToManager {
+            self.saveToManager(manager: manager, callback: callback)
+        } else {
+            callback(nil)
+        }
+#endif
+    }
+
+    private func saveToManager(manager: NETunnelProviderManager?, callback: @escaping (Error?) -> ()) {
         if (manager != nil) {
             // We need to refresh our settings to properly update config
             manager?.loadFromPreferences { error in
                 if (error != nil) {
                     return callback(error)
                 }
-                
-                return self.finish(manager: manager!, callback: callback)
+
+                return self.finishSaveToManager(manager: manager!, callback: callback)
             }
             return
         }
-        
-        return finish(manager: NETunnelProviderManager(), callback: callback)
-#endif
-    }
-    
-    private func finish(manager: NETunnelProviderManager, callback: @escaping (Error?) -> ()) {
-        var config = self
-        
-        // Store the private key if it was provided
-        if (config.key != nil) {
-            //TODO: should we ensure the resulting data is big enough? (conversion didn't fail)
-            let data = config.key!.data(using: .utf8)
-            if (!KeyChain.save(key: "\(config.id).key", data: data!)) {
-                return callback("failed to store key material in keychain")
-            }
-        }
-        
-        // Zero out the key so that we don't save it in the profile
-        config.key = nil
 
+        return finishSaveToManager(manager: NETunnelProviderManager(), callback: callback)
+    }
+
+    private func finishSaveToManager(manager: NETunnelProviderManager, callback: @escaping (Error?) -> ()) {
         // Stuff our details in the protocol
         let proto = manager.protocolConfiguration as? NETunnelProviderProtocol ?? NETunnelProviderProtocol()
-        let encoder = JSONEncoder()
-        let rawConfig: Data
 
-        // We tried using NSSecureCoder but that was obnoxious and didn't work so back to JSON
-        do {
-            rawConfig = try encoder.encode(config)
-        } catch {
-            return callback(error)
-        }
-        
-        proto.providerConfiguration = ["config": rawConfig]
+        proto.providerConfiguration = ["id": self.id]
         proto.serverAddress = "Nebula"
-        
+
         // Finish up the manager, this is what stores everything at the system level
         manager.protocolConfiguration = proto
         //TODO: cert name?        manager.protocolConfiguration?.username
 
         //TODO: This is what is shown on the vpn page. We should add more identifying details in
-        manager.localizedDescription = config.name
+        manager.localizedDescription = self.name
         manager.isEnabled = true
 
         manager.saveToPreferences{ error in

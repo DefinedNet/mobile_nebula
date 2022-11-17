@@ -1,6 +1,6 @@
 Function mtuValidator(bool required) {
   return (String str) {
-    if (str == null || str == "") {
+    if (str == "") {
       return required ? 'Please fill out this field' : null;
     }
 

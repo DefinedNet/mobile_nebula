@@ -7,17 +7,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var networkMonitor: NWPathMonitor?
     
     private var site: Site?
-    private var _log = OSLog(subsystem: "net.defined.mobileNebula", category: "PacketTunnelProvider")
+    private var log = Logger(subsystem: "net.defined.mobileNebula", category: "PacketTunnelProvider")
     private var nebula: MobileNebulaNebula?
+    private var dnUpdater = DNUpdater()
     private var didSleep = false
     private var cachedRouteDescription: String?
     
     // This is the system completionHandler, only set when we expect the UI to ask us to actually start so that errors can flow back to the UI
     private var startCompleter: ((Error?) -> Void)?
-    
-    private func log(_ message: StaticString, _ args: Any...) {
-        os_log(message, log: _log, args)
-    }
     
     override func startTunnel(options: [String : NSObject]?, completionHandler: @escaping (Error?) -> Void) {       
         // There is currently no way to get initialization errors back to the UI via completionHandler here
@@ -39,16 +36,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         var key: String
 
         do {
-            config = proto.providerConfiguration?["config"] as! Data
             site = try Site(proto: proto)
+            config = try site!.getConfig()
         } catch {
             //TODO: need a way to notify the app
-            log("Failed to render config from vpn object")
+            log.error("Failed to render config from vpn object")
             return completionHandler(error)
         }
 
         let _site = site!
-        _log = OSLog(subsystem: "net.defined.mobileNebula:\(_site.name)", category: "PacketTunnelProvider")
 
         do {
             key = try _site.getKey()
@@ -96,12 +92,25 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             self.startNetworkMonitor()
 
             if err != nil {
+                self.log.error("We had an error starting up: \(err, privacy: .public)")
                 return completionHandler(err!)
             }
-
+            
             self.nebula!.start()
+            self.dnUpdater.updateSingleLoop(site: self.site!, onUpdate: self.handleDNUpdate)
+            
             completionHandler(nil)
         })
+    }
+    
+    private func handleDNUpdate(newSite: Site) {
+        do {
+            self.site = newSite
+            try self.nebula?.reload(String(data: newSite.getConfig(), encoding: .utf8), key: newSite.getKey())
+            
+        } catch {
+            self.log.error("Got an error while updating nebula \(error.localizedDescription, privacy: .public)")
+        }
     }
     
 //TODO: Sleep/wake get called aggresively and do nothing to help us here, we should locate why that is and make these work appropriately
@@ -156,7 +165,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     
     override func handleAppMessage(_ data: Data, completionHandler: ((Data?) -> Void)? = nil) {
         guard let call = try? JSONDecoder().decode(IPCRequest.self, from: data) else {
-            log("Failed to decode IPCRequest from network extension")
+            log.error("Failed to decode IPCRequest from network extension")
             return
         }
         
@@ -196,7 +205,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         
         if nebula == nil {
             // Respond with an empty success message in the event a command comes in before we've truly started
-            log("Received command but do not have a nebula instance")
+            log.warning("Received command but do not have a nebula instance")
             return completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .success, message: nil)))
         }
         

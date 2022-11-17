@@ -58,7 +58,7 @@ class _FormPageState extends State<FormPage> {
           leadingAction: _buildLeader(context),
           trailingActions: _buildTrailer(context),
           scrollController: widget.scrollController,
-          title: widget.title,
+          title: Text(widget.title),
           child: Form(
               key: _formKey,
               onChanged: () => setState(() {

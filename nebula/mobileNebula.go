@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/DefinedNet/dnapi"
 	"github.com/sirupsen/logrus"
 	"github.com/slackhq/nebula"
 	"github.com/slackhq/nebula/cert"
@@ -46,7 +47,6 @@ type KeyPair struct {
 }
 
 func RenderConfig(configData string, key string) (string, error) {
-	config := newConfig()
 	var d m
 
 	err := json.Unmarshal([]byte(configData), &d)
@@ -54,35 +54,46 @@ func RenderConfig(configData string, key string) (string, error) {
 		return "", err
 	}
 
-	config.PKI.CA, _ = d["ca"].(string)
-	config.PKI.Cert, _ = d["cert"].(string)
-	config.PKI.Key = key
+	// If this is a managed config, go ahead and return it
+	if rawCfg, ok := d["rawConfig"].(string); ok {
+		yamlCfg, err := dnapi.InsertConfigPrivateKey([]byte(rawCfg), []byte(key))
+		if err != nil {
+			return "", err
+		}
+		return "# DN-managed config\n" + string(yamlCfg), nil
+	}
+
+	// Otherwise, build the config
+	cfg := newConfig()
+	cfg.PKI.CA, _ = d["ca"].(string)
+	cfg.PKI.Cert, _ = d["cert"].(string)
+	cfg.PKI.Key = key
 
 	i, _ := d["port"].(float64)
-	config.Listen.Port = int(i)
+	cfg.Listen.Port = int(i)
 
-	config.Cipher, _ = d["cipher"].(string)
+	cfg.Cipher, _ = d["cipher"].(string)
 	// Log verbosity is not required
 	if val, _ := d["logVerbosity"].(string); val != "" {
-		config.Logging.Level = val
+		cfg.Logging.Level = val
 	}
 
 	i, _ = d["lhDuration"].(float64)
-	config.Lighthouse.Interval = int(i)
+	cfg.Lighthouse.Interval = int(i)
 
 	if i, ok := d["mtu"].(float64); ok {
 		mtu := int(i)
-		config.Tun.MTU = &mtu
+		cfg.Tun.MTU = &mtu
 	}
 
-	config.Lighthouse.Hosts = make([]string, 0)
+	cfg.Lighthouse.Hosts = make([]string, 0)
 	staticHostmap := d["staticHostmap"].(map[string]interface{})
 	for nebIp, mapping := range staticHostmap {
 		def := mapping.(map[string]interface{})
 
 		isLh := def["lighthouse"].(bool)
 		if isLh {
-			config.Lighthouse.Hosts = append(config.Lighthouse.Hosts, nebIp)
+			cfg.Lighthouse.Hosts = append(cfg.Lighthouse.Hosts, nebIp)
 		}
 
 		hosts := def["destinations"].([]interface{})
@@ -92,20 +103,20 @@ func RenderConfig(configData string, key string) (string, error) {
 			realHosts[i] = h.(string)
 		}
 
-		config.StaticHostmap[nebIp] = realHosts
+		cfg.StaticHostmap[nebIp] = realHosts
 	}
 
 	if unsafeRoutes, ok := d["unsafeRoutes"].([]interface{}); ok {
-		config.Tun.UnsafeRoutes = make([]configUnsafeRoute, len(unsafeRoutes))
+		cfg.Tun.UnsafeRoutes = make([]configUnsafeRoute, len(unsafeRoutes))
 		for i, r := range unsafeRoutes {
 			rawRoute := r.(map[string]interface{})
-			route := &config.Tun.UnsafeRoutes[i]
+			route := &cfg.Tun.UnsafeRoutes[i]
 			route.Route = rawRoute["route"].(string)
 			route.Via = rawRoute["via"].(string)
 		}
 	}
 
-	finalConfig, err := yaml.Marshal(config)
+	finalConfig, err := yaml.Marshal(cfg)
 	if err != nil {
 		return "", err
 	}

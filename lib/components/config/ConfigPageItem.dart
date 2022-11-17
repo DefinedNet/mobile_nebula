@@ -12,6 +12,7 @@ class ConfigPageItem extends StatelessWidget {
       this.content,
       this.labelWidth = 100,
       this.onPressed,
+      this.disabled = false,
       this.crossAxisAlignment = CrossAxisAlignment.center})
       : super(key: key);
 
@@ -20,6 +21,7 @@ class ConfigPageItem extends StatelessWidget {
   final double labelWidth;
   final CrossAxisAlignment crossAxisAlignment;
   final onPressed;
+  final bool disabled;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +42,7 @@ class ConfigPageItem extends StatelessWidget {
 
   Widget _buildContent(BuildContext context) {
     return SpecialButton(
-      onPressed: onPressed,
+      onPressed: this.disabled ? null : onPressed,
       color: Utils.configItemBackground(context),
       child: Container(
           padding: EdgeInsets.only(left: 15),
@@ -50,7 +52,7 @@ class ConfigPageItem extends StatelessWidget {
             children: <Widget>[
               label != null ? Container(width: labelWidth, child: label) : Container(),
               Expanded(child: Container(child: content, padding: EdgeInsets.only(right: 10))),
-              Icon(CupertinoIcons.forward, color: CupertinoColors.placeholderText.resolveFrom(context), size: 18)
+              this.disabled ? Container() : Icon(CupertinoIcons.forward, color: CupertinoColors.placeholderText.resolveFrom(context), size: 18)
             ],
           )),
     );

@@ -34,7 +34,7 @@ class StaticHostsScreen extends StatefulWidget {
   }) : super(key: key);
 
   final Map<String, StaticHost> hostmap;
-  final ValueChanged<Map<String, StaticHost>> onSave;
+  final ValueChanged<Map<String, StaticHost>>? onSave;
 
   @override
   _StaticHostsScreenState createState() => _StaticHostsScreenState();
@@ -67,12 +67,15 @@ class _StaticHostsScreenState extends State<StaticHostsScreen> {
 
   _onSave() {
     Navigator.pop(context);
-    Map<String, StaticHost> map = {};
-    _hostmap.forEach((_, host) {
-      map[host.nebulaIp] = StaticHost(destinations: host.destinations, lighthouse: host.lighthouse);
-    });
+    if (widget.onSave != null) {
+      Map<String, StaticHost> map = {};
+      _hostmap.forEach((_, host) {
+        map[host.nebulaIp] = StaticHost(
+            destinations: host.destinations, lighthouse: host.lighthouse);
+      });
 
-    widget.onSave(map);
+      widget.onSave!(map);
+    }
   }
 
   List<Widget> _buildHosts() {
@@ -95,7 +98,7 @@ class _StaticHostsScreenState extends State<StaticHostsScreen> {
                 nebulaIp: host.nebulaIp,
                 destinations: host.destinations,
                 lighthouse: host.lighthouse,
-                onSave: (map) {
+                onSave: widget.onSave == null ? null :(map) {
                   setState(() {
                     changed = true;
                     host.nebulaIp = map.nebulaIp;
@@ -103,7 +106,7 @@ class _StaticHostsScreenState extends State<StaticHostsScreen> {
                     host.lighthouse = map.lighthouse;
                   });
                 },
-                onDelete: () {
+                onDelete: widget.onSave == null ? null : () {
                   setState(() {
                     changed = true;
                     _hostmap.remove(key);
@@ -114,19 +117,21 @@ class _StaticHostsScreenState extends State<StaticHostsScreen> {
       ));
     });
 
-    items.add(ConfigButtonItem(
-      content: Text('Add a new entry'),
-      onPressed: () {
-        Utils.openPage(context, (context) {
-          return StaticHostmapScreen(onSave: (map) {
-            setState(() {
-              changed = true;
-              _addHostmap(map);
+    if (widget.onSave != null) {
+      items.add(ConfigButtonItem(
+        content: Text('Add a new entry'),
+        onPressed: () {
+          Utils.openPage(context, (context) {
+            return StaticHostmapScreen(onSave: (map) {
+              setState(() {
+                changed = true;
+                _addHostmap(map);
+              });
             });
           });
-        });
-      },
-    ));
+        },
+      ));
+    }
 
     return items;
   }

@@ -8,6 +8,7 @@ import com.google.gson.annotations.SerializedName
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
 import java.io.File
+import java.io.FileNotFoundException
 import kotlin.collections.HashMap
 
 data class SiteContainer(
@@ -16,7 +17,7 @@ data class SiteContainer(
 )
 
 class Sites(private var engine: FlutterEngine) {
-    private var sites: HashMap<String, SiteContainer> = HashMap()
+    private var containers: HashMap<String, SiteContainer> = HashMap()
 
     init {
         refreshSites()
@@ -24,65 +25,111 @@ class Sites(private var engine: FlutterEngine) {
 
     fun refreshSites(activeSite: String? = null) {
         val context = MainActivity.getContext()!!
-        val sitesDir = context.filesDir.resolve("sites")
 
-        if (!sitesDir.isDirectory) {
-            sitesDir.delete()
-            sitesDir.mkdir()
-        }
-
-        sites = HashMap()
-        sitesDir.listFiles().forEach { siteDir ->
-            try {
-                val site = Site(siteDir)
-
-                // Make sure we can load the private key
-                site.getKey(context)
-
-                val updater = SiteUpdater(site, engine)
-                if (site.id == activeSite) {
-                    updater.setState(true, "Connected")
-                }
-
-                this.sites[site.id] = SiteContainer(site, updater)
-
-            } catch (err: Exception) {
-                siteDir.deleteRecursively()
-                Log.e(TAG, "Deleting non conforming site ${siteDir.absolutePath}", err)
+        val sites = SiteList(context)
+        val containers: HashMap<String, SiteContainer> = HashMap()
+        sites.getSites().values.forEach { site ->
+            // Don't create a new SiteUpdater or we will lose subscribers
+            var updater = this.containers[site.id]?.updater
+            if (updater != null) {
+                updater.setSite(site)
+            } else {
+                updater = SiteUpdater(site, engine)
             }
+
+            if (site.id == activeSite) {
+                updater.setState(true, "Connected")
+            }
+
+            containers[site.id] = SiteContainer(site, updater)
         }
+        this.containers = containers
     }
 
     fun getSites(): Map<String, Site>  {
-        return sites.mapValues { it.value.site }
+        return containers.mapValues { it.value.site }
     }
 
     fun deleteSite(id: String) {
-        sites.remove(id)
         val siteDir = MainActivity.getContext()!!.filesDir.resolve("sites").resolve(id)
         siteDir.deleteRecursively()
+        refreshSites()
         //TODO: make sure you stop the vpn
         //TODO: make sure you relink the active site if this is the active site
     }
-    
+
     fun getSite(id: String): SiteContainer? {
-        return sites[id]
+        return containers[id]
+    }
+}
+
+class SiteList(context: Context) {
+    private var sites: Map<String, Site>
+
+    init {
+        val nebulaSites = getSites(context, context.filesDir)
+        val dnSites = getSites(context, context.noBackupFilesDir)
+
+        // In case of a conflict, dnSites will take precedence.
+        sites = nebulaSites + dnSites
+    }
+
+    fun getSites(): Map<String, Site>  {
+        return sites
+    }
+
+    companion object {
+        fun getSites(context: Context, directory: File): HashMap<String, Site> {
+            val sites = HashMap<String, Site>()
+
+            val sitesDir = directory.resolve("sites")
+
+            if (!sitesDir.isDirectory) {
+                sitesDir.delete()
+                sitesDir.mkdir()
+            }
+
+            sitesDir.listFiles()?.forEach { siteDir ->
+                try {
+                    val site = Site(context, siteDir)
+
+                    // Make sure we can load the private key
+                    site.getKey(context)
+
+                    // Make sure we can load the DN credentials if managed
+                    if (site.managed) {
+                        site.getDNCredentials(context)
+                    }
+
+                    sites[site.id] = site
+                } catch (err: Exception) {
+                    siteDir.deleteRecursively()
+                    Log.e(TAG, "Deleting non conforming site ${siteDir.absolutePath}", err)
+                }
+            }
+
+            return sites
+        }
     }
 }
 
 class SiteUpdater(private var site: Site, engine: FlutterEngine): EventChannel.StreamHandler {
+    private val gson = Gson()
     // eventSink is how we send info back up to flutter
     private var eventChannel: EventChannel = EventChannel(engine.dartExecutor.binaryMessenger, "net.defined.nebula/${site.id}")
     private var eventSink: EventChannel.EventSink? = null
-    
+
+    fun setSite(site: Site) {
+        this.site = site
+    }
+
     fun setState(connected: Boolean, status: String, err: String? = null) {
         site.connected = connected
         site.status = status
-        val d = mapOf("connected" to site.connected, "status" to site.status)
         if (err != null) {
-            eventSink?.error("", err, d)
+            eventSink?.error("", err, gson.toJson(site))
         } else {
-            eventSink?.success(d)
+            eventSink?.success(gson.toJson(site))
         }
     }
 
@@ -130,7 +177,24 @@ data class CertificateValidity(
     @SerializedName("Reason") val reason: String
 )
 
-class Site {
+data class DNCredentials(
+    val hostID: String,
+    val privateKey: String,
+    val counter: Int,
+    val trustedKeys: String,
+    var invalid: Boolean,
+) {
+    fun save(context: Context, siteDir: File) {
+        val jsonCreds = Gson().toJson(this)
+
+        val credsFile = siteDir.resolve("dnCredentials")
+        credsFile.delete()
+
+        EncFile(context).openWrite(credsFile).use { it.write(jsonCreds) }
+    }
+}
+
+class Site(context: Context, siteDir: File) {
     val name: String
     val id: String
     val staticHostmap: HashMap<String, StaticHosts>
@@ -142,21 +206,25 @@ class Site {
     val mtu: Int
     val cipher: String
     val sortKey: Int
-    var logVerbosity: String
+    val logVerbosity: String
     var connected: Boolean?
     var status: String?
     val logFile: String?
     var errors: ArrayList<String> = ArrayList()
-    
+    val managed: Boolean
+    // The following fields are present when managed = true
+    val rawConfig: String?
+    val lastManagedUpdate: String?
+
     // Path to this site on disk
-    @Expose(serialize = false)
+    @Transient
     val path: String
 
     // Strong representation of the site config
-    @Expose(serialize = false)
+    @Transient
     val config: String
-    
-    constructor(siteDir: File) {
+
+     init {
         val gson = Gson()
         config = siteDir.resolve("config.json").readText()
         val incomingSite = gson.fromJson(config, IncomingSite::class.java)
@@ -173,6 +241,9 @@ class Site {
         sortKey = incomingSite.sortKey ?: 0
         logFile = siteDir.resolve("log").absolutePath
         logVerbosity = incomingSite.logVerbosity ?: "info"
+        rawConfig = incomingSite.rawConfig
+        managed = incomingSite.managed ?: false
+        lastManagedUpdate = incomingSite.lastManagedUpdate
 
         connected = false
         status = "Disconnected"
@@ -211,6 +282,10 @@ class Site {
             errors.add("Error while loading certificate authorities: ${err.message}")
         }
 
+        if (managed && getDNCredentials(context).invalid) {
+            errors.add("Unable to fetch updates - please re-enroll the device")
+        }
+
         if (errors.isEmpty()) {
             try {
                 mobileNebula.MobileNebula.testConfig(config, getKey(MainActivity.getContext()!!))
@@ -220,11 +295,30 @@ class Site {
         }
     }
 
-    fun getKey(context: Context): String? {
+    fun getKey(context: Context): String {
         val f = EncFile(context).openRead(File(path).resolve("key"))
         val k = f.readText()
         f.close()
         return k
+    }
+
+    fun getDNCredentials(context: Context): DNCredentials {
+        val filepath = File(path).resolve("dnCredentials")
+        val f = EncFile(context).openRead(filepath)
+        val cfg = f.use { it.readText() }
+        return Gson().fromJson(cfg, DNCredentials::class.java)
+    }
+
+    fun invalidateDNCredentials(context: Context) {
+        val creds = getDNCredentials(context)
+        creds.invalid = true
+        creds.save(context, File(path))
+    }
+
+    fun validateDNCredentials(context: Context) {
+        val creds = getDNCredentials(context)
+        creds.invalid = false
+        creds.save(context, File(path))
     }
 }
 
@@ -251,13 +345,18 @@ class IncomingSite(
     val mtu: Int?,
     val cipher: String,
     val sortKey: Int?,
-    var logVerbosity: String?,
-    @Expose(serialize = false)
-    var key: String?
+    val logVerbosity: String?,
+    var key: String?,
+    val managed: Boolean?,
+    // The following fields are present when managed = true
+    val lastManagedUpdate: String?,
+    val rawConfig: String?,
+    var dnCredentials: DNCredentials?,
 ) {
-
-    fun save(context: Context) {
-        val siteDir = context.filesDir.resolve("sites").resolve(id)
+    fun save(context: Context): File {
+        // Don't allow backups of DN-managed sites
+        val baseDir = if(managed == true) context.noBackupFilesDir else context.filesDir
+        val siteDir = baseDir.resolve("sites").resolve(id)
         if (!siteDir.exists()) {
             siteDir.mkdir()
         }
@@ -269,10 +368,14 @@ class IncomingSite(
             encFile.use { it.write(key) }
             encFile.close()
         }
-
         key = null
-        val gson = Gson()
+
+        dnCredentials?.save(context, siteDir)
+        dnCredentials = null
+
         val confFile = siteDir.resolve("config.json")
-        confFile.writeText(gson.toJson(this))
+        confFile.writeText(Gson().toJson(this))
+
+        return siteDir
     }
 }

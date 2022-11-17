@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		432D0E3E291C562200752563 /* SiteList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 432D0E3D291C562200752563 /* SiteList.swift */; };
+		432D0E3F291C562200752563 /* SiteList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 432D0E3D291C562200752563 /* SiteList.swift */; };
 		43498725289B484C00476B19 /* MobileNebula.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43498724289B484C00476B19 /* MobileNebula.xcframework */; };
 		43498726289B484C00476B19 /* MobileNebula.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43498724289B484C00476B19 /* MobileNebula.xcframework */; };
 		437F72592469AAC500A0C4B9 /* Site.swift in Sources */ = {isa = PBXBuildFile; fileRef = 437F72582469AAC500A0C4B9 /* Site.swift */; };
@@ -21,11 +23,17 @@
 		43AA895C2444DA6500EDC39C /* NebulaNetworkExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 43AA89542444DA6500EDC39C /* NebulaNetworkExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		43AA89622444DAA500EDC39C /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43AA894E2444D8BC00EDC39C /* NetworkExtension.framework */; };
 		43AD63F424EB3802000FB47E /* Share.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43AD63F324EB3802000FB47E /* Share.swift */; };
+		43ED87842912D0DD004DAFC5 /* DNUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43ED87832912D0DD004DAFC5 /* DNUpdate.swift */; };
+		43ED87852912D0DD004DAFC5 /* DNUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43ED87832912D0DD004DAFC5 /* DNUpdate.swift */; };
 		4CF2F06A02A63B862C9F6F03 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 384887B4785D38431E800D3A /* Pods_Runner.framework */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		BE45F626291AEAB300902884 /* PackageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE45F625291AEAB300902884 /* PackageInfo.swift */; };
+		BE5BC106291C41E600B6FE5B /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5BC105291C41E600B6FE5B /* APIClient.swift */; };
+		BEC5939E291C502F00709118 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5BC105291C41E600B6FE5B /* APIClient.swift */; };
+		BEC5939F291C503D00709118 /* PackageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE45F625291AEAB300902884 /* PackageInfo.swift */; };
 		E91B9DAD4A83866D0AF1DAE1 /* Pods_NebulaNetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C0A96949A0B117C4ACE752C /* Pods_NebulaNetworkExtension.framework */; };
 /* End PBXBuildFile section */
 
@@ -69,6 +77,7 @@
 		384887B4785D38431E800D3A /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		41927814D2E140A347A01067 /* Pods-NebulaNetworkExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NebulaNetworkExtension.debug.xcconfig"; path = "Target Support Files/Pods-NebulaNetworkExtension/Pods-NebulaNetworkExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		432D0E3D291C562200752563 /* SiteList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteList.swift; sourceTree = "<group>"; };
 		43498724289B484C00476B19 /* MobileNebula.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = MobileNebula.xcframework; sourceTree = SOURCE_ROOT; };
 		436DE7A226EFF18500BB2950 /* CtlInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CtlInfo.h; sourceTree = "<group>"; };
 		437F72582469AAC500A0C4B9 /* Site.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Site.swift; sourceTree = "<group>"; };
@@ -83,6 +92,7 @@
 		43AD63F324EB3802000FB47E /* Share.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Share.swift; sourceTree = "<group>"; };
 		43B66ECA245A0C8400B18C36 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		43B66ECC245A146300B18C36 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		43ED87832912D0DD004DAFC5 /* DNUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNUpdate.swift; sourceTree = "<group>"; };
 		53C42258A2092B55937DCF53 /* Pods-NebulaNetworkExtension.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NebulaNetworkExtension.profile.xcconfig"; path = "Target Support Files/Pods-NebulaNetworkExtension/Pods-NebulaNetworkExtension.profile.xcconfig"; sourceTree = "<group>"; };
 		5C0A96949A0B117C4ACE752C /* Pods_NebulaNetworkExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NebulaNetworkExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E7A71D8C71BF965D042667D /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
@@ -98,6 +108,8 @@
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BE45F625291AEAB300902884 /* PackageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageInfo.swift; sourceTree = "<group>"; };
+		BE5BC105291C41E600B6FE5B /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		C2D5198CF6975BF93E8A6F93 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -147,6 +159,7 @@
 				43AA89592444DA6500EDC39C /* NebulaNetworkExtension.entitlements */,
 				437F72582469AAC500A0C4B9 /* Site.swift */,
 				436DE7A226EFF18500BB2950 /* CtlInfo.h */,
+				432D0E3D291C562200752563 /* SiteList.swift */,
 			);
 			path = NebulaNetworkExtension;
 			sourceTree = "<group>";
@@ -198,6 +211,9 @@
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 				43871C9C2444E2EC004F9075 /* Sites.swift */,
 				43AD63F324EB3802000FB47E /* Share.swift */,
+				43ED87832912D0DD004DAFC5 /* DNUpdate.swift */,
+				BE45F625291AEAB300902884 /* PackageInfo.swift */,
+				BE5BC105291C41E600B6FE5B /* APIClient.swift */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -445,8 +461,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				432D0E3F291C562200752563 /* SiteList.swift in Sources */,
 				43AA89572444DA6500EDC39C /* PacketTunnelProvider.swift in Sources */,
 				437F72592469AAC500A0C4B9 /* Site.swift in Sources */,
+				43ED87852912D0DD004DAFC5 /* DNUpdate.swift in Sources */,
+				BEC5939E291C502F00709118 /* APIClient.swift in Sources */,
+				BEC5939F291C503D00709118 /* PackageInfo.swift in Sources */,
 				437F725E2469AC5700A0C4B9 /* Keychain.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -457,10 +477,14 @@
 			files = (
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				43AD63F424EB3802000FB47E /* Share.swift in Sources */,
+				432D0E3E291C562200752563 /* SiteList.swift in Sources */,
 				43871C9D2444E2EC004F9075 /* Sites.swift in Sources */,
+				BE5BC106291C41E600B6FE5B /* APIClient.swift in Sources */,
 				437F725F2469B4B000A0C4B9 /* Site.swift in Sources */,
+				BE45F626291AEAB300902884 /* PackageInfo.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				437F72602469B4B300A0C4B9 /* Keychain.swift in Sources */,
+				43ED87842912D0DD004DAFC5 /* DNUpdate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
