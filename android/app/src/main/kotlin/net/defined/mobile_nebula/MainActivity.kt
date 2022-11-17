@@ -10,11 +10,7 @@ import android.content.ServiceConnection
 import android.net.VpnService
 import android.os.*
 import android.util.Log
-import androidx.annotation.NonNull
 import androidx.work.*
-import com.google.common.base.Throwables
-import com.google.common.util.concurrent.Futures
-import com.google.common.util.concurrent.FutureCallback
 import com.google.gson.Gson
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -52,12 +48,12 @@ class MainActivity: FlutterActivity() {
         fun getContext(): Context? { return appContext }
     }
 
-    override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         appContext = context
         //TODO: Initializing in the constructor leads to a context lacking info we need, figure out the right way to do this
         sites = Sites(flutterEngine)
 
-        GeneratedPluginRegistrant.registerWith(flutterEngine);
+        GeneratedPluginRegistrant.registerWith(flutterEngine)
 
         ui = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
         ui!!.setMethodCallHandler { call, result ->
@@ -228,12 +224,12 @@ class MainActivity: FlutterActivity() {
     private fun validateOrDeleteSite(siteDir: File): Boolean {
         try {
             // Try to render a full site, if this fails the config was bad somehow
-            val site = Site(context, siteDir)
+            Site(context, siteDir)
         } catch(err: java.io.FileNotFoundException) {
-            Log.e(TAG, "Site not found at ${siteDir}")
+            Log.e(TAG, "Site not found at $siteDir")
             return false
         } catch(err: Exception) {
-            Log.e(TAG, "Deleting site at ${siteDir} due to error: ${err}")
+            Log.e(TAG, "Deleting site at $siteDir due to error: $err")
             siteDir.deleteRecursively()
             return false
         }
@@ -268,8 +264,9 @@ class MainActivity: FlutterActivity() {
     }
 
     private fun stopSite() {
-        val intent = Intent(this, NebulaVpnService::class.java)
-        intent.setAction(NebulaVpnService.ACTION_STOP)
+        val intent = Intent(this, NebulaVpnService::class.java).apply {
+            action = NebulaVpnService.ACTION_STOP
+        }
 
         // We can't stopService because we have to close the fd first. The service will call stopSelf when ready.
         // See the official example: https://android.googlesource.com/platform/development/+/master/samples/ToyVpn/src/com/example/android/toyvpn/ToyVpnClient.java#116
@@ -286,9 +283,9 @@ class MainActivity: FlutterActivity() {
             return result.success(null)
         }
 
-        var msg = Message.obtain()
+        val msg = Message.obtain()
         msg.what = NebulaVpnService.MSG_LIST_HOSTMAP
-        msg.replyTo = Messenger(object: Handler() {
+        msg.replyTo = Messenger(object: Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
                 result.success(msg.data.getString("data"))
             }
@@ -306,9 +303,9 @@ class MainActivity: FlutterActivity() {
             return result.success(null)
         }
 
-        var msg = Message.obtain()
+        val msg = Message.obtain()
         msg.what = NebulaVpnService.MSG_LIST_PENDING_HOSTMAP
-        msg.replyTo = Messenger(object: Handler() {
+        msg.replyTo = Messenger(object: Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
                 result.success(msg.data.getString("data"))
             }
@@ -333,11 +330,11 @@ class MainActivity: FlutterActivity() {
             return result.success(null)
         }
 
-        var msg = Message.obtain()
+        val msg = Message.obtain()
         msg.what = NebulaVpnService.MSG_GET_HOSTINFO
         msg.data.putString("vpnIp", vpnIp)
         msg.data.putBoolean("pending", pending)
-        msg.replyTo = Messenger(object: Handler() {
+        msg.replyTo = Messenger(object: Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
                 result.success(msg.data.getString("data"))
             }
@@ -357,7 +354,7 @@ class MainActivity: FlutterActivity() {
         }
 
         val addr = call.argument<String>("addr")
-        if (vpnIp == "") {
+        if (addr == "") {
             return result.error("required_argument", "addr is a required argument", null)
         }
 
@@ -365,11 +362,11 @@ class MainActivity: FlutterActivity() {
             return result.success(null)
         }
 
-        var msg = Message.obtain()
+        val msg = Message.obtain()
         msg.what = NebulaVpnService.MSG_SET_REMOTE_FOR_TUNNEL
         msg.data.putString("vpnIp", vpnIp)
         msg.data.putString("addr", addr)
-        msg.replyTo = Messenger(object: Handler() {
+        msg.replyTo = Messenger(object: Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
                 result.success(msg.data.getString("data"))
             }
@@ -392,10 +389,10 @@ class MainActivity: FlutterActivity() {
             return result.success(null)
         }
 
-        var msg = Message.obtain()
+        val msg = Message.obtain()
         msg.what = NebulaVpnService.MSG_CLOSE_TUNNEL
         msg.data.putString("vpnIp", vpnIp)
-        msg.replyTo = Messenger(object: Handler() {
+        msg.replyTo = Messenger(object: Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
                 result.success(msg.data.getBoolean("data"))
             }
@@ -475,7 +472,7 @@ class MainActivity: FlutterActivity() {
     }
 
     // Handle and route messages coming from the vpn service
-    inner class IncomingHandler: Handler() {
+    inner class IncomingHandler: Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             val id = msg.data.getString("id")
 
@@ -523,7 +520,7 @@ class MainActivity: FlutterActivity() {
 
     inner class RefreshReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
-            if (intent?.getAction() != ACTION_REFRESH_SITES) return
+            if (intent?.action != ACTION_REFRESH_SITES) return
             if (sites == null) return
 
             Log.d(TAG, "Refreshing sites in MainActivity")

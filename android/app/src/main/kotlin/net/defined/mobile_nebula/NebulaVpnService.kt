@@ -9,7 +9,6 @@ import android.net.*
 import android.os.*
 import android.system.OsConstants
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.work.*
 import mobileNebula.CIDR
 import java.io.File
@@ -57,7 +56,7 @@ class NebulaVpnService : VpnService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.getAction() == ACTION_STOP) {
+        if (intent?.action == ACTION_STOP) {
             stopVpn()
             return Service.START_NOT_STICKY
         }
@@ -75,10 +74,10 @@ class NebulaVpnService : VpnService() {
             return super.onStartCommand(intent, flags, startId)
         }
 
-        path = intent?.getStringExtra("path")
+        path = intent!!.getStringExtra("path")!!
         //TODO: if we fail to start, android will attempt a restart lacking all the intent data we need.
         // Link active site config in Main to avoid this
-        site = Site(this, File(path))
+        site = Site(this, File(path!!))
 
         if (site!!.cert == null) {
             announceExit(id, "Site is missing a certificate")
@@ -96,7 +95,7 @@ class NebulaVpnService : VpnService() {
     }
 
     private fun startVpn() {
-        var ipNet: CIDR
+        val ipNet: CIDR
 
         try {
             ipNet = mobileNebula.MobileNebula.parseCIDR(site!!.cert!!.cert.details.ips[0])
@@ -110,16 +109,16 @@ class NebulaVpnService : VpnService() {
                 .setMtu(site!!.mtu)
                 .setSession(TAG)
                 .allowFamily(OsConstants.AF_INET)
-                .allowFamily(OsConstants.AF_INET6);
+                .allowFamily(OsConstants.AF_INET6)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            builder.setMetered(false);
+            builder.setMetered(false)
         }
 
         // Add our unsafe routes
         site!!.unsafeRoutes.forEach { unsafeRoute ->
-            val ipNet = mobileNebula.MobileNebula.parseCIDR(unsafeRoute.route)
-            builder.addRoute(ipNet.network, ipNet.maskSize.toInt())
+            val unsafeIPNet = mobileNebula.MobileNebula.parseCIDR(unsafeRoute.route)
+            builder.addRoute(unsafeIPNet.network, unsafeIPNet.maskSize.toInt())
         }
 
         try {
@@ -140,7 +139,7 @@ class NebulaVpnService : VpnService() {
 
         nebula!!.start()
         running = true
-        sendSimple(MSG_IS_RUNNING, if (running) 1 else 0)
+        sendSimple(MSG_IS_RUNNING, 1)
     }
 
     // Used to detect network changes (wifi -> cell or vice versa) and rebinds the udp socket/updates LH
@@ -158,7 +157,7 @@ class NebulaVpnService : VpnService() {
         connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 
-    inner class NetworkCallback() : ConnectivityManager.NetworkCallback () {
+    inner class NetworkCallback : ConnectivityManager.NetworkCallback () {
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
             nebula!!.rebind("network change")
@@ -200,7 +199,7 @@ class NebulaVpnService : VpnService() {
     }
 
     private fun reload() {
-        site = Site(this, File(path))
+        site = Site(this, File(path!!))
         nebula?.reload(site!!.config, site!!.getKey(this))
     }
 
@@ -241,9 +240,9 @@ class NebulaVpnService : VpnService() {
 
     inner class ReloadReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
-            if (intent?.getAction() != ACTION_RELOAD) return
+            if (intent?.action != ACTION_RELOAD) return
             if (!running) return
-            if (intent?.getStringExtra("id") != site!!.id) return
+            if (intent.getStringExtra("id") != site!!.id) return
 
             Log.d(TAG, "Reloading Nebula")
 
@@ -254,7 +253,7 @@ class NebulaVpnService : VpnService() {
     /**
      * Handler of incoming messages from clients.
      */
-    inner class IncomingHandler(context: Context, private val applicationContext: Context = context.applicationContext) : Handler() {
+    inner class IncomingHandler : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             //TODO: how do we limit what can talk to us?
             //TODO: Make sure replyTo is actually a messenger
@@ -295,7 +294,7 @@ class NebulaVpnService : VpnService() {
             if (protect(msg)) { return }
 
             val res = nebula!!.listHostmap(msg.what == MSG_LIST_PENDING_HOSTMAP)
-            var m = Message.obtain(null, msg.what)
+            val m = Message.obtain(null, msg.what)
             m.data.putString("data", res)
             msg.replyTo.send(m)
         }
@@ -304,7 +303,7 @@ class NebulaVpnService : VpnService() {
             if (protect(msg)) { return }
 
             val res = nebula!!.getHostInfoByVpnIp(msg.data.getString("vpnIp"), msg.data.getBoolean("pending"))
-            var m = Message.obtain(null, msg.what)
+            val m = Message.obtain(null, msg.what)
             m.data.putString("data", res)
             msg.replyTo.send(m)
         }
@@ -313,7 +312,7 @@ class NebulaVpnService : VpnService() {
             if (protect(msg)) { return }
 
             val res = nebula!!.setRemoteForTunnel(msg.data.getString("vpnIp"), msg.data.getString("addr"))
-            var m = Message.obtain(null, msg.what)
+            val m = Message.obtain(null, msg.what)
             m.data.putString("data", res)
             msg.replyTo.send(m)
         }
@@ -322,7 +321,7 @@ class NebulaVpnService : VpnService() {
             if (protect(msg)) { return }
 
             val res = nebula!!.closeTunnel(msg.data.getString("vpnIp"))
-            var m = Message.obtain(null, msg.what)
+            val m = Message.obtain(null, msg.what)
             m.data.putBoolean("data", res)
             msg.replyTo.send(m)
         }
@@ -356,7 +355,7 @@ class NebulaVpnService : VpnService() {
             return super.onBind(intent)
         }
 
-        messenger = Messenger(IncomingHandler(this))
+        messenger = Messenger(IncomingHandler())
         return messenger.binder
     }
 }

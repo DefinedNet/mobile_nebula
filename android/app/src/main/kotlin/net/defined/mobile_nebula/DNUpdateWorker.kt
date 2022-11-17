@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import java.io.Closeable
-import java.io.IOException
 import java.nio.channels.FileChannel
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
@@ -35,10 +34,10 @@ class DNUpdateWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, param
             }
         }
 
-        return if (failed) Result.failure() else Result.success();
+        return if (failed) Result.failure() else Result.success()
     }
 
-    fun updateSite(site: Site) {
+    private fun updateSite(site: Site) {
         try {
             DNUpdateLock(site).use {
                 if (updater.updateSite(site)) {
@@ -60,7 +59,7 @@ class DNUpdateWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, param
     }
 }
 
-class DNUpdateLock(private val site: Site): Closeable {
+class DNUpdateLock(site: Site): Closeable {
     private val fileChannel = FileChannel.open(
             Paths.get(site.path+"/update.lock"),
             StandardOpenOption.CREATE,

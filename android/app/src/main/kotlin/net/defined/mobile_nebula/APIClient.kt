@@ -1,10 +1,9 @@
 package net.defined.mobile_nebula
 
 import android.content.Context
-import android.util.Log
 import com.google.gson.Gson
 
-class InvalidCredentialsException(): Exception("Invalid credentials")
+class InvalidCredentialsException: Exception("Invalid credentials")
 
 class APIClient(context: Context) {
     private val packageInfo = PackageInfo(context)

@@ -26,6 +26,8 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
+    namespace "net.defined.mobile_nebula"
+
     compileSdkVersion 33
     ndkVersion flutter.ndkVersion
 
@@ -44,8 +46,8 @@ android {
 
     defaultConfig {
         applicationId "net.defined.mobile_nebula"
-        minSdkVersion 23 //flutter.minSdkVersion
-        targetSdkVersion 31 //flutter.targetSdkVersion
+        minSdkVersion 26 //flutter.minSdkVersion
+        targetSdkVersion 33 //flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -81,7 +83,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     implementation "androidx.security:security-crypto:1.0.0"
     implementation "androidx.work:work-runtime-ktx:$workVersion"
-    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.google.code.gson:gson:2.8.9'
     implementation "com.google.guava:guava:31.0.1-android"
     implementation project(':mobileNebula')
 

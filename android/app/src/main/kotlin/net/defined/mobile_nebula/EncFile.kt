@@ -5,7 +5,7 @@ import androidx.security.crypto.EncryptedFile
 import androidx.security.crypto.MasterKeys
 import java.io.*
 
-class EncFile(var context: Context) {
+class EncFile(private val context: Context) {
     private val scheme = EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
     private val master: String = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
 
