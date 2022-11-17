@@ -285,7 +285,7 @@ class Site {
   Future<List<HostInfo>> listHostmap() async {
     try {
       var ret = await platform.invokeMethod("active.listHostmap", <String, String>{"id": id});
-      if (ret == null) {
+      if (ret == null || ret == "null") {
         return [];
       }
 
@@ -307,7 +307,7 @@ class Site {
   Future<List<HostInfo>> listPendingHostmap() async {
     try {
       var ret = await platform.invokeMethod("active.listPendingHostmap", <String, String>{"id": id});
-      if (ret == null) {
+      if (ret == null || ret == "null") {
         return [];
       }
 
