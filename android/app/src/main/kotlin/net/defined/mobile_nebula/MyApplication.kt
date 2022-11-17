@@ -1,6 +1,6 @@
 package net.defined.mobile_nebula
 
-import io.flutter.view.FlutterMain
+import io.flutter.embedding.engine.loader.FlutterLoader
 import android.app.Application
 import androidx.work.Configuration
 import androidx.work.WorkManager
@@ -14,6 +14,6 @@ class MyApplication : Application() {
         val myConfig = Configuration.Builder().build()
         WorkManager.initialize(this, myConfig)
 
-        FlutterMain.startInitialization(applicationContext)
+        FlutterLoader().startInitialization(applicationContext)
     }
 }
