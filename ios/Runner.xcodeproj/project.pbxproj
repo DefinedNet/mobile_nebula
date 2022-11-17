@@ -22,7 +22,6 @@
 		43AA89572444DA6500EDC39C /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43AA89562444DA6500EDC39C /* PacketTunnelProvider.swift */; };
 		43AA895C2444DA6500EDC39C /* NebulaNetworkExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 43AA89542444DA6500EDC39C /* NebulaNetworkExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		43AA89622444DAA500EDC39C /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43AA894E2444D8BC00EDC39C /* NetworkExtension.framework */; };
-		43AD63F424EB3802000FB47E /* Share.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43AD63F324EB3802000FB47E /* Share.swift */; };
 		43ED87842912D0DD004DAFC5 /* DNUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43ED87832912D0DD004DAFC5 /* DNUpdate.swift */; };
 		43ED87852912D0DD004DAFC5 /* DNUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43ED87832912D0DD004DAFC5 /* DNUpdate.swift */; };
 		4CF2F06A02A63B862C9F6F03 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 384887B4785D38431E800D3A /* Pods_Runner.framework */; };
@@ -89,7 +88,6 @@
 		43AA89562444DA6500EDC39C /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
 		43AA89582444DA6500EDC39C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		43AA89592444DA6500EDC39C /* NebulaNetworkExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NebulaNetworkExtension.entitlements; sourceTree = "<group>"; };
-		43AD63F324EB3802000FB47E /* Share.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Share.swift; sourceTree = "<group>"; };
 		43B66ECA245A0C8400B18C36 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		43B66ECC245A146300B18C36 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		43ED87832912D0DD004DAFC5 /* DNUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNUpdate.swift; sourceTree = "<group>"; };
@@ -210,7 +208,6 @@
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 				43871C9C2444E2EC004F9075 /* Sites.swift */,
-				43AD63F324EB3802000FB47E /* Share.swift */,
 				43ED87832912D0DD004DAFC5 /* DNUpdate.swift */,
 				BE45F625291AEAB300902884 /* PackageInfo.swift */,
 				BE5BC105291C41E600B6FE5B /* APIClient.swift */,
@@ -362,6 +359,7 @@
 				"${BUILT_PRODUCTS_DIR}/flutter_barcode_scanner/flutter_barcode_scanner.framework",
 				"${BUILT_PRODUCTS_DIR}/package_info/package_info.framework",
 				"${BUILT_PRODUCTS_DIR}/path_provider_ios/path_provider_ios.framework",
+				"${BUILT_PRODUCTS_DIR}/share_plus/share_plus.framework",
 				"${BUILT_PRODUCTS_DIR}/url_launcher_ios/url_launcher_ios.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -375,6 +373,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flutter_barcode_scanner.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/package_info.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/path_provider_ios.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/share_plus.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/url_launcher_ios.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -476,7 +475,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
-				43AD63F424EB3802000FB47E /* Share.swift in Sources */,
 				432D0E3E291C562200752563 /* SiteList.swift in Sources */,
 				43871C9D2444E2EC004F9075 /* Sites.swift in Sources */,
 				BE5BC106291C41E600B6FE5B /* APIClient.swift in Sources */,

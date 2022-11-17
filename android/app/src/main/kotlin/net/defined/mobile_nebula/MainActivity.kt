@@ -84,9 +84,6 @@ class MainActivity: FlutterActivity() {
                 "active.setRemoteForTunnel" -> activeSetRemoteForTunnel(call, result)
                 "active.closeTunnel" -> activeCloseTunnel(call, result)
 
-                "share" -> Share.share(call, result)
-                "shareFile" -> Share.shareFile(call, result)
-
                 else -> result.notImplemented()
             }
         }
