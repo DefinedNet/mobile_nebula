@@ -68,9 +68,6 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
             case "active.setRemoteForTunnel": self.vpnRequest(command: "setRemoteForTunnel", arguments: call.arguments, result: result)
             case "active.closeTunnel": self.vpnRequest(command: "closeTunnel", arguments: call.arguments, result: result)
                 
-            case "share": Share.share(call: call, result: result)
-            case "shareFile": Share.shareFile(call: call, result: result)
-                
             default:
                 result(FlutterMethodNotImplemented)
             }

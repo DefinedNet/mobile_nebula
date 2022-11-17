@@ -33,6 +33,7 @@ dependencies:
   flutter_barcode_scanner: ^2.0.0
   flutter_svg: ^1.1.5
   intl: ^0.17.0
+  share_plus: ^6.3.0
 
 dev_dependencies:
   flutter_test:

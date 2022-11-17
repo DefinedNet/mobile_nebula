@@ -1,14 +1,12 @@
-// This code comes from https://github.com/lubritto/flutter_share with bugfixes for ipad
 import 'dart:async';
+import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart' as sp;
+import 'package:path/path.dart' as p;
 
 class Share {
-  static const _channel = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
-
-  /// Shares a string of text
+  /// Transforms a string of text into a file and shares that file
   /// - title: Title of message or subject if sending an email
   /// - text: The text to share
   /// - filename: The filename to use if sending over airdrop for example
@@ -21,17 +19,19 @@ class Share {
     assert(text.isNotEmpty);
     assert(filename.isNotEmpty);
 
-    if (title.isEmpty) {
-      throw FlutterError('Title cannot be empty');
+    final tmpDir = await getTemporaryDirectory();
+    final file = File(p.join(tmpDir.path, filename));
+    var res = false;
+
+    try {
+      file.writeAsStringSync(text, flush: true);
+      res = await Share.shareFile(title: title, filePath: file.path);
+    } catch (err) {
+      // Ignoring file write errors
     }
 
-    final bool success = await _channel.invokeMethod('share', <String, dynamic>{
-      'title': title,
-      'text': text,
-      'filename': filename,
-    });
-
-    return success;
+    file.delete();
+    return res;
   }
 
   /// Shares a local file
@@ -41,23 +41,16 @@ class Share {
   static Future<bool> shareFile({
     required String title,
     required String filePath,
-    String? filename,
+    String? filename
   }) async {
     assert(title.isNotEmpty);
     assert(filePath.isNotEmpty);
 
-    if (title.isEmpty) {
-      throw FlutterError('Title cannot be empty');
-    } else if (filePath.isEmpty) {
-      throw FlutterError('FilePath cannot be empty');
-    }
-
-    final bool success = await _channel.invokeMethod('shareFile', <String, dynamic>{
-      'title': title,
-      'filePath': filePath,
-      'filename': filename,
-    });
-
-    return success;
+    //NOTE: the filename used to specify the name of the file in gmail/slack/etc but no longer works that way
+    // If we want to support that again we will need to save the file to a temporary directory, share that,
+    // and then delete it
+    final xFile = sp.XFile(filePath, name: filename);
+    final result = await sp.Share.shareXFiles([xFile], subject: title);
+    return result.status == sp.ShareResultStatus.success;
   }
 }
