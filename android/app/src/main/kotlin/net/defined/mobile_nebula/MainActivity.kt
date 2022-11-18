@@ -21,20 +21,23 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 const val TAG = "nebula"
-const val VPN_PERMISSIONS_CODE = 0x0F
 const val VPN_START_CODE = 0x10
 const val CHANNEL = "net.defined.mobileNebula/NebulaVpnService"
 const val UPDATE_WORKER = "dnUpdater"
 
 class MainActivity: FlutterActivity() {
+    private var ui: MethodChannel? = null
+
     private var inMessenger: Messenger? = Messenger(IncomingHandler())
     private var outMessenger: Messenger? = null
 
     private var apiClient: APIClient? = null
     private var sites: Sites? = null
-    private var permResult: MethodChannel.Result? = null
 
-    private var ui: MethodChannel? = null
+    // When starting a site we may need to request VPN permissions. These variables help us
+    // maintain state while waiting for a permission result.
+    private var startResult: MethodChannel.Result? = null
+    private var startingSiteContainer: SiteContainer? = null
 
     private var activeSiteId: String? = null
 
@@ -58,7 +61,6 @@ class MainActivity: FlutterActivity() {
         ui = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
         ui!!.setMethodCallHandler { call, result ->
             when(call.method) {
-                "android.requestPermissions" -> androidPermissions(result)
                 "android.registerActiveSite" -> registerActiveSite(result)
 
                 "nebula.parseCerts" -> nebulaParseCerts(call, result)
@@ -242,25 +244,16 @@ class MainActivity: FlutterActivity() {
             return result.error("required_argument", "id is a required argument", null)
         }
 
-        val siteContainer: SiteContainer = sites!!.getSite(id!!) ?: return result.error("unknown_site", "No site with that id exists", null)
+        startingSiteContainer = sites!!.getSite(id!!) ?: return result.error("unknown_site", "No site with that id exists", null)
+        startingSiteContainer!!.updater.setState(true, "Initializing...")
 
-        siteContainer.updater.setState(true, "Initializing...")
-
-        var intent = VpnService.prepare(this)
+        startResult = result
+        val intent = VpnService.prepare(this)
         if (intent != null) {
-            //TODO: ensure this boots the correct bit, I bet it doesn't and we need to go back to the active symlink
-            intent.putExtra("path", siteContainer.site.path)
-            intent.putExtra("id", siteContainer.site.id)
             startActivityForResult(intent, VPN_START_CODE)
-
         } else {
-            intent = Intent(this, NebulaVpnService::class.java)
-            intent.putExtra("path", siteContainer.site.path)
-            intent.putExtra("id", siteContainer.site.id)
-            onActivityResult(VPN_START_CODE, Activity.RESULT_OK, intent)
+            onActivityResult(VPN_START_CODE, Activity.RESULT_OK, null)
         }
-
-        result.success(null)
     }
 
     private fun stopSite() {
@@ -400,44 +393,37 @@ class MainActivity: FlutterActivity() {
         outMessenger?.send(msg)
     }
 
-    private fun androidPermissions(result: MethodChannel.Result) {
-        val intent = VpnService.prepare(this)
-        if (intent != null) {
-            permResult = result
-            return startActivityForResult(intent, VPN_PERMISSIONS_CODE)
-        }
-
-        // We already have the permission
-        result.success(null)
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         // This is where activity results come back to us (startActivityForResult)
-        if (requestCode == VPN_PERMISSIONS_CODE && permResult != null) {
-            // We are processing a response for vpn permissions and the UI is waiting for feedback
-            //TODO: unlikely we ever register multiple attempts but this could be a trouble spot if we did
-            val result = permResult!!
-            permResult = null
-            if (resultCode == Activity.RESULT_OK) {
-                return result.success(null)
+        if (requestCode == VPN_START_CODE) {
+            // If we are processing a result for VPN permissions and don't get them, let the UI know
+            val result = startResult!!
+            val siteContainer = startingSiteContainer!!
+            startResult = null
+            startingSiteContainer = null
+            if (resultCode != Activity.RESULT_OK) {
+                // The user did not grant permissions
+                siteContainer.updater.setState(false, "Disconnected")
+                return result.error("permissions", "Please grant VPN permissions to the app when requested", null)
             }
 
-            //NOTE: flutter side doesn't care about the message currently, only the code
-            return result.error("PERMISSIONS", "User did not grant permission", null)
-
-        } else if (requestCode == VPN_START_CODE) {
-            // We are processing a response for permissions while starting the VPN
-           // (or reusing code in the event we already have perms)
-            startService(data)
+            // Start the VPN service
+            val intent = Intent(this, NebulaVpnService::class.java).apply {
+                putExtra("path", siteContainer.site.path)
+                putExtra("id", siteContainer.site.id)
+            }
+            startService(intent)
             if (outMessenger == null) {
-                bindService(data, connection, 0)
+                bindService(intent, connection, 0)
             }
-            return
+
+            return result.success(null)
         }
 
         // The file picker needs us to super
         super.onActivityResult(requestCode, resultCode, data)
     }
+
 
     /** Defines callbacks for service binding, passed to bindService()  */
     private val connection = object : ServiceConnection {

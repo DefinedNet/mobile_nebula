@@ -284,43 +284,6 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   _loadSites() async {
-    if (Platform.isAndroid) {
-      try {
-        await platform.invokeMethod("android.requestPermissions");
-      } on PlatformException catch (err) {
-        if (err.code == "PERMISSIONS") {
-          setState(() {
-            error = [
-              Text("Permissions Required", style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(
-                  "VPN permissions are required for nebula to run, click the button below request and accept the appropriate permissions.",
-                  textAlign: TextAlign.center),
-              ElevatedButton(
-                  onPressed: () {
-                    error = null;
-                    _loadSites();
-                  },
-                  child: Text("Request Permissions")),
-            ];
-          });
-        } else {
-          setState(() {
-            error = [
-              Text("Unknown Error", style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(err.message ?? 'An unknown error occurred', textAlign: TextAlign.center)
-            ];
-          });
-        }
-      } catch (err) {
-        setState(() {
-          error = [
-            Text("Unknown Error", style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(err.toString(), textAlign: TextAlign.center)
-          ];
-        });
-      }
-    }
-
     //TODO: This can throw, we need to show an error dialog
     Map<String, dynamic> rawSites = jsonDecode(await platform.invokeMethod('listSites'));
     bool hasErrors = false;
