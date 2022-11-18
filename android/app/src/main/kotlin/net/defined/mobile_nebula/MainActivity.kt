@@ -210,7 +210,6 @@ class MainActivity: FlutterActivity() {
             val gson = Gson()
             site = gson.fromJson(call.arguments as String, IncomingSite::class.java)
             siteDir = site.save(context)
-
         } catch (err: Exception) {
             //TODO: is toString the best or .message?
             return result.error("failure", err.toString(), null)
@@ -219,6 +218,8 @@ class MainActivity: FlutterActivity() {
         if (!validateOrDeleteSite(siteDir)) {
             return result.error("failure", "Site config was incomplete, please review and try again", null)
         }
+
+        sites?.refreshSites()
 
         result.success(null)
     }

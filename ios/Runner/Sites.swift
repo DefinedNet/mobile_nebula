@@ -26,8 +26,13 @@ class Sites {
             }
             
             sites?.values.forEach{ site in
-                let updater = SiteUpdater(messenger: self.messenger!, site: site)
-                self.containers[site.id] = SiteContainer(site: site, updater: updater)
+                var updater = self.containers[site.id]?.updater
+                if (updater != nil) {
+                    updater!.setSite(site: site)
+                } else {
+                    updater = SiteUpdater(messenger: self.messenger!, site: site)
+                }
+                self.containers[site.id] = SiteContainer(site: site, updater: updater!)
             }
             
             let justSites = self.containers.mapValues {
@@ -113,6 +118,10 @@ class SiteUpdater: NSObject, FlutterStreamHandler {
         self.configObserver?.resume()
     }
     
+    func setSite(site: Site) {
+        self.site = site
+    }
+
     /// onListen is called when flutter code attaches an event listener
     func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
         eventSink = events;
