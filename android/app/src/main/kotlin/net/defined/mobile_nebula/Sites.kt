@@ -49,7 +49,11 @@ class Sites(private var engine: FlutterEngine) {
     }
 
     fun deleteSite(id: String) {
-        val siteDir = MainActivity.getContext()!!.filesDir.resolve("sites").resolve(id)
+        val context = MainActivity.getContext()!!
+        val site = containers[id]!!.site
+
+        val baseDir = if(site.managed == true) context.noBackupFilesDir else context.filesDir
+        val siteDir = baseDir.resolve("sites").resolve(id)
         siteDir.deleteRecursively()
         refreshSites()
         //TODO: make sure you stop the vpn
