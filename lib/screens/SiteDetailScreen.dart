@@ -230,6 +230,7 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
                 site: widget.site,
                 onSave: (site) async {
                   changed = true;
+                  setState(() {});
                 });
           });
         },

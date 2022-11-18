@@ -184,7 +184,9 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
                 return result(CallFailedError(message: "Failed to save site", details: error!.localizedDescription))
             }
 
-            result(nil)
+            self.sites?.loadSites { _, _ in
+                result(nil)
+            }
         }
     }
     
