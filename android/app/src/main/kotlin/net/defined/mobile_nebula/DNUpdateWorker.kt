@@ -40,13 +40,19 @@ class DNUpdateWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, param
     private fun updateSite(site: Site) {
         try {
             DNUpdateLock(site).use {
-                if (updater.updateSite(site)) {
-                    // Reload Nebula if this is the currently active site
+                val res = updater.updateSite(site)
+
+                // Reload Nebula if this is the currently active site
+                if (res == DNSiteUpdater.Result.CONFIG_UPDATED) {
                     Intent().also { intent ->
                         intent.action = NebulaVpnService.ACTION_RELOAD
                         intent.putExtra("id", site.id)
                         context.sendBroadcast(intent)
                     }
+                }
+
+                // Update the UI on any change
+                if (res != DNSiteUpdater.Result.NOOP) {
                     Intent().also { intent ->
                         intent.action = MainActivity.ACTION_REFRESH_SITES
                         context.sendBroadcast(intent)
@@ -77,9 +83,13 @@ class DNSiteUpdater(
         private val context: Context,
         private val apiClient: APIClient,
 ) {
-    fun updateSite(site: Site): Boolean {
+    enum class Result {
+        CONFIG_UPDATED, CREDENTIALS_UPDATED, NOOP
+    }
+
+    fun updateSite(site: Site): Result {
         if (!site.managed) {
-            return false
+            return Result.NOOP
         }
 
         val credentials = site.getDNCredentials(context)
@@ -97,21 +107,23 @@ class DNSiteUpdater(
             if (!credentials.invalid) {
                 site.invalidateDNCredentials(context)
                 Log.d(TAG, "Invalidated credentials in site ${site.name}")
+                return Result.CREDENTIALS_UPDATED
             }
-            return true
+            return Result.NOOP
         }
 
         if (newSite != null) {
             newSite.save(context)
             Log.d(TAG, "Updated site ${site.id}: ${site.name}")
-            return true
+            return Result.CONFIG_UPDATED
         }
 
         if (credentials.invalid) {
             site.validateDNCredentials(context)
             Log.d(TAG, "Revalidated credentials in site ${site.id}: ${site.name}")
+            return Result.CREDENTIALS_UPDATED
         }
 
-        return false
+        return Result.NOOP
     }
 }
