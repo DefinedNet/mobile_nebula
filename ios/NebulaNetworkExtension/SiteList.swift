@@ -113,7 +113,7 @@ class SiteList {
                                 print("Error while migrating site to fs: \(error!.localizedDescription)")
                             }
                             
-                            print("Migraded site to fs: \(site.name)")
+                            print("Migrated site to fs: \(site.name)")
                             site.needsToMigrateToFS = false
                             dispatchGroup.leave()
                         }
