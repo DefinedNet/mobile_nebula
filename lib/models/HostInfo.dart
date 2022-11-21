@@ -32,9 +32,9 @@ class HostInfo {
       cert = Certificate.fromJson(json['cert']);
     }
 
-    List<dynamic> addrs = json['remoteAddrs'];
+    List<dynamic>? addrs = json['remoteAddrs'];
     List<UDPAddress> remoteAddresses = [];
-    addrs.forEach((val) {
+    addrs?.forEach((val) {
       remoteAddresses.add(UDPAddress.fromJson(val));
     });
 
