@@ -8,8 +8,7 @@ class InvalidCredentialsException: Exception("Invalid credentials")
 class APIClient(context: Context) {
     private val packageInfo = PackageInfo(context)
     private val client = mobileNebula.MobileNebula.newAPIClient(
-        "%s/%s (Android %s)".format(
-                packageInfo.getName(),
+        "MobileNebula/%s (Android %s)".format(
                 packageInfo.getVersion(),
                 packageInfo.getSystemVersion(),
         ))

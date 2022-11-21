@@ -10,7 +10,7 @@ class APIClient {
     
     init() {
         let packageInfo = PackageInfo()
-        apiClient = MobileNebulaNewAPIClient("\(packageInfo.getName())/\(packageInfo.getVersion()) (iOS \(packageInfo.getSystemVersion()))")!
+        apiClient = MobileNebulaNewAPIClient("MobileNebula/\(packageInfo.getVersion()) (iOS \(packageInfo.getSystemVersion()))")!
     }
     
     func enroll(code: String) throws -> IncomingSite {
