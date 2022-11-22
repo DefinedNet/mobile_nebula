@@ -167,8 +167,8 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       Padding(
         padding: EdgeInsets.only(top: 20),
         child: PlatformTextField(
-          hintText: 'Enrollment code or link',
-          controller: enrollInput
+          hintText: 'defined.net enrollment code or link',
+          controller: enrollInput,
         )
       ),
       PlatformTextButton(
