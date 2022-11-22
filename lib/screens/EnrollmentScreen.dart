@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:flutter_svg/svg.dart';
 
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -15,6 +15,22 @@ class EnrollmentScreen extends StatefulWidget {
   final bool allowCodeEntry;
 
   static const routeName = '/v1/mobile-enrollment';
+
+  // Attempts to find an enrollment code in the provided url. If one is not found then assume the input was
+  // an enrollment code. Primarily to support manual dn enrollment where the user can input a code or a url.
+  static String parseCode(String url) {
+    final uri = Uri.parse(url);
+    if (uri.path != EnrollmentScreen.routeName) {
+      return url;
+    }
+
+    if (uri.hasFragment) {
+      final qp = Uri.splitQueryString(uri.fragment);
+      return qp["code"] ?? "";
+    }
+
+    return url;
+  }
 
   const EnrollmentScreen({super.key, this.code, this.stream, this.allowCodeEntry = false});
 
@@ -138,20 +154,36 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       ));
     }
 
-    return SimplePage(title: Text('DN Enrollment'), child: Padding(child: child, padding: EdgeInsets.symmetric(horizontal: 10)), alignment: alignment);
+    final dnIcon = Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
+    return SimplePage(
+      title: Row(children: [
+        Text('Enroll with', style: TextStyle(fontWeight: FontWeight.bold)),
+        Padding(padding: EdgeInsets.only(left: 5), child: SvgPicture.asset(dnIcon, width: 12))
+      ]),
+      child: Padding(child: child, padding: EdgeInsets.symmetric(horizontal: 10)),
+      alignment: alignment
+    );
   }
 
   Widget _codeEntry() {
     return Column(children: [
-      Container(height: 20),
-      PlatformTextField(controller: enrollInput),
-      CupertinoButton(child: Text('Enroll'), onPressed: () {
-        setState(() {
-          code = enrollInput.text;
-          error = null;
-          _enroll();
-        });
-      }),
+      Padding(
+        padding: EdgeInsets.only(top: 20),
+        child: PlatformTextField(
+          hintText: 'Enrollment code or link',
+          controller: enrollInput
+        )
+      ),
+      PlatformTextButton(
+        child: Text('Submit'),
+        onPressed: () {
+          setState(() {
+            code = EnrollmentScreen.parseCode(enrollInput.text);
+            error = null;
+            _enroll();
+          });
+        },
+      )
     ]);
   }
 }

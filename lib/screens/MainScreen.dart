@@ -63,7 +63,7 @@ MAIH7gzreMGgrH/yR6rZpIHR3DxJ3E0aHtEI
 class MainScreen extends StatefulWidget {
   const MainScreen(this.dnEnrollStream, {Key? key}) : super(key: key);
 
-  final Stream dnEnrollStream;
+  final StreamController dnEnrollStream;
 
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -82,7 +82,7 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     _loadSites();
 
-    widget.dnEnrollStream.listen((_) {
+    widget.dnEnrollStream.stream.listen((_) {
       _loadSites();
     });
 
@@ -146,7 +146,7 @@ class _MainScreenState extends State<MainScreen> {
         PlatformIconButton(
           padding: EdgeInsets.zero,
           icon: Icon(Icons.menu, size: 28.0),
-          onPressed: () => Utils.openPage(context, (_) => SettingsScreen()),
+          onPressed: () => Utils.openPage(context, (_) => SettingsScreen(widget.dnEnrollStream)),
         ),
       ],
       bottomBar: debugSite,

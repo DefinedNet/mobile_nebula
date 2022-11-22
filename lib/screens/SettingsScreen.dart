@@ -1,18 +1,24 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
 import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
 import 'package:mobile_nebula/components/config/ConfigSection.dart';
+import 'package:mobile_nebula/screens/EnrollmentScreen.dart';
 import 'package:mobile_nebula/services/settings.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 import 'AboutScreen.dart';
 
 class SettingsScreen extends StatefulWidget {
+  final StreamController stream;
+
+  const SettingsScreen(this.stream, {super.key});
+
   @override
-  _SettingsScreenState createState() {
-    return _SettingsScreenState();
-  }
+  _SettingsScreenState createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
@@ -79,6 +85,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           )),
     ));
+
+    final dnIcon = Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
+    items.add(ConfigSection(children: [
+      ConfigPageItem(
+        label: Row(children: [
+          Text('Enroll with'),
+          Padding(padding: EdgeInsets.only(left: 5), child: SvgPicture.asset(dnIcon, width: 12))
+        ]),
+        labelWidth: 200,
+        onPressed: () => Utils.openPage(context, (context) => EnrollmentScreen(stream: widget.stream, allowCodeEntry: true))
+      )
+    ]));
+
     items.add(ConfigSection(children: [
       ConfigPageItem(
         label: Text('About'),
