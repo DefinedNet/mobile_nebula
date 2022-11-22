@@ -18,6 +18,7 @@ class CertificateDetailsScreen extends StatefulWidget {
     this.onReplace,
     this.pubKey,
     this.privKey,
+    required this.supportsQRScanning,
   }) : super(key: key);
 
   final CertificateInfo certInfo;
@@ -34,6 +35,8 @@ class CertificateDetailsScreen extends StatefulWidget {
   // pubKey and privKey should be set if onReplace is not null.
   final String? pubKey;
   final String? privKey;
+
+  final bool supportsQRScanning;
 
   @override
   _CertificateDetailsScreenState createState() => _CertificateDetailsScreenState();
@@ -178,7 +181,9 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
                               duration: const Duration(milliseconds: 10), curve: Curves.linearToEaseOut);
                         },
                         pubKey: widget.pubKey!,
-                        privKey: widget.privKey!);
+                        privKey: widget.privKey!,
+                        supportsQRScanning: widget.supportsQRScanning,
+                    );
                   });
                 })));
   }

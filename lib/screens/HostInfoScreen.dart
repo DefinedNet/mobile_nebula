@@ -21,6 +21,7 @@ class HostInfoScreen extends StatefulWidget {
     required this.pending,
     this.onChanged,
     required this.site,
+    required this.supportsQRScanning,
   }) : super(key: key);
 
   final bool isLighthouse;
@@ -28,6 +29,8 @@ class HostInfoScreen extends StatefulWidget {
   final HostInfo hostInfo;
   final Function? onChanged;
   final Site site;
+
+  final bool supportsQRScanning;
 
   @override
   _HostInfoScreenState createState() => _HostInfoScreenState();
@@ -72,7 +75,10 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
               labelWidth: 150,
               content: Text(hostInfo.cert!.details.name),
               onPressed: () => Utils.openPage(
-                  context, (context) => CertificateDetailsScreen(certInfo: CertificateInfo(cert: hostInfo.cert!))))
+                  context, (context) => CertificateDetailsScreen(
+                    certInfo: CertificateInfo(cert: hostInfo.cert!),
+                    supportsQRScanning: widget.supportsQRScanning,
+              )))
           : Container(),
     ]);
   }
