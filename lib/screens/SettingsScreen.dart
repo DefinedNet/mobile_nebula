@@ -89,10 +89,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final dnIcon = Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
     items.add(ConfigSection(children: [
       ConfigPageItem(
-        label: Row(children: [
-          Text('Enroll with'),
-          Padding(padding: EdgeInsets.only(left: 5), child: SvgPicture.asset(dnIcon, width: 12))
-        ]),
+        label: Text('Enroll with DN'),
         labelWidth: 200,
         onPressed: () => Utils.openPage(context, (context) => EnrollmentScreen(stream: widget.stream, allowCodeEntry: true))
       )

@@ -156,10 +156,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
 
     final dnIcon = Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
     return SimplePage(
-      title: Row(children: [
-        Text('Enroll with', style: TextStyle(fontWeight: FontWeight.bold)),
-        Padding(padding: EdgeInsets.only(left: 5), child: SvgPicture.asset(dnIcon, width: 12))
-      ]),
+      title: Text('Enroll with DN', style: TextStyle(fontWeight: FontWeight.bold)),
       child: Padding(child: child, padding: EdgeInsets.symmetric(horizontal: 10)),
       alignment: alignment
     );
