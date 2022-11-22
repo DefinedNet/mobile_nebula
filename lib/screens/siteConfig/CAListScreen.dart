@@ -21,10 +21,13 @@ class CAListScreen extends StatefulWidget {
     Key? key,
     required this.cas,
     this.onSave,
+    required this.supportsQRScanning,
   }) : super(key: key);
 
   final List<CertificateInfo> cas;
   final ValueChanged<List<CertificateInfo>>? onSave;
+
+  final bool supportsQRScanning;
 
   @override
   _CAListScreenState createState() => _CAListScreenState();
@@ -88,7 +91,9 @@ class _CAListScreenState extends State<CAListScreen> {
                     changed = true;
                     cas.remove(key);
                   });
-                });
+                },
+                supportsQRScanning: widget.supportsQRScanning,
+            );
           });
         },
       ));
@@ -129,6 +134,16 @@ class _CAListScreenState extends State<CAListScreen> {
   }
 
   List<Widget> _addCA() {
+    Map<String, Widget> children = {
+      'paste': Text('Copy/Paste'),
+      'file': Text('File'),
+    };
+
+    // not all devices have a camera for QR codes
+    if (widget.supportsQRScanning) {
+      children['qr'] = Text('QR Code');
+    }
+
     List<Widget> items = [
       Padding(
           padding: EdgeInsets.fromLTRB(10, 25, 10, 0),
@@ -141,11 +156,7 @@ class _CAListScreenState extends State<CAListScreen> {
                 });
               }
             },
-            children: {
-              'paste': Text('Copy/Paste'),
-              'file': Text('File'),
-              'qr': Text('QR Code'),
-            },
+            children: children,
           ))
     ];
 

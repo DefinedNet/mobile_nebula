@@ -30,6 +30,7 @@ class AddCertificateScreen extends StatefulWidget {
     this.onReplace,
     required this.pubKey,
     required this.privKey,
+    required this.supportsQRScanning,
   }) : super(key: key);
 
   // onSave will pop a new CertificateDetailsScreen.
@@ -41,6 +42,8 @@ class AddCertificateScreen extends StatefulWidget {
 
   final String pubKey;
   final String privKey;
+
+  final bool supportsQRScanning;
 
   @override
   _AddCertificateScreenState createState() => _AddCertificateScreenState();
@@ -100,6 +103,16 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
   }
 
   List<Widget> _buildLoadCert() {
+    Map<String, Widget> children = {
+      'paste': Text('Copy/Paste'),
+      'file': Text('File'),
+    };
+
+    // not all devices have a camera for QR codes
+    if (widget.supportsQRScanning) {
+      children['qr'] = Text('QR Code');
+    }
+
     List<Widget> items = [
       Padding(
           padding: EdgeInsets.fromLTRB(10, 25, 10, 0),
@@ -112,11 +125,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
                 });
               }
             },
-            children: {
-              'paste': Text('Copy/Paste'),
-              'file': Text('File'),
-              'qr': Text('QR Code'),
-            },
+            children: children,
           ))
     ];
 
@@ -124,7 +133,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
       items.addAll(_addPaste());
     } else if (inputType == 'file') {
       items.addAll(_addFile());
-    } else {
+    } else if (inputType == 'qr') {
       items.addAll(_addQr());
     }
 
@@ -257,7 +266,9 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
                 onSave: () {
                   Navigator.pop(context);
                   widget.onSave!(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
-                });
+                },
+                supportsQRScanning: widget.supportsQRScanning,
+            );
           });
         }
       }

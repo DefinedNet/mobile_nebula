@@ -10,14 +10,22 @@ import 'package:mobile_nebula/services/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class SiteTunnelsScreen extends StatefulWidget {
-  const SiteTunnelsScreen(
-      {Key? key, required this.site, required this.tunnels, required this.pending, required this.onChanged})
+  const SiteTunnelsScreen({
+    Key? key,
+    required this.site,
+    required this.tunnels,
+    required this.pending,
+    required this.onChanged,
+    required this.supportsQRScanning,
+  })
       : super(key: key);
 
   final Site site;
   final List<HostInfo> tunnels;
   final bool pending;
   final Function(List<HostInfo>)? onChanged;
+
+  final bool supportsQRScanning;
 
   @override
   _SiteTunnelsScreenState createState() => _SiteTunnelsScreenState();
@@ -67,7 +75,10 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
                 site: widget.site,
                 onChanged: () {
                   _listHostmap();
-                })),
+                },
+                supportsQRScanning: widget.supportsQRScanning,
+            ),
+        ),
         label: Row(children: <Widget>[Padding(child: icon, padding: EdgeInsets.only(right: 10)), Text(hostInfo.vpnIp)]),
         labelWidth: ipWidth,
         content: Container(alignment: Alignment.centerRight, child: Text(hostInfo.cert?.details.name ?? "")),

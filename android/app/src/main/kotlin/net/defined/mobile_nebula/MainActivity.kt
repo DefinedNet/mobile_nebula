@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.net.VpnService
 import android.os.*
 import android.util.Log
@@ -62,6 +63,7 @@ class MainActivity: FlutterActivity() {
         ui!!.setMethodCallHandler { call, result ->
             when(call.method) {
                 "android.registerActiveSite" -> registerActiveSite(result)
+                "android.deviceHasCamera" -> deviceHasCamera(result)
 
                 "nebula.parseCerts" -> nebulaParseCerts(call, result)
                 "nebula.generateKeyPair" -> nebulaGenerateKeyPair(result)
@@ -118,6 +120,10 @@ class MainActivity: FlutterActivity() {
         val intent = Intent(this, NebulaVpnService::class.java)
         bindService(intent, connection, 0)
         result.success(null)
+    }
+
+    private fun deviceHasCamera(result: MethodChannel.Result) {
+        result.success(context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY))
     }
 
     private fun nebulaParseCerts(call: MethodCall, result: MethodChannel.Result) {

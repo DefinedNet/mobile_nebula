@@ -27,12 +27,15 @@ class SiteConfigScreen extends StatefulWidget {
     Key? key,
     this.site,
     required this.onSave,
+    required this.supportsQRScanning,
   }) : super(key: key);
 
   final Site? site;
 
   // This is called after the target OS has saved the configuration
   final ValueChanged<Site> onSave;
+
+  final bool supportsQRScanning;
 
   @override
   _SiteConfigScreenState createState() => _SiteConfigScreenState();
@@ -186,7 +189,9 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
                         site.certInfo = result.certInfo;
                         site.key = result.key;
                       });
-                    });
+                    },
+                    supportsQRScanning: widget.supportsQRScanning,
+                );
               }
 
               return AddCertificateScreen(
@@ -198,7 +203,9 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
                       site.certInfo = result.certInfo;
                       site.key = result.key;
                     });
-                  });
+                  },
+                supportsQRScanning: widget.supportsQRScanning,
+              );
             });
           },
         ),
@@ -222,7 +229,9 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
                         changed = true;
                         site.ca = ca;
                       });
-                    });
+                    },
+                    supportsQRScanning: widget.supportsQRScanning,
+                );
               });
             })
       ],

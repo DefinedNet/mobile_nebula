@@ -74,6 +74,8 @@ class _MainScreenState extends State<MainScreen> {
   // A set of widgets to display in a column that represents an error blocking us from moving forward entirely
   List<Widget>? error;
 
+  bool supportsQRScanning = false;
+
   static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
   RefreshController refreshController = RefreshController();
   ScrollController scrollController = ScrollController();
@@ -123,6 +125,16 @@ class _MainScreenState extends State<MainScreen> {
       );
     }
 
+    // Determine whether the device supports QR scanning. For example, some
+    // Chromebooks do not have camera support.
+    if (Platform.isAndroid) {
+      platform.invokeMethod("android.deviceHasCamera").then(
+              (hasCamera) => setState(() => supportsQRScanning = hasCamera)
+      );
+    } else {
+      supportsQRScanning = true;
+    }
+
     return SimplePage(
       title: Text('Nebula'),
       scrollable: SimpleScrollable.vertical,
@@ -133,12 +145,11 @@ class _MainScreenState extends State<MainScreen> {
         onPressed: () => Utils.openPage(context, (context) {
           return SiteConfigScreen(onSave: (_) {
             _loadSites();
-          });
+          }, supportsQRScanning: supportsQRScanning);
         }),
       ),
       refreshController: refreshController,
       onRefresh: () {
-        print("onRefresh");
         _loadSites();
         refreshController.refreshCompleted();
       },
@@ -198,7 +209,11 @@ class _MainScreenState extends State<MainScreen> {
           site: site,
           onPressed: () {
             Utils.openPage(context, (context) {
-              return SiteDetailScreen(site: site, onChanged: () => _loadSites());
+              return SiteDetailScreen(
+                  site: site,
+                  onChanged: () => _loadSites(),
+                  supportsQRScanning: supportsQRScanning,
+              );
             });
           }));
     });

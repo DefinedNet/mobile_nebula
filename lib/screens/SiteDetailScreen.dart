@@ -21,10 +21,16 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 //TODO: ios is now the problem with connecting screwing our ability to query the hostmap (its a race)
 
 class SiteDetailScreen extends StatefulWidget {
-  const SiteDetailScreen({Key? key, required this.site, this.onChanged}) : super(key: key);
+  const SiteDetailScreen({
+    Key? key,
+    required this.site,
+    this.onChanged,
+    required this.supportsQRScanning,
+  }) : super(key: key);
 
   final Site site;
   final Function? onChanged;
+  final bool supportsQRScanning;
 
   @override
   _SiteDetailScreenState createState() => _SiteDetailScreenState();
@@ -193,7 +199,9 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
                         setState(() {
                           activeHosts = hosts;
                         });
-                      }));
+                      },
+                      supportsQRScanning: widget.supportsQRScanning,
+                  ));
             },
             label: Text("Active"),
             content: Container(alignment: Alignment.centerRight, child: active)),
@@ -211,7 +219,9 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
                         setState(() {
                           pendingHosts = hosts;
                         });
-                      }));
+                      },
+                      supportsQRScanning: widget.supportsQRScanning,
+                  ));
             },
             label: Text("Pending"),
             content: Container(alignment: Alignment.centerRight, child: pending))
@@ -231,7 +241,9 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
                 onSave: (site) async {
                   changed = true;
                   setState(() {});
-                });
+                },
+              supportsQRScanning: widget.supportsQRScanning,
+            );
           });
         },
       ),
