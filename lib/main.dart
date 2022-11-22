@@ -109,21 +109,18 @@ class _AppState extends State<App> {
           ),
           onGenerateRoute: (settings) {
             if (settings.name == '/') {
-              return platformPageRoute(context: context, builder: (context) => MainScreen(this.dnEnrolled.stream));
+              return platformPageRoute(context: context, builder: (context) => MainScreen(this.dnEnrolled));
             }
 
             final uri = Uri.parse(settings.name!);
             if (uri.path == EnrollmentScreen.routeName) {
-              String? code;
-              if (uri.hasFragment) {
-                final qp = Uri.splitQueryString(uri.fragment);
-                code = qp["code"];
-              }
-
               // TODO: maybe implement this as a dialog instead of a page, you can stack multiple enrollment screens which is annoying in dev
               return platformPageRoute(
                   context: context,
-                  builder: (context) => EnrollmentScreen(code: code, stream: this.dnEnrolled),
+                  builder: (context) => EnrollmentScreen(
+                    code: EnrollmentScreen.parseCode(settings.name!),
+                    stream: this.dnEnrolled
+                  ),
               );
             }
 
