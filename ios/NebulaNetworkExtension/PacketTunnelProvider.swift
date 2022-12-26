@@ -82,6 +82,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         tunnelNetworkSettings.ipv4Settings!.includedRoutes = routes
         tunnelNetworkSettings.mtu = _site.mtu as NSNumber
 
+        if !_site.dnsResolvers.isEmpty {
+            let dnsSettings = NEDNSSettings(servers: _site.dnsResolvers)
+            
+            tunnelNetworkSettings.dnsSettings = dnsSettings
+        }
         self.setTunnelNetworkSettings(tunnelNetworkSettings, completionHandler: {(error:Error?) in
             if (error != nil) {
                 return completionHandler(error!)
