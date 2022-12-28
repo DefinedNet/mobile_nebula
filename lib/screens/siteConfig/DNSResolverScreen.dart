@@ -10,7 +10,7 @@ import 'package:mobile_nebula/components/config/ConfigSection.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 class DNSResolverScreen extends StatefulWidget {
-  const DNSResolverScreen({Key key, this.dnsResolver, this.onDelete, @required this.onSave}) : super(key: key);
+  const DNSResolverScreen({Key? key, required this.dnsResolver, required this.onDelete, required this.onSave}) : super(key: key);
 
   final String dnsResolver;
   final ValueChanged<String> onSave;
@@ -21,7 +21,7 @@ class DNSResolverScreen extends StatefulWidget {
 }
 
 class _DNSResolverScreenState extends State<DNSResolverScreen> {
-  String dnsResolver;
+  late String dnsResolver;
   bool changed = false;
 
   FocusNode dnsResolverFocus = FocusNode();
@@ -56,7 +56,7 @@ class _DNSResolverScreenState extends State<DNSResolverScreen> {
                   padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
                   child: SizedBox(
                       width: double.infinity,
-                      child: PlatformButton(
+                      child: PlatformElevatedButton(
                         child: Text('Delete'),
                         color: CupertinoColors.systemRed.resolveFrom(context),
                         onPressed: () => Utils.confirmDelete(context, 'Delete DNS Resolver?', () {

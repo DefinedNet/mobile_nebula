@@ -11,7 +11,7 @@ import 'package:mobile_nebula/services/utils.dart';
 
 class DNSResolversScreen extends StatefulWidget {
   const DNSResolversScreen(
-      {Key key, @required this.dnsResolvers, @required this.onSave})
+      {Key? key, required this.dnsResolvers, required this.onSave})
       : super(key: key);
 
   final List<String> dnsResolvers;
@@ -22,7 +22,7 @@ class DNSResolversScreen extends StatefulWidget {
 }
 
 class _DNSResolversScreenState extends State<DNSResolversScreen> {
-  List<String> dnsResolvers = [];
+  late List<String> dnsResolvers = [];
   bool changed = false;
 
   @override
@@ -85,12 +85,14 @@ class _DNSResolversScreenState extends State<DNSResolversScreen> {
       onPressed: () {
         Utils.openPage(context, (context) {
           return DNSResolverScreen(
+              dnsResolver: "",
               onSave: (dnsResolver) {
                   setState(() {
                       changed = true;
                   });
                   dnsResolvers.add(dnsResolver);
               },
+              onDelete: () {},
           );
         });
       },
