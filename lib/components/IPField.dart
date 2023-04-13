@@ -38,7 +38,7 @@ class IPField extends StatelessWidget {
     return SizedBox(
         width: ipWidth,
         child: SpecialTextField(
-          keyboardType: ipOnly ? TextInputType.numberWithOptions(decimal: true) : null,
+          keyboardType: ipOnly ? TextInputType.numberWithOptions(decimal: true, signed: true) : null,
           textAlign: textAlign,
           autofocus: autoFocus,
           focusNode: focusNode,
