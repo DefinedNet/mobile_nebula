@@ -67,7 +67,7 @@ class _AboutScreenState extends State<AboutScreen> {
           ConfigPageItem(
               label: Text('Privacy policy'),
               labelWidth: 300,
-              onPressed: () => Utils.launchUrl('https://defined.net/privacy-policy', context)),
+              onPressed: () => Utils.launchUrl('https://www.defined.net/privacy/', context)),
 //          ConfigPageItem(label: Text('Licenses'), labelWidth: 300, onPressed: () => Utils.launchUrl('https://defined.net/mobile/license', context)),
         ]),
         Padding(
