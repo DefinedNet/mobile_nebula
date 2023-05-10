@@ -98,7 +98,7 @@ func (n *Nebula) Reload(configData string, key string) error {
 }
 
 func (n *Nebula) ListHostmap(pending bool) (string, error) {
-	hosts := n.c.ListHostmap(pending)
+	hosts := n.c.ListHostmapHosts(pending)
 	b, err := json.Marshal(hosts)
 	if err != nil {
 		return "", err
