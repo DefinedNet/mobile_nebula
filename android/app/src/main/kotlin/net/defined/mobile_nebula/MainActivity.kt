@@ -411,7 +411,7 @@ class MainActivity: FlutterActivity() {
             if (resultCode != Activity.RESULT_OK) {
                 // The user did not grant permissions
                 siteContainer.updater.setState(false, "Disconnected")
-                return result.error("permissions", "Please grant VPN permissions to the app when requested", null)
+                return result.error("permissions", "Please grant VPN permissions to the app when requested. (If another VPN is running, please disable it now.)", null)
             }
 
             // Start the VPN service
