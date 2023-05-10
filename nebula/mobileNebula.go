@@ -272,7 +272,7 @@ func VerifyCertAndKey(rawCert string, pemPrivateKey string) (bool, error) {
 		return false, fmt.Errorf("error while unmarshaling cert: %s", err)
 	}
 
-	if err = nebulaCert.VerifyPrivateKey(rawKey); err != nil {
+	if err = nebulaCert.VerifyPrivateKey(cert.Curve_CURVE25519, rawKey); err != nil {
 		return false, err
 	}
 
