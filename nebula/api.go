@@ -27,14 +27,14 @@ type TryUpdateResult struct {
 	Site          string
 }
 
-func NewAPIClient(useragent string) *APIClient {
+func NewAPIClient(useragent string, server string) *APIClient {
 	// TODO Use a log file
 	l := logrus.New()
 	l.SetOutput(io.Discard)
 
 	return &APIClient{
 		// TODO Make the server configurable
-		c: dnapi.NewClient(useragent, "https://api.defined.net"),
+		c: dnapi.NewClient(useragent, server),
 		l: l,
 	}
 }

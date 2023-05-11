@@ -11,7 +11,7 @@ class APIClient(context: Context) {
         "MobileNebula/%s (Android %s)".format(
                 packageInfo.getVersion(),
                 packageInfo.getSystemVersion(),
-        ))
+        ), "https://api.defined.net")
     private val gson = Gson()
 
     fun enroll(code: String): IncomingSite {

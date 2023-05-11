@@ -1,4 +1,5 @@
 import MobileNebula
+import Foundation
 
 enum APIClientError: Error {
     case invalidCredentials
@@ -10,7 +11,8 @@ class APIClient {
     
     init() {
         let packageInfo = PackageInfo()
-        apiClient = MobileNebulaNewAPIClient("MobileNebula/\(packageInfo.getVersion()) (iOS \(packageInfo.getSystemVersion()))")!
+        debugPrint(UserDefaults.standard.string(forKey: "api_preference"))
+        apiClient = MobileNebulaNewAPIClient("MobileNebula/\(packageInfo.getVersion()) (iOS \(packageInfo.getSystemVersion()))", UserDefaults.standard.string(forKey: "api_preference") ?? "https://api.defined.net")!
     }
     
     func enroll(code: String) throws -> IncomingSite {
