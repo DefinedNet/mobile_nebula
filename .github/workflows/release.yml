@@ -4,6 +4,7 @@ on:
     tags:
       # Only builds for tags with a meaningless build number suffix: v1.0.0-1
       - 'v[0-9]+.[0-9]+.[0-9]+-*'
+  pull_request:
 
 jobs:
   build:
@@ -75,8 +76,9 @@ jobs:
           cd android
           fastlane release_build_number
           echo "BUILD_NUMBER=$(cat ../release_build_number)" >> $GITHUB_ENV
-          BUILD_NAME="${GITHUB_REF#refs/tags/v}" # strip the front refs/tags/v off
-          BUILD_NAME="${BUILD_NAME%-*}" # strip the junk build number off
+          #BUILD_NAME="${GITHUB_REF#refs/tags/v}" # strip the front refs/tags/v off
+          #BUILD_NAME="${BUILD_NAME%-*}" # strip the junk build number off
+          BUILD_NAME="0.2.0"
           echo "BUILD_NAME=$BUILD_NAME" >> $GITHUB_ENV
 
       - name: Build iOS
@@ -87,12 +89,12 @@ jobs:
           pod install
           fastlane build
 
-      - name: Collect iOS artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: MobileNebula.ipa
-          path: ios/MobileNebula.ipa
-          retention-days: 5
+#      - name: Collect iOS artifacts
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: MobileNebula.ipa
+#          path: ios/MobileNebula.ipa
+#          retention-days: 5
 
       - name: Build Android
         env:
@@ -101,54 +103,54 @@ jobs:
         run: |
           flutter build appbundle --build-number="$BUILD_NUMBER" --build-name="$BUILD_NAME"
 
-      - name: Collect Android artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: MobileNebula.aab
-          path: build/app/outputs/bundle/release/app-release.aab
-          retention-days: 5
+#      - name: Collect Android artifacts
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: MobileNebula.aab
+#          path: build/app/outputs/bundle/release/app-release.aab
+#          retention-days: 5
+#
+#      - name: Publish to iOS TestFlight
+#        env:
+#          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.AC_API_KEY_ID }}
+#          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.AC_API_KEY_ISSUER_ID }}
+#        run: |
+#          cd ios
+#          fastlane release
+#
+#      - name: Publish to Android internal track
+#        run: |
+#          cd android
+#          fastlane release
+#
+#      - name: Create Release
+#        id: create_release
+#        uses: actions/create-release@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          tag_name: ${{ github.ref }}
+#          release_name: Release ${{ github.ref }}
+#          draft: true
+#          prerelease: false
 
-      - name: Publish to iOS TestFlight
-        env:
-          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.AC_API_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.AC_API_KEY_ISSUER_ID }}
-        run: |
-          cd ios
-          fastlane release
-
-      - name: Publish to Android internal track
-        run: |
-          cd android
-          fastlane release
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: true
-          prerelease: false
-
-      - name: Upload release Android app
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/app/outputs/bundle/release/app-release.aab
-          asset_name: MobileNebula.aab
-          asset_content_type: text/plain
-
-      - name: Upload release iOS app
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ios/MobileNebula.ipa
-          asset_name: MobileNebula.ipa
-          asset_content_type: text/plain
+#      - name: Upload release Android app
+#        uses: actions/upload-release-asset@v1.0.1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          upload_url: ${{ steps.create_release.outputs.upload_url }}
+#          asset_path: build/app/outputs/bundle/release/app-release.aab
+#          asset_name: MobileNebula.aab
+#          asset_content_type: text/plain
+#
+#      - name: Upload release iOS app
+#        uses: actions/upload-release-asset@v1.0.1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          upload_url: ${{ steps.create_release.outputs.upload_url }}
+#          asset_path: ios/MobileNebula.ipa
+#          asset_name: MobileNebula.ipa
+#          asset_content_type: text/plain
 
