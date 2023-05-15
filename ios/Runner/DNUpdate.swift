@@ -6,13 +6,17 @@ class DNUpdater {
     
     func updateAll(onUpdate: @escaping (Site) -> ()) {
         _ = SiteList{ (sites, _) -> () in
-            sites?.values.forEach { site in
-                if (site.connected == true) {
-                    // The vpn service is in charge of updating the currently connected site
-                    return
+            // NEVPN seems to force us onto the main thread and we are about to make network calls that
+            // could block for a while. Push ourselves onto another thread to avoid blocking the UI.
+            Task.detached(priority: .userInitiated) {
+                sites?.values.forEach { site in
+                    if (site.connected == true) {
+                        // The vpn service is in charge of updating the currently connected site
+                        return
+                    }
+
+                    self.updateSite(site: site, onUpdate: onUpdate)
                 }
-                
-                self.updateSite(site: site, onUpdate: onUpdate)
             }
         }
     }
