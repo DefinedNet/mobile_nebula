@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.net.*
 import android.os.*
 import android.system.OsConstants
@@ -115,6 +116,15 @@ class NebulaVpnService : VpnService() {
             builder.setMetered(false)
         }
 
+        // Disallow some common, known-problematic apps
+        // TODO Make this user configurable
+        // Android Auto Wireless (https://github.com/DefinedNet/mobile_nebula/issues/102)
+        disallowApp(builder, "com.google.android.projection.gearhead")
+        // Chromecast (https://github.com/DefinedNet/mobile_nebula/issues/102)
+        disallowApp(builder, "com.google.android.apps.chromecast.app")
+        // RCS / Jibe
+        disallowApp(builder, "com.google.android.apps.messaging")
+
         // Add our unsafe routes
         site!!.unsafeRoutes.forEach { unsafeRoute ->
             val unsafeIPNet = mobileNebula.MobileNebula.parseCIDR(unsafeRoute.route)
@@ -141,6 +151,15 @@ class NebulaVpnService : VpnService() {
         running = true
         sendSimple(MSG_IS_RUNNING, 1)
     }
+
+    private fun disallowApp(builder: Builder, name: String) {
+        try {
+            builder.addDisallowedApplication(name)
+        } catch (e: PackageManager.NameNotFoundException) {
+            return
+        }
+    }
+
 
     // Used to detect network changes (wifi -> cell or vice versa) and rebinds the udp socket/updates LH
     private fun registerNetworkCallback() {
