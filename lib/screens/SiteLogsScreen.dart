@@ -84,32 +84,28 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
         ),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
           Expanded(
-              child: PlatformIconButton(
-            padding: padding,
-            icon: Icon(context.platformIcons.share, size: 30),
-            onPressed: () {
-              Share.shareFile(
-                  title: '${widget.site.name} logs',
-                  filePath: widget.site.logFile,
-                  filename: '${widget.site.name}.log');
-            },
+            child: Builder(
+            builder: (BuildContext context) {
+              return PlatformIconButton(
+                padding: padding,
+                icon: Icon(context.platformIcons.share, size: 30),
+                onPressed: () {
+                  Share.shareFile(context,
+                      title: '${widget.site.name} logs',
+                      filePath: widget.site.logFile,
+                      filename: '${widget.site.name}.log');
+                },
+              );
+            }
           )),
           Expanded(
               child: PlatformIconButton(
-            padding: padding,
-            icon: Icon(context.platformIcons.delete, size: Platform.isIOS ? 38 : 30),
-            onPressed: () {
-              Utils.confirmDelete(context, 'Are you sure you want to clear all logs?', () => deleteLogs());
-            },
-          )),
-          Expanded(
-              child: PlatformIconButton(
-            padding: padding,
-            icon: Icon(context.platformIcons.downArrow, size: 30),
-            onPressed: () async {
-              controller.animateTo(controller.position.maxScrollExtent,
-                  duration: const Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
-            },
+                padding: padding,
+                icon: Icon(context.platformIcons.downArrow, size: 30),
+                onPressed: () async {
+                  controller.animateTo(controller.position.maxScrollExtent,
+                      duration: const Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
+                },
           )),
         ]));
   }

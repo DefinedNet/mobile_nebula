@@ -92,11 +92,18 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
               labelWidth: 0,
               content: SelectableText(pubKey, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
             ),
-            ConfigButtonItem(
-              content: Text('Share Public Key'),
-              onPressed: () async {
-                await Share.share(title: 'Please sign and return a certificate', text: pubKey, filename: 'device.pub');
-              },
+            Builder(
+              builder: (BuildContext context) {
+                return ConfigButtonItem(
+                  content: Text('Share Public Key'),
+                  onPressed: () async {
+                    await Share.share(context,
+                        title: 'Please sign and return a certificate',
+                        text: pubKey,
+                        filename: 'device.pub');
+                  },
+                );
+            },
             ),
           ])
     ];

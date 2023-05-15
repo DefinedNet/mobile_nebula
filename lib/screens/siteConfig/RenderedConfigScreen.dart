@@ -19,11 +19,17 @@ class RenderedConfigScreen extends StatelessWidget {
       title: Text('Rendered Site Config'),
       scrollable: SimpleScrollable.both,
       trailingActions: <Widget>[
-        PlatformIconButton(
-          padding: EdgeInsets.zero,
-          icon: Icon(context.platformIcons.share, size: 28.0),
-          onPressed: () => Share.share(title: '$name.yaml', text: config, filename: '$name.yaml'),
-        )
+        Builder(
+          builder: (BuildContext context) {
+            return PlatformIconButton(
+              padding: EdgeInsets.zero,
+              icon: Icon(context.platformIcons.share, size: 28.0),
+              onPressed: () =>
+                  Share.share(context,
+                      title: '$name.yaml', text: config, filename: '$name.yaml'),
+            );
+          }
+        ),
       ],
       child: Container(
           padding: EdgeInsets.all(5),
