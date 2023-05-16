@@ -135,6 +135,7 @@ class Site: Codable {
     var managed: Bool
     // The following fields are present if managed = true
     var lastManagedUpdate: String?
+    var rawConfig: String?
 
     /// If true then this site needs to be migrated to the filesystem. Should be handled by the initiator of the site
     var needsToMigrateToFS: Bool = false
@@ -255,6 +256,7 @@ class Site: Codable {
         mtu = incoming.mtu ?? 1300
         managed = incoming.managed ?? false
         lastManagedUpdate = incoming.lastManagedUpdate
+        rawConfig = incoming.rawConfig
 
         if (managed && (try? getDNCredentials())?.invalid != false) {
             errors.append("Unable to fetch managed updates - please re-enroll the device")
@@ -344,6 +346,7 @@ class Site: Codable {
         case mtu
         case managed
         case lastManagedUpdate
+        case rawConfig
     }
 }
 
@@ -405,6 +408,7 @@ struct IncomingSite: Codable {
     // The following fields are present if managed = true
     var dnCredentials: DNCredentials?
     var lastManagedUpdate: String?
+    var rawConfig: String?
 
     func getConfig() throws -> Data {
         let encoder = JSONEncoder()

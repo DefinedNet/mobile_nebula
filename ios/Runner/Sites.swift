@@ -125,7 +125,14 @@ class SiteUpdater: NSObject, FlutterStreamHandler {
     /// onListen is called when flutter code attaches an event listener
     func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
         eventSink = events;
+        
 #if !targetEnvironment(simulator)
+        if site.manager == nil {
+            //TODO: The dn updater path seems to race to build a site that lacks a manager. The UI does not display this error
+            // and a another listen should occur and succeed.
+            return FlutterError(code: "Internal Error", message: "Flutter manager was not present", details: nil)
+        }
+        
         self.notification = NotificationCenter.default.addObserver(forName: NSNotification.Name.NEVPNStatusDidChange, object: site.manager!.connection , queue: nil) { n in
             let connected = self.site.connected
             self.site.status = statusString[self.site.manager!.connection.status]
