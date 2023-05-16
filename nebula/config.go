@@ -139,6 +139,7 @@ type configTun struct {
 	MTU                *int                `yaml:"mtu,omitempty"`
 	Routes             []configRoute       `yaml:"routes"`
 	UnsafeRoutes       []configUnsafeRoute `yaml:"unsafe_routes"`
+	DNSResolvers       []string            `yaml:"dns_resolvers"`
 }
 
 type configRoute struct {

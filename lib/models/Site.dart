@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:mobile_nebula/models/HostInfo.dart';
 import 'package:mobile_nebula/models/UnsafeRoute.dart';
+import 'package:mobile_nebula/models/IPAndPort.dart';
 import 'package:uuid/uuid.dart';
 import 'Certificate.dart';
 import 'StaticHosts.dart';
@@ -24,6 +25,7 @@ class Site {
   // static_host_map
   late Map<String, StaticHost> staticHostmap;
   late List<UnsafeRoute> unsafeRoutes;
+  late List<String> dnsResolvers;
 
   // pki fields
   late List<CertificateInfo> ca;
@@ -69,6 +71,7 @@ class Site {
     String logVerbosity = 'info',
     List<String>? errors,
     List<UnsafeRoute>? unsafeRoutes,
+    List<String>? dnsResolvers,
     bool managed = false,
     String? rawConfig,
     DateTime? lastManagedUpdate,
@@ -89,6 +92,7 @@ class Site {
     this.logVerbosity = logVerbosity;
     this.errors = errors ?? [];
     this.unsafeRoutes = unsafeRoutes ?? [];
+    this.dnsResolvers = dnsResolvers ?? [];
     this.managed = managed;
     this.rawConfig = rawConfig;
     this.lastManagedUpdate = lastManagedUpdate;
@@ -128,6 +132,7 @@ class Site {
       logVerbosity: decoded['logVerbosity'],
       errors: decoded['errors'],
       unsafeRoutes: decoded['unsafeRoutes'],
+      dnsResolvers: decoded['dnsResolvers'],
       managed: decoded['managed'],
       rawConfig: decoded['rawConfig'],
       lastManagedUpdate: decoded['lastManagedUpdate'],
@@ -152,6 +157,7 @@ class Site {
     this.logVerbosity = decoded['logVerbosity'];
     this.errors = decoded['errors'];
     this.unsafeRoutes = decoded['unsafeRoutes'];
+    this.dnsResolvers = decoded['dnsResolvers'];
     this.managed = decoded['managed'];
     this.rawConfig = decoded['rawConfig'];
     this.lastManagedUpdate = decoded['lastManagedUpdate'];
@@ -168,6 +174,12 @@ class Site {
     List<UnsafeRoute> unsafeRoutes = [];
     rawUnsafeRoutes.forEach((val) {
       unsafeRoutes.add(UnsafeRoute.fromJson(val));
+    });
+
+    List<dynamic> rawDNSResolvers = json['dnsResolvers'];
+    List<String> dnsResolvers = [];
+    rawDNSResolvers.forEach((val) {
+      dnsResolvers.add(val);
     });
 
     List<dynamic> rawCA = json['ca'];
@@ -204,6 +216,7 @@ class Site {
       "logVerbosity": json['logVerbosity'],
       "errors": errors,
       "unsafeRoutes": unsafeRoutes,
+      "dnsResolvers": dnsResolvers,
       "managed": json['managed'] ?? false,
       "rawConfig": json['rawConfig'],
       "lastManagedUpdate": json["lastManagedUpdate"] == null ?
@@ -221,6 +234,7 @@ class Site {
       'id': id,
       'staticHostmap': staticHostmap,
       'unsafeRoutes': unsafeRoutes,
+      'dnsResolvers': dnsResolvers,
       'ca': ca.map((cert) {
         return cert.rawCert;
       }).join('\n'),

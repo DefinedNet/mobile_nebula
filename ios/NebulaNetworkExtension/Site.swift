@@ -121,6 +121,7 @@ class Site: Codable {
     // Stored in proto
     var staticHostmap: Dictionary<String, StaticHosts>
     var unsafeRoutes: [UnsafeRoute]
+    var dnsResolvers: [String]
     var cert: CertificateInfo?
     var ca: [CertificateInfo]
     var lhDuration: Int
@@ -194,6 +195,7 @@ class Site: Codable {
         id = incoming.id
         staticHostmap = incoming.staticHostmap
         unsafeRoutes = incoming.unsafeRoutes ?? []
+        dnsResolvers = incoming.dnsResolvers ?? []
 
         do {
             let rawCert = incoming.cert
@@ -341,6 +343,7 @@ class Site: Codable {
         case status
         case logFile
         case unsafeRoutes
+        case dnsResolvers
         case logVerbosity
         case errors
         case mtu
@@ -395,6 +398,7 @@ struct IncomingSite: Codable {
     var id: String
     var staticHostmap: Dictionary<String, StaticHosts>
     var unsafeRoutes: [UnsafeRoute]?
+    var dnsResolvers: [String]?
     var cert: String
     var ca: String
     var lhDuration: Int
