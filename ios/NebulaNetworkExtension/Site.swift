@@ -194,6 +194,15 @@ class Site: Codable {
         id = incoming.id
         staticHostmap = incoming.staticHostmap
         unsafeRoutes = incoming.unsafeRoutes ?? []
+        lhDuration = incoming.lhDuration
+        port = incoming.port
+        cipher = incoming.cipher
+        sortKey = incoming.sortKey ?? 0
+        logVerbosity = incoming.logVerbosity ?? "info"
+        mtu = incoming.mtu ?? 1300
+        managed = incoming.managed ?? false
+        lastManagedUpdate = incoming.lastManagedUpdate
+        rawConfig = incoming.rawConfig
 
         do {
             let rawCert = incoming.cert
@@ -232,7 +241,7 @@ class Site: Codable {
                 }
             }
 
-            if (hasErrors) {
+            if (hasErrors && !managed) {
                 errors.append("There are issues with 1 or more ca certificates")
             }
 
@@ -247,16 +256,6 @@ class Site: Codable {
             logFile = nil
             errors.append("Unable to create the site directory: \(error.localizedDescription)")
         }
-
-        lhDuration = incoming.lhDuration
-        port = incoming.port
-        cipher = incoming.cipher
-        sortKey = incoming.sortKey ?? 0
-        logVerbosity = incoming.logVerbosity ?? "info"
-        mtu = incoming.mtu ?? 1300
-        managed = incoming.managed ?? false
-        lastManagedUpdate = incoming.lastManagedUpdate
-        rawConfig = incoming.rawConfig
 
         if (managed && (try? getDNCredentials())?.invalid != false) {
             errors.append("Unable to fetch managed updates - please re-enroll the device")
@@ -307,16 +306,16 @@ class Site: Codable {
     func invalidateDNCredentials() throws {
         let creds = try getDNCredentials()
         creds.invalid = true
-        
+
         if (!(try creds.save(siteID: self.id))) {
             throw "failed to store dn credentials in keychain"
         }
     }
-    
+
     func validateDNCredentials() throws {
         let creds = try getDNCredentials()
         creds.invalid = false
-        
+
         if (!(try creds.save(siteID: self.id))) {
             throw "failed to store dn credentials in keychain"
         }
@@ -370,16 +369,16 @@ class DNCredentials: Codable {
         get { return _invalid ?? false }
         set { _invalid = newValue }
     }
-    
+
     private var _invalid: Bool?
-    
+
     func save(siteID: String) throws -> Bool {
         let encoder = JSONEncoder()
         let rawDNCredentials = try encoder.encode(self)
 
         return KeyChain.save(key: "\(siteID).dnCredentials", data: rawDNCredentials, managed: true)
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case hostID
         case privateKey
