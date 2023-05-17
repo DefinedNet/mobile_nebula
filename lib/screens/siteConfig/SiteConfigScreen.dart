@@ -154,13 +154,16 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
 
   Widget _keys() {
     final certError = site.certInfo == null || site.certInfo!.validity == null || !site.certInfo!.validity!.valid;
-    var caError = site.ca.length == 0;
-    if (!caError) {
-      site.ca.forEach((ca) {
-        if (ca.validity == null || !ca.validity!.valid) {
-          caError = true;
-        }
-      });
+    var caError = false;
+    if (!site.managed) {
+      var caError = site.ca.length == 0;
+      if (!caError) {
+        site.ca.forEach((ca) {
+          if (ca.validity == null || !ca.validity!.valid) {
+            caError = true;
+          }
+        });
+      }
     }
 
     return ConfigSection(

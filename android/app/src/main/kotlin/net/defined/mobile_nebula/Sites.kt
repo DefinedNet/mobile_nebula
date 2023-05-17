@@ -52,7 +52,7 @@ class Sites(private var engine: FlutterEngine) {
         val context = MainActivity.getContext()!!
         val site = containers[id]!!.site
 
-        val baseDir = if(site.managed == true) context.noBackupFilesDir else context.filesDir
+        val baseDir = if(site.managed) context.noBackupFilesDir else context.filesDir
         val siteDir = baseDir.resolve("sites").resolve(id)
         siteDir.deleteRecursively()
         refreshSites()
@@ -275,7 +275,7 @@ class Site(context: Context, siteDir: File) {
                 }
             }
 
-            if (hasErrors) {
+            if (hasErrors && !managed) {
                 errors.add("There are issues with 1 or more ca certificates")
             }
 
