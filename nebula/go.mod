@@ -6,8 +6,8 @@ go 1.19
 
 require (
 	github.com/DefinedNet/dnapi v0.0.0-20221117210952-6f56f055f991
-	github.com/sirupsen/logrus v1.9.1
-	github.com/slackhq/nebula v1.7.0
+	github.com/sirupsen/logrus v1.9.2
+	github.com/slackhq/nebula v1.7.1
 	golang.org/x/crypto v0.9.0
 	gopkg.in/yaml.v2 v2.4.0
 )
