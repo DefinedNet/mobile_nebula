@@ -97,7 +97,7 @@ struct CertificateValidity: Codable {
 let statusMap: Dictionary<NEVPNStatus, Bool> = [
     NEVPNStatus.invalid: false,
     NEVPNStatus.disconnected: false,
-    NEVPNStatus.connecting: true,
+    NEVPNStatus.connecting: false,
     NEVPNStatus.connected: true,
     NEVPNStatus.reasserting: true,
     NEVPNStatus.disconnecting: true,

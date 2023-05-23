@@ -134,22 +134,22 @@ class SiteUpdater: NSObject, FlutterStreamHandler {
         }
         
         self.notification = NotificationCenter.default.addObserver(forName: NSNotification.Name.NEVPNStatusDidChange, object: site.manager!.connection , queue: nil) { n in
-            let connected = self.site.connected
+            let oldConnected = self.site.connected
             self.site.status = statusString[self.site.manager!.connection.status]
             self.site.connected = statusMap[self.site.manager!.connection.status]
-
+            
             // Check to see if we just moved to connected and if we have a start function to call when that happens
-            if self.site.connected! && connected != self.site.connected && self.startFunc != nil {
+            if self.site.connected! && oldConnected != self.site.connected && self.startFunc != nil {
                 self.startFunc!()
                 self.startFunc = nil
             }
-
+            
             self.update(connected: self.site.connected!)
         }
 #endif
         return nil
     }
-
+    
     /// onCancel is called when the flutter listener stops listening
     func onCancel(withArguments arguments: Any?) -> FlutterError? {
         if (self.notification != nil) {
