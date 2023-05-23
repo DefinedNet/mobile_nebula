@@ -13,15 +13,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var didSleep = false
     private var cachedRouteDescription: String?
     
-    // This is the system completionHandler, only set when we expect the UI to ask us to actually start so that errors can flow back to the UI
-    private var startCompleter: ((Error?) -> Void)?
-    
-    override func startTunnel(options: [String : NSObject]?, completionHandler: @escaping (Error?) -> Void) {       
+    override func startTunnel(options: [String : NSObject]?, completionHandler: @escaping (Error?) -> Void) {
         // There is currently no way to get initialization errors back to the UI via completionHandler here
         // `expectStart` is sent only via the UI which means we should wait for the real start command which has another completion handler the UI can intercept
-        // In the end we need to call this completionHandler to inform the system of our state
         if options?["expectStart"] != nil {
-            startCompleter = completionHandler
+            // The system completion handler must be called before IPC will work
+            completionHandler(nil)
             return
         }
         
@@ -175,19 +172,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         // start command has special treatment due to needing to call two completers
         if call.command == "start" {
             self.start() { error in
-                // Notify the system of our start result
-                if self.startCompleter != nil {
-                    if error == nil {
-                        // Clean boot, no errors
-                        self.startCompleter!(nil)
-                        
-                    } else {
-                        // We encountered an error, we can just pass NSError() here since ios throws it away
-                        // But we will provide it in the event we can intercept the error without doing this workaround sometime in the future
-                        self.startCompleter!(error!.localizedDescription)
-                    }
-                }
-                
                 // Notify the UI if we have a completionHandler
                 if completionHandler != nil {
                     if error == nil {
@@ -195,8 +179,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                         completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .success, message: nil)))
                         
                     } else {
-                        // Error response has
+                        // We failed, notify and shutdown
                         completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .error, message: JSON(error!.localizedDescription))))
+                        self.cancelTunnelWithError(error)
                     }
                 }
             }
