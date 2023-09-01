@@ -54,7 +54,7 @@ func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebul
 	ctrl, err := nebula.Main(c, false, "", l, &tunFd)
 	if err != nil {
 		switch v := err.(type) {
-		case util.ContextualError:
+		case *util.ContextualError:
 			v.Log(l)
 			return nil, v.Unwrap()
 		default:

@@ -149,7 +149,7 @@ func TestConfig(configData string, key string) error {
 	_, err = nebula.Main(c, true, "", l, nil)
 	if err != nil {
 		switch v := err.(type) {
-		case util.ContextualError:
+		case *util.ContextualError:
 			return v.Unwrap()
 		default:
 			return err
