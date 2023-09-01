@@ -53,14 +53,7 @@ func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebul
 	//TODO: inject our version
 	ctrl, err := nebula.Main(c, false, "", l, &tunFd)
 	if err != nil {
-		switch v := err.(type) {
-		case *util.ContextualError:
-			v.Log(l)
-			return nil, v.Unwrap()
-		default:
-			l.WithError(err).Error("Failed to start")
-			return nil, err
-		}
+		util.LogWithContextIfNeeded("Failed to start", err, l)
 	}
 
 	return &Nebula{ctrl, l, c}, nil
