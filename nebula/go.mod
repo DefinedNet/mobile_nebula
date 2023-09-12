@@ -7,7 +7,7 @@ go 1.19
 require (
 	github.com/DefinedNet/dnapi v0.0.0-20221117210952-6f56f055f991
 	github.com/sirupsen/logrus v1.9.3
-	github.com/slackhq/nebula v1.7.3-0.20230901185046-70e5b3c945cb
+	github.com/slackhq/nebula v1.7.3-0.20230907175741-280fa026ead8
 	golang.org/x/crypto v0.12.0
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -36,8 +36,8 @@ require (
 	github.com/vishvananda/netns v0.0.4 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/net v0.14.0 // indirect
-	golang.org/x/sys v0.11.0 // indirect
-	golang.org/x/term v0.11.0 // indirect
+	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/term v0.12.0 // indirect
 	golang.org/x/tools v0.12.1-0.20230818130535-1517d1a3ba60 // indirect
 	golang.zx2c4.com/wintun v0.0.0-20230126152724-0fa3db229ce2 // indirect
 	golang.zx2c4.com/wireguard v0.0.0-20230704135630-469159ecf7d1 // indirect
