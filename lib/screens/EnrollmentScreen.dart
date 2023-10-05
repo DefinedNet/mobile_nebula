@@ -156,7 +156,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
 
     final dnIcon = Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
     return SimplePage(
-      title: Text('Enroll with DN', style: TextStyle(fontWeight: FontWeight.bold)),
+      title: Text('Enroll with Managed Nebula', style: TextStyle(fontWeight: FontWeight.bold)),
       child: Padding(child: child, padding: EdgeInsets.symmetric(horizontal: 10)),
       alignment: alignment
     );
