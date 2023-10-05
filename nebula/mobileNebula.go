@@ -60,7 +60,7 @@ func RenderConfig(configData string, key string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		return "# DN-managed config\n" + string(yamlCfg), nil
+		return "# Managed Nebula Config (defined.net)\n" + string(yamlCfg), nil
 	}
 
 	// Otherwise, build the config
