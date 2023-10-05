@@ -89,7 +89,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final dnIcon = Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
     items.add(ConfigSection(children: [
       ConfigPageItem(
-        label: Text('Enroll with DN'),
+        label: Text('Enroll with Managed Nebula'),
         labelWidth: 200,
         onPressed: () => Utils.openPage(context, (context) => EnrollmentScreen(stream: widget.stream, allowCodeEntry: true))
       )
