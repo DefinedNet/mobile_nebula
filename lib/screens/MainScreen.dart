@@ -119,7 +119,7 @@ class _MainScreenState extends State<MainScreen> {
         children: [
           _debugSave(badDebugSave),
           _debugSave(goodDebugSave),
-          _debugDNEnroll(),
+          _debugClearKeys(),
         ],
         mainAxisAlignment: MainAxisAlignment.center,
       );
@@ -289,14 +289,15 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _debugDNEnroll() {
+  Widget _debugClearKeys()  {
     return CupertinoButton(
-      child: Text('DN Enroll'),
-      onPressed: () => Utils.openPage(context, (context) {
-        return EnrollmentScreen(allowCodeEntry: true);
-      }),
+      child: Text("Clear Keys"),
+      onPressed: () async {
+            await platform.invokeMethod("debug.clearKeys", null);
+        },
     );
   }
+
 
   _loadSites() async {
     //TODO: This can throw, we need to show an error dialog
