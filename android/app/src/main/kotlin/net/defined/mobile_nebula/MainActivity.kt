@@ -84,6 +84,10 @@ class MainActivity: FlutterActivity() {
                 "active.setRemoteForTunnel" -> activeSetRemoteForTunnel(call, result)
                 "active.closeTunnel" -> activeCloseTunnel(call, result)
 
+                "debug.clearKeys" -> {
+                    EncFile(context).resetMasterKey()
+                }
+
                 else -> result.notImplemented()
             }
         }
