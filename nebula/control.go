@@ -13,6 +13,7 @@ import (
 	"github.com/slackhq/nebula"
 	nc "github.com/slackhq/nebula/config"
 	"github.com/slackhq/nebula/iputil"
+	"github.com/slackhq/nebula/overlay"
 	"github.com/slackhq/nebula/udp"
 	"github.com/slackhq/nebula/util"
 )
@@ -51,10 +52,10 @@ func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebul
 	}
 
 	//TODO: inject our version
-	ctrl, err := nebula.Main(c, false, "", l, &tunFd)
+	ctrl, err := nebula.Main(c, false, "", l, overlay.NewFdDeviceFromConfig(&tunFd))
 	if err != nil {
 		switch v := err.(type) {
-		case util.ContextualError:
+		case *util.ContextualError:
 			v.Log(l)
 			return nil, v.Unwrap()
 		default:
