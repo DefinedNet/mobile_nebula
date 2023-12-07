@@ -91,7 +91,6 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
       ConfigItem(label: Text('Remote Index'), labelWidth: 150, content: SelectableText('${hostInfo.remoteIndex}')),
       ConfigItem(
           label: Text('Message Counter'), labelWidth: 150, content: SelectableText('${hostInfo.messageCounter}')),
-      ConfigItem(label: Text('Cached Packets'), labelWidth: 150, content: SelectableText('${hostInfo.cachedPackets}')),
     ]);
   }
 
