@@ -5,7 +5,6 @@ class HostInfo {
   int localIndex;
   int remoteIndex;
   List<UDPAddress> remoteAddresses;
-  int cachedPackets;
   Certificate? cert;
   UDPAddress? currentRemote;
   int messageCounter;
@@ -15,7 +14,6 @@ class HostInfo {
     required this.localIndex,
     required this.remoteIndex,
     required this.remoteAddresses,
-    required this.cachedPackets,
     required this.messageCounter,
     this.cert,
     this.currentRemote,
@@ -43,7 +41,6 @@ class HostInfo {
       localIndex: json['localIndex'],
       remoteIndex: json['remoteIndex'],
       remoteAddresses: remoteAddresses,
-      cachedPackets: json['cachedPackets'],
       messageCounter: json['messageCounter'],
       cert: cert,
       currentRemote: currentRemote,
