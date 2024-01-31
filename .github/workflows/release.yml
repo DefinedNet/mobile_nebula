@@ -53,7 +53,7 @@ jobs:
           GOOGLE_PLAY_API_JWT_PATH="$RUNNER_TEMP/gp_api.json"
           echo "GOOGLE_PLAY_API_JWT_PATH=$GOOGLE_PLAY_API_JWT_PATH" >> $GITHUB_ENV
           echo -n "$GOOGLE_PLAY_API_JWT_BASE64" | base64 --decode --output "$GOOGLE_PLAY_API_JWT_PATH"
-          
+
           GOOGLE_PLAY_KEYSTORE_PATH="$RUNNER_TEMP/gp_signing.jks"
           echo "GOOGLE_PLAY_KEYSTORE_PATH=$GOOGLE_PLAY_KEYSTORE_PATH" >> $GITHUB_ENV
           echo -n "$GOOGLE_PLAY_KEYSTORE_BASE64" | base64 --decode --output "$GOOGLE_PLAY_KEYSTORE_PATH"
@@ -70,11 +70,11 @@ jobs:
         run: |
           go install golang.org/x/mobile/cmd/gomobile@latest
           gomobile init
-          
+
           flutter pub get
-          
+
           touch env.sh
-          
+
           cd android
           fastlane release_build_number
           echo "BUILD_NUMBER=$(cat ../release_build_number)" >> $GITHUB_ENV
@@ -97,7 +97,7 @@ jobs:
           cp ios/MobileNebula.ipa build/app/test-ios
           cd build/app/test-ios
           unzip MobileNebula.ipa
-          if find . | xargs strings 2>/dev/null | grep -F "${TOKEN}" &>/dev/null; then
+          if find . | xargs strings 2>/dev/null | grep -qF "${TOKEN}" ; then
             echo "Token found in iOS build"
             exit 1
           fi
@@ -122,7 +122,7 @@ jobs:
           cp build/app/outputs/bundle/release/app-release.aab build/app/test-android
           cd build/app/test-android
           unzip app-release.aab
-          if find . | xargs strings 2>/dev/null | grep -F "${TOKEN}" &>/dev/null; then
+          if find . | xargs strings 2>/dev/null | grep -qF "${TOKEN}" ; then
             echo "Token found in Android build"
             exit 1
           fi
