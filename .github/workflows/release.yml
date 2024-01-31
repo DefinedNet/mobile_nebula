@@ -64,6 +64,8 @@ jobs:
           echo -n "$GOOGLE_PLAY_KEYSTORE_BASE64" | base64 --decode --output "$GOOGLE_PLAY_KEYSTORE_PATH"
 
       - name: Get build name and number, install dependencies
+        env:
+          TOKEN: ${{ secrets.MACHINE_USER_PAT }}
         run: |
           go install golang.org/x/mobile/cmd/gomobile@latest
           gomobile init
@@ -81,11 +83,23 @@ jobs:
 
       - name: Build iOS
         env:
+          TOKEN: ${{ secrets.MACHINE_USER_PAT }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
         run: |
           cd ios
           pod install
           fastlane build
+          cd -
+
+          # verify that the github token didn't make it into the output
+          mkdir -p build/app/test-ios
+          cp ios/MobileNebula.ipa build/app/test-ios
+          cd build/app/test-ios
+          unzip MobileNebula.ipa
+          if find . | xargs strings 2>/dev/null | grep -F "${TOKEN}" &>/dev/null; then
+            echo "Token found in iOS build"
+            exit 1
+          fi
 
       - name: Collect iOS artifacts
         uses: actions/upload-artifact@v3
@@ -100,6 +114,16 @@ jobs:
           GOOGLE_PLAY_KEYSTORE_PASSWORD: ${{ secrets.GOOGLE_PLAY_KEYSTORE_PASSWORD }}
         run: |
           flutter build appbundle --build-number="$BUILD_NUMBER" --build-name="$BUILD_NAME"
+
+          # verify that the github token didn't make it into the output
+          mkdir -p build/app/test-android
+          cp build/app/outputs/bundle/release/app-release.aab build/app/test-android
+          cd build/app/test-android
+          unzip app-release.aab
+          if find . | xargs strings 2>/dev/null | grep -F "${TOKEN}" &>/dev/null; then
+            echo "Token found in Android build"
+            exit 1
+          fi
 
       - name: Collect Android artifacts
         uses: actions/upload-artifact@v3
