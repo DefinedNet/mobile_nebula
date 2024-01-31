@@ -111,6 +111,7 @@ jobs:
 
       - name: Build Android
         env:
+          TOKEN: ${{ secrets.MACHINE_USER_PAT }}
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
           GOOGLE_PLAY_KEYSTORE_PASSWORD: ${{ secrets.GOOGLE_PLAY_KEYSTORE_PASSWORD }}
         run: |
