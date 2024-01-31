@@ -37,11 +37,6 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Configure git for private modules
-        env:
-          TOKEN: ${{ secrets.MACHINE_USER_PAT }}
-        run: git config --global url."https://defined-machine:${TOKEN}@github.com".insteadOf "https://github.com"
-
       - name: Install the appstore connect key material
         env:
           AC_API_KEY_SECRET_BASE64: ${{ secrets.AC_API_KEY_SECRET_BASE64 }}
@@ -62,6 +57,12 @@ jobs:
           GOOGLE_PLAY_KEYSTORE_PATH="$RUNNER_TEMP/gp_signing.jks"
           echo "GOOGLE_PLAY_KEYSTORE_PATH=$GOOGLE_PLAY_KEYSTORE_PATH" >> $GITHUB_ENV
           echo -n "$GOOGLE_PLAY_KEYSTORE_BASE64" | base64 --decode --output "$GOOGLE_PLAY_KEYSTORE_PATH"
+
+      - name: Place Github token for fastlane match
+        env:
+          TOKEN: ${{ secrets.MACHINE_USER_PAT }}
+        run:
+          echo "MATCH_GIT_BASIC_AUTHORIZATION=$(echo -n "defined-machine:${TOKEN}" | base64)" >> $GITHUB_ENV
 
       - name: Get build name and number, install dependencies
         env:
