@@ -118,6 +118,9 @@ class NebulaVpnService : VpnService() {
 
         // Disallow some common, known-problematic apps
         // TODO Make this user configurable
+        // Ensure that a misconfigured unsafe_route doesn't block access to the DN API
+        disallowApp(builder, "net.defined.mobile_nebula")
+        disallowApp(builder, "net.defined.mobile_nebula.debug")
         // Android Auto Wireless (https://github.com/DefinedNet/mobile_nebula/issues/102)
         disallowApp(builder, "com.google.android.projection.gearhead")
         // Chromecast (https://github.com/DefinedNet/mobile_nebula/issues/102)
