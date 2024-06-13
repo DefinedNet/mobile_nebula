@@ -48,7 +48,9 @@ func (e InvalidCredentialsError) Error() string {
 }
 
 func (c *APIClient) Enroll(code string) (*EnrollResult, error) {
-	cfg, pkey, creds, meta, err := c.c.EnrollWithTimeout(context.Background(), 30*time.Second, c.l, code)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	cfg, pkey, creds, meta, err := c.c.Enroll(ctx, c.l, code)
 	var apiError *dnapi.APIError
 	switch {
 	case errors.As(err, &apiError):
@@ -99,7 +101,9 @@ func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string,
 	}
 
 	// Check for update
-	updateAvailable, err := c.c.CheckForUpdateWithTimeout(context.Background(), 10*time.Second, creds)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	updateAvailable, err := c.c.CheckForUpdate(ctx, creds)
 	switch {
 	case errors.As(err, &dnapi.InvalidCredentialsError{}):
 		return nil, InvalidCredentialsError{}
@@ -112,7 +116,9 @@ func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string,
 	}
 
 	// Perform the update and return the new site object
-	cfg, pkey, newCreds, err := c.c.DoUpdateWithTimeout(context.Background(), 10*time.Second, creds)
+	updateCtx, updateCancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer updateCancel()
+	cfg, pkey, newCreds, err := c.c.DoUpdate(updateCtx, creds)
 	switch {
 	case errors.As(err, &dnapi.InvalidCredentialsError{}):
 		return nil, InvalidCredentialsError{}
