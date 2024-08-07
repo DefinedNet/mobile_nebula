@@ -8,10 +8,8 @@ type config struct {
 	Punchy        configPunchy        `yaml:"punchy"`
 	Cipher        string              `yaml:"cipher"`
 	LocalRange    string              `yaml:"local_range"`
-	SSHD          configSSHD          `yaml:"sshd"`
 	Tun           configTun           `yaml:"tun"`
 	Logging       configLogging       `yaml:"logging"`
-	Stats         configStats         `yaml:"stats"`
 	Handshakes    configHandshakes    `yaml:"handshakes"`
 	Firewall      configFirewall      `yaml:"firewall"`
 	Relay         configRelay         `yaml:"relay"`
@@ -25,14 +23,12 @@ func newConfig() *config {
 		},
 		StaticHostmap: map[string][]string{},
 		Lighthouse: configLighthouse{
-			DNS:      configDNS{},
 			Interval: 60,
 			Hosts:    []string{},
 		},
 		Listen: configListen{
-			Host:  "[::]",
-			Port:  4242,
-			Batch: 64,
+			Host:  "::",
+			Port:  0,
 		},
 		Punchy: configPunchy{
 			Punch: true,
@@ -42,9 +38,6 @@ func newConfig() *config {
 			UseRelays: true,
 		},
 		Cipher: "aes",
-		SSHD: configSSHD{
-			AuthorizedUsers: []configAuthorizedUser{},
-		},
 		Tun: configTun{
 			Dev:                "tun1",
 			DropLocalbroadcast: true,
@@ -58,7 +51,6 @@ func newConfig() *config {
 			Level:  "info",
 			Format: "text",
 		},
-		Stats: configStats{},
 		Handshakes: configHandshakes{
 			TryInterval:  "100ms",
 			Retries:      20,
@@ -92,43 +84,21 @@ type configPKI struct {
 
 type configLighthouse struct {
 	AmLighthouse bool      `yaml:"am_lighthouse"`
-	ServeDNS     bool      `yaml:"serve_dns"`
-	DNS          configDNS `yaml:"dns"`
 	Interval     int       `yaml:"interval"`
 	Hosts        []string  `yaml:"hosts"`
 	//RemoteAllowList map[string]bool        `yaml:"remote_allow_list"`
 	//LocalAllowList  map[string]interface{} `yaml:"local_allow_list"` // This can be a special "interfaces" object or a bool
 }
 
-type configDNS struct {
-	Host string `yaml:"host"`
-	Port int    `yaml:"port"`
-}
-
 type configListen struct {
 	Host        string `yaml:"host"`
 	Port        int    `yaml:"port"`
-	Batch       int    `yaml:"batch"`
-	ReadBuffer  int64  `yaml:"read_buffer"`
-	WriteBuffer int64  `yaml:"write_buffer"`
 }
 
 type configPunchy struct {
 	Punch   bool   `yaml:"punch"`
 	Respond bool   `yaml:"respond"`
 	Delay   string `yaml:"delay"`
-}
-
-type configSSHD struct {
-	Enabled         bool                   `yaml:"enabled"`
-	Listen          string                 `yaml:"listen"`
-	HostKey         string                 `yaml:"host_key"`
-	AuthorizedUsers []configAuthorizedUser `yaml:"authorized_users"`
-}
-
-type configAuthorizedUser struct {
-	Name string   `yaml:"name"`
-	Keys []string `yaml:"keys"`
 }
 
 type configTun struct {
@@ -156,22 +126,6 @@ type configLogging struct {
 	Level           string `yaml:"level"`
 	Format          string `yaml:"format"`
 	TimestampFormat string `yaml:"timestamp_format,omitempty"`
-}
-
-type configStats struct {
-	Type     string `yaml:"type"`
-	Interval string `yaml:"interval"`
-
-	// Graphite settings
-	Prefix   string `yaml:"prefix"`
-	Protocol string `yaml:"protocol"`
-	Host     string `yaml:"host"`
-
-	// Prometheus settings
-	Listen    string `yaml:"listen"`
-	Path      string `yaml:"path"`
-	Namespace string `yaml:"namespace"`
-	Subsystem string `yaml:"subsystem"`
 }
 
 type configHandshakes struct {
