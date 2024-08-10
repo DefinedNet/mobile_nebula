@@ -23,7 +23,7 @@ func newConfig() *config {
 		},
 		StaticHostmap: map[string][]string{},
 		Lighthouse: configLighthouse{
-			Interval: 60,
+			Interval: 0,
 			Hosts:    []string{},
 		},
 		Listen: configListen{
