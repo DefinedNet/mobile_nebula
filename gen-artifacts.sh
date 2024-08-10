@@ -39,7 +39,7 @@ cd ..
 
   # Get the nebula version
   cd nebula
-  NEBULA_VERSION="$(go list -m -f "{{.Version}}" github.com/slackhq/nebula | cut -f1 -d'-' | cut -c2-)"
+  NEBULA_VERSION="$(go list -m -f "{{.Replace.Version}}" github.com/slackhq/nebula | cut -f1 -d'-' | cut -c2-)"
   echo "const nebulaVersion = '$NEBULA_VERSION';"
 	cd ..
 
