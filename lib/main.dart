@@ -32,7 +32,7 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   final settings = Settings();
-  Brightness brightness = SchedulerBinding.instance.window.platformBrightness;
+  Brightness brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
   StreamController dnEnrolled = StreamController.broadcast();
 
   @override
