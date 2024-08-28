@@ -52,7 +52,9 @@ class ConfigPageItem extends StatelessWidget {
             children: <Widget>[
               label != null ? Container(width: labelWidth, child: label) : Container(),
               Expanded(child: Container(child: content, padding: EdgeInsets.only(right: 10))),
-              this.disabled ? Container() : Icon(CupertinoIcons.forward, color: CupertinoColors.placeholderText.resolveFrom(context), size: 18)
+              this.disabled
+                  ? Container()
+                  : Icon(CupertinoIcons.forward, color: CupertinoColors.placeholderText.resolveFrom(context), size: 18)
             ],
           )),
     );

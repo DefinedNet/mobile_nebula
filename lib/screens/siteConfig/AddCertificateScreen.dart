@@ -98,12 +98,10 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
                   content: Text('Share Public Key'),
                   onPressed: () async {
                     await Share.share(context,
-                        title: 'Please sign and return a certificate',
-                        text: pubKey,
-                        filename: 'device.pub');
+                        title: 'Please sign and return a certificate', text: pubKey, filename: 'device.pub');
                   },
                 );
-            },
+              },
             ),
           ])
     ];
@@ -269,12 +267,12 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
           // We have a cert, pop the details screen where they can hit save
           Utils.openPage(context, (context) {
             return CertificateDetailsScreen(
-                certInfo: tryCertInfo,
-                onSave: () {
-                  Navigator.pop(context);
-                  widget.onSave!(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
-                },
-                supportsQRScanning: widget.supportsQRScanning,
+              certInfo: tryCertInfo,
+              onSave: () {
+                Navigator.pop(context);
+                widget.onSave!(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
+              },
+              supportsQRScanning: widget.supportsQRScanning,
             );
           });
         }

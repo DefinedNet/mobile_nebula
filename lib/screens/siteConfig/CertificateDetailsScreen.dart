@@ -170,19 +170,19 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
                 onPressed: () {
                   Utils.openPage(context, (context) {
                     return AddCertificateScreen(
-                        onReplace: (result) {
-                          setState(() {
-                            changed = true;
-                            certResult = result;
-                            certInfo = result.certInfo;
-                          });
-                          // Slam the page back to the top
-                          controller.animateTo(0,
-                              duration: const Duration(milliseconds: 10), curve: Curves.linearToEaseOut);
-                        },
-                        pubKey: widget.pubKey!,
-                        privKey: widget.privKey!,
-                        supportsQRScanning: widget.supportsQRScanning,
+                      onReplace: (result) {
+                        setState(() {
+                          changed = true;
+                          certResult = result;
+                          certInfo = result.certInfo;
+                        });
+                        // Slam the page back to the top
+                        controller.animateTo(0,
+                            duration: const Duration(milliseconds: 10), curve: Curves.linearToEaseOut);
+                      },
+                      pubKey: widget.pubKey!,
+                      privKey: widget.privKey!,
+                      supportsQRScanning: widget.supportsQRScanning,
                     );
                   });
                 })));

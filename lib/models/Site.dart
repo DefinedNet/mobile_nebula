@@ -206,8 +206,7 @@ class Site {
       "unsafeRoutes": unsafeRoutes,
       "managed": json['managed'] ?? false,
       "rawConfig": json['rawConfig'],
-      "lastManagedUpdate": json["lastManagedUpdate"] == null ?
-        null : DateTime.parse(json["lastManagedUpdate"]),
+      "lastManagedUpdate": json["lastManagedUpdate"] == null ? null : DateTime.parse(json["lastManagedUpdate"]),
     };
   }
 

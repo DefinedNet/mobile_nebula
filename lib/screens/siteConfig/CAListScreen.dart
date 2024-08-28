@@ -64,18 +64,18 @@ class _CAListScreenState extends State<CAListScreen> {
     }
 
     return FormPage(
-          title: 'Certificate Authorities',
-          changed: changed,
-          onSave: () {
-            if (widget.onSave != null) {
-              Navigator.pop(context);
-              widget.onSave!(cas.values.map((ca) {
-                return ca;
-              }).toList());
-            }
-          },
-          child: Column(children: items));
-    }
+        title: 'Certificate Authorities',
+        changed: changed,
+        onSave: () {
+          if (widget.onSave != null) {
+            Navigator.pop(context);
+            widget.onSave!(cas.values.map((ca) {
+              return ca;
+            }).toList());
+          }
+        },
+        child: Column(children: items));
+  }
 
   List<Widget> _buildCAs() {
     List<Widget> items = [];
@@ -85,14 +85,16 @@ class _CAListScreenState extends State<CAListScreen> {
         onPressed: () {
           Utils.openPage(context, (context) {
             return CertificateDetailsScreen(
-                certInfo: ca,
-                onDelete: widget.onSave == null ? null : () {
-                  setState(() {
-                    changed = true;
-                    cas.remove(key);
-                  });
-                },
-                supportsQRScanning: widget.supportsQRScanning,
+              certInfo: ca,
+              onDelete: widget.onSave == null
+                  ? null
+                  : () {
+                      setState(() {
+                        changed = true;
+                        cas.remove(key);
+                      });
+                    },
+              supportsQRScanning: widget.supportsQRScanning,
             );
           });
         },

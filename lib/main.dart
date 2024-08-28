@@ -110,11 +110,9 @@ class _AppState extends State<App> {
             if (uri.path == EnrollmentScreen.routeName) {
               // TODO: maybe implement this as a dialog instead of a page, you can stack multiple enrollment screens which is annoying in dev
               return platformPageRoute(
-                  context: context,
-                  builder: (context) => EnrollmentScreen(
-                    code: EnrollmentScreen.parseCode(settings.name!),
-                    stream: this.dnEnrolled
-                  ),
+                context: context,
+                builder: (context) =>
+                    EnrollmentScreen(code: EnrollmentScreen.parseCode(settings.name!), stream: this.dnEnrolled),
               );
             }
 

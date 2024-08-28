@@ -79,11 +79,12 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final dnIcon = Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
+    final dnIcon =
+        Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
     final title = Row(children: [
-      site.managed ?
-        Padding(padding: EdgeInsets.only(right: 10), child: SvgPicture.asset(dnIcon, width: 12)) :
-        Container(),
+      site.managed
+          ? Padding(padding: EdgeInsets.only(right: 10), child: SvgPicture.asset(dnIcon, width: 12))
+          : Container(),
       Expanded(child: Text(site.name, style: TextStyle(fontWeight: FontWeight.bold)))
     ]);
 
@@ -192,16 +193,16 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
               Utils.openPage(
                   context,
                   (context) => SiteTunnelsScreen(
-                      pending: false,
-                      tunnels: activeHosts!,
-                      site: site,
-                      onChanged: (hosts) {
-                        setState(() {
-                          activeHosts = hosts;
-                        });
-                      },
-                      supportsQRScanning: widget.supportsQRScanning,
-                  ));
+                        pending: false,
+                        tunnels: activeHosts!,
+                        site: site,
+                        onChanged: (hosts) {
+                          setState(() {
+                            activeHosts = hosts;
+                          });
+                        },
+                        supportsQRScanning: widget.supportsQRScanning,
+                      ));
             },
             label: Text("Active"),
             content: Container(alignment: Alignment.centerRight, child: active)),
@@ -212,16 +213,16 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
               Utils.openPage(
                   context,
                   (context) => SiteTunnelsScreen(
-                      pending: true,
-                      tunnels: pendingHosts!,
-                      site: site,
-                      onChanged: (hosts) {
-                        setState(() {
-                          pendingHosts = hosts;
-                        });
-                      },
-                      supportsQRScanning: widget.supportsQRScanning,
-                  ));
+                        pending: true,
+                        tunnels: pendingHosts!,
+                        site: site,
+                        onChanged: (hosts) {
+                          setState(() {
+                            pendingHosts = hosts;
+                          });
+                        },
+                        supportsQRScanning: widget.supportsQRScanning,
+                      ));
             },
             label: Text("Pending"),
             content: Container(alignment: Alignment.centerRight, child: pending))
@@ -237,11 +238,11 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
         onPressed: () {
           Utils.openPage(context, (context) {
             return SiteConfigScreen(
-                site: widget.site,
-                onSave: (site) async {
-                  changed = true;
-                  setState(() {});
-                },
+              site: widget.site,
+              onSave: (site) async {
+                changed = true;
+                setState(() {});
+              },
               supportsQRScanning: widget.supportsQRScanning,
             );
           });

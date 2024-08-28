@@ -139,17 +139,17 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
       lastUpdate = formatter.format(site.lastManagedUpdate!.toLocal());
     }
 
-    return site.managed ? ConfigSection(
-      label: "MANAGED CONFIG",
-      children: <Widget>[
-        ConfigItem(
-          label: Text("Last Update"),
-          content: Wrap(alignment: WrapAlignment.end, crossAxisAlignment: WrapCrossAlignment.center, children: <Widget>[
-            Text(lastUpdate),
-          ]),
-        )
-      ]
-    ) : Container();
+    return site.managed
+        ? ConfigSection(label: "MANAGED CONFIG", children: <Widget>[
+            ConfigItem(
+              label: Text("Last Update"),
+              content:
+                  Wrap(alignment: WrapAlignment.end, crossAxisAlignment: WrapCrossAlignment.center, children: <Widget>[
+                Text(lastUpdate),
+              ]),
+            )
+          ])
+        : Container();
   }
 
   Widget _keys() {
@@ -183,30 +183,32 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
             Utils.openPage(context, (context) {
               if (site.certInfo != null) {
                 return CertificateDetailsScreen(
-                    certInfo: site.certInfo!,
-                    pubKey: pubKey,
-                    privKey: privKey,
-                    onReplace: site.managed ? null : (result) {
-                      setState(() {
-                        changed = true;
-                        site.certInfo = result.certInfo;
-                        site.key = result.key;
-                      });
-                    },
-                    supportsQRScanning: widget.supportsQRScanning,
+                  certInfo: site.certInfo!,
+                  pubKey: pubKey,
+                  privKey: privKey,
+                  onReplace: site.managed
+                      ? null
+                      : (result) {
+                          setState(() {
+                            changed = true;
+                            site.certInfo = result.certInfo;
+                            site.key = result.key;
+                          });
+                        },
+                  supportsQRScanning: widget.supportsQRScanning,
                 );
               }
 
               return AddCertificateScreen(
-                  pubKey: pubKey!,
-                  privKey: privKey!,
-                  onSave: (result) {
-                    setState(() {
-                      changed = true;
-                      site.certInfo = result.certInfo;
-                      site.key = result.key;
-                    });
-                  },
+                pubKey: pubKey!,
+                privKey: privKey!,
+                onSave: (result) {
+                  setState(() {
+                    changed = true;
+                    site.certInfo = result.certInfo;
+                    site.key = result.key;
+                  });
+                },
                 supportsQRScanning: widget.supportsQRScanning,
               );
             });
@@ -226,14 +228,16 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
             onPressed: () {
               Utils.openPage(context, (context) {
                 return CAListScreen(
-                    cas: site.ca,
-                    onSave: site.managed ? null : (ca) {
-                      setState(() {
-                        changed = true;
-                        site.ca = ca;
-                      });
-                    },
-                    supportsQRScanning: widget.supportsQRScanning,
+                  cas: site.ca,
+                  onSave: site.managed
+                      ? null
+                      : (ca) {
+                          setState(() {
+                            changed = true;
+                            site.ca = ca;
+                          });
+                        },
+                  supportsQRScanning: widget.supportsQRScanning,
                 );
               });
             })
@@ -261,12 +265,14 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
             Utils.openPage(context, (context) {
               return StaticHostsScreen(
                   hostmap: site.staticHostmap,
-                  onSave: site.managed ? null : (map) {
-                    setState(() {
-                      changed = true;
-                      site.staticHostmap = map;
-                    });
-                  });
+                  onSave: site.managed
+                      ? null
+                      : (map) {
+                          setState(() {
+                            changed = true;
+                            site.staticHostmap = map;
+                          });
+                        });
             });
           },
         ),

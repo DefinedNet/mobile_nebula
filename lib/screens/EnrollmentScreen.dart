@@ -91,37 +91,38 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       } else {
         // No code, show the error
         child = Padding(
-            child: Center(child: Text(
+            child: Center(
+                child: Text(
               'No valid enrollment code was found.\n\nContact your administrator to obtain a new enrollment code.',
               textAlign: TextAlign.center,
-
             )),
-            padding: EdgeInsets.only(top: 20)
-        );
+            padding: EdgeInsets.only(top: 20));
       }
-
     } else if (this.error != null) {
       // Error while enrolling, display it
-      child = Center(child: Column(
+      child = Center(
+          child: Column(
         children: [
           Padding(
-            child: SelectableText('There was an issue while attempting to enroll this device. Contact your administrator to obtain a new enrollment code.'),
-            padding: EdgeInsets.symmetric(vertical: 20)
-          ),
-          Padding(child: SelectableText.rich(TextSpan(children: [
-              TextSpan(text: 'If the problem persists, please let us know at '),
-              TextSpan(
-                text: 'support@defined.net',
-                style: bodyTextStyle.apply(color: colorScheme.primary),
-                recognizer: TapGestureRecognizer()
-                  ..onTap = () async {
-                    if (await canLaunchUrl(contactUri)) {
-                      print(await launchUrl(contactUri));
-                    }
-                  },
-              ),
-              TextSpan(text: ' and provide the following error:'),
-          ])), padding: EdgeInsets.only(bottom: 10)),
+              child: SelectableText(
+                  'There was an issue while attempting to enroll this device. Contact your administrator to obtain a new enrollment code.'),
+              padding: EdgeInsets.symmetric(vertical: 20)),
+          Padding(
+              child: SelectableText.rich(TextSpan(children: [
+                TextSpan(text: 'If the problem persists, please let us know at '),
+                TextSpan(
+                  text: 'support@defined.net',
+                  style: bodyTextStyle.apply(color: colorScheme.primary),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () async {
+                      if (await canLaunchUrl(contactUri)) {
+                        print(await launchUrl(contactUri));
+                      }
+                    },
+                ),
+                TextSpan(text: ' and provide the following error:'),
+              ])),
+              padding: EdgeInsets.only(bottom: 10)),
           Container(
             child: Padding(child: SelectableText(this.error!), padding: EdgeInsets.all(10)),
             color: Theme.of(context).colorScheme.errorContainer,
@@ -130,47 +131,43 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
       ));
-
     } else if (this.enrolled) {
       // Enrollment complete!
       child = Padding(
-          child: Center(child: Text(
+          child: Center(
+              child: Text(
             'Enrollment complete! 🎉',
             textAlign: TextAlign.center,
           )),
-          padding: EdgeInsets.only(top: 20)
-      );
-
+          padding: EdgeInsets.only(top: 20));
     } else {
       // Have a code and actively enrolling
       alignment = Alignment.center;
-      child = Center(child: Column(
-        children: [
-          Padding(child: Text('Contacting DN for enrollment'), padding: EdgeInsets.only(bottom: 25)),
-          PlatformCircularProgressIndicator(cupertino: (_, __) {
-            return CupertinoProgressIndicatorData(radius: 50);
-          })
-        ]
-      ));
+      child = Center(
+          child: Column(children: [
+        Padding(child: Text('Contacting DN for enrollment'), padding: EdgeInsets.only(bottom: 25)),
+        PlatformCircularProgressIndicator(cupertino: (_, __) {
+          return CupertinoProgressIndicatorData(radius: 50);
+        })
+      ]));
     }
 
-    final dnIcon = Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
+    final dnIcon =
+        Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
     return SimplePage(
-      title: Text('Enroll with Managed Nebula', style: TextStyle(fontWeight: FontWeight.bold)),
-      child: Padding(child: child, padding: EdgeInsets.symmetric(horizontal: 10)),
-      alignment: alignment
-    );
+        title: Text('Enroll with Managed Nebula', style: TextStyle(fontWeight: FontWeight.bold)),
+        child: Padding(child: child, padding: EdgeInsets.symmetric(horizontal: 10)),
+        alignment: alignment);
   }
 
   Widget _codeEntry() {
     return Column(children: [
       Padding(
-        padding: EdgeInsets.only(top: 20),
-        child: PlatformTextField(
-          hintText: 'defined.net enrollment code or link',
-          controller: enrollInput,
-        )
-      ),
+          padding: EdgeInsets.only(top: 20),
+          child: PlatformTextField(
+            hintText: 'defined.net enrollment code or link',
+            controller: enrollInput,
+          )),
       PlatformTextButton(
         child: Text('Submit'),
         onPressed: () {
