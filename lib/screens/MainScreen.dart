@@ -14,7 +14,6 @@ import 'package:mobile_nebula/models/IPAndPort.dart';
 import 'package:mobile_nebula/models/Site.dart';
 import 'package:mobile_nebula/models/StaticHosts.dart';
 import 'package:mobile_nebula/models/UnsafeRoute.dart';
-import 'package:mobile_nebula/screens/EnrollmentScreen.dart';
 import 'package:mobile_nebula/screens/SettingsScreen.dart';
 import 'package:mobile_nebula/screens/SiteDetailScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/SiteConfigScreen.dart';
@@ -303,15 +302,11 @@ class _MainScreenState extends State<MainScreen> {
   _loadSites() async {
     //TODO: This can throw, we need to show an error dialog
     Map<String, dynamic> rawSites = jsonDecode(await platform.invokeMethod('listSites'));
-    bool hasErrors = false;
 
     sites = [];
     rawSites.forEach((id, rawSite) {
       try {
         var site = Site.fromJson(rawSite);
-        if (site.errors.length > 0) {
-          hasErrors = true;
-        }
 
         //TODO: we need to cancel change listeners when we rebuild
         site.onChange().listen((_) {

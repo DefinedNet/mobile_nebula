@@ -23,7 +23,6 @@ bool ipValidator(String? str, bool enableIPV6) {
       {
         return true;
       }
-      break;
   }
 
   return false;

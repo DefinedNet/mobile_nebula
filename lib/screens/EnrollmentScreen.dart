@@ -4,7 +4,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:flutter_svg/svg.dart';
 
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -152,8 +151,6 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       ]));
     }
 
-    final dnIcon =
-        Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
     return SimplePage(
         title: Text('Enroll with Managed Nebula', style: TextStyle(fontWeight: FontWeight.bold)),
         child: Padding(child: child, padding: EdgeInsets.symmetric(horizontal: 10)),

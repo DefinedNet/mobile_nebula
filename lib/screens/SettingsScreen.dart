@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
 import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
@@ -86,8 +85,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           )),
     ));
 
-    final dnIcon =
-        Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
     items.add(ConfigSection(children: [
       ConfigPageItem(
           label: Text('Enroll with Managed Nebula'),
