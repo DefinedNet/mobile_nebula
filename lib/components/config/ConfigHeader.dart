@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 TextStyle basicTextStyle(BuildContext context) =>
-    Platform.isIOS ? CupertinoTheme.of(context).textTheme.textStyle : Theme.of(context).textTheme.subtitle1!;
+    Platform.isIOS ? CupertinoTheme.of(context).textTheme.textStyle : Theme.of(context).textTheme.titleMedium!;
 
 const double _headerFontSize = 13.0;
 

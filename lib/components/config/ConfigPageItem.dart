@@ -31,7 +31,7 @@ class ConfigPageItem extends StatelessWidget {
       final origTheme = Theme.of(context);
       theme = origTheme.copyWith(
           textTheme: origTheme.textTheme
-              .copyWith(button: origTheme.textTheme.button!.copyWith(fontWeight: FontWeight.normal)));
+              .copyWith(labelLarge: origTheme.textTheme.labelLarge!.copyWith(fontWeight: FontWeight.normal)));
       return Theme(data: theme, child: _buildContent(context));
     } else {
       final origTheme = CupertinoTheme.of(context);
