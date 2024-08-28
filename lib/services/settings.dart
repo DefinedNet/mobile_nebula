@@ -37,14 +37,6 @@ class Settings {
     _set('logWrap', enabled);
   }
 
-  String _getString(String key, String defaultValue) {
-    final val = _settings[key];
-    if (val is String) {
-      return val;
-    }
-    return defaultValue;
-  }
-
   bool _getBool(String key, bool defaultValue) {
     final val = _settings[key];
     if (val is bool) {
