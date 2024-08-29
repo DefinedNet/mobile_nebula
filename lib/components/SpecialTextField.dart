@@ -90,7 +90,7 @@ class _SpecialTextFieldState extends State<SpecialTextField> {
         autofocus: widget.autofocus,
         focusNode: widget.focusNode,
         onChanged: widget.onChanged,
-        enabled: widget.enabled,
+        enabled: widget.enabled ?? false, // TODO: maybe there's a better way to do this?  widget.enabled is nullable, should it be?
         onSubmitted: (_) {
           if (widget.nextFocusNode != null) {
             FocusScope.of(context).requestFocus(widget.nextFocusNode);
