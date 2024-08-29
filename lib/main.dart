@@ -58,6 +58,7 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     final ThemeData lightTheme = ThemeData(
+      useMaterial3: false,
       brightness: Brightness.light,
       primarySwatch: Colors.blueGrey,
       primaryColor: Colors.blueGrey[900],
@@ -70,6 +71,7 @@ class _AppState extends State<App> {
     );
 
     final ThemeData darkTheme = ThemeData(
+      useMaterial3: false,
       brightness: Brightness.dark,
       primarySwatch: Colors.grey,
       primaryColor: Colors.grey[900],
