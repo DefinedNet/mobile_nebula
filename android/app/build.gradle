@@ -26,7 +26,7 @@ if (flutterVersionName == null) {
 android {
     namespace "net.defined.mobile_nebula"
 
-    compileSdkVersion 33
+    compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -45,7 +45,7 @@ android {
     defaultConfig {
         applicationId "net.defined.mobile_nebula"
         minSdkVersion 26 //flutter.minSdkVersion
-        targetSdkVersion 33 //flutter.targetSdkVersion
+        targetSdkVersion 34 //flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
