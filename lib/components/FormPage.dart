@@ -38,9 +38,9 @@ class _FormPageState extends State<FormPage> {
   Widget build(BuildContext context) {
     changed = widget.changed || changed;
 
-    return PopScope(
+    return PopScope<Object?>(
         canPop: false,
-        onPopInvoked: (bool didPop) async {
+        onPopInvokedWithResult: (bool didPop, Object? result) async {
           if (didPop) {
             return;
           }
