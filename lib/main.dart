@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart' show CupertinoThemeData, DefaultCupertinoLocalizations;
 import 'package:flutter/material.dart'
-    show BottomSheetThemeData, Colors, DefaultMaterialLocalizations, Theme, ThemeData, ThemeMode;
+    show BottomSheetThemeData, Colors, DefaultMaterialLocalizations, ThemeData, ThemeMode, MaterialApp, Scaffold;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -82,10 +82,10 @@ class _AppState extends State<App> {
       ),
     );
 
-    // This theme is required since icons light/dark mode will look for it
-    return Theme(
-      data: brightness == Brightness.light ? lightTheme : darkTheme,
-      child: PlatformProvider(
+    return MaterialApp(
+      theme: brightness == Brightness.light ? lightTheme : darkTheme,
+      home: Scaffold(
+      body: PlatformProvider(
         //initialPlatform: initialPlatform,
         builder: (context) => PlatformApp(
           debugShowCheckedModeBanner: false,
@@ -121,6 +121,7 @@ class _AppState extends State<App> {
             return null;
           },
         ),
+      ),
       ),
     );
   }
