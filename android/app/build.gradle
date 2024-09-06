@@ -27,7 +27,6 @@ android {
     namespace "net.defined.mobile_nebula"
 
     compileSdkVersion 34
-    ndkVersion flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
