@@ -27,7 +27,7 @@ dependencies:
   path_provider: ^2.0.11
   file_picker: ^8.1.2
   uuid: ^4.4.2
-  package_info: ^2.0.0
+  package_info_plus: ^8.0.2
   url_launcher: ^6.1.6
   pull_to_refresh: ^2.0.0
   flutter_barcode_scanner: ^2.0.0
