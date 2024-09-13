@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net"
+	"os"
 	"strings"
 	"time"
 
@@ -146,7 +147,8 @@ func TestConfig(configData string, key string) error {
 		return fmt.Errorf("failed to load config: %s", err)
 	}
 
-	_, err = nebula.Main(c, true, "", l, nil)
+	sigChan := make(chan os.Signal, 1)
+	_, err = nebula.Main(c, true, "", l, nil, sigChan)
 	if err != nil {
 		switch v := err.(type) {
 		case *util.ContextualError:

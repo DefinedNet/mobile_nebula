@@ -17,9 +17,10 @@ import (
 )
 
 type Nebula struct {
-	c      *nebula.Control
-	l      *logrus.Logger
-	config *nc.C
+	c       *nebula.Control
+	l       *logrus.Logger
+	config  *nc.C
+	sigChan chan os.Signal
 }
 
 func init() {
@@ -50,7 +51,8 @@ func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebul
 	}
 
 	//TODO: inject our version
-	ctrl, err := nebula.Main(c, false, "", l, overlay.NewFdDeviceFromConfig(&tunFd))
+	sigChan := make(chan os.Signal, 1)
+	ctrl, err := nebula.Main(c, false, "", l, overlay.NewFdDeviceFromConfig(&tunFd), sigChan)
 	if err != nil {
 		switch v := err.(type) {
 		case *util.ContextualError:
@@ -62,7 +64,7 @@ func NewNebula(configData string, key string, logFile string, tunFd int) (*Nebul
 		}
 	}
 
-	return &Nebula{ctrl, l, c}, nil
+	return &Nebula{ctrl, l, c, sigChan}, nil
 }
 
 func (n *Nebula) Log(v string) {
@@ -74,7 +76,7 @@ func (n *Nebula) Start() {
 }
 
 func (n *Nebula) ShutdownBlock() {
-	n.c.ShutdownBlock()
+	n.c.ShutdownBlock(n.sigChan)
 }
 
 func (n *Nebula) Stop() {
