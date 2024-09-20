@@ -41,9 +41,7 @@ class Share {
   /// - filePath: Path to the file to share
   /// - filename: An optional filename to override the existing file
   static Future<bool> shareFile(BuildContext context,
-      {required String title,
-      required String filePath,
-      String? filename}) async {
+      {required String title, required String filePath, String? filename}) async {
     assert(title.isNotEmpty);
     assert(filePath.isNotEmpty);
 
@@ -54,8 +52,7 @@ class Share {
     // and then delete it
     final xFile = sp.XFile(filePath, name: filename);
     final result = await sp.Share.shareXFiles([xFile],
-        subject: title,
-        sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size);
+        subject: title, sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size);
     return result.status == sp.ShareResultStatus.success;
   }
 }

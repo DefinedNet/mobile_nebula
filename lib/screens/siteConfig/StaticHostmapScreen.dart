@@ -66,7 +66,11 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
   @override
   Widget build(BuildContext context) {
     return FormPage(
-        title: widget.onDelete == null ? widget.onSave == null ? 'View Static Host' : 'New Static Host' : 'Edit Static Host',
+        title: widget.onDelete == null
+            ? widget.onSave == null
+                ? 'View Static Host'
+                : 'New Static Host'
+            : 'Edit Static Host',
         changed: changed,
         onSave: _onSave,
         child: Column(children: [
@@ -74,20 +78,20 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
             ConfigItem(
                 label: Text('Nebula IP'),
                 labelWidth: 200,
-                content: widget.onSave == null ?
-                  Text(_nebulaIp, textAlign: TextAlign.end) :
-                  IPFormField(
-                    help: "Required",
-                    initialValue: _nebulaIp,
-                    ipOnly: true,
-                    textAlign: TextAlign.end,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    textInputAction: TextInputAction.next,
-                    onSaved: (v) {
-                      if (v != null) {
-                        _nebulaIp = v;
-                      }
-                    })),
+                content: widget.onSave == null
+                    ? Text(_nebulaIp, textAlign: TextAlign.end)
+                    : IPFormField(
+                        help: "Required",
+                        initialValue: _nebulaIp,
+                        ipOnly: true,
+                        textAlign: TextAlign.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        textInputAction: TextInputAction.next,
+                        onSaved: (v) {
+                          if (v != null) {
+                            _nebulaIp = v;
+                          }
+                        })),
             ConfigItem(
               label: Text('Lighthouse'),
               labelWidth: 200,
@@ -96,12 +100,14 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
                   child: Switch.adaptive(
                       value: _lighthouse,
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      onChanged: widget.onSave == null ? null : (v) {
-                        setState(() {
-                          changed = true;
-                          _lighthouse = v;
-                        });
-                      })),
+                      onChanged: widget.onSave == null
+                          ? null
+                          : (v) {
+                              setState(() {
+                                changed = true;
+                                _lighthouse = v;
+                              });
+                            })),
             ),
           ]),
           ConfigSection(
@@ -128,8 +134,7 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
   _onSave() {
     Navigator.pop(context);
     if (widget.onSave != null) {
-      var map = Hostmap(
-          nebulaIp: _nebulaIp, destinations: [], lighthouse: _lighthouse);
+      var map = Hostmap(nebulaIp: _nebulaIp, destinations: [], lighthouse: _lighthouse);
 
       _destinations.forEach((_, dest) {
         map.destinations.add(dest.destination);
@@ -147,30 +152,32 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
         key: key,
         label: Align(
             alignment: Alignment.centerLeft,
-            child: widget.onSave == null ? Container() : PlatformIconButton(
-                padding: EdgeInsets.zero,
-                icon: Icon(Icons.remove_circle, color: CupertinoColors.systemRed.resolveFrom(context)),
-                onPressed: () => setState(() {
-                      _removeDestination(key);
-                      _dismissKeyboard();
-                    }))),
+            child: widget.onSave == null
+                ? Container()
+                : PlatformIconButton(
+                    padding: EdgeInsets.zero,
+                    icon: Icon(Icons.remove_circle, color: CupertinoColors.systemRed.resolveFrom(context)),
+                    onPressed: () => setState(() {
+                          _removeDestination(key);
+                          _dismissKeyboard();
+                        }))),
         labelWidth: 70,
         content: Row(children: <Widget>[
           Expanded(
-              child: widget.onSave == null ?
-              Text(dest.destination.toString(), textAlign: TextAlign.end) :
-              IPAndPortFormField(
-                ipHelp: 'public ip or name',
-                ipTextAlign: TextAlign.end,
-                enableIPV6: true,
-                noBorder: true,
-                initialValue: dest.destination,
-                onSaved: (v) {
-                  if (v != null) {
-                    dest.destination = v;
-                  }
-                },
-              )),
+              child: widget.onSave == null
+                  ? Text(dest.destination.toString(), textAlign: TextAlign.end)
+                  : IPAndPortFormField(
+                      ipHelp: 'public ip or name',
+                      ipTextAlign: TextAlign.end,
+                      enableIPV6: true,
+                      noBorder: true,
+                      initialValue: dest.destination,
+                      onSaved: (v) {
+                        if (v != null) {
+                          dest.destination = v;
+                        }
+                      },
+                    )),
         ]),
       ));
     });
@@ -178,8 +185,7 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
     if (widget.onSave != null) {
       items.add(ConfigButtonItem(
           content: Text('Add another'),
-          onPressed: () =>
-              setState(() {
+          onPressed: () => setState(() {
                 _addDestination();
                 _dismissKeyboard();
               })));

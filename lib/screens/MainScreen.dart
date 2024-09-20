@@ -14,7 +14,6 @@ import 'package:mobile_nebula/models/IPAndPort.dart';
 import 'package:mobile_nebula/models/Site.dart';
 import 'package:mobile_nebula/models/StaticHosts.dart';
 import 'package:mobile_nebula/models/UnsafeRoute.dart';
-import 'package:mobile_nebula/screens/EnrollmentScreen.dart';
 import 'package:mobile_nebula/screens/SettingsScreen.dart';
 import 'package:mobile_nebula/screens/SiteDetailScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/SiteConfigScreen.dart';
@@ -128,9 +127,9 @@ class _MainScreenState extends State<MainScreen> {
     // Determine whether the device supports QR scanning. For example, some
     // Chromebooks do not have camera support.
     if (Platform.isAndroid) {
-      platform.invokeMethod("android.deviceHasCamera").then(
-              (hasCamera) => setState(() => supportsQRScanning = hasCamera)
-      );
+      platform
+          .invokeMethod("android.deviceHasCamera")
+          .then((hasCamera) => setState(() => supportsQRScanning = hasCamera));
     } else {
       supportsQRScanning = true;
     }
@@ -143,9 +142,11 @@ class _MainScreenState extends State<MainScreen> {
         padding: EdgeInsets.zero,
         icon: Icon(Icons.add, size: 28.0),
         onPressed: () => Utils.openPage(context, (context) {
-          return SiteConfigScreen(onSave: (_) {
-            _loadSites();
-          }, supportsQRScanning: supportsQRScanning);
+          return SiteConfigScreen(
+              onSave: (_) {
+                _loadSites();
+              },
+              supportsQRScanning: supportsQRScanning);
         }),
       ),
       refreshController: refreshController,
@@ -210,9 +211,9 @@ class _MainScreenState extends State<MainScreen> {
           onPressed: () {
             Utils.openPage(context, (context) {
               return SiteDetailScreen(
-                  site: site,
-                  onChanged: () => _loadSites(),
-                  supportsQRScanning: supportsQRScanning,
+                site: site,
+                onChanged: () => _loadSites(),
+                supportsQRScanning: supportsQRScanning,
               );
             });
           }));
@@ -289,28 +290,23 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _debugClearKeys()  {
+  Widget _debugClearKeys() {
     return CupertinoButton(
       child: Text("Clear Keys"),
       onPressed: () async {
-            await platform.invokeMethod("debug.clearKeys", null);
-        },
+        await platform.invokeMethod("debug.clearKeys", null);
+      },
     );
   }
-
 
   _loadSites() async {
     //TODO: This can throw, we need to show an error dialog
     Map<String, dynamic> rawSites = jsonDecode(await platform.invokeMethod('listSites'));
-    bool hasErrors = false;
 
     sites = [];
     rawSites.forEach((id, rawSite) {
       try {
         var site = Site.fromJson(rawSite);
-        if (site.errors.length > 0) {
-          hasErrors = true;
-        }
 
         //TODO: we need to cancel change listeners when we rebuild
         site.onChange().listen((_) {
@@ -321,7 +317,6 @@ class _MainScreenState extends State<MainScreen> {
             Utils.popError(context, "${site.name} Error", err);
           }
         });
-
 
         sites!.add(site);
       } catch (err) {

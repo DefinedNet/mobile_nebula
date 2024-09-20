@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
@@ -40,19 +38,17 @@ class _FormPageState extends State<FormPage> {
   Widget build(BuildContext context) {
     changed = widget.changed || changed;
 
-    return WillPopScope(
-        onWillPop: () {
-          if (!changed) {
-            return Future.value(true);
+    return PopScope<Object?>(
+        canPop: false,
+        onPopInvokedWithResult: (bool didPop, Object? result) async {
+          if (didPop) {
+            return;
           }
-
-          var completer = Completer<bool>();
+          final NavigatorState navigator = Navigator.of(context);
 
           Utils.confirmDelete(context, 'Discard changes?', () {
-            completer.complete(true);
+            navigator.pop();
           }, deleteLabel: 'Yes', cancelLabel: 'No');
-
-          return completer.future;
         },
         child: SimplePage(
           leadingAction: _buildLeader(context),

@@ -12,7 +12,7 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     return FlutterError(code: "missing_argument", message: message, details: details)
 }
 
-@UIApplicationMain
+@main
 @objc class AppDelegate: FlutterAppDelegate {
     private let dnUpdater = DNUpdater()
     private let apiClient = APIClient()

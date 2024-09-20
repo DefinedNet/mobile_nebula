@@ -40,11 +40,12 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final dnIcon = Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
+    final dnIcon =
+        Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
     final title = Row(children: [
-      widget.site.managed ?
-        Padding(padding: EdgeInsets.only(right: 10), child: SvgPicture.asset(dnIcon, width: 12)) :
-        Container(),
+      widget.site.managed
+          ? Padding(padding: EdgeInsets.only(right: 10), child: SvgPicture.asset(dnIcon, width: 12))
+          : Container(),
       Expanded(child: Text(widget.site.name, style: TextStyle(fontWeight: FontWeight.bold)))
     ]);
 
@@ -83,29 +84,26 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
           border: Border(top: borderSide),
         ),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-          Expanded(
-            child: Builder(
-            builder: (BuildContext context) {
-              return PlatformIconButton(
-                padding: padding,
-                icon: Icon(context.platformIcons.share, size: 30),
-                onPressed: () {
-                  Share.shareFile(context,
-                      title: '${widget.site.name} logs',
-                      filePath: widget.site.logFile,
-                      filename: '${widget.site.name}.log');
-                },
-              );
-            }
-          )),
+          Expanded(child: Builder(builder: (BuildContext context) {
+            return PlatformIconButton(
+              padding: padding,
+              icon: Icon(context.platformIcons.share, size: 30),
+              onPressed: () {
+                Share.shareFile(context,
+                    title: '${widget.site.name} logs',
+                    filePath: widget.site.logFile,
+                    filename: '${widget.site.name}.log');
+              },
+            );
+          })),
           Expanded(
               child: PlatformIconButton(
-                padding: padding,
-                icon: Icon(context.platformIcons.downArrow, size: 30),
-                onPressed: () async {
-                  controller.animateTo(controller.position.maxScrollExtent,
-                      duration: const Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
-                },
+            padding: padding,
+            icon: Icon(context.platformIcons.downArrow, size: 30),
+            onPressed: () async {
+              controller.animateTo(controller.position.maxScrollExtent,
+                  duration: const Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
+            },
           )),
         ]));
   }

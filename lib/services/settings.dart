@@ -22,7 +22,7 @@ class Settings {
   }
 
   bool get darkMode {
-    return _getBool('darkMode', SchedulerBinding.instance.window.platformBrightness == Brightness.dark);
+    return _getBool('darkMode', SchedulerBinding.instance.platformDispatcher.platformBrightness == Brightness.dark);
   }
 
   set darkMode(bool enabled) {

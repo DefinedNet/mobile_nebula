@@ -75,10 +75,11 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
               labelWidth: 150,
               content: Text(hostInfo.cert!.details.name),
               onPressed: () => Utils.openPage(
-                  context, (context) => CertificateDetailsScreen(
-                    certInfo: CertificateInfo(cert: hostInfo.cert!),
-                    supportsQRScanning: widget.supportsQRScanning,
-              )))
+                  context,
+                  (context) => CertificateDetailsScreen(
+                        certInfo: CertificateInfo(cert: hostInfo.cert!),
+                        supportsQRScanning: widget.supportsQRScanning,
+                      )))
           : Container(),
     ]);
   }

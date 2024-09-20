@@ -70,8 +70,7 @@ class _StaticHostsScreenState extends State<StaticHostsScreen> {
     if (widget.onSave != null) {
       Map<String, StaticHost> map = {};
       _hostmap.forEach((_, host) {
-        map[host.nebulaIp] = StaticHost(
-            destinations: host.destinations, lighthouse: host.lighthouse);
+        map[host.nebulaIp] = StaticHost(destinations: host.destinations, lighthouse: host.lighthouse);
       });
 
       widget.onSave!(map);
@@ -98,20 +97,24 @@ class _StaticHostsScreenState extends State<StaticHostsScreen> {
                 nebulaIp: host.nebulaIp,
                 destinations: host.destinations,
                 lighthouse: host.lighthouse,
-                onSave: widget.onSave == null ? null :(map) {
-                  setState(() {
-                    changed = true;
-                    host.nebulaIp = map.nebulaIp;
-                    host.destinations = map.destinations;
-                    host.lighthouse = map.lighthouse;
-                  });
-                },
-                onDelete: widget.onSave == null ? null : () {
-                  setState(() {
-                    changed = true;
-                    _hostmap.remove(key);
-                  });
-                });
+                onSave: widget.onSave == null
+                    ? null
+                    : (map) {
+                        setState(() {
+                          changed = true;
+                          host.nebulaIp = map.nebulaIp;
+                          host.destinations = map.destinations;
+                          host.lighthouse = map.lighthouse;
+                        });
+                      },
+                onDelete: widget.onSave == null
+                    ? null
+                    : () {
+                        setState(() {
+                          changed = true;
+                          _hostmap.remove(key);
+                        });
+                      });
           });
         },
       ));

@@ -90,7 +90,7 @@ class _SpecialTextFieldState extends State<SpecialTextField> {
         autofocus: widget.autofocus,
         focusNode: widget.focusNode,
         onChanged: widget.onChanged,
-        enabled: widget.enabled,
+        enabled: widget.enabled ?? true,
         onSubmitted: (_) {
           if (widget.nextFocusNode != null) {
             FocusScope.of(context).requestFocus(widget.nextFocusNode);

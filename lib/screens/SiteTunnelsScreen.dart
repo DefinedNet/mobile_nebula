@@ -17,8 +17,7 @@ class SiteTunnelsScreen extends StatefulWidget {
     required this.pending,
     required this.onChanged,
     required this.supportsQRScanning,
-  })
-      : super(key: key);
+  }) : super(key: key);
 
   final Site site;
   final List<HostInfo> tunnels;
@@ -67,17 +66,17 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
 
       children.add(ConfigPageItem(
         onPressed: () => Utils.openPage(
-            context,
-            (context) => HostInfoScreen(
-                isLighthouse: isLh,
-                hostInfo: hostInfo,
-                pending: widget.pending,
-                site: widget.site,
-                onChanged: () {
-                  _listHostmap();
-                },
-                supportsQRScanning: widget.supportsQRScanning,
-            ),
+          context,
+          (context) => HostInfoScreen(
+            isLighthouse: isLh,
+            hostInfo: hostInfo,
+            pending: widget.pending,
+            site: widget.site,
+            onChanged: () {
+              _listHostmap();
+            },
+            supportsQRScanning: widget.supportsQRScanning,
+          ),
         ),
         label: Row(children: <Widget>[Padding(child: icon, padding: EdgeInsets.only(right: 10)), Text(hostInfo.vpnIp)]),
         labelWidth: ipWidth,

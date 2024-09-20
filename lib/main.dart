@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart' show CupertinoThemeData, DefaultCupertinoLocalizations;
 import 'package:flutter/material.dart'
-    show BottomSheetThemeData, Colors, DefaultMaterialLocalizations, Theme, ThemeData, ThemeMode;
+    show BottomSheetThemeData, Colors, DefaultMaterialLocalizations, ThemeData, ThemeMode, MaterialApp, Scaffold;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -32,7 +32,7 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   final settings = Settings();
-  Brightness brightness = SchedulerBinding.instance.window.platformBrightness;
+  Brightness brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
   StreamController dnEnrolled = StreamController.broadcast();
 
   @override
@@ -58,12 +58,10 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     final ThemeData lightTheme = ThemeData(
+      useMaterial3: false,
       brightness: Brightness.light,
       primarySwatch: Colors.blueGrey,
       primaryColor: Colors.blueGrey[900],
-      primaryColorBrightness: Brightness.dark,
-      accentColor: Colors.cyan[600],
-      accentColorBrightness: Brightness.dark,
       fontFamily: 'PublicSans',
       //scaffoldBackgroundColor: Colors.grey[100],
       scaffoldBackgroundColor: Colors.white,
@@ -73,12 +71,10 @@ class _AppState extends State<App> {
     );
 
     final ThemeData darkTheme = ThemeData(
+      useMaterial3: false,
       brightness: Brightness.dark,
       primarySwatch: Colors.grey,
       primaryColor: Colors.grey[900],
-      primaryColorBrightness: Brightness.dark,
-      accentColor: Colors.cyan[600],
-      accentColorBrightness: Brightness.dark,
       fontFamily: 'PublicSans',
       scaffoldBackgroundColor: Colors.grey[800],
       bottomSheetTheme: BottomSheetThemeData(
@@ -86,10 +82,10 @@ class _AppState extends State<App> {
       ),
     );
 
-    // This theme is required since icons light/dark mode will look for it
-    return Theme(
-      data: brightness == Brightness.light ? lightTheme : darkTheme,
-      child: PlatformProvider(
+    return MaterialApp(
+      theme: brightness == Brightness.light ? lightTheme : darkTheme,
+      home: Scaffold(
+      body: PlatformProvider(
         //initialPlatform: initialPlatform,
         builder: (context) => PlatformApp(
           debugShowCheckedModeBanner: false,
@@ -116,17 +112,16 @@ class _AppState extends State<App> {
             if (uri.path == EnrollmentScreen.routeName) {
               // TODO: maybe implement this as a dialog instead of a page, you can stack multiple enrollment screens which is annoying in dev
               return platformPageRoute(
-                  context: context,
-                  builder: (context) => EnrollmentScreen(
-                    code: EnrollmentScreen.parseCode(settings.name!),
-                    stream: this.dnEnrolled
-                  ),
+                context: context,
+                builder: (context) =>
+                    EnrollmentScreen(code: EnrollmentScreen.parseCode(settings.name!), stream: this.dnEnrolled),
               );
             }
 
             return null;
           },
         ),
+      ),
       ),
     );
   }
