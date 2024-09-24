@@ -30,10 +30,10 @@ dependencies:
   package_info_plus: ^8.0.2
   url_launcher: ^6.1.6
   pull_to_refresh: ^2.0.0
-  flutter_barcode_scanner: ^2.0.0
   flutter_svg: ^2.0.10+1
   intl: ^0.19.0
   share_plus: ^10.0.2
+  mobile_scanner: ^5.2.2
 
 dev_dependencies:
   flutter_test:

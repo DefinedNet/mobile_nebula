@@ -1,9 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/components/config/ConfigButtonItem.dart';
@@ -11,6 +11,7 @@ import 'package:mobile_nebula/components/config/ConfigItem.dart';
 import 'package:mobile_nebula/components/config/ConfigSection.dart';
 import 'package:mobile_nebula/components/config/ConfigTextItem.dart';
 import 'package:mobile_nebula/models/Certificate.dart';
+import 'package:mobile_nebula/screens/siteConfig/ScanQRScreen.dart';
 import 'package:mobile_nebula/services/share.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
@@ -215,17 +216,20 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
       ConfigSection(
         children: [
           ConfigButtonItem(
-              content: Text('Scan a QR code'),
-              onPressed: () async {
-                try {
-                  var result = await FlutterBarcodeScanner.scanBarcode('#ff6666', 'Cancel', true, ScanMode.QR);
-                  if (result != "") {
-                    _addCertEntry(result);
-                  }
-                } catch (err) {
-                  return Utils.popError(context, 'Error scanning QR code', err.toString());
-                }
-              }),
+            content: Text('Scan a QR code'),
+            onPressed: () async {
+              var result = await Navigator.push(
+                context,
+                platformPageRoute(
+                  context: context,
+                  builder: (context) => new ScanQRScreen(),
+                ),
+              );
+              if (result != null) {
+                _addCertEntry(result);
+              }
+            },
+          ),
         ],
       )
     ];
