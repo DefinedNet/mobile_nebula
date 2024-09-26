@@ -98,7 +98,12 @@ class MainActivity: FlutterActivity() {
 
         apiClient = APIClient(context)
 
-        registerReceiver(refreshReceiver, IntentFilter(ACTION_REFRESH_SITES), RECEIVER_NOT_EXPORTED)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(refreshReceiver, IntentFilter(ACTION_REFRESH_SITES), RECEIVER_NOT_EXPORTED)
+        } else {
+            @Suppress("UnspecifiedRegisterReceiverFlag")
+            registerReceiver(refreshReceiver, IntentFilter(ACTION_REFRESH_SITES))
+        }
 
         enqueueDNUpdater()
     }

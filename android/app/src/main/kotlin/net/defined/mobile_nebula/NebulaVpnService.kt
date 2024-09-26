@@ -213,7 +213,12 @@ class NebulaVpnService : VpnService() {
     }
 
     private fun registerReloadReceiver() {
-        registerReceiver(reloadReceiver, IntentFilter(ACTION_RELOAD), RECEIVER_NOT_EXPORTED)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(reloadReceiver, IntentFilter(ACTION_RELOAD), RECEIVER_NOT_EXPORTED)
+        } else {
+            @Suppress("UnspecifiedRegisterReceiverFlag")
+            registerReceiver(reloadReceiver, IntentFilter(ACTION_RELOAD))
+        }
     }
 
     private fun unregisterReloadReceiver() {
