@@ -28,15 +28,6 @@ android {
 
     compileSdkVersion 34
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17
-    }
-
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
@@ -69,6 +60,12 @@ android {
             resValue 'string', 'app_name', '"Nebula-DEBUG"'
             applicationIdSuffix '.debug'
         }
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
