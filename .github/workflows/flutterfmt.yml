@@ -24,4 +24,4 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Check formating
-        run: dart format -l120 lib/ test/ --set-exit-if-changed --suppress-analytics
+        run: dart format -l120 lib/ test/ --set-exit-if-changed --suppress-analytics --output none
