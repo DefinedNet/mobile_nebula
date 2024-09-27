@@ -23,5 +23,5 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
-      - name: flutter format
-        run: $GITHUB_WORKSPACE/.github/workflows/flutterfmt.sh
+      - name: Check formating
+        run: dart format -l120 lib/ test/ --set-exit-if-changed --suppress-analytics
