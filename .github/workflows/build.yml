@@ -1,4 +1,4 @@
-name: Build android and ios
+name: Build
 on:
   push:
     branches:
@@ -6,10 +6,9 @@ on:
   pull_request:
 
 jobs:
-  build:
-    name: Build ios and android packages
+  build-android:
+    name: Android
     runs-on: macos-latest
-
     steps:
       - name: Set up Go 1.22
         uses: actions/setup-go@v4
@@ -29,6 +28,43 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
+      - name: install dependencies
+        env:
+          TOKEN: ${{ secrets.MACHINE_USER_PAT }}
+        run: |
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          gomobile init
+          flutter pub get
+          touch env.sh
+
+      - name: Build Android debug
+        run: flutter build appbundle --debug
+
+  build-ios:
+    name: iOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Set up Go 1.22
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.22"
+
+      - name: Install flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.1'
+
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Install the appstore connect key material
+        env:
+          AC_API_KEY_SECRET_BASE64: ${{ secrets.AC_API_KEY_SECRET_BASE64 }}
+        run: |
+          AC_API_KEY_SECRET_PATH="$RUNNER_TEMP/key.p8"
+          echo "APP_STORE_CONNECT_API_KEY_KEY_FILEPATH=$AC_API_KEY_SECRET_PATH" >> $GITHUB_ENV
+          echo -n "$AC_API_KEY_SECRET_BASE64" | base64 --decode --output "$AC_API_KEY_SECRET_PATH"
 
       - name: install dependencies
         env:
@@ -36,30 +72,25 @@ jobs:
         run: |
           go install golang.org/x/mobile/cmd/gomobile@latest
           gomobile init
-
           flutter pub get
-
           touch env.sh
+      
+      - name: Build iOS
+        env:
+          TOKEN: ${{ secrets.MACHINE_USER_PAT }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        run: |
+          cd ios
+          pod install
+          cd -
+          flutter build ipa --debug
 
-#      - name: Build iOS
-#        env:
-#          TOKEN: ${{ secrets.MACHINE_USER_PAT }}
-#          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-#        run: |
-#          cd ios
-#          pod install
-#          fastlane build
-#          cd -
-#
-#          # verify that the github token didn't make it into the output
-#          mkdir -p build/app/test-ios
-#          cp ios/MobileNebula.ipa build/app/test-ios
-#          cd build/app/test-ios
-#          unzip MobileNebula.ipa
-#          if find . | xargs strings 2>/dev/null | grep -qF "${TOKEN}" ; then
-#            echo "Token found in iOS build"
-#            exit 1
-#          fi
-
-      - name: Build Android
-        run: flutter build appbundle --debug
+          # verify that the github token didn't make it into the output
+          mkdir -p build/app/test-ios
+          cp ios/MobileNebula.ipa build/app/test-ios
+          cd build/app/test-ios
+          unzip MobileNebula.ipa
+          if find . | xargs strings 2>/dev/null | grep -qF "${TOKEN}" ; then
+            echo "Token found in iOS build"
+            exit 1
+          fi
