@@ -27,6 +27,9 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 
 flutter_ios_podfile_setup
 
+Pod::PICKER_MEDIA = false
+Pod::PICKER_AUDIO = false
+
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
@@ -45,7 +48,7 @@ post_install do |installer|
     project.targets.each do |target|
       target.build_configurations.each do |config|
         if Gem::Version.new('11.0') > Gem::Version.new(config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'])
-          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
         end
       end
     end
