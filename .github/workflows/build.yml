@@ -88,8 +88,8 @@ jobs:
         run: |
           cd ios
           pod install
+          fastlane build
           cd -
-          flutter build ipa --debug
 
           # verify that the github token didn't make it into the output
           mkdir -p build/app/test-ios
