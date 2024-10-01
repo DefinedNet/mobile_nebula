@@ -43,8 +43,6 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera permission is required for qr code scanning.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Just in case you store a nebula certificate as a photo, we aren't interested in your photos but a file picker might come across them</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
