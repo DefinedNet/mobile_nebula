@@ -66,6 +66,12 @@ jobs:
           echo "APP_STORE_CONNECT_API_KEY_KEY_FILEPATH=$AC_API_KEY_SECRET_PATH" >> $GITHUB_ENV
           echo -n "$AC_API_KEY_SECRET_BASE64" | base64 --decode --output "$AC_API_KEY_SECRET_PATH"
 
+      - name: Place Github token for fastlane match
+        env:
+          TOKEN: ${{ secrets.MACHINE_USER_PAT }}
+        run:
+          echo "MATCH_GIT_BASIC_AUTHORIZATION=$(echo -n "defined-machine:${TOKEN}" | base64)" >> $GITHUB_ENV
+
       - name: install dependencies
         env:
           TOKEN: ${{ secrets.MACHINE_USER_PAT }}
