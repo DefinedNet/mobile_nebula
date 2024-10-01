@@ -1,4 +1,6 @@
-name: Build
+# This workflow builds the iOS and Android apps, just to check they build without error
+
+name: Smoke build
 on:
   push:
     branches:
