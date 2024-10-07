@@ -85,43 +85,43 @@ class _AppState extends State<App> {
     return MaterialApp(
       theme: brightness == Brightness.light ? lightTheme : darkTheme,
       home: Scaffold(
-      body: PlatformProvider(
-        //initialPlatform: initialPlatform,
-        builder: (context) => PlatformApp(
-          debugShowCheckedModeBanner: false,
-          localizationsDelegates: <LocalizationsDelegate<dynamic>>[
-            DefaultMaterialLocalizations.delegate,
-            DefaultWidgetsLocalizations.delegate,
-            DefaultCupertinoLocalizations.delegate,
-          ],
-          title: 'Nebula',
-          material: (_, __) {
-            return new MaterialAppData(
-              themeMode: brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
-            );
-          },
-          cupertino: (_, __) => CupertinoAppData(
-            theme: CupertinoThemeData(brightness: brightness),
-          ),
-          onGenerateRoute: (settings) {
-            if (settings.name == '/') {
-              return platformPageRoute(context: context, builder: (context) => MainScreen(this.dnEnrolled));
-            }
-
-            final uri = Uri.parse(settings.name!);
-            if (uri.path == EnrollmentScreen.routeName) {
-              // TODO: maybe implement this as a dialog instead of a page, you can stack multiple enrollment screens which is annoying in dev
-              return platformPageRoute(
-                context: context,
-                builder: (context) =>
-                    EnrollmentScreen(code: EnrollmentScreen.parseCode(settings.name!), stream: this.dnEnrolled),
+        body: PlatformProvider(
+          //initialPlatform: initialPlatform,
+          builder: (context) => PlatformApp(
+            debugShowCheckedModeBanner: false,
+            localizationsDelegates: <LocalizationsDelegate<dynamic>>[
+              DefaultMaterialLocalizations.delegate,
+              DefaultWidgetsLocalizations.delegate,
+              DefaultCupertinoLocalizations.delegate,
+            ],
+            title: 'Nebula',
+            material: (_, __) {
+              return new MaterialAppData(
+                themeMode: brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
               );
-            }
+            },
+            cupertino: (_, __) => CupertinoAppData(
+              theme: CupertinoThemeData(brightness: brightness),
+            ),
+            onGenerateRoute: (settings) {
+              if (settings.name == '/') {
+                return platformPageRoute(context: context, builder: (context) => MainScreen(this.dnEnrolled));
+              }
 
-            return null;
-          },
+              final uri = Uri.parse(settings.name!);
+              if (uri.path == EnrollmentScreen.routeName) {
+                // TODO: maybe implement this as a dialog instead of a page, you can stack multiple enrollment screens which is annoying in dev
+                return platformPageRoute(
+                  context: context,
+                  builder: (context) =>
+                      EnrollmentScreen(code: EnrollmentScreen.parseCode(settings.name!), stream: this.dnEnrolled),
+                );
+              }
+
+              return null;
+            },
+          ),
         ),
-      ),
       ),
     );
   }

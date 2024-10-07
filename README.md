@@ -32,12 +32,15 @@ If you are having issues with iOS pods, try blowing it all away! `cd ios && rm -
 
 # Formatting
 
-`flutter format` can be used to format the code in `lib` and `test` but it's default is 80 char line limit, it's 2020
+`dart format` can be used to format the code in `lib` and `test`.  We use a line-length of 120 characters.
 
 Use:
 ```sh
-flutter format lib/ test/ -l 120
+dart format lib/ test/ -l 120
 ```
+
+In Android Studio, set the line length using Preferences -> Editor -> Code Style -> Dart -> Line length, set it to 120.  Enable auto-format with Preferences -> Languages & Frameworks -> Flutter -> Format code on save.
+
 
 # Release
 
