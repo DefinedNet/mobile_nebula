@@ -28,6 +28,9 @@ android {
 
     compileSdkVersion 34
 
+    // default ndk version for AGP 8.5: https://developer.android.com/build/releases/past-releases/agp-8-5-0-release-notes
+    ndkVersion "26.1.10909125"
+
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }

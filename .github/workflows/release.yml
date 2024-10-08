@@ -26,14 +26,6 @@ jobs:
         with:
           flutter-version: '3.24.1'
 
-      - uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: r21b
-          # r21b is 21.1.6352462, if it is not published here https://developer.android.com/ndk/downloads
-          # or here https://github.com/android/ndk/wiki/Unsupported-Downloads then you must download them and look at
-          # source.properties to determine the version
-
       - name: Check out code
         uses: actions/checkout@v3
 
@@ -112,7 +104,6 @@ jobs:
       - name: Build Android
         env:
           TOKEN: ${{ secrets.MACHINE_USER_PAT }}
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
           GOOGLE_PLAY_KEYSTORE_PASSWORD: ${{ secrets.GOOGLE_PLAY_KEYSTORE_PASSWORD }}
         run: |
           flutter build appbundle --build-number="$BUILD_NUMBER" --build-name="$BUILD_NAME"
