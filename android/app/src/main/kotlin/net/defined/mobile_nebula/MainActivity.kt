@@ -88,6 +88,11 @@ class MainActivity: FlutterActivity() {
                     EncFile(context).resetMasterKey()
                 }
 
+                "debug.updateDN" -> {
+                    val workRequest = OneTimeWorkRequestBuilder<DNUpdateWorker>().build()
+                    workManager.enqueue(workRequest)
+                }
+
                 else -> result.notImplemented()
             }
         }

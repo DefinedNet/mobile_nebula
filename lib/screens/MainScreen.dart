@@ -119,6 +119,7 @@ class _MainScreenState extends State<MainScreen> {
           _debugSave(badDebugSave),
           _debugSave(goodDebugSave),
           _debugClearKeys(),
+          _debugUpdateDN(),
         ],
         mainAxisAlignment: MainAxisAlignment.center,
       );
@@ -295,6 +296,15 @@ class _MainScreenState extends State<MainScreen> {
       child: Text("Clear Keys"),
       onPressed: () async {
         await platform.invokeMethod("debug.clearKeys", null);
+      },
+    );
+  }
+
+  Widget _debugUpdateDN() {
+    return CupertinoButton(
+      child: Text("DN Update"),
+      onPressed: () async {
+        await platform.invokeMethod("debug.updateDN", null);
       },
     );
   }
