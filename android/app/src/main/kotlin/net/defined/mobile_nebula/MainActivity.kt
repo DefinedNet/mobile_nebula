@@ -11,6 +11,7 @@ import android.content.pm.PackageManager
 import android.net.VpnService
 import android.os.*
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.work.*
 import com.google.gson.Gson
 import io.flutter.embedding.android.FlutterActivity
@@ -98,12 +99,7 @@ class MainActivity: FlutterActivity() {
 
         apiClient = APIClient(context)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(refreshReceiver, IntentFilter(ACTION_REFRESH_SITES), RECEIVER_NOT_EXPORTED)
-        } else {
-            @Suppress("UnspecifiedRegisterReceiverFlag")
-            registerReceiver(refreshReceiver, IntentFilter(ACTION_REFRESH_SITES))
-        }
+        ContextCompat.registerReceiver(context, refreshReceiver, IntentFilter(ACTION_REFRESH_SITES), RECEIVER_NOT_EXPORTED)
 
         enqueueDNUpdater()
     }

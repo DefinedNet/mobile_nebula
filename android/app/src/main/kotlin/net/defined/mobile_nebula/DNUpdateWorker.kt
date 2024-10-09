@@ -45,6 +45,7 @@ class DNUpdateWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, param
                 // Reload Nebula if this is the currently active site
                 if (res == DNSiteUpdater.Result.CONFIG_UPDATED) {
                     Intent().also { intent ->
+                        intent.setPackage(context.getPackageName())
                         intent.action = NebulaVpnService.ACTION_RELOAD
                         intent.putExtra("id", site.id)
                         context.sendBroadcast(intent)
@@ -54,6 +55,7 @@ class DNUpdateWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, param
                 // Update the UI on any change
                 if (res != DNSiteUpdater.Result.NOOP) {
                     Intent().also { intent ->
+                        intent.setPackage(context.getPackageName())
                         intent.action = MainActivity.ACTION_REFRESH_SITES
                         context.sendBroadcast(intent)
                     }
