@@ -10,6 +10,7 @@ import android.net.*
 import android.os.*
 import android.system.OsConstants
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.work.*
 import mobileNebula.CIDR
 import java.io.File
@@ -213,12 +214,7 @@ class NebulaVpnService : VpnService() {
     }
 
     private fun registerReloadReceiver() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(reloadReceiver, IntentFilter(ACTION_RELOAD), RECEIVER_NOT_EXPORTED)
-        } else {
-            @Suppress("UnspecifiedRegisterReceiverFlag")
-            registerReceiver(reloadReceiver, IntentFilter(ACTION_RELOAD))
-        }
+        ContextCompat.registerReceiver(this, reloadReceiver, IntentFilter(ACTION_RELOAD), RECEIVER_NOT_EXPORTED)
     }
 
     private fun unregisterReloadReceiver() {
