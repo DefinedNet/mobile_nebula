@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <sys/types.h>
 
 /* <sys/kern_control.h> */
 #define CTLIOCGINFO 0xc0644e03UL
