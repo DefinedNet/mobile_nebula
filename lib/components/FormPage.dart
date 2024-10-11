@@ -39,7 +39,7 @@ class _FormPageState extends State<FormPage> {
     changed = widget.changed || changed;
 
     return PopScope<Object?>(
-        canPop: false,
+        canPop: !changed,
         onPopInvokedWithResult: (bool didPop, Object? result) async {
           if (didPop) {
             return;
