@@ -1,6 +1,8 @@
 111MODULE = on
 export GO111MODULE
 
+unexport SWIFT_DEBUG_INFORMATION_VERSION
+unexport SWIFT_DEBUG_INFORMATION_FORMAT
 
 clean:
 	rm -rf mobileNebula.aar MobileNebula.xcframework
