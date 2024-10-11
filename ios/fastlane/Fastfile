@@ -19,43 +19,12 @@ platform :ios do
   desc "Push a new beta build to TestFlight"
 
   lane :checkBuild do
-      # Do some things like setting up a temporary keystore to host secrets in CI
-      setup_ci
-
-      # Change signing behavior to work in CI
-      update_code_signing_settings(
-        # Automatic signing seems to be a good thing to have on in dev but will not work in CI
-        use_automatic_signing: false,
-        # The default value for this is iOS Development which is not appropriate for release
-        code_sign_identity: "Apple Distribution",
-      )
-
-      # Find our signing certs and profiles, these come from a private repository and managed by `fastlane match`
-      match(type: 'appstore', app_identifier: ["net.defined.mobileNebula","net.defined.mobileNebula.NebulaNetworkExtension"], readonly: true)
-
-      # Update our main program to have the correct provisioning profile from Apple
-      update_project_provisioning(
-        xcodeproj: "Runner.xcodeproj",
-        target_filter: "Runner",
-        # This comes from match() above
-        profile:ENV["sigh_net.defined.mobileNebula_appstore_profile-path"],
-        build_configuration: "Release"
-      )
-
-      # Update our network extension to have the correct provisioning profile from Apple
-      update_project_provisioning(
-        xcodeproj: "Runner.xcodeproj",
-        target_filter: "NebulaNetworkExtension",
-        # This comes from match() above
-        profile:ENV["sigh_net.defined.mobileNebula.NebulaNetworkExtension_appstore_profile-path"],
-        build_configuration: "Release"
-      )
-
       build_app(
         output_name: "MobileNebula.ipa",
         workspace: "Runner.xcworkspace",
         scheme: "Runner",
-        export_method: "app-store",
+        configuration: "Debug",
+        export_method: "development",
         export_options: {
           manageAppVersionAndBuildNumber: false
         }
