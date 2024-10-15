@@ -18,21 +18,6 @@ default_platform(:ios)
 platform :ios do
   desc "Push a new beta build to TestFlight"
 
-  lane :checkBuild do
-      build_app(
-        output_name: "MobileNebula.ipa",
-        workspace: "Runner.xcworkspace",
-        scheme: "Runner",
-        configuration: "Debug",
-        export_method: "development",
-        skip_codesigning: true,
-        export_team_id: CredentialsManager::AppfileConfig.try_fetch_value(:team_id), # This requires the team_id to be set in the fastlane `Appfile`
-        export_options: {
-          manageAppVersionAndBuildNumber: false
-        }
-      )
-    end
-
   lane :build do
     # Do some things like setting up a temporary keystore to host secrets in CI
     setup_ci
