@@ -1,6 +1,9 @@
 import NetworkExtension
 import MobileNebula
 import SwiftyJSON
+import os.log
+
+let log = Logger(subsystem: "net.defined.mobileNebula", category: "Site")
 
 extension String: Error {}
 
@@ -430,7 +433,7 @@ struct IncomingSite: Codable {
             return
         }
 
-        print("Saving to \(configPath)")
+        log.notice("Saving to \(configPath, privacy: .public)")
         do {
             if (self.key != nil) {
                 let data = self.key!.data(using: .utf8)

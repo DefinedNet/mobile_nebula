@@ -7,7 +7,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var networkMonitor: NWPathMonitor?
     
     private var site: Site?
-    private var log = Logger(subsystem: "net.defined.mobileNebula", category: "PacketTunnelProvider")
+    private let log = Logger(subsystem: "net.defined.mobileNebula", category: "PacketTunnelProvider")
     private var nebula: MobileNebulaNebula?
     private var dnUpdater = DNUpdater()
     private var didSleep = false
@@ -106,7 +106,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             try self.nebula?.reload(String(data: newSite.getConfig(), encoding: .utf8), key: newSite.getKey())
             
         } catch {
-            self.log.error("Got an error while updating nebula \(error.localizedDescription, privacy: .public)")
+            log.error("Got an error while updating nebula \(error.localizedDescription, privacy: .public)")
         }
     }
     

@@ -1,8 +1,10 @@
 import Foundation
+import os.log
 
 class DNUpdater {
     private let apiClient = APIClient()
-    private let timer = RepeatingTimer(timeInterval: 15 * 60) // 15 * 60 is 15 minutes
+    private let timer = RepeatingTimer(timeInterval: 30) // 15 * 60 is 15 minutes
+    private let log = Logger(subsystem: "net.defined.mobileNebula", category: "DNUpdater")
     
     func updateAll(onUpdate: @escaping (Site) -> ()) {
         _ = SiteList{ (sites, _) -> () in
@@ -55,7 +57,7 @@ class DNUpdater {
             } catch (APIClientError.invalidCredentials) {
                 if (!credentials.invalid) {
                     try site.invalidateDNCredentials()
-                    print("Invalidated credentials in site \(site.name)")
+                    log.notice("Invalidated credentials in site: \(site.name, privacy: .public)")
                 }
                 
                 return
@@ -63,7 +65,7 @@ class DNUpdater {
             
             newSite?.save(manager: nil) { error in
                 if (error != nil) {
-                    print("failed to save update: \(error!.localizedDescription)")
+                    self.log.error("failed to save update: \(error!.localizedDescription, privacy: .public)")
                 } else {
                     onUpdate(Site(incoming: newSite!))
                 }
@@ -71,11 +73,11 @@ class DNUpdater {
             
             if (credentials.invalid) {
                 try site.validateDNCredentials()
-                print("Revalidated credentials in site \(site.name)")
+                log.notice("Revalidated credentials in site \(site.name, privacy: .public)")
             }
             
         } catch {
-            print("Error while updating \(site.name): \(error.localizedDescription)")
+            log.error("Error while updating \(site.name, privacy: .public): \(error.localizedDescription, privacy: .public)")
         }
     }
 }
