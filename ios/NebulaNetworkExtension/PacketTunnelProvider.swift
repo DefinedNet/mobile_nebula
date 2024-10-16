@@ -7,7 +7,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var networkMonitor: NWPathMonitor?
     
     private var site: Site?
-    static let log = Logger(subsystem: "net.defined.mobileNebula", category: "PacketTunnelProvider")
+    private let log = Logger(subsystem: "net.defined.mobileNebula", category: "PacketTunnelProvider")
     private var nebula: MobileNebulaNebula?
     private var dnUpdater = DNUpdater()
     private var didSleep = false
@@ -37,7 +37,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             config = try site!.getConfig()
         } catch {
             //TODO: need a way to notify the app
-            Self.log.error("Failed to render config from vpn object")
+            log.error("Failed to render config from vpn object")
             return completionHandler(error)
         }
 
@@ -89,7 +89,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             self.startNetworkMonitor()
 
             if err != nil {
-                Self.log.error("We had an error starting up: \(err, privacy: .public)")
+                self.log.error("We had an error starting up: \(err, privacy: .public)")
                 return completionHandler(err!)
             }
             
@@ -106,7 +106,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             try self.nebula?.reload(String(data: newSite.getConfig(), encoding: .utf8), key: newSite.getKey())
             
         } catch {
-            Self.log.error("Got an error while updating nebula \(error.localizedDescription, privacy: .public)")
+            log.error("Got an error while updating nebula \(error.localizedDescription, privacy: .public)")
         }
     }
     
@@ -162,7 +162,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     
     override func handleAppMessage(_ data: Data, completionHandler: ((Data?) -> Void)? = nil) {
         guard let call = try? JSONDecoder().decode(IPCRequest.self, from: data) else {
-            Self.log.error("Failed to decode IPCRequest from network extension")
+            log.error("Failed to decode IPCRequest from network extension")
             return
         }
         
@@ -190,7 +190,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         
         if nebula == nil {
             // Respond with an empty success message in the event a command comes in before we've truly started
-            Self.log.warning("Received command but do not have a nebula instance")
+            log.warning("Received command but do not have a nebula instance")
             return completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .success, message: nil)))
         }
         

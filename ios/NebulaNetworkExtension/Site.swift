@@ -3,7 +3,7 @@ import MobileNebula
 import SwiftyJSON
 import os.log
 
-var log = Logger(subsystem: "net.defined.mobileNebula", category: "Site")
+let log = Logger(subsystem: "net.defined.mobileNebula", category: "Site")
 
 extension String: Error {}
 
