@@ -21,7 +21,7 @@ class HostInfo {
 
   factory HostInfo.fromJson(Map<String, dynamic> json) {
     UDPAddress? currentRemote;
-    if (json['currentRemote'] != null) {
+    if (json['currentRemote'] != "") {
       currentRemote = UDPAddress.fromJson(json['currentRemote']);
     }
 
@@ -52,6 +52,11 @@ class UDPAddress {
   String ip;
   int port;
 
+  UDPAddress({
+    required this.ip,
+    required this.port,
+  });
+
   @override
   String toString() {
     // Simple check on if nebula told us about a v4 or v6 ip address
@@ -62,7 +67,17 @@ class UDPAddress {
     return '$ip:$port';
   }
 
-  UDPAddress.fromJson(Map<String, dynamic> json)
-      : ip = json['ip'],
-        port = json['port'];
+  factory UDPAddress.fromJson(String json) {
+    // IPv4 Address
+    if (json.contains('.')) {
+      var ip = json.split(':')[0];
+      var port = int.parse(json.split(':')[1]);
+      return UDPAddress(ip: ip, port: port);
+    }
+
+    // IPv6 Address
+    var ip = json.split(']')[0].substring(1);
+    var port = int.parse(json.split(']')[1].split(':')[1]);
+    return UDPAddress(ip: ip, port: port);
+  }
 }
