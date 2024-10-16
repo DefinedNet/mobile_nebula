@@ -14,7 +14,7 @@ type config struct {
 	Stats         configStats         `yaml:"stats"`
 	Handshakes    configHandshakes    `yaml:"handshakes"`
 	Firewall      configFirewall      `yaml:"firewall"`
-	Relays        configRelays        `yaml:"relays"`
+	Relay         configRelay         `yaml:"relay"`
 }
 
 func newConfig() *config {
@@ -38,7 +38,7 @@ func newConfig() *config {
 			Punch: true,
 			Delay: "1s",
 		},
-		Relays: configRelays{
+		Relay: configRelay{
 			UseRelays: true,
 		},
 		Cipher: "aes",
@@ -205,7 +205,7 @@ type configFirewallRule struct {
 	CAName string   `yaml:"ca_name,omitempty"`
 }
 
-type configRelays struct {
+type configRelay struct {
 	AmRelay   bool     `yaml:"am_relay,omitempty"`
 	UseRelays bool     `yaml:"use_relays"`
 	relays    []string `yaml:"relays,omitempty"`
