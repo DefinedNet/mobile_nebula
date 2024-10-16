@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net"
+	"net/netip"
 	"os"
 	"runtime"
 	"runtime/debug"
@@ -12,9 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/slackhq/nebula"
 	nc "github.com/slackhq/nebula/config"
-	"github.com/slackhq/nebula/iputil"
 	"github.com/slackhq/nebula/overlay"
-	"github.com/slackhq/nebula/udp"
 	"github.com/slackhq/nebula/util"
 )
 
@@ -109,7 +107,12 @@ func (n *Nebula) ListHostmap(pending bool) (string, error) {
 }
 
 func (n *Nebula) GetHostInfoByVpnIp(vpnIp string, pending bool) (string, error) {
-	b, err := json.Marshal(n.c.GetHostInfoByVpnIp(stringIpToInt(vpnIp), pending))
+	netVpnIp, err := netip.ParseAddr(vpnIp)
+	if err != nil {
+		return "", err
+	}
+
+	b, err := json.Marshal(n.c.GetHostInfoByVpnIp(netVpnIp, pending))
 	if err != nil {
 		return "", err
 	}
@@ -118,16 +121,26 @@ func (n *Nebula) GetHostInfoByVpnIp(vpnIp string, pending bool) (string, error) 
 }
 
 func (n *Nebula) CloseTunnel(vpnIp string) bool {
-	return n.c.CloseTunnel(stringIpToInt(vpnIp), false)
+	netVpnIp, err := netip.ParseAddr(vpnIp)
+	if err != nil {
+		return false
+	}
+
+	return n.c.CloseTunnel(netVpnIp, false)
 }
 
 func (n *Nebula) SetRemoteForTunnel(vpnIp string, addr string) (string, error) {
-	udpAddr := udp.NewAddrFromString(addr)
-	if udpAddr == nil {
+	udpAddr, err := netip.ParseAddrPort(addr)
+	if err != nil {
 		return "", errors.New("could not parse udp address")
 	}
 
-	b, err := json.Marshal(n.c.SetRemoteForTunnel(stringIpToInt(vpnIp), *udpAddr))
+	netVpnIp, err := netip.ParseAddr(vpnIp)
+	if err != nil {
+		return "", errors.New("could not parse vpnIp")
+	}
+
+	b, err := json.Marshal(n.c.SetRemoteForTunnel(netVpnIp, udpAddr))
 	if err != nil {
 		return "", err
 	}
@@ -139,8 +152,4 @@ func (n *Nebula) Sleep() {
 	if closed := n.c.CloseAllTunnels(true); closed > 0 {
 		n.l.WithField("tunnels", closed).Info("Sleep called, closed non lighthouse tunnels")
 	}
-}
-
-func stringIpToInt(ip string) iputil.VpnIp {
-	return iputil.Ip2VpnIp(net.ParseIP(ip))
 }
