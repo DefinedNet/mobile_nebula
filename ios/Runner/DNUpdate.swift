@@ -3,7 +3,7 @@ import os.log
 
 class DNUpdater {
     private let apiClient = APIClient()
-    private let timer = RepeatingTimer(timeInterval: 30) // 15 * 60 is 15 minutes
+    private let timer = RepeatingTimer(timeInterval: 15 * 60) // 15 * 60 is 15 minutes
     private let log = Logger(subsystem: "net.defined.mobileNebula", category: "DNUpdater")
     
     func updateAll(onUpdate: @escaping (Site) -> ()) {
