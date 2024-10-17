@@ -66,9 +66,10 @@ class DNUpdater {
             newSite?.save(manager: site.manager) { error in
                 if (error != nil) {
                     self.log.error("failed to save update: \(error!.localizedDescription, privacy: .public)")
-                } else {
-                    onUpdate(Site(incoming: newSite!))
                 }
+                
+                // reload nebula even if we couldn't save the vpn profile
+                onUpdate(Site(incoming: newSite!))
             }
             
             if (credentials.invalid) {
