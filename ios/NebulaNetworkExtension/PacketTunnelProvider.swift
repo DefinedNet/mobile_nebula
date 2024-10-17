@@ -28,76 +28,96 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
     
     private func start(completionHandler: @escaping (Error?) -> Void) {
-        let proto = self.protocolConfiguration as! NETunnelProviderProtocol
-        var config: Data
-        var key: String
-
-        do {
-            site = try Site(proto: proto)
-            config = try site!.getConfig()
-        } catch {
-            //TODO: need a way to notify the app
-            log.error("Failed to render config from vpn object")
-            return completionHandler(error)
-        }
-
-        let _site = site!
-
-        do {
-            key = try _site.getKey()
-        } catch {
-            return completionHandler(error)
-        }
-        
-        let fileDescriptor = tunnelFileDescriptor
-        if fileDescriptor == nil {
-            return completionHandler("Unable to locate the tun file descriptor")
-        }
-        let tunFD = Int(fileDescriptor!)
-
-        // This is set to 127.0.0.1 because it has to be something..
-        let tunnelNetworkSettings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: "127.0.0.1")
-
-        // Make sure our ip is routed to the tun device
-        var err: NSError?
-        let ipNet = MobileNebulaParseCIDR(_site.cert!.cert.details.ips[0], &err)
-        if (err != nil) {
-            return completionHandler(err!)
-        }
-        tunnelNetworkSettings.ipv4Settings = NEIPv4Settings(addresses: [ipNet!.ip], subnetMasks: [ipNet!.maskCIDR])
-        var routes: [NEIPv4Route] = [NEIPv4Route(destinationAddress: ipNet!.network, subnetMask: ipNet!.maskCIDR)]
-
-        // Add our unsafe routes
-        _site.unsafeRoutes.forEach { unsafeRoute in
-            let ipNet = MobileNebulaParseCIDR(unsafeRoute.route, &err)
-            if (err != nil) {
-                return completionHandler(err!)
-            }
-            routes.append(NEIPv4Route(destinationAddress: ipNet!.network, subnetMask: ipNet!.maskCIDR))
-        }
-
-        tunnelNetworkSettings.ipv4Settings!.includedRoutes = routes
-        tunnelNetworkSettings.mtu = _site.mtu as NSNumber
-
-        self.setTunnelNetworkSettings(tunnelNetworkSettings, completionHandler: {(error:Error?) in
-            if (error != nil) {
-                return completionHandler(error!)
-            }
-
-            var err: NSError?
-            self.nebula = MobileNebulaNewNebula(String(data: config, encoding: .utf8), key, self.site!.logFile, tunFD, &err)
-            self.startNetworkMonitor()
-
-            if err != nil {
-                self.log.error("We had an error starting up: \(err, privacy: .public)")
-                return completionHandler(err!)
+        // Load vpn configs from system, and find the manager matching the one being started
+        NETunnelProviderManager.loadAllFromPreferences() { managers, error in
+            let targetProtoConfig = self.protocolConfiguration as? NETunnelProviderProtocol;
+            let targetID = targetProtoConfig?.providerConfiguration!["id"] as? String;
+            
+            guard let managers = managers else {
+                self.log.error("No managers were loaded")
+                return
             }
             
-            self.nebula!.start()
-            self.dnUpdater.updateSingleLoop(site: self.site!, onUpdate: self.handleDNUpdate)
-            
-            completionHandler(nil)
-        })
+            for manager in managers {
+                var config: Data
+                var key: String
+                
+                let mgr = manager.protocolConfiguration as? NETunnelProviderProtocol;
+                let id = mgr?.providerConfiguration!["id"] as? String;
+                
+                if (id == targetID) {
+                    do {
+                        self.site = try Site(manager: manager)
+                        config = try self.site!.getConfig()
+                    } catch {
+                        //TODO: need a way to notify the app
+                        self.log.error("Failed to render config from vpn object")
+                        return completionHandler(error)
+                    }
+
+                    let _site = self.site!
+
+                    do {
+                        key = try _site.getKey()
+                    } catch {
+                        return completionHandler(error)
+                    }
+                    
+                    let fileDescriptor = self.tunnelFileDescriptor
+                    if fileDescriptor == nil {
+                        return completionHandler("Unable to locate the tun file descriptor")
+                    }
+                    let tunFD = Int(fileDescriptor!)
+
+                    // This is set to 127.0.0.1 because it has to be something..
+                    let tunnelNetworkSettings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: "127.0.0.1")
+
+                    // Make sure our ip is routed to the tun device
+                    var err: NSError?
+                    let ipNet = MobileNebulaParseCIDR(_site.cert!.cert.details.ips[0], &err)
+                    if (err != nil) {
+                        return completionHandler(err!)
+                    }
+                    tunnelNetworkSettings.ipv4Settings = NEIPv4Settings(addresses: [ipNet!.ip], subnetMasks: [ipNet!.maskCIDR])
+                    var routes: [NEIPv4Route] = [NEIPv4Route(destinationAddress: ipNet!.network, subnetMask: ipNet!.maskCIDR)]
+
+                    // Add our unsafe routes
+                    _site.unsafeRoutes.forEach { unsafeRoute in
+                        let ipNet = MobileNebulaParseCIDR(unsafeRoute.route, &err)
+                        if (err != nil) {
+                            return completionHandler(err!)
+                        }
+                        routes.append(NEIPv4Route(destinationAddress: ipNet!.network, subnetMask: ipNet!.maskCIDR))
+                    }
+
+                    tunnelNetworkSettings.ipv4Settings!.includedRoutes = routes
+                    tunnelNetworkSettings.mtu = _site.mtu as NSNumber
+
+                    self.setTunnelNetworkSettings(tunnelNetworkSettings, completionHandler: {(error:Error?) in
+                        if (error != nil) {
+                            return completionHandler(error!)
+                        }
+
+                        var err: NSError?
+                        self.nebula = MobileNebulaNewNebula(String(data: config, encoding: .utf8), key, self.site!.logFile, tunFD, &err)
+                        self.startNetworkMonitor()
+
+                        if err != nil {
+                            self.log.error("We had an error starting up: \(err, privacy: .public)")
+                            return completionHandler(err!)
+                        }
+                        
+                        self.nebula!.start()
+                        self.dnUpdater.updateSingleLoop(site: self.site!, onUpdate: self.handleDNUpdate)
+                        
+                        completionHandler(nil)
+                    })
+                    
+                    // We're done looking through managers
+                    continue
+                }
+            }
+        }
     }
     
     private func handleDNUpdate(newSite: Site) {
