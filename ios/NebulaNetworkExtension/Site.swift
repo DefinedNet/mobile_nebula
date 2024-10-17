@@ -488,7 +488,7 @@ struct IncomingSite: Codable {
     private func finishSaveToManager(manager: NETunnelProviderManager, callback: @escaping (Error?) -> ()) {
         // Stuff our details in the protocol
         let proto = manager.protocolConfiguration as? NETunnelProviderProtocol ?? NETunnelProviderProtocol()
-
+        proto.providerBundleIdentifier = "net.defined.mobileNebula.NebulaNetworkExtension";
         proto.providerConfiguration = ["id": self.id]
         proto.serverAddress = "Nebula"
 
