@@ -63,7 +63,7 @@ class DNUpdater {
                 return
             }
             
-            newSite?.save(manager: nil) { error in
+            newSite?.save(manager: site.manager) { error in
                 if (error != nil) {
                     self.log.error("failed to save update: \(error!.localizedDescription, privacy: .public)")
                 } else {
