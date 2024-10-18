@@ -489,6 +489,8 @@ struct IncomingSite: Codable {
         // Stuff our details in the protocol
         let proto = manager.protocolConfiguration as? NETunnelProviderProtocol ?? NETunnelProviderProtocol()
         proto.providerBundleIdentifier = "net.defined.mobileNebula.NebulaNetworkExtension";
+        // WARN: If we stop setting providerConfiguration["id"] here, we'll need to use something else to match
+        // managers in PacketTunnelProvider.findManager
         proto.providerConfiguration = ["id": self.id]
         proto.serverAddress = "Nebula"
 

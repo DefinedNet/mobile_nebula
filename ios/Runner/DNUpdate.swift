@@ -3,7 +3,7 @@ import os.log
 
 class DNUpdater {
     private let apiClient = APIClient()
-    private let timer = RepeatingTimer(timeInterval: 30) // 15 * 60 is 15 minutes
+    private let timer = RepeatingTimer(timeInterval: 15 * 60) // 15 * 60 is 15 minutes
     private let log = Logger(subsystem: "net.defined.mobileNebula", category: "DNUpdater")
     
     func updateAll(onUpdate: @escaping (Site) -> ()) {
@@ -63,12 +63,13 @@ class DNUpdater {
                 return
             }
             
-            newSite?.save(manager: nil) { error in
+            newSite?.save(manager: site.manager) { error in
                 if (error != nil) {
                     self.log.error("failed to save update: \(error!.localizedDescription, privacy: .public)")
-                } else {
-                    onUpdate(Site(incoming: newSite!))
                 }
+                
+                // reload nebula even if we couldn't save the vpn profile
+                onUpdate(Site(incoming: newSite!))
             }
             
             if (credentials.invalid) {

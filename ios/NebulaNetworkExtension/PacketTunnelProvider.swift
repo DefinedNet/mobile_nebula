@@ -3,6 +3,13 @@ import MobileNebula
 import os.log
 import SwiftyJSON
 
+enum VPNStartError: Error {
+    case noManagers
+    case couldNotFindManager
+    case noTunFileDescriptor
+    case noProviderConfig
+}
+
 class PacketTunnelProvider: NEPacketTunnelProvider {
     private var networkMonitor: NWPathMonitor?
     
@@ -13,47 +20,46 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var didSleep = false
     private var cachedRouteDescription: String?
     
-    override func startTunnel(options: [String : NSObject]?, completionHandler: @escaping (Error?) -> Void) {
+    override func startTunnel(options: [String : NSObject]? = nil) async throws {
         // There is currently no way to get initialization errors back to the UI via completionHandler here
         // `expectStart` is sent only via the UI which means we should wait for the real start command which has another completion handler the UI can intercept
         if options?["expectStart"] != nil {
-            // The system completion handler must be called before IPC will work
-            completionHandler(nil)
+            // startTunnel must complete before IPC will work
             return
         }
         
         // VPN is being booted out of band of the UI. Use the system completion handler as there will be nothing to route initialization errors to but we still need to report
         // success/fail by the presence of an error or nil
-        start(completionHandler: completionHandler)
+        try await start()
     }
     
-    private func start(completionHandler: @escaping (Error?) -> Void) {
-        let proto = self.protocolConfiguration as! NETunnelProviderProtocol
+    private func start() async throws {
+        var manager: NETunnelProviderManager?
         var config: Data
         var key: String
-
-        do {
-            site = try Site(proto: proto)
-            config = try site!.getConfig()
-        } catch {
-            //TODO: need a way to notify the app
-            log.error("Failed to render config from vpn object")
-            return completionHandler(error)
-        }
-
-        let _site = site!
-
-        do {
-            key = try _site.getKey()
-        } catch {
-            return completionHandler(error)
+        
+        manager = try await self.findManager()
+        
+        guard let foundManager = manager else {
+            throw VPNStartError.couldNotFindManager
         }
         
-        let fileDescriptor = tunnelFileDescriptor
-        if fileDescriptor == nil {
-            return completionHandler("Unable to locate the tun file descriptor")
+        do {
+            self.site = try Site(manager: foundManager)
+            config = try self.site!.getConfig()
+        } catch {
+            //TODO: need a way to notify the app
+            self.log.error("Failed to render config from vpn object")
+            throw error
         }
-        let tunFD = Int(fileDescriptor!)
+
+        let _site = self.site!
+        key = try _site.getKey()
+        
+        guard let fileDescriptor = self.tunnelFileDescriptor else {
+            throw VPNStartError.noTunFileDescriptor
+        }
+        let tunFD = Int(fileDescriptor)
 
         // This is set to 127.0.0.1 because it has to be something..
         let tunnelNetworkSettings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: "127.0.0.1")
@@ -62,16 +68,16 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         var err: NSError?
         let ipNet = MobileNebulaParseCIDR(_site.cert!.cert.details.ips[0], &err)
         if (err != nil) {
-            return completionHandler(err!)
+            throw err!
         }
         tunnelNetworkSettings.ipv4Settings = NEIPv4Settings(addresses: [ipNet!.ip], subnetMasks: [ipNet!.maskCIDR])
         var routes: [NEIPv4Route] = [NEIPv4Route(destinationAddress: ipNet!.network, subnetMask: ipNet!.maskCIDR)]
 
         // Add our unsafe routes
-        _site.unsafeRoutes.forEach { unsafeRoute in
+        try _site.unsafeRoutes.forEach { unsafeRoute in
             let ipNet = MobileNebulaParseCIDR(unsafeRoute.route, &err)
             if (err != nil) {
-                return completionHandler(err!)
+                throw err!
             }
             routes.append(NEIPv4Route(destinationAddress: ipNet!.network, subnetMask: ipNet!.maskCIDR))
         }
@@ -79,25 +85,18 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         tunnelNetworkSettings.ipv4Settings!.includedRoutes = routes
         tunnelNetworkSettings.mtu = _site.mtu as NSNumber
 
-        self.setTunnelNetworkSettings(tunnelNetworkSettings, completionHandler: {(error:Error?) in
-            if (error != nil) {
-                return completionHandler(error!)
-            }
+        try await self.setTunnelNetworkSettings(tunnelNetworkSettings)
+        var nebulaErr: NSError?
+        self.nebula = MobileNebulaNewNebula(String(data: config, encoding: .utf8), key, self.site!.logFile, tunFD, &nebulaErr)
+        self.startNetworkMonitor()
 
-            var err: NSError?
-            self.nebula = MobileNebulaNewNebula(String(data: config, encoding: .utf8), key, self.site!.logFile, tunFD, &err)
-            self.startNetworkMonitor()
-
-            if err != nil {
-                self.log.error("We had an error starting up: \(err, privacy: .public)")
-                return completionHandler(err!)
-            }
-            
-            self.nebula!.start()
-            self.dnUpdater.updateSingleLoop(site: self.site!, onUpdate: self.handleDNUpdate)
-            
-            completionHandler(nil)
-        })
+        if nebulaErr != nil {
+            self.log.error("We had an error starting up: \(nebulaErr, privacy: .public)")
+            throw nebulaErr!
+        }
+        
+        self.nebula!.start()
+        self.dnUpdater.updateSingleLoop(site: self.site!, onUpdate: self.handleDNUpdate)
     }
     
     private func handleDNUpdate(newSite: Site) {
@@ -115,6 +114,30 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 //        nebula!.sleep()
 //        completionHandler()
 //    }
+    
+    private func findManager() async throws -> NETunnelProviderManager {
+        let targetProtoConfig = self.protocolConfiguration as? NETunnelProviderProtocol
+        guard let targetProviderConfig = targetProtoConfig?.providerConfiguration else {
+            throw VPNStartError.noProviderConfig
+        }
+        let targetID = targetProviderConfig["id"] as? String
+        
+        // Load vpn configs from system, and find the manager matching the one being started
+        let managers = try await NETunnelProviderManager.loadAllFromPreferences()
+        for manager in managers {
+            let mgrProtoConfig = manager.protocolConfiguration as? NETunnelProviderProtocol
+            guard let mgrProviderConfig = mgrProtoConfig?.providerConfiguration else {
+                throw VPNStartError.noProviderConfig
+            }
+            let id = mgrProviderConfig["id"] as? String
+            if (id == targetID) {
+                return manager
+            }
+        }
+        
+        // If we didn't find anything, throw an error
+        throw VPNStartError.noManagers
+    }
     
     private func startNetworkMonitor() {
         networkMonitor = NWPathMonitor()
@@ -160,10 +183,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         return str.sorted().joined(separator: ", ")
     }
     
-    override func handleAppMessage(_ data: Data, completionHandler: ((Data?) -> Void)? = nil) {
+    override func handleAppMessage(_ data: Data) async -> Data? {
         guard let call = try? JSONDecoder().decode(IPCRequest.self, from: data) else {
             log.error("Failed to decode IPCRequest from network extension")
-            return
+            return nil
         }
         
         var error: Error?
@@ -171,27 +194,22 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         
         // start command has special treatment due to needing to call two completers
         if call.command == "start" {
-            self.start() { error in
-                // Notify the UI if we have a completionHandler
-                if completionHandler != nil {
-                    if error == nil {
-                        // No response data, this is expected on a clean start
-                        completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .success, message: nil)))
-                        
-                    } else {
-                        // We failed, notify and shutdown
-                        completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .error, message: JSON(error!.localizedDescription))))
-                        self.cancelTunnelWithError(error)
-                    }
+            do {
+                try await self.start()
+                // No response data, this is expected on a clean start
+                return try? JSONEncoder().encode(IPCResponse.init(type: .success, message: nil))
+            } catch {
+                defer {
+                    self.cancelTunnelWithError(error)
                 }
+                return try? JSONEncoder().encode(IPCResponse.init(type: .error, message: JSON(error.localizedDescription)))
             }
-            return
         }
         
         if nebula == nil {
             // Respond with an empty success message in the event a command comes in before we've truly started
             log.warning("Received command but do not have a nebula instance")
-            return completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .success, message: nil)))
+            return try? JSONEncoder().encode(IPCResponse.init(type: .success, message: nil))
         }
         
         //TODO: try catch over all this
@@ -207,9 +225,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         }
         
         if (error != nil) {
-            completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .error, message: JSON(error?.localizedDescription ?? "Unknown error"))))
+            return try? JSONEncoder().encode(IPCResponse.init(type: .error, message: JSON(error?.localizedDescription ?? "Unknown error")))
         } else {
-            completionHandler!(try? JSONEncoder().encode(IPCResponse.init(type: .success, message: data)))
+            return try? JSONEncoder().encode(IPCResponse.init(type: .success, message: data))
         }
     }
     
