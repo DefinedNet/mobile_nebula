@@ -32,25 +32,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         try await start()
     }
     
-    private func findManager() async throws -> NETunnelProviderManager {
-        let targetProtoConfig = self.protocolConfiguration as? NETunnelProviderProtocol;
-        let targetID = targetProtoConfig?.providerConfiguration!["id"] as? String;
-        
-        // Load vpn configs from system, and find the manager matching the one being started
-        let managers = try await NETunnelProviderManager.loadAllFromPreferences()
-        for manager in managers {
-            let mgrProtoConfig = manager.protocolConfiguration as? NETunnelProviderProtocol;
-            let id = mgrProtoConfig?.providerConfiguration!["id"] as? String;
-            
-            if (id == targetID) {
-                return manager
-            }
-        }
-        
-        // If we didn't find anything, throw an error
-        throw VPNStartError.noManagers
-    }
-    
     private func start() async throws {
         var manager: NETunnelProviderManager?
         var config: Data
@@ -132,6 +113,25 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 //        nebula!.sleep()
 //        completionHandler()
 //    }
+    
+    private func findManager() async throws -> NETunnelProviderManager {
+        let targetProtoConfig = self.protocolConfiguration as? NETunnelProviderProtocol;
+        let targetID = targetProtoConfig?.providerConfiguration!["id"] as? String;
+        
+        // Load vpn configs from system, and find the manager matching the one being started
+        let managers = try await NETunnelProviderManager.loadAllFromPreferences()
+        for manager in managers {
+            let mgrProtoConfig = manager.protocolConfiguration as? NETunnelProviderProtocol;
+            let id = mgrProtoConfig?.providerConfiguration!["id"] as? String;
+            
+            if (id == targetID) {
+                return manager
+            }
+        }
+        
+        // If we didn't find anything, throw an error
+        throw VPNStartError.noManagers
+    }
     
     private func startNetworkMonitor() {
         networkMonitor = NWPathMonitor()
