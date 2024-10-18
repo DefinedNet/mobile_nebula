@@ -7,6 +7,7 @@ enum VPNStartError: Error {
     case noManagers
     case couldNotFindManager
     case noTunFileDescriptor
+    case noProviderConfig
 }
 
 class PacketTunnelProvider: NEPacketTunnelProvider {
@@ -115,15 +116,20 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 //    }
     
     private func findManager() async throws -> NETunnelProviderManager {
-        let targetProtoConfig = self.protocolConfiguration as? NETunnelProviderProtocol;
-        let targetID = targetProtoConfig?.providerConfiguration!["id"] as? String;
+        let targetProtoConfig = self.protocolConfiguration as? NETunnelProviderProtocol
+        guard let targetProviderConfig = targetProtoConfig?.providerConfiguration else {
+            throw VPNStartError.noProviderConfig
+        }
+        let targetID = targetProviderConfig["id"] as? String
         
         // Load vpn configs from system, and find the manager matching the one being started
         let managers = try await NETunnelProviderManager.loadAllFromPreferences()
         for manager in managers {
-            let mgrProtoConfig = manager.protocolConfiguration as? NETunnelProviderProtocol;
-            let id = mgrProtoConfig?.providerConfiguration!["id"] as? String;
-            
+            let mgrProtoConfig = manager.protocolConfiguration as? NETunnelProviderProtocol
+            guard let mgrProviderConfig = mgrProtoConfig?.providerConfiguration else {
+                throw VPNStartError.noProviderConfig
+            }
+            let id = mgrProviderConfig["id"] as? String
             if (id == targetID) {
                 return manager
             }
