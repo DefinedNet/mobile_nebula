@@ -141,6 +141,11 @@ jobs:
           cd android
           fastlane release
 
+      - name: Rename app bundle
+        run: |
+          mv build/app/outputs/bundle/release/app-release.aab \
+            build/app/outputs/bundle/release/MobileNebula.aab
+
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v2
@@ -149,16 +154,7 @@ jobs:
           draft: true
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload release Android app
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/app/outputs/bundle/release/app-release.aab
-          asset_name: MobileNebula.aab
-          asset_content_type: text/plain
+          files: build/app/outputs/bundle/release/MobileNebula.aab
 
       - name: Upload release iOS app
         uses: actions/upload-release-asset@v1.0.1
