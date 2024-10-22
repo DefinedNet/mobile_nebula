@@ -43,10 +43,10 @@ jobs:
         run: flutter build appbundle --debug
 
       - name: Setup bundletool
-#        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         uses: amyu/setup-bundletool@f7a6fdd8e04bb23d2fdf3c2f60c9257a6298a40a
       - name: Install the google play key material
-#        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         env:
           GOOGLE_PLAY_API_JWT_BASE64: ${{ secrets.GOOGLE_PLAY_API_JWT_BASE64 }}
           GOOGLE_PLAY_KEYSTORE_BASE64: ${{ secrets.GOOGLE_PLAY_KEYSTORE_BASE64 }}
@@ -59,7 +59,7 @@ jobs:
           echo "GOOGLE_PLAY_KEYSTORE_PATH=$GOOGLE_PLAY_KEYSTORE_PATH" >> $GITHUB_ENV
           echo -n "$GOOGLE_PLAY_KEYSTORE_BASE64" | base64 --decode --output "$GOOGLE_PLAY_KEYSTORE_PATH"
       - name: Generate debug apk
-#        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         env:
           TOKEN: ${{ secrets.MACHINE_USER_PAT }}
           GOOGLE_PLAY_KEYSTORE_PASSWORD: ${{ secrets.GOOGLE_PLAY_KEYSTORE_PASSWORD }}
@@ -73,7 +73,7 @@ jobs:
             --ks-pass=pass:$GOOGLE_PLAY_KEYSTORE_PASSWORD
           unzip -p build/app/outputs/apk/debug/app-debug.apks universal.apk > build/app/outputs/apk/debug/app-debug.apk
       - name: Collect debug apk
-#        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v3
         with:
           name: app-debug.apk
