@@ -41,6 +41,12 @@ jobs:
 
       - name: Build Android debug
         run: flutter build appbundle --debug
+      - name: Collect debug apk
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-debug.apk
+          path: build/app/outputs/apk/debug/app-debug.apk
+          retention-days: 60
 
   build-ios:
     name: iOS
