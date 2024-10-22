@@ -12,10 +12,16 @@ jobs:
     name: Android
     runs-on: macos-latest
     steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          progress: false
+
       - name: Set up Go 1.22
         uses: actions/setup-go@v5
         with:
           go-version: "1.22"
+          cache-dependency-path: nebula/go.sum
 
       - uses: actions/setup-java@v2
         with:
@@ -27,10 +33,6 @@ jobs:
         with:
           flutter-version: '3.24.1'
 
-      - name: Check out code
-        uses: actions/checkout@v4
-        with:
-            progress: false
       - name: install dependencies
         env:
           TOKEN: ${{ secrets.MACHINE_USER_PAT }}
@@ -86,20 +88,21 @@ jobs:
     runs-on: macos-latest
 
     steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          progress: false
+
       - name: Set up Go 1.22
         uses: actions/setup-go@v5
         with:
           go-version: "1.22"
+          cache-dependency-path: nebula/go.sum
 
       - name: Install flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.1'
-
-      - name: Check out code
-        uses: actions/checkout@v4
-        with:
-          progress: false
 
       - name: install dependencies
         run: |
