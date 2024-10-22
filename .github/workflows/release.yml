@@ -98,7 +98,7 @@ jobs:
           fi
 
       - name: Collect iOS artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MobileNebula.ipa
           path: ios/MobileNebula.ipa
@@ -122,7 +122,7 @@ jobs:
           fi
 
       - name: Collect Android artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MobileNebula.aab
           path: build/app/outputs/bundle/release/app-release.aab
