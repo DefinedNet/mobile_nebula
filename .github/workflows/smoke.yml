@@ -28,8 +28,9 @@ jobs:
           flutter-version: '3.24.1'
 
       - name: Check out code
-        uses: actions/checkout@v3
-
+        uses: actions/checkout@v4
+        with:
+            progress: false
       - name: install dependencies
         env:
           TOKEN: ${{ secrets.MACHINE_USER_PAT }}
@@ -96,7 +97,9 @@ jobs:
           flutter-version: '3.24.1'
 
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          progress: false
 
       - name: install dependencies
         run: |
