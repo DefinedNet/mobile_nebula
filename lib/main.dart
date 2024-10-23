@@ -11,13 +11,25 @@ import 'package:mobile_nebula/screens/MainScreen.dart';
 import 'package:mobile_nebula/screens/EnrollmentScreen.dart';
 import 'package:mobile_nebula/services/settings.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+
+Future<void> main() async {
+  usePathUrlStrategy();
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = 'https://96106df405ade3f013187dfc8e4200e7@o920269.ingest.us.sentry.io/4508132321001472';
+      // Capture all traces.  May need to adjust if overwhelming
+      options.tracesSampleRate = 1.0;
+      // For each trace, capture all profiles
+      options.profilesSampleRate = 1.0;
+    },
+    appRunner: () => runApp(Main()),
+  );
+
+  // or define SENTRY_DSN via Dart environment variable (--dart-define)
+}
 
 //TODO: EventChannel might be better than the stream controller we are using now
-
-void main() {
-  usePathUrlStrategy();
-  runApp(Main());
-}
 
 class Main extends StatelessWidget {
   // This widget is the root of your application.
