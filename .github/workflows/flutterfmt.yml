@@ -21,7 +21,9 @@ jobs:
           flutter-version: '3.24.1'
 
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          show-progress: false
 
       - name: Check formating
         run: dart format -l120 lib/ --set-exit-if-changed --suppress-analytics --output none
