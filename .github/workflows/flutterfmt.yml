@@ -23,7 +23,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
         with:
-          progress: false
+          show-progress: false
 
       - name: Check formating
         run: dart format -l120 lib/ --set-exit-if-changed --suppress-analytics --output none
