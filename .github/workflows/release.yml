@@ -32,6 +32,9 @@ jobs:
         with:
           flutter-version: '3.24.1'
 
+      - name: Setup bundletool for APK generation
+        uses: amyu/setup-bundletool@f7a6fdd8e04bb23d2fdf3c2f60c9257a6298a40a
+
       - name: Install the appstore connect key material
         env:
           AC_API_KEY_SECRET_BASE64: ${{ secrets.AC_API_KEY_SECRET_BASE64 }}
@@ -121,6 +124,20 @@ jobs:
             exit 1
           fi
 
+      - name: Generate universal APK
+        env:
+          TOKEN: ${{ secrets.MACHINE_USER_PAT }}
+          GOOGLE_PLAY_KEYSTORE_PASSWORD: ${{ secrets.GOOGLE_PLAY_KEYSTORE_PASSWORD }}
+        run: |
+          bundletool build-apks \
+            --bundle=build/app/outputs/bundle/release/app-release.aab \
+            --output=build/app/outputs/apk/release/MobileNebula.apks \
+            --mode=universal \
+            --ks=$GOOGLE_PLAY_KEYSTORE_PATH \
+            --ks-key-alias=key \
+            --ks-pass=pass:$GOOGLE_PLAY_KEYSTORE_PASSWORD
+          unzip -p build/app/outputs/apk/release/MobileNebula.apks universal.apk > build/app/outputs/apk/release/MobileNebula.apk
+
       - name: Collect Android artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -156,6 +173,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
             build/app/outputs/bundle/release/MobileNebula.aab
+            build/app/outputs/apk/release/MobileNebula.apk
             ios/MobileNebula.ipa
 
       - name: Create Sentry release
