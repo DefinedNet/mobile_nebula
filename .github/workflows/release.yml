@@ -11,12 +11,18 @@ jobs:
     runs-on: macos-latest
 
     steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          show-progress: false
+
       - name: Set up Go 1.22
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: "1.22"
+          cache-dependency-path: nebula/go.sum
 
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
@@ -25,9 +31,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.1'
-
-      - name: Check out code
-        uses: actions/checkout@v3
 
       - name: Install the appstore connect key material
         env:
@@ -95,7 +98,7 @@ jobs:
           fi
 
       - name: Collect iOS artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MobileNebula.ipa
           path: ios/MobileNebula.ipa
@@ -119,7 +122,7 @@ jobs:
           fi
 
       - name: Collect Android artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MobileNebula.aab
           path: build/app/outputs/bundle/release/app-release.aab
@@ -138,36 +141,22 @@ jobs:
           cd android
           fastlane release
 
-      - name: Create Release
+      - name: Rename app bundle
+        run: |
+          mv build/app/outputs/bundle/release/app-release.aab \
+            build/app/outputs/bundle/release/MobileNebula.aab
+
+      - name: Create GitHub Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          name: Release ${{ github.ref }}
           draft: true
           prerelease: false
-
-      - name: Upload release Android app
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/app/outputs/bundle/release/app-release.aab
-          asset_name: MobileNebula.aab
-          asset_content_type: text/plain
-
-      - name: Upload release iOS app
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ios/MobileNebula.ipa
-          asset_name: MobileNebula.ipa
-          asset_content_type: text/plain
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            build/app/outputs/bundle/release/MobileNebula.aab
+            ios/MobileNebula.ipa
 
       - name: Create Sentry release
         uses: getsentry/action-release@v1
