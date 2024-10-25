@@ -154,17 +154,9 @@ jobs:
           draft: true
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: build/app/outputs/bundle/release/MobileNebula.aab
-
-      - name: Upload release iOS app
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ios/MobileNebula.ipa
-          asset_name: MobileNebula.ipa
-          asset_content_type: text/plain
+          files: |
+            build/app/outputs/bundle/release/MobileNebula.aab
+            ios/MobileNebula.ipa
 
       - name: Create Sentry release
         uses: getsentry/action-release@v1
