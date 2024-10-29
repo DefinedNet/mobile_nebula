@@ -54,6 +54,7 @@ class MainActivity: FlutterActivity() {
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
         appContext = context
         //TODO: Initializing in the constructor leads to a context lacking info we need, figure out the right way to do this
         sites = Sites(flutterEngine)
