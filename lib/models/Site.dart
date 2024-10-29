@@ -93,20 +93,22 @@ class Site {
     this.rawConfig = rawConfig;
     this.lastManagedUpdate = lastManagedUpdate;
 
-    _updates = EventChannel('net.defined.nebula/$id');
-    _updates.receiveBroadcastStream().listen((d) {
-      try {
-        _updateFromJson(d);
-        _change.add(null);
-      } catch (err) {
-        //TODO: handle the error
-        print(err);
-      }
-    }, onError: (err) {
-      _updateFromJson(err.details);
-      var error = err as PlatformException;
-      _change.addError(error.message ?? 'An unexpected error occurred');
-    });
+    if (id != null) {
+      _updates = EventChannel('net.defined.nebula/$id');
+      _updates.receiveBroadcastStream().listen((d) {
+        try {
+          _updateFromJson(d);
+          _change.add(null);
+        } catch (err) {
+          //TODO: handle the error
+          print(err);
+        }
+      }, onError: (err) {
+        _updateFromJson(err.details);
+        var error = err as PlatformException;
+        _change.addError(error.message ?? 'An unexpected error occurred');
+      });
+    }
   }
 
   factory Site.fromJson(Map<String, dynamic> json) {
