@@ -58,9 +58,7 @@ class MainActivity: FlutterActivity() {
         appContext = context
         //TODO: Initializing in the constructor leads to a context lacking info we need, figure out the right way to do this
         sites = Sites(flutterEngine)
-
-        GeneratedPluginRegistrant.registerWith(flutterEngine)
-
+        
         ui = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
         ui!!.setMethodCallHandler { call, result ->
             when(call.method) {
