@@ -176,6 +176,9 @@ jobs:
             build/app/outputs/apk/release/MobileNebula.apk
             ios/MobileNebula.ipa
 
+      - name: Upload debug symbols to Sentry
+        run: flutter packages pub run sentry_dart_plugin
+
       - name: Create Sentry release
         uses: getsentry/action-release@v1
         env:
