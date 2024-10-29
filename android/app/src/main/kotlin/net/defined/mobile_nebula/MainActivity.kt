@@ -100,7 +100,7 @@ class MainActivity: FlutterActivity() {
 
         apiClient = APIClient(context)
 
-        ContextCompat.registerReceiver(context, refreshReceiver, IntentFilter(ACTION_REFRESH_SITES), RECEIVER_NOT_EXPORTED)
+        ContextCompat.registerReceiver(context, refreshReceiver, IntentFilter(ACTION_REFRESH_SITES), ContextCompat.RECEIVER_NOT_EXPORTED)
 
         enqueueDNUpdater()
     }
