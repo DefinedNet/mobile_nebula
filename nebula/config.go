@@ -32,6 +32,7 @@ func newConfig() *config {
 		},
 		Punchy: configPunchy{
 			Punch: true,
+			Respond: true,
 			Delay: "1s",
 		},
 		Relay: configRelay{
