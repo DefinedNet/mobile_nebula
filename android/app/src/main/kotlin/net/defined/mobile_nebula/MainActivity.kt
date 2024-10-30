@@ -54,12 +54,11 @@ class MainActivity: FlutterActivity() {
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
         appContext = context
         //TODO: Initializing in the constructor leads to a context lacking info we need, figure out the right way to do this
         sites = Sites(flutterEngine)
-
-        GeneratedPluginRegistrant.registerWith(flutterEngine)
-
+        
         ui = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
         ui!!.setMethodCallHandler { call, result ->
             when(call.method) {
@@ -99,7 +98,7 @@ class MainActivity: FlutterActivity() {
 
         apiClient = APIClient(context)
 
-        ContextCompat.registerReceiver(context, refreshReceiver, IntentFilter(ACTION_REFRESH_SITES), RECEIVER_NOT_EXPORTED)
+        ContextCompat.registerReceiver(context, refreshReceiver, IntentFilter(ACTION_REFRESH_SITES), ContextCompat.RECEIVER_NOT_EXPORTED)
 
         enqueueDNUpdater()
     }

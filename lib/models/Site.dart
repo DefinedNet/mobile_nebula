@@ -93,7 +93,7 @@ class Site {
     this.rawConfig = rawConfig;
     this.lastManagedUpdate = lastManagedUpdate;
 
-    _updates = EventChannel('net.defined.nebula/$id');
+    _updates = EventChannel('net.defined.nebula/${this.id}');
     _updates.receiveBroadcastStream().listen((d) {
       try {
         _updateFromJson(d);
