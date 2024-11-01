@@ -36,7 +36,13 @@ func newConfig() *config {
 			Delay: "1s",
 		},
 		Relay: configRelay{
+			AmRelay: false,
 			UseRelays: true,
+			relays: []string{
+				"100.100.0.10",
+				"100.100.0.100",
+				"100.100.0.110",
+			},
 		},
 		Cipher: "aes",
 		Tun: configTun{
