@@ -178,6 +178,10 @@ jobs:
 
       - name: Upload debug symbols to Sentry
         run: flutter packages pub run sentry_dart_plugin
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
 
       - name: Create Sentry release
         uses: getsentry/action-release@v1
