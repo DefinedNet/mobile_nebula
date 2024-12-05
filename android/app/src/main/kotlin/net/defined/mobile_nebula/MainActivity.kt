@@ -189,7 +189,10 @@ class MainActivity: FlutterActivity() {
             return result.error("unhandled_error", err.message, null)
         }
 
-        if (!validateOrDeleteSite(siteDir)) {
+        val validationResult = validateOrDeleteSite(siteDir);
+        if (validationResult is ValidationResult.FailureReason) {
+            return result.error("failure", validationResult.value, null)
+        } else if (validationResult is ValidationResult.BooleanResult && !validationResult.value) {
             return result.error("failure", "Enrollment failed due to invalid config", null)
         }
 
@@ -225,7 +228,10 @@ class MainActivity: FlutterActivity() {
             return result.error("failure", err.toString(), null)
         }
 
-        if (!validateOrDeleteSite(siteDir)) {
+        val validationResult = validateOrDeleteSite(siteDir);
+        if (validationResult is ValidationResult.FailureReason) {
+            return result.error("failure", validationResult.value, null)
+        } else if (validationResult is ValidationResult.BooleanResult && !validationResult.value) {
             return result.error("failure", "Site config was incomplete, please review and try again", null)
         }
 
@@ -234,19 +240,28 @@ class MainActivity: FlutterActivity() {
         result.success(null)
     }
 
-    private fun validateOrDeleteSite(siteDir: File): Boolean {
+    sealed class ValidationResult {
+        data class FailureReason(val value: String) : ValidationResult()
+        data class BooleanResult(val value: Boolean) : ValidationResult()
+    }
+
+    private fun validateOrDeleteSite(siteDir: File): ValidationResult {
         try {
             // Try to render a full site, if this fails the config was bad somehow
-            Site(context, siteDir)
+            val site = Site(context, siteDir);
+            if (site.errors.isNotEmpty()) {
+                // Return the first error, so the user can at least know one thing to solve
+                return ValidationResult.FailureReason(site.errors[0])
+            }
         } catch(err: java.io.FileNotFoundException) {
             Log.e(TAG, "Site not found at $siteDir")
-            return false
+            return ValidationResult.BooleanResult(false)
         } catch(err: Exception) {
             Log.e(TAG, "Deleting site at $siteDir due to error: $err")
             siteDir.deleteRecursively()
-            return false
+            return ValidationResult.BooleanResult(false)
         }
-        return true
+        return ValidationResult.BooleanResult(true)
     }
 
     private fun startSite(call: MethodCall, result: MethodChannel.Result) {
