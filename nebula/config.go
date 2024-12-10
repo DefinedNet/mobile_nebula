@@ -30,7 +30,7 @@ func newConfig() *config {
 			Hosts:    []string{},
 		},
 		Listen: configListen{
-			Host:  "0.0.0.0",
+			Host:  "[::]",
 			Port:  4242,
 			Batch: 64,
 		},
