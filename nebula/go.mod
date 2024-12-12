@@ -7,7 +7,7 @@ toolchain go1.22.4
 // replace github.com/slackhq/nebula => /Volumes/T7/nate/src/github.com/slackhq/nebula
 
 require (
-	github.com/DefinedNet/dnapi v0.0.0-20241205185013-9f2241dc2c59
+	github.com/DefinedNet/dnapi v0.0.0-20241212205635-1d1f0084d118
 	github.com/sirupsen/logrus v1.9.3
 	github.com/slackhq/nebula v1.9.5
 	golang.org/x/crypto v0.31.0
@@ -50,5 +50,3 @@ require (
 	golang.zx2c4.com/wireguard/windows v0.5.3 // indirect
 	google.golang.org/protobuf v1.35.2 // indirect
 )
-
-replace github.com/DefinedNet/dnapi => ../../dnapi
