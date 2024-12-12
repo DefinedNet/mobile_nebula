@@ -3,7 +3,8 @@ package mobileNebula
 import (
 	"testing"
 
-	"github.com/slackhq/nebula"
+	"github.com/sirupsen/logrus"
+	nebcfg "github.com/slackhq/nebula/config"
 )
 
 func TestParseCerts(t *testing.T) {
@@ -42,7 +43,7 @@ func TestParseCerts(t *testing.T) {
 }`
 	s, err := RenderConfig(jsonConfig, "")
 
-	config := nebula.NewConfig()
+	config := nebcfg.NewC(logrus.New())
 	err = config.LoadString(s)
 
 	t.Log(err)

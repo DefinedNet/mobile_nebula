@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/DefinedNet/dnapi"
+	"github.com/DefinedNet/dnapi/keys"
 	"github.com/sirupsen/logrus"
 	"github.com/slackhq/nebula/cert"
 )
@@ -80,7 +81,7 @@ func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string,
 		return nil, fmt.Errorf("invalid counter value: must be unsigned")
 	}
 
-	credsPkey, rest, err := cert.UnmarshalEd25519PrivateKey([]byte(privateKey))
+	pk, rest, err := unmarshalHostPrivateKey([]byte(privateKey))
 	switch {
 	case err != nil:
 		return nil, fmt.Errorf("invalid private key: %s", err)
@@ -88,16 +89,16 @@ func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string,
 		return nil, fmt.Errorf("invalid private key: %d trailing bytes", len(rest))
 	}
 
-	keys, err := dnapi.Ed25519PublicKeysFromPEM([]byte(trustedKeys))
+	tk, err := keys.TrustedKeysFromPEM([]byte(trustedKeys))
 	if err != nil {
 		return nil, fmt.Errorf("invalid trusted keys: %s", err)
 	}
 
-	creds := dnapi.Credentials{
+	creds := keys.Credentials{
 		HostID:      hostID,
-		PrivateKey:  credsPkey,
+		PrivateKey:  pk,
 		Counter:     uint(counter),
-		TrustedKeys: keys,
+		TrustedKeys: tk,
 	}
 
 	// Check for update
@@ -137,4 +138,24 @@ func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string,
 	}
 
 	return &TryUpdateResult{Site: string(jsonSite), FetchedUpdate: true}, nil
+}
+
+func unmarshalHostPrivateKey(b []byte) (keys.PrivateKey, []byte, error) {
+	k, r, err := keys.UnmarshalHostPrivateKey(b)
+	if err != nil {
+		// We used to use a Nebula PEM header for these keys, so try that as a fallback
+		k, r, err := cert.UnmarshalEd25519PrivateKey(b)
+		if err != nil {
+			return nil, r, fmt.Errorf("failed fallback unmarshal: %w", err)
+		}
+
+		pk, err := keys.NewPrivateKey(k)
+		if err != nil {
+			return nil, r, err
+		}
+
+		return pk, r, nil
+	}
+
+	return k, r, nil
 }
