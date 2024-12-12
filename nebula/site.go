@@ -1,10 +1,10 @@
 package mobileNebula
 
 import (
+	"encoding/json"
 	"time"
 
-	"github.com/DefinedNet/dnapi"
-	"github.com/slackhq/nebula/cert"
+	"github.com/DefinedNet/dnapi/keys"
 	"gopkg.in/yaml.v2"
 )
 
@@ -51,10 +51,10 @@ type dnCredentials struct {
 type jsonTrue bool
 
 func (f jsonTrue) MarshalJSON() ([]byte, error) {
-	return []byte(`true`), nil
+	return json.Marshal(true)
 }
 
-func newDNSite(name string, rawCfg []byte, key string, creds dnapi.Credentials) (*site, error) {
+func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials) (*site, error) {
 	// Convert YAML Nebula config to a JSON Site
 	var cfg config
 	if err := yaml.Unmarshal(rawCfg, &cfg); err != nil {
@@ -103,6 +103,16 @@ func newDNSite(name string, rawCfg []byte, key string, creds dnapi.Credentials) 
 
 	now := time.Now()
 
+	pkm, err := creds.PrivateKey.MarshalPEM()
+	if err != nil {
+		return nil, err
+	}
+
+	tkm, err := keys.TrustedKeysToPEM(creds.TrustedKeys)
+	if err != nil {
+		return nil, err
+	}
+
 	return &site{
 		Name:              name,
 		ID:                creds.HostID,
@@ -122,9 +132,9 @@ func newDNSite(name string, rawCfg []byte, key string, creds dnapi.Credentials) 
 		RawConfig:         &strCfg,
 		DNCredentials: &dnCredentials{
 			HostID:      creds.HostID,
-			PrivateKey:  string(cert.MarshalEd25519PrivateKey(creds.PrivateKey)),
+			PrivateKey:  string(pkm),
 			Counter:     int(creds.Counter),
-			TrustedKeys: string(dnapi.Ed25519PublicKeysToPEM(creds.TrustedKeys)),
+			TrustedKeys: string(tkm),
 		},
 	}, nil
 }
