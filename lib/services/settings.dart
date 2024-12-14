@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:mobile_nebula/services/storage.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 bool DEFAULT_LOG_WRAP = false;
 bool DEFAULT_TRACK_ERRORS = true;
@@ -47,11 +46,6 @@ class Settings {
 
   set trackErrors(bool enabled) {
     _set('trackErrors', enabled);
-
-    // Side-effect: Disable Sentry immediately
-    if (!enabled) {
-      Sentry.close();
-    }
   }
 
   String _getString(String key, String defaultValue) {
