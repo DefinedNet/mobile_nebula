@@ -33,7 +33,11 @@ class ConfigItem extends StatelessWidget {
                     ? label
                     : DefaultTextStyle(
                         style: CupertinoTheme.of(context).textTheme.textStyle, child: Container(child: label))),
-            Expanded(child: content),
+            Expanded(
+                child: Platform.isAndroid
+                    ? content
+                    : DefaultTextStyle(
+                        style: CupertinoTheme.of(context).textTheme.textStyle, child: Container(child: content))),
           ],
         ));
   }
