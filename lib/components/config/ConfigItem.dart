@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_nebula/services/utils.dart';
@@ -25,7 +27,12 @@ class ConfigItem extends StatelessWidget {
         child: Row(
           crossAxisAlignment: crossAxisAlignment,
           children: <Widget>[
-            Container(width: labelWidth, child: label),
+            Container(
+                width: labelWidth,
+                child: Platform.isAndroid
+                    ? label
+                    : DefaultTextStyle(
+                        style: CupertinoTheme.of(context).textTheme.textStyle, child: Container(child: label))),
             Expanded(child: content),
           ],
         ));

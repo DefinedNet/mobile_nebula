@@ -45,7 +45,7 @@ class ConfigPageItem extends StatelessWidget {
       onPressed: this.disabled ? null : onPressed,
       color: Utils.configItemBackground(context),
       child: Container(
-          padding: EdgeInsets.only(left: 15),
+          padding: EdgeInsets.only(left: 15, right: 15),
           constraints: BoxConstraints(minHeight: Utils.minInteractiveSize, minWidth: double.infinity),
           child: Row(
             crossAxisAlignment: crossAxisAlignment,
