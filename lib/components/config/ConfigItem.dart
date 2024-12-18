@@ -22,7 +22,7 @@ class ConfigItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         color: Utils.configItemBackground(context),
-        padding: EdgeInsets.only(top: 2, bottom: 2, left: 15, right: 10),
+        padding: EdgeInsets.only(top: 2, bottom: 2, left: 15, right: 20),
         constraints: BoxConstraints(minHeight: Utils.minInteractiveSize),
         child: Row(
           crossAxisAlignment: crossAxisAlignment,
@@ -33,7 +33,11 @@ class ConfigItem extends StatelessWidget {
                     ? label
                     : DefaultTextStyle(
                         style: CupertinoTheme.of(context).textTheme.textStyle, child: Container(child: label))),
-            Expanded(child: content),
+            Expanded(
+                child: Platform.isAndroid
+                    ? content
+                    : DefaultTextStyle(
+                        style: CupertinoTheme.of(context).textTheme.textStyle, child: Container(child: content))),
           ],
         ));
   }
