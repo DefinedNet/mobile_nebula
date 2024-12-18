@@ -15,6 +15,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           show-progress: false
+          fetch-depth: 25 # For sentry releases
 
       - name: Set up Go 1.22
         uses: actions/setup-go@v5
