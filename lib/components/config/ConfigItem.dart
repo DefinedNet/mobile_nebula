@@ -20,20 +20,22 @@ class ConfigItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var textStyle;
+    if (Platform.isAndroid) {
+      textStyle = Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.normal);
+    } else {
+      textStyle = CupertinoTheme.of(context).textTheme.textStyle;
+    }
+
     return Container(
         color: Utils.configItemBackground(context),
-        padding: EdgeInsets.only(top: 2, bottom: 2, left: 15, right: 10),
+        padding: EdgeInsets.only(top: 2, bottom: 2, left: 15, right: 20),
         constraints: BoxConstraints(minHeight: Utils.minInteractiveSize),
         child: Row(
           crossAxisAlignment: crossAxisAlignment,
           children: <Widget>[
-            Container(
-                width: labelWidth,
-                child: Platform.isAndroid
-                    ? label
-                    : DefaultTextStyle(
-                        style: CupertinoTheme.of(context).textTheme.textStyle, child: Container(child: label))),
-            Expanded(child: content),
+            Container(width: labelWidth, child: DefaultTextStyle(style: textStyle, child: Container(child: label))),
+            Expanded(child: DefaultTextStyle(style: textStyle, child: Container(child: content))),
           ],
         ));
   }
