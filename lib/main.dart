@@ -56,7 +56,9 @@ class _AppState extends State<App> {
     //TODO: wait until settings is ready?
     settings.onChange().listen((_) {
       setState(() {
-        if (!settings.useSystemColors) {
+        if (settings.useSystemColors) {
+          brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
+        } else {
           brightness = settings.darkMode ? Brightness.dark : Brightness.light;
         }
       });
