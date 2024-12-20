@@ -56,11 +56,23 @@ class _AppState extends State<App> {
     //TODO: wait until settings is ready?
     settings.onChange().listen((_) {
       setState(() {
-        if (!settings.useSystemColors) {
+        if (settings.useSystemColors) {
+          brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
+        } else {
           brightness = settings.darkMode ? Brightness.dark : Brightness.light;
         }
       });
     });
+
+    // Listen to changes to the system brightness mode, update accordingly
+    final dispatcher = SchedulerBinding.instance.platformDispatcher;
+    dispatcher.onPlatformBrightnessChanged = () {
+      if (settings.useSystemColors) {
+        setState(() {
+          brightness = dispatcher.platformBrightness;
+        });
+      }
+    };
 
     super.initState();
   }
