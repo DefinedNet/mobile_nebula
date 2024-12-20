@@ -65,7 +65,7 @@ class _AppState extends State<App> {
     });
 
     // Listen to changes to the system brightness mode, update accordingly
-    var dispatcher = SchedulerBinding.instance.platformDispatcher;
+    final dispatcher = SchedulerBinding.instance.platformDispatcher;
     dispatcher.onPlatformBrightnessChanged = () {
       if (settings.useSystemColors) {
         setState(() {
