@@ -42,7 +42,6 @@ class Storage {
       // Read the file
       return await file.readAsString();
     } catch (e) {
-      // If encountering an error, return 0
       return null;
     }
   }
