@@ -86,6 +86,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ));
 
     items.add(ConfigSection(children: [
+      ConfigItem(
+          label: Text('Report errors automatically'),
+          labelWidth: 250,
+          content: Align(
+              alignment: Alignment.centerRight,
+              child: Switch.adaptive(
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                value: settings.trackErrors,
+                onChanged: (value) {
+                  setState(() {
+                    settings.trackErrors = value;
+                  });
+                },
+              ))),
+    ]));
+
+    items.add(ConfigSection(children: [
       ConfigPageItem(
           label: Text('Enroll with Managed Nebula'),
           labelWidth: 200,
