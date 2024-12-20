@@ -105,7 +105,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     items.add(ConfigSection(children: [
       ConfigPageItem(
           label: Text('Enroll with Managed Nebula'),
-          labelWidth: 200,
+          labelWidth: 250,
           onPressed: () =>
               Utils.openPage(context, (context) => EnrollmentScreen(stream: widget.stream, allowCodeEntry: true)))
     ]));
