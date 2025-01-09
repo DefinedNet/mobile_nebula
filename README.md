@@ -8,7 +8,7 @@ Install all of the following things:
 
 - [`xcode`](https://apps.apple.com/us/app/xcode/)
 - [`android-studio`](https://developer.android.com/studio)
-- [`flutter` 3.24.1](https://docs.flutter.dev/get-started/install)
+- [`flutter` 3.27.0](https://docs.flutter.dev/get-started/install)
 - [`gomobile`](https://pkg.go.dev/golang.org/x/mobile/cmd/gomobile)
 - [Flutter Android Studio Extension](https://docs.flutter.dev/get-started/editor?tab=androidstudio)
 
