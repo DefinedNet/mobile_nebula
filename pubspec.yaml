@@ -35,7 +35,7 @@ dependencies:
   share_plus: ^10.0.2
   sentry_flutter: ^8.9.0
   sentry_dart_plugin:  ^2.0.0
-  mobile_scanner: ^5.2.2
+  mobile_scanner: ^7.0.0-beta.3
 
 dev_dependencies:
   flutter_test:
