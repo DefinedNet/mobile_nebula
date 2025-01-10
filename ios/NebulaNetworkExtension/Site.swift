@@ -397,8 +397,8 @@ struct IncomingSite: Codable {
     var id: String
     var staticHostmap: Dictionary<String, StaticHosts>
     var unsafeRoutes: [UnsafeRoute]?
-    var cert: String
-    var ca: String
+    var cert: String?
+    var ca: String?
     var lhDuration: Int
     var port: Int
     var mtu: Int?
