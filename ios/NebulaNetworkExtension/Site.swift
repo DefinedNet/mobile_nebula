@@ -5,7 +5,41 @@ import os.log
 
 let log = Logger(subsystem: "net.defined.mobileNebula", category: "Site")
 
-extension String: Error {}
+enum SiteError: Error {
+    case nonConforming(site: [String : Any]?)
+    case noCertificate
+    case keyLoad
+    case keySave
+    case unmanagedGetCredentials
+    case dnCredentialLoad
+    case dnCredentialSave
+
+    // Throw in all other cases
+    case unexpected(code: Int)
+}
+
+extension SiteError: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .nonConforming(let site):
+            return String("Non-conforming site \(String(describing: site))")
+        case .noCertificate:
+            return "No certificate found"
+        case .keyLoad:
+            return "failed to get key from keychain"
+        case .keySave:
+            return "failed to store key material in keychain"
+        case .unmanagedGetCredentials:
+            return "Cannot get dn credentials for unmanaged site"
+        case .dnCredentialLoad:
+            return "failed to find dn credentials in keychain"
+        case .dnCredentialSave:
+            return "failed to store dn credentials in keychain"
+        case .unexpected(_):
+            return "An unexpected error occurred."
+        }
+    }
+}
 
 enum IPCResponseType: String, Codable {
     case error = "error"
@@ -174,7 +208,7 @@ class Site: Codable {
 
         let id = dict?["id"] as? String ?? nil
         if id == nil {
-            throw("Non-conforming site \(String(describing: dict))")
+            throw SiteError.nonConforming(site: dict)
         }
 
         try self.init(path: SiteList.getSiteConfigFile(id: id!, createDir: false))
@@ -218,7 +252,7 @@ class Site: Codable {
 
             certs = try JSONDecoder().decode([CertificateInfo].self, from: rawDetails.data(using: .utf8)!)
             if (certs.count == 0) {
-                throw "No certificate found"
+                throw SiteError.noCertificate
             }
             cert = certs[0]
             if (!cert!.validity.valid) {
@@ -285,7 +319,7 @@ class Site: Codable {
     // Gets the private key from the keystore, we don't always need it in memory
     func getKey() throws -> String {
         guard let keyData = KeyChain.load(key: "\(id).key") else {
-            throw "failed to get key from keychain"
+            throw SiteError.keyLoad
         }
 
         //TODO: make sure this is valid on return!
@@ -294,12 +328,12 @@ class Site: Codable {
 
     func getDNCredentials() throws -> DNCredentials {
         if (!managed) {
-            throw "unmanaged site has no dn credentials"
+            throw SiteError.unmanagedGetCredentials
         }
 
         let rawDNCredentials = KeyChain.load(key: "\(id).dnCredentials")
         if rawDNCredentials == nil {
-            throw "failed to find dn credentials in keychain"
+            throw SiteError.dnCredentialLoad
         }
 
         let decoder = JSONDecoder()
@@ -311,7 +345,7 @@ class Site: Codable {
         creds.invalid = true
 
         if (!(try creds.save(siteID: self.id))) {
-            throw "failed to store dn credentials in keychain"
+            throw SiteError.dnCredentialLoad
         }
     }
 
@@ -320,7 +354,7 @@ class Site: Codable {
         creds.invalid = false
 
         if (!(try creds.save(siteID: self.id))) {
-            throw "failed to store dn credentials in keychain"
+            throw SiteError.dnCredentialSave
         }
     }
 
@@ -438,13 +472,13 @@ struct IncomingSite: Codable {
             if (self.key != nil) {
                 let data = self.key!.data(using: .utf8)
                 if (!KeyChain.save(key: "\(self.id).key", data: data!, managed: self.managed ?? false)) {
-                    return callback("failed to store key material in keychain")
+                    return callback(SiteError.keySave)
                 }
             }
 
             do {
                 if ((try self.dnCredentials?.save(siteID: self.id)) == false) {
-                    return callback("failed to store dn credentials in keychain")
+                    return callback(SiteError.dnCredentialSave)
                 }
             } catch {
                 return callback(error)
