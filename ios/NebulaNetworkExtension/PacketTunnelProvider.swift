@@ -10,6 +10,20 @@ enum VPNStartError: Error {
     case noProviderConfig
 }
 
+enum AppMessageError: Error {
+    case unknownIPCType(command: String)
+}
+
+extension AppMessageError: LocalizedError {
+    public var description: String? {
+        switch self {
+        case .unknownIPCType(let command):
+            return NSLocalizedString("Unknown IPC message type \(String(command))", comment: "")
+        }
+    }
+}
+
+
 class PacketTunnelProvider: NEPacketTunnelProvider {
     private var networkMonitor: NWPathMonitor?
     
@@ -221,7 +235,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         case "closeTunnel": (data, error) = closeTunnel(args: call.arguments!)
             
         default:
-            error = "Unknown IPC message type \(call.command)"
+            error = AppMessageError.unknownIPCType(command: call.command)
         }
         
         if (error != nil) {

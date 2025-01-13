@@ -47,7 +47,7 @@ post_install do |installer|
   installer.generated_projects.each do |project|
     project.targets.each do |target|
       target.build_configurations.each do |config|
-        if Gem::Version.new('11.0') > Gem::Version.new(config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'])
+        if Gem::Version.new('12.0') > Gem::Version.new(config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'])
           config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
         end
       end
