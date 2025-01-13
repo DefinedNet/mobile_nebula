@@ -95,9 +95,6 @@ class SiteList(context: Context) {
                 try {
                     val site = Site(context, siteDir)
 
-                    // Make sure we can load the private key
-                    site.getKey(context)
-
                     // Make sure we can load the DN credentials if managed
                     if (site.managed) {
                         site.getDNCredentials(context)
