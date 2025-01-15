@@ -17,6 +17,8 @@ import 'package:mobile_nebula/screens/siteConfig/SiteConfigScreen.dart';
 import 'package:mobile_nebula/services/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
+import '../components/DangerButton.dart';
+
 //TODO: If the site isn't active, don't respond to reloads on hostmaps
 //TODO: ios is now the problem with connecting screwing our ability to query the hostmap (its a race)
 
@@ -256,14 +258,14 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
         padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
         child: SizedBox(
             width: double.infinity,
-            child: PlatformElevatedButton(
-                child: Text('Delete'),
-                color: CupertinoColors.systemRed.resolveFrom(context),
-                onPressed: () => Utils.confirmDelete(context, 'Delete Site?', () async {
-                      if (await _deleteSite()) {
-                        Navigator.of(context).pop();
-                      }
-                    }))));
+            child: DangerButton(
+              child: Text('Delete'),
+              onPressed: () => Utils.confirmDelete(context, 'Delete Site?', () async {
+                if (await _deleteSite()) {
+                  Navigator.of(context).pop();
+                }
+              }),
+            )));
   }
 
   _listHostmap() async {

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:mobile_nebula/components/DangerButton.dart';
 import 'package:mobile_nebula/components/FormPage.dart';
 import 'package:mobile_nebula/components/IPAndPortFormField.dart';
 import 'package:mobile_nebula/components/IPFormField.dart';
@@ -119,14 +120,12 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
                   padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
                   child: SizedBox(
                       width: double.infinity,
-                      child: PlatformElevatedButton(
-                        child: Text('Delete'),
-                        color: CupertinoColors.systemRed.resolveFrom(context),
-                        onPressed: () => Utils.confirmDelete(context, 'Delete host map?', () {
-                          Navigator.of(context).pop();
-                          widget.onDelete!();
-                        }),
-                      )))
+                      child: DangerButton(
+                          child: Text('Delete'),
+                          onPressed: () => Utils.confirmDelete(context, 'Delete host map?', () {
+                                Navigator.of(context).pop();
+                                widget.onDelete!();
+                              }))))
               : Container()
         ]));
   }
