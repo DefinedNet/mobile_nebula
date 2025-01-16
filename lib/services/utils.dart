@@ -82,12 +82,8 @@ class Utils {
   }
 
   static Widget trailingSaveWidget(BuildContext context, Function onPressed) {
-    return CupertinoButton(
-        child: Text('Save',
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                //TODO: For some reason on android if inherit is the default of true the text color here turns to the background color
-                inherit: Platform.isIOS ? true : false)),
+    return PlatformTextButton(
+        child: Text('Save', style: TextStyle(fontWeight: FontWeight.bold)),
         padding: Platform.isAndroid ? null : EdgeInsets.zero,
         onPressed: () => onPressed());
   }

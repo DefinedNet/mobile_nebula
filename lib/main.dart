@@ -86,31 +86,31 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     final ThemeData lightTheme = ThemeData(
-      useMaterial3: false,
-      colorScheme: ColorScheme.fromSwatch(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
         brightness: Brightness.light,
-        primarySwatch: Colors.blueGrey,
-        errorColor: CupertinoColors.systemRed.resolveFrom(context),
+        seedColor: Colors.blueGrey,
+        error: CupertinoColors.systemRed.resolveFrom(context),
       ),
-      primaryColor: Colors.blueGrey[900],
+      // primaryColor: Colors.blueGrey[900],
       fontFamily: 'PublicSans',
       //scaffoldBackgroundColor: Colors.grey[100],
-      scaffoldBackgroundColor: Colors.white,
+      // scaffoldBackgroundColor: Colors.white,
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: Colors.blueGrey[50],
       ),
     );
 
     final ThemeData darkTheme = ThemeData(
-      useMaterial3: false,
+      useMaterial3: true,
       colorScheme: ColorScheme.fromSwatch(
         brightness: Brightness.dark,
         primarySwatch: Colors.grey,
         errorColor: CupertinoColors.systemRed.resolveFrom(context),
       ),
-      primaryColor: Colors.grey[900],
+      // primaryColor: Colors.grey[900],
       fontFamily: 'PublicSans',
-      scaffoldBackgroundColor: Colors.grey[800],
+      // scaffoldBackgroundColor: Colors.grey[800],
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: Colors.grey[850],
       ),
