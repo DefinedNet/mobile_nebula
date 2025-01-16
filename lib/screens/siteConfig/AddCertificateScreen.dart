@@ -15,6 +15,7 @@ import 'package:mobile_nebula/screens/siteConfig/ScanQRScreen.dart';
 import 'package:mobile_nebula/services/share.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
+import '../../components/buttons/PrimaryButton.dart';
 import 'CertificateDetailsScreen.dart';
 
 class CertificateResult {
@@ -152,9 +153,8 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
           padding: EdgeInsets.only(top: 20, bottom: 10, left: 10, right: 10),
           child: SizedBox(
               width: double.infinity,
-              child: PlatformElevatedButton(
+              child: PrimaryButton(
                   child: Text('Show/Import Private Key'),
-                  color: CupertinoColors.secondaryLabel.resolveFrom(context),
                   onPressed: () => Utils.confirmDelete(context, 'Show/Import Private Key?', () {
                         setState(() {
                           showKey = true;
