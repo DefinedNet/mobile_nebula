@@ -134,6 +134,19 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
   }
 
   Widget _buildConfig() {
+    void handleChange(v) async {
+      try {
+        if (v) {
+          await widget.site.start();
+        } else {
+          await widget.site.stop();
+        }
+      } catch (error) {
+        var action = v ? 'start' : 'stop';
+        Utils.popError(context, 'Failed to $action the site', error.toString());
+      }
+    }
+
     return ConfigSection(children: <Widget>[
       ConfigItem(
           label: Text('Status'),
@@ -145,18 +158,7 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
             Switch.adaptive(
               value: widget.site.connected,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              onChanged: (v) async {
-                try {
-                  if (v) {
-                    await widget.site.start();
-                  } else {
-                    await widget.site.stop();
-                  }
-                } catch (error) {
-                  var action = v ? 'start' : 'stop';
-                  Utils.popError(context, 'Failed to $action the site', error.toString());
-                }
-              },
+              onChanged: widget.site.errors.length > 0 && !widget.site.connected ? null : handleChange,
             )
           ])),
       ConfigPageItem(
