@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/CIDRFormField.dart';
+import 'package:mobile_nebula/components/DangerButton.dart';
 import 'package:mobile_nebula/components/FormPage.dart';
 import 'package:mobile_nebula/components/IPFormField.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
@@ -96,9 +97,8 @@ class _UnsafeRouteScreenState extends State<UnsafeRouteScreen> {
                   padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
                   child: SizedBox(
                       width: double.infinity,
-                      child: PlatformElevatedButton(
+                      child: DangerButton(
                         child: Text('Delete'),
-                        color: CupertinoColors.systemRed.resolveFrom(context),
                         onPressed: () => Utils.confirmDelete(context, 'Delete unsafe route?', () {
                           Navigator.of(context).pop();
                           widget.onDelete!();

@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart' show CupertinoThemeData, DefaultCupertinoLocalizations;
+import 'package:flutter/cupertino.dart' show CupertinoThemeData, DefaultCupertinoLocalizations, CupertinoColors;
 import 'package:flutter/material.dart'
-    show BottomSheetThemeData, Colors, DefaultMaterialLocalizations, ThemeData, ThemeMode;
+    show BottomSheetThemeData, ColorScheme, Colors, DefaultMaterialLocalizations, ThemeData, ThemeMode;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -87,8 +87,11 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     final ThemeData lightTheme = ThemeData(
       useMaterial3: false,
-      brightness: Brightness.light,
-      primarySwatch: Colors.blueGrey,
+      colorScheme: ColorScheme.fromSwatch(
+        brightness: Brightness.light,
+        primarySwatch: Colors.blueGrey,
+        errorColor: CupertinoColors.systemRed.resolveFrom(context),
+      ),
       primaryColor: Colors.blueGrey[900],
       fontFamily: 'PublicSans',
       //scaffoldBackgroundColor: Colors.grey[100],
@@ -100,8 +103,11 @@ class _AppState extends State<App> {
 
     final ThemeData darkTheme = ThemeData(
       useMaterial3: false,
-      brightness: Brightness.dark,
-      primarySwatch: Colors.grey,
+      colorScheme: ColorScheme.fromSwatch(
+        brightness: Brightness.dark,
+        primarySwatch: Colors.grey,
+        errorColor: CupertinoColors.systemRed.resolveFrom(context),
+      ),
       primaryColor: Colors.grey[900],
       fontFamily: 'PublicSans',
       scaffoldBackgroundColor: Colors.grey[800],
