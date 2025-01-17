@@ -62,7 +62,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 }
                 self.site = try Site(manager: foundManager)
             } else {
-                // The downside here is that a new vpn profile is created each time it starts
+                // This does not save the manager with the site, which means we cannot update the
+                // vpn profile name when updates happen (rare).
                 self.site = try Site(proto: self.protocolConfiguration as! NETunnelProviderProtocol)
             }
             config = try self.site!.getConfig()
