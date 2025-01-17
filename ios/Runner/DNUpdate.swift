@@ -63,7 +63,10 @@ class DNUpdater {
                 return
             }
             
-            newSite?.save(manager: site.manager) { error in
+            let siteManager = site.manager
+            let shouldSaveToManager = siteManager != nil || ProcessInfo().isOperatingSystemAtLeast(OperatingSystemVersion(majorVersion: 17, minorVersion: 0, patchVersion: 0))
+            
+            newSite?.save(manager: site.manager, saveToManager: shouldSaveToManager) { error in
                 if (error != nil) {
                     self.log.error("failed to save update: \(error!.localizedDescription, privacy: .public)")
                 }
