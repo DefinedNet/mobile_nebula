@@ -52,14 +52,19 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         var config: Data
         var key: String
         
-        manager = try await self.findManager()
-        
-        guard let foundManager = manager else {
-            throw VPNStartError.couldNotFindManager
-        }
-        
         do {
-            self.site = try Site(manager: foundManager)
+            // Cannot use NETunnelProviderManager.loadAllFromPreferences() in earlier versions of iOS
+            // TODO: Remove else once we drop support for iOS 16
+            if ProcessInfo().isOperatingSystemAtLeast(OperatingSystemVersion(majorVersion: 17, minorVersion: 0, patchVersion: 0)) {
+                manager = try await self.findManager()
+                guard let foundManager = manager else {
+                    throw VPNStartError.couldNotFindManager
+                }
+                self.site = try Site(manager: foundManager)
+            } else {
+                // The downside here is that a new vpn profile is created each time it starts
+                self.site = try Site(proto: self.protocolConfiguration as! NETunnelProviderProtocol)
+            }
             config = try self.site!.getConfig()
         } catch {
             //TODO: need a way to notify the app
