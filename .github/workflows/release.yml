@@ -31,7 +31,7 @@ jobs:
       - name: Install flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.1'
+          flutter-version: '3.27.0'
 
       - name: Setup bundletool for APK generation
         uses: amyu/setup-bundletool@f7a6fdd8e04bb23d2fdf3c2f60c9257a6298a40a
