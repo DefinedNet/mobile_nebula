@@ -15,7 +15,9 @@ class DangerButton extends StatelessWidget {
       return FilledButton(
           onPressed: onPressed,
           child: child,
-          style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error));
+          style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError));
     } else {
       // Workaround for https://github.com/flutter/flutter/issues/161590
       final themeData = CupertinoTheme.of(context);
