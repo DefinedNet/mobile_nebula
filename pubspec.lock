@@ -89,6 +89,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
+  dart_pubspec_licenses:
+    dependency: transitive
+    description:
+      name: dart_pubspec_licenses
+      sha256: "23ddb78ff9204d08e3109ced67cd3c6c6a066f581b0edf5ee092fc3e1127f4ea"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.4"
   fake_async:
     dependency: transitive
     description:
@@ -134,6 +142,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_oss_licenses:
+    dependency: "direct dev"
+    description:
+      name: flutter_oss_licenses
+      sha256: e4bbaeb00bc768e8430ee0c95ad304d2f256fb15194d30b912cea269871c8885
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.4"
   flutter_platform_widgets:
     dependency: "direct main"
     description:
@@ -216,6 +232,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.19.0"
+  json_annotation:
+    dependency: transitive
+    description:
+      name: json_annotation
+      sha256: "1ce844379ca14835a50d2f019a3099f419082cfdd231cd86a142af94dd5c6bb1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.9.0"
   leak_tracker:
     dependency: transitive
     description:
