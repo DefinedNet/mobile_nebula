@@ -15,7 +15,7 @@ class LicensesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SimplePage(
-      title: Text("Licences"),
+      title: const Text("Licences"),
       scrollable: SimpleScrollable.none,
       child: ListView.builder(
         itemCount: allDependencies.length,
