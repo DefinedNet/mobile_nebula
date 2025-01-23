@@ -152,7 +152,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     }
 
     return SimplePage(
-        title: Text('Enroll with Managed Nebula', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text('Enroll with Managed Nebula'),
         child: Padding(child: child, padding: EdgeInsets.symmetric(horizontal: 10)),
         alignment: alignment);
   }
