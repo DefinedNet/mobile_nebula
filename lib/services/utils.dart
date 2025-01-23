@@ -55,17 +55,15 @@ class Utils {
   /// Provide your own onPressed to override that behavior, just remember you have to pop
   static Widget leadingBackWidget(BuildContext context, {label = 'Back', Function? onPressed}) {
     if (Platform.isIOS) {
-      return CupertinoButton(
-        child: Row(children: <Widget>[Icon(context.platformIcons.back), Text(label)]),
-        padding: EdgeInsets.zero,
-        onPressed: () {
-          if (onPressed == null) {
-            Navigator.pop(context);
-          } else {
-            onPressed();
-          }
-        },
-      );
+      return CupertinoNavigationBarBackButton(
+          previousPageTitle: label,
+          onPressed: () {
+            if (onPressed == null) {
+              Navigator.pop(context);
+            } else {
+              onPressed();
+            }
+          });
     }
 
     return IconButton(
