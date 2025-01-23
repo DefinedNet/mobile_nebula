@@ -98,7 +98,7 @@ class SimplePage extends StatelessWidget {
     }
 
     return PlatformScaffold(
-        backgroundColor: Theme.of(context).canvasColor,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: PlatformAppBar(
           title: title,
           leading: leadingAction != null ? leadingAction : Utils.leadingBackWidget(context),
