@@ -42,7 +42,7 @@ class LicensesScreen extends StatelessWidget {
                     capitalize(dep.name),
                   ),
                   subtitle: Text(dep.description),
-                  trailing: Icon(CupertinoIcons.forward,
+                  trailing: Icon(context.platformIcons.forward,
                       color: CupertinoColors.placeholderText.resolveFrom(context), size: 18)),
             ),
           );
