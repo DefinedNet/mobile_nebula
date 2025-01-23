@@ -102,7 +102,7 @@ class SimplePage extends StatelessWidget {
         backgroundColor: cupertino.CupertinoColors.systemGroupedBackground.resolveFrom(context),
         appBar: PlatformAppBar(
           title: title,
-          leading: leadingAction != null ? leadingAction : Utils.leadingBackWidget(context),
+          leading: leadingAction,
           trailingActions: trailingActions,
           cupertino: (_, __) => CupertinoNavigationBarData(
             transitionBetweenRoutes: false,

@@ -59,9 +59,6 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
           await _getHostInfo();
           refreshController.refreshCompleted();
         },
-        leadingAction: Utils.leadingBackWidget(context, onPressed: () {
-          Navigator.pop(context);
-        }),
         child: Column(
             children: [_buildMain(), _buildDetails(), _buildRemotes(), !widget.pending ? _buildClose() : Container()]));
   }
