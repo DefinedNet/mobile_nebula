@@ -82,9 +82,7 @@ class Utils {
 
   static Widget trailingSaveWidget(BuildContext context, Function onPressed) {
     return PlatformTextButton(
-        child: Text('Save', style: TextStyle(fontWeight: FontWeight.bold)),
-        padding: Platform.isAndroid ? null : EdgeInsets.zero,
-        onPressed: () => onPressed());
+        child: Text('Save'), padding: Platform.isAndroid ? null : EdgeInsets.zero, onPressed: () => onPressed());
   }
 
   /// Simple cross platform delete confirmation dialog - can also be used to confirm throwing away a change by swapping the deleteLabel
