@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/services/utils.dart';
 import '../../oss_licenses.dart';
 
@@ -13,36 +14,30 @@ class LicensesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PlatformScaffold(
-      appBar: PlatformAppBar(
-        title: Text("Licences"),
-      ),
-      body: ListView.builder(
+    return SimplePage(
+      title: Text("Licences"),
+      scrollable: SimpleScrollable.none,
+      child: ListView.builder(
         itemCount: allDependencies.length,
         itemBuilder: (_, index) {
           var dep = allDependencies[index];
           return Padding(
             padding: const EdgeInsets.all(8),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: PlatformListTile(
-                  onTap: () {
-                    Utils.openPage(
-                      context,
-                      (_) => LicenceDetailPage(
-                        title: capitalize(dep.name),
-                        licence: dep.license!,
-                      ),
-                    );
-                  },
-                  title: Text(
-                    capitalize(dep.name),
-                  ),
-                  subtitle: Text(dep.description),
-                  trailing: Icon(context.platformIcons.forward, size: 18)),
-            ),
+            child: PlatformListTile(
+                onTap: () {
+                  Utils.openPage(
+                    context,
+                    (_) => LicenceDetailPage(
+                      title: capitalize(dep.name),
+                      licence: dep.license!,
+                    ),
+                  );
+                },
+                title: Text(
+                  capitalize(dep.name),
+                ),
+                subtitle: Text(dep.description),
+                trailing: Icon(context.platformIcons.forward, size: 18)),
           );
         },
       ),
@@ -57,26 +52,23 @@ class LicenceDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PlatformScaffold(
-      appBar: PlatformAppBar(
-        title: Text(title),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  Text(
-                    licence,
-                    style: const TextStyle(fontSize: 15),
-                  ),
-                ],
-              ),
+    return SimplePage(
+      title: Text(title),
+      scrollable: SimpleScrollable.none,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          padding: const EdgeInsets.all(5),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                Text(
+                  licence,
+                  style: const TextStyle(fontSize: 15),
+                ),
+              ],
             ),
           ),
         ),
