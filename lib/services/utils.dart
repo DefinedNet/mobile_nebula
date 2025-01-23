@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class Utils {
   /// Minimum size (width or height) of a interactive component
@@ -82,12 +83,8 @@ class Utils {
   }
 
   static Widget trailingSaveWidget(BuildContext context, Function onPressed) {
-    return CupertinoButton(
-        child: Text('Save',
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                //TODO: For some reason on android if inherit is the default of true the text color here turns to the background color
-                inherit: Platform.isIOS ? true : false)),
+    return PlatformTextButton(
+        child: Text('Save', style: TextStyle(fontWeight: FontWeight.bold)),
         padding: Platform.isAndroid ? null : EdgeInsets.zero,
         onPressed: () => onPressed());
   }
@@ -179,5 +176,20 @@ class Utils {
 
     final file = File(result.files.first.path!);
     return file.readAsString();
+  }
+
+  static TextTheme createTextTheme(BuildContext context, String bodyFontString, String displayFontString) {
+    TextTheme baseTextTheme = Theme.of(context).textTheme;
+    TextTheme bodyTextTheme = GoogleFonts.getTextTheme(bodyFontString, baseTextTheme);
+    TextTheme displayTextTheme = GoogleFonts.getTextTheme(displayFontString, baseTextTheme);
+    TextTheme textTheme = displayTextTheme.copyWith(
+      bodyLarge: bodyTextTheme.bodyLarge,
+      bodyMedium: bodyTextTheme.bodyMedium,
+      bodySmall: bodyTextTheme.bodySmall,
+      labelLarge: bodyTextTheme.labelLarge,
+      labelMedium: bodyTextTheme.labelMedium,
+      labelSmall: bodyTextTheme.labelSmall,
+    );
+    return textTheme;
   }
 }

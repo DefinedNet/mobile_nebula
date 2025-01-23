@@ -1,8 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart' show CupertinoThemeData, DefaultCupertinoLocalizations, CupertinoColors;
-import 'package:flutter/material.dart'
-    show BottomSheetThemeData, ColorScheme, Colors, DefaultMaterialLocalizations, ThemeData, ThemeMode;
+import 'package:flutter/cupertino.dart' show CupertinoThemeData, DefaultCupertinoLocalizations;
+import 'package:flutter/material.dart' show DefaultMaterialLocalizations, TextTheme, ThemeMode;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -11,6 +10,8 @@ import 'package:mobile_nebula/screens/MainScreen.dart';
 import 'package:mobile_nebula/screens/EnrollmentScreen.dart';
 import 'package:mobile_nebula/services/settings.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:mobile_nebula/services/theme.dart';
+import 'package:mobile_nebula/services/utils.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 Future<void> main() async {
@@ -85,36 +86,8 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData lightTheme = ThemeData(
-      useMaterial3: false,
-      colorScheme: ColorScheme.fromSwatch(
-        brightness: Brightness.light,
-        primarySwatch: Colors.blueGrey,
-        errorColor: CupertinoColors.systemRed.resolveFrom(context),
-      ),
-      primaryColor: Colors.blueGrey[900],
-      fontFamily: 'PublicSans',
-      //scaffoldBackgroundColor: Colors.grey[100],
-      scaffoldBackgroundColor: Colors.white,
-      bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: Colors.blueGrey[50],
-      ),
-    );
-
-    final ThemeData darkTheme = ThemeData(
-      useMaterial3: false,
-      colorScheme: ColorScheme.fromSwatch(
-        brightness: Brightness.dark,
-        primarySwatch: Colors.grey,
-        errorColor: CupertinoColors.systemRed.resolveFrom(context),
-      ),
-      primaryColor: Colors.grey[900],
-      fontFamily: 'PublicSans',
-      scaffoldBackgroundColor: Colors.grey[800],
-      bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: Colors.grey[850],
-      ),
-    );
+    TextTheme textTheme = Utils.createTextTheme(context, "Public Sans", "Public Sans");
+    MaterialTheme theme = MaterialTheme(textTheme);
 
     return PlatformProvider(
       settings: PlatformSettingsData(iosUsesMaterialWidgets: true),
@@ -129,7 +102,7 @@ class _AppState extends State<App> {
         material: (_, __) {
           return new MaterialAppData(
             themeMode: brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
-            theme: brightness == Brightness.light ? lightTheme : darkTheme,
+            theme: brightness == Brightness.light ? theme.light() : theme.dark(),
           );
         },
         cupertino: (_, __) => CupertinoAppData(
