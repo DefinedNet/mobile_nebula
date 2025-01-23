@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart' as cupertino;
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/services/utils.dart';
@@ -99,7 +98,7 @@ class SimplePage extends StatelessWidget {
     }
 
     return PlatformScaffold(
-        backgroundColor: cupertino.CupertinoColors.systemGroupedBackground.resolveFrom(context),
+        backgroundColor: Theme.of(context).canvasColor,
         appBar: PlatformAppBar(
           title: title,
           leading: leadingAction != null ? leadingAction : Utils.leadingBackWidget(context),
