@@ -3,13 +3,14 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/models/Site.dart';
 import 'package:mobile_nebula/services/settings.dart';
 import 'package:mobile_nebula/services/share.dart';
 import 'package:mobile_nebula/services/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+
+import '../components/SiteTitle.dart';
 
 class SiteLogsScreen extends StatefulWidget {
   const SiteLogsScreen({Key? key, required this.site}) : super(key: key);
@@ -40,14 +41,7 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final dnIcon =
-        Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
-    final title = Row(children: [
-      widget.site.managed
-          ? Padding(padding: EdgeInsets.only(right: 10), child: SvgPicture.asset(dnIcon, width: 12))
-          : Container(),
-      Expanded(child: Text(widget.site.name, style: TextStyle(fontWeight: FontWeight.bold)))
-    ]);
+    final title = SiteTitle(site: widget.site);
 
     return SimplePage(
       title: title,
