@@ -157,7 +157,7 @@ class _MainScreenState extends State<MainScreen> {
       trailingActions: <Widget>[
         PlatformIconButton(
           padding: EdgeInsets.zero,
-          icon: Icon(Icons.menu, size: 28.0),
+          icon: Icon(Icons.adaptive.more, size: 28.0),
           onPressed: () => Utils.openPage(context, (_) => SettingsScreen(widget.dnEnrollStream)),
         ),
       ],
