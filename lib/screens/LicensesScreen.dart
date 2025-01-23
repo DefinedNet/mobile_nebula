@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/services/utils.dart';
 import '../../oss_licenses.dart';
@@ -27,7 +28,7 @@ class LicensesScreen extends StatelessWidget {
                 color: Utils.configItemBackground(context),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: ListTile(
+              child: PlatformListTile(
                   onTap: () {
                     Utils.openPage(
                       context,
