@@ -45,6 +45,31 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
 
     return SimplePage(
       title: title,
+      trailingActions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: IconButton.filledTonal(
+            // Fixes enormous button on iOS, this *should* be the default, but it seems to be overridden.
+            iconSize: 24,
+            style: Platform.isIOS
+                ? IconButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    // Match background when not selected on iOS
+                    backgroundColor: settings.logWrap ? null : Colors.transparent,
+                  )
+                : null,
+            isSelected: settings.logWrap,
+            tooltip: "Turn ${settings.logWrap ? "off" : "on"} text wrapping",
+            selectedIcon: const Icon(Icons.wrap_text_outlined),
+            icon: const Icon(Icons.wrap_text),
+            onPressed: () => {
+              setState(() {
+                settings.logWrap = !settings.logWrap;
+              })
+            },
+          ),
+        )
+      ],
       scrollable: SimpleScrollable.both,
       scrollController: controller,
       onRefresh: () async {
