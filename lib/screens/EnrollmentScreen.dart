@@ -110,7 +110,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
           Padding(
               child: SelectableText(
                   'There was an issue while attempting to enroll this device. Contact your administrator to obtain a new enrollment code.'),
-              padding: EdgeInsets.symmetric(vertical: 20)),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20)),
           Padding(
               child: SelectableText.rich(TextSpan(children: [
                 TextSpan(text: 'If the problem persists, please let us know at '),
@@ -126,9 +126,9 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                 ),
                 TextSpan(text: ' and provide the following error:'),
               ])),
-              padding: EdgeInsets.only(bottom: 10)),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10)),
           Container(
-            child: Padding(child: SelectableText(this.error!), padding: EdgeInsets.all(10)),
+            child: Padding(child: SelectableText(this.error!), padding: EdgeInsets.all(16)),
             color: Theme.of(context).colorScheme.errorContainer,
           ),
         ],
