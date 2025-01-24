@@ -101,11 +101,13 @@ class SimplePage extends StatelessWidget {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: PlatformAppBar(
           title: title,
-          leading: leadingAction != null ? leadingAction : Utils.leadingBackWidget(context),
+          leading: leadingAction,
           trailingActions: trailingActions,
           cupertino: (_, __) => CupertinoNavigationBarData(
-            transitionBetweenRoutes: false,
-          ),
+              transitionBetweenRoutes: false,
+              // TODO: set title on route, show here instead of just "Back"
+              previousPageTitle: 'Back',
+              padding: EdgeInsetsDirectional.only(end: 8.0)),
         ),
         body: SafeArea(child: realChild));
   }

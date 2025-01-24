@@ -55,17 +55,15 @@ class Utils {
   /// Provide your own onPressed to override that behavior, just remember you have to pop
   static Widget leadingBackWidget(BuildContext context, {label = 'Back', Function? onPressed}) {
     if (Platform.isIOS) {
-      return CupertinoButton(
-        child: Row(children: <Widget>[Icon(context.platformIcons.back), Text(label)]),
-        padding: EdgeInsets.zero,
-        onPressed: () {
-          if (onPressed == null) {
-            Navigator.pop(context);
-          } else {
-            onPressed();
-          }
-        },
-      );
+      return CupertinoNavigationBarBackButton(
+          previousPageTitle: label,
+          onPressed: () {
+            if (onPressed == null) {
+              Navigator.pop(context);
+            } else {
+              onPressed();
+            }
+          });
     }
 
     return IconButton(
@@ -84,9 +82,7 @@ class Utils {
 
   static Widget trailingSaveWidget(BuildContext context, Function onPressed) {
     return PlatformTextButton(
-        child: Text('Save', style: TextStyle(fontWeight: FontWeight.bold)),
-        padding: Platform.isAndroid ? null : EdgeInsets.zero,
-        onPressed: () => onPressed());
+        child: Text('Save'), padding: Platform.isAndroid ? null : EdgeInsets.zero, onPressed: () => onPressed());
   }
 
   /// Simple cross platform delete confirmation dialog - can also be used to confirm throwing away a change by swapping the deleteLabel

@@ -95,9 +95,6 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
 
     return SimplePage(
         title: Text('$title Tunnels'),
-        leadingAction: Utils.leadingBackWidget(context, onPressed: () {
-          Navigator.pop(context);
-        }),
         refreshController: refreshController,
         onRefresh: () async {
           await _listHostmap();
