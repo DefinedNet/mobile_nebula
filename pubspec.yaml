@@ -41,6 +41,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_oss_licenses: ^3.0.4
 
 
 # For information on the generic Dart part of this file, see the

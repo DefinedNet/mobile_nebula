@@ -5,6 +5,7 @@ import 'package:mobile_nebula/components/config/ConfigItem.dart';
 import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
 import 'package:mobile_nebula/components/config/ConfigSection.dart';
 import 'package:mobile_nebula/gen.versions.dart';
+import 'package:mobile_nebula/screens/LicensesScreen.dart';
 import 'package:mobile_nebula/services/utils.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -68,7 +69,12 @@ class _AboutScreenState extends State<AboutScreen> {
               label: Text('Privacy policy'),
               labelWidth: 300,
               onPressed: () => Utils.launchUrl('https://www.defined.net/privacy/', context)),
-//          ConfigPageItem(label: Text('Licenses'), labelWidth: 300, onPressed: () => Utils.launchUrl('https://defined.net/mobile/license', context)),
+          ConfigPageItem(
+              label: Text('Licenses'),
+              labelWidth: 300,
+              onPressed: () => Utils.openPage(context, (context) {
+                    return LicensesScreen();
+                  })),
         ]),
         Padding(
             padding: EdgeInsets.only(top: 20),
