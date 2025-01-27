@@ -45,6 +45,7 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
 
     return SimplePage(
       title: title,
+      trailingActions: [Padding(padding: const EdgeInsets.only(right: 8), child: _buildTextWrapToggle())],
       scrollable: SimpleScrollable.both,
       scrollController: controller,
       onRefresh: () async {
@@ -62,6 +63,37 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
           child: SelectableText(logs.trim(), style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14))),
       bottomBar: _buildBottomBar(),
     );
+  }
+
+  Widget _buildTextWrapToggle() {
+    return Platform.isIOS
+        ? Tooltip(
+            message: "Turn ${settings.logWrap ? "off" : "on"} text wrapping",
+            child: CupertinoButton.tinted(
+              // Use the default tint when enabled, match the background when not.
+              color: settings.logWrap ? null : CupertinoColors.systemBackground,
+              sizeStyle: CupertinoButtonSize.small,
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              child: const Icon(Icons.wrap_text),
+              onPressed: () => {
+                setState(() {
+                  settings.logWrap = !settings.logWrap;
+                })
+              },
+            ),
+          )
+        : IconButton.filledTonal(
+            isSelected: settings.logWrap,
+            tooltip: "Turn ${settings.logWrap ? "off" : "on"} text wrapping",
+            // The variants of wrap_text seem to be the same, but this seems most correct.
+            selectedIcon: const Icon(Icons.wrap_text_outlined),
+            icon: const Icon(Icons.wrap_text),
+            onPressed: () => {
+              setState(() {
+                settings.logWrap = !settings.logWrap;
+              })
+            },
+          );
   }
 
   Widget _buildBottomBar() {
