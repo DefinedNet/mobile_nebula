@@ -28,8 +28,23 @@ android {
 
     compileSdkVersion 34
 
+    // needs to match version in flake.nix
+    buildToolsVersion "34.0.0"
+
+    // needs to match version in flake.nix
     // default ndk version for AGP 8.5: https://developer.android.com/build/releases/past-releases/agp-8-5-0-release-notes
     ndkVersion "26.1.10909125"
+
+    compileOptions {
+        // needs to match version in flake.nix
+        sourceCompatibility = "21"
+        // needs to match version in flake.nix
+        targetCompatibility = "21"
+    }
+    kotlinOptions {
+        // needs to match version in flake.nix
+        jvmTarget = "21"
+    }
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -41,20 +56,13 @@ android {
         targetSdkVersion 34 //flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-    }
-
-    signingConfigs {
-        release {
-            keyAlias 'key'
-            storeFile System.getenv('GOOGLE_PLAY_KEYSTORE_PATH') ? file(System.getenv('GOOGLE_PLAY_KEYSTORE_PATH')) : null
-            keyPassword System.getenv('GOOGLE_PLAY_KEYSTORE_PASSWORD')
-            storePassword System.getenv('GOOGLE_PLAY_KEYSTORE_PASSWORD')
+        ndk {
+            abiFilters 'arm64-v8a'
         }
     }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             resValue 'string', 'app_name', '"Nebula"'
         }
@@ -63,12 +71,6 @@ android {
             resValue 'string', 'app_name', '"Nebula-DEBUG"'
             applicationIdSuffix '.debug'
         }
-    }
-}
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 

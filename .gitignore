@@ -55,4 +55,4 @@ lib/generated_plugin_registrant.dart
 /*.jks
 /*.apk
 /*.apk.idsig
-result
+/result

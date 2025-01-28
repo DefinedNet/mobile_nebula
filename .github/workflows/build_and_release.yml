@@ -1,0 +1,58 @@
+name: Build and Release
+
+on:
+  pull_request:
+    branches: [master, main]
+  push:
+    branches: ["*"]
+    tags: ["*"]
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    uses: SpiralP/github-reusable-workflows/.github/workflows/build.yml@main
+    with:
+      upload-build-result: true
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-result
+          path: build-result
+
+      - name: Sign
+        env:
+          GOOGLE_PLAY_KEYSTORE_BASE64: ${{ secrets.GOOGLE_PLAY_KEYSTORE_BASE64 }}
+          GOOGLE_PLAY_KEYSTORE_PASSWORD: ${{ secrets.GOOGLE_PLAY_KEYSTORE_PASSWORD }}
+        run: |
+          GOOGLE_PLAY_KEYSTORE_PATH="$RUNNER_TEMP/gp_signing.jks"
+          echo -n "$GOOGLE_PLAY_KEYSTORE_BASE64" | base64 -d > "$GOOGLE_PLAY_KEYSTORE_PATH"
+
+          nix build '.#sign' \
+            --print-build-logs --no-update-lock-file
+          echo "$GOOGLE_PLAY_KEYSTORE_PASSWORD" | ./result/bin/sign ./build-result/result "$GOOGLE_PLAY_KEYSTORE_PATH"
+
+          rm "$GOOGLE_PLAY_KEYSTORE_PATH"
+          unset GOOGLE_PLAY_KEYSTORE_PASSWORD
+
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEXT_TAG="v$(gh release view --json tagName --jq '.tagName[1:] | tonumber + 1')"
+          gh release create --latest "$NEXT_TAG" app-release.apk

@@ -1,0 +1,265 @@
+diff --git a/cmd/gobind/gen.go b/cmd/gobind/gen.go
+index fedbc27..fc3203b 100644
+--- a/cmd/gobind/gen.go
++++ b/cmd/gobind/gen.go
+@@ -22,7 +22,6 @@ import (
+ 	"golang.org/x/mobile/internal/importers"
+ 	"golang.org/x/mobile/internal/importers/java"
+ 	"golang.org/x/mobile/internal/importers/objc"
+-	"golang.org/x/tools/go/packages"
+ )
+ 
+ func genPkg(lang string, p *types.Package, astFiles []*ast.File, allPkg []*types.Package, classes []*java.Class, otypes []*objc.Named) {
+@@ -376,17 +375,5 @@ func defaultFileName(lang string, pkg *types.Package) string {
+ }
+ 
+ func packageDir(path string) (string, error) {
+-	mode := packages.NeedFiles
+-	pkgs, err := packages.Load(&packages.Config{Mode: mode}, path)
+-	if err != nil {
+-		return "", err
+-	}
+-	if len(pkgs) == 0 || len(pkgs[0].GoFiles) == 0 {
+-		return "", fmt.Errorf("no Go package in %v", path)
+-	}
+-	pkg := pkgs[0]
+-	if len(pkg.Errors) > 0 {
+-		return "", fmt.Errorf("%v", pkg.Errors)
+-	}
+-	return filepath.Dir(pkg.GoFiles[0]), nil
++	return ("@out@/src/" + path), nil
+ }
+diff --git a/cmd/gomobile/bind.go b/cmd/gomobile/bind.go
+index fc9f756..d218501 100644
+--- a/cmd/gomobile/bind.go
++++ b/cmd/gomobile/bind.go
+@@ -5,8 +5,6 @@
+ package main
+ 
+ import (
+-	"bytes"
+-	"encoding/json"
+ 	"errors"
+ 	"fmt"
+ 	"io"
+@@ -226,67 +224,31 @@ func packagesConfig(t targetInfo) *packages.Config {
+ }
+ 
+ // getModuleVersions returns a module information at the directory src.
+-func getModuleVersions(targetPlatform string, targetArch string, src string) (*modfile.File, error) {
+-	cmd := exec.Command("go", "list")
+-	cmd.Env = append(os.Environ(), "GOOS="+platformOS(targetPlatform), "GOARCH="+targetArch)
+-
+-	tags := append(buildTags[:], platformTags(targetPlatform)...)
+-
+-	// TODO(hyangah): probably we don't need to add all the dependencies.
+-	cmd.Args = append(cmd.Args, "-m", "-json", "-tags="+strings.Join(tags, ","), "all")
+-	cmd.Dir = src
+-
+-	output, err := cmd.Output()
++func getModuleVersions(modPath string) (*modfile.File, error) {
++	f, err := os.ReadFile(modPath)
++	if err != nil {
++		return nil, err
++	}
++	mf, err := modfile.Parse("go.mod", f, nil)
+ 	if err != nil {
+-		// Module information is not available at src.
+-		return nil, nil
++		return nil, err
+ 	}
+ 
+-	type Module struct {
+-		Main    bool
+-		Path    string
+-		Version string
+-		Dir     string
+-		Replace *Module
++	dir, err := os.Getwd()
++	if err != nil {
++		return nil, err
+ 	}
+ 
+-	f := &modfile.File{}
+-	if err := f.AddModuleStmt("gobind"); err != nil {
++	if err := mf.AddReplace(mf.Module.Mod.Path, "", dir, ""); err != nil {
+ 		return nil, err
+ 	}
+-	e := json.NewDecoder(bytes.NewReader(output))
+-	for {
+-		var mod *Module
+-		err := e.Decode(&mod)
+-		if err != nil && err != io.EOF {
+-			return nil, err
+-		}
+-		if mod != nil {
+-			if mod.Replace != nil {
+-				p, v := mod.Replace.Path, mod.Replace.Version
+-				if modfile.IsDirectoryPath(p) {
+-					// replaced by a local directory
+-					p = mod.Replace.Dir
+-				}
+-				if err := f.AddReplace(mod.Path, mod.Version, p, v); err != nil {
+-					return nil, err
+-				}
+-			} else {
+-				// When the version part is empty, the module is local and mod.Dir represents the location.
+-				if v := mod.Version; v == "" {
+-					if err := f.AddReplace(mod.Path, mod.Version, mod.Dir, ""); err != nil {
+-						return nil, err
+-					}
+-				} else {
+-					if err := f.AddRequire(mod.Path, v); err != nil {
+-						return nil, err
+-					}
+-				}
+-			}
+-		}
+-		if err == io.EOF {
+-			break
+-		}
++
++	// if err := mf.AddReplace("golang.org/x/mobile", "", "@out@/src/golang.org/x/mobile", ""); err != nil {
++	// 	return nil, err
++	// }
++
++	if err := mf.AddModuleStmt("gobind"); err != nil {
++		return nil, err
+ 	}
+ 
+ 	v, err := ensureGoVersion()
+@@ -297,26 +259,26 @@ func getModuleVersions(targetPlatform string, targetArch string, src string) (*m
+ 	if v == "" {
+ 		v = fmt.Sprintf("go1.%d", minimumGoMinorVersion)
+ 	}
+-	if err := f.AddGoStmt(strings.TrimPrefix(v, "go")); err != nil {
++	if err := mf.AddGoStmt(strings.TrimPrefix(v, "go")); err != nil {
+ 		return nil, err
+ 	}
+ 
+-	return f, nil
++	return mf, nil
+ }
+ 
+ // writeGoMod writes go.mod file at dir when Go modules are used.
+-func writeGoMod(dir, targetPlatform, targetArch string) error {
+-	m, err := areGoModulesUsed()
++func writeGoMod(dir string) error {
++	modPath, err := areGoModulesUsed()
+ 	if err != nil {
+ 		return err
+ 	}
+-	// If Go modules are not used, go.mod should not be created because the dependencies might not be compatible with Go modules.
+-	if !m {
++	// If Go modules are not used, go.mod should not be created
++	if modPath == "" {
+ 		return nil
+ 	}
+ 
+ 	return writeFile(filepath.Join(dir, "go.mod"), func(w io.Writer) error {
+-		f, err := getModuleVersions(targetPlatform, targetArch, ".")
++		f, err := getModuleVersions(modPath)
+ 		if err != nil {
+ 			return err
+ 		}
+@@ -336,13 +298,13 @@ func writeGoMod(dir, targetPlatform, targetArch string) error {
+ 
+ var (
+ 	areGoModulesUsedResult struct {
+-		used bool
+-		err  error
++		modPath string
++		err     error
+ 	}
+ 	areGoModulesUsedOnce sync.Once
+ )
+ 
+-func areGoModulesUsed() (bool, error) {
++func areGoModulesUsed() (string, error) {
+ 	areGoModulesUsedOnce.Do(func() {
+ 		out, err := exec.Command("go", "env", "GOMOD").Output()
+ 		if err != nil {
+@@ -350,7 +312,7 @@ func areGoModulesUsed() (bool, error) {
+ 			return
+ 		}
+ 		outstr := strings.TrimSpace(string(out))
+-		areGoModulesUsedResult.used = outstr != ""
++		areGoModulesUsedResult.modPath = outstr
+ 	})
+-	return areGoModulesUsedResult.used, areGoModulesUsedResult.err
++	return areGoModulesUsedResult.modPath, areGoModulesUsedResult.err
+ }
+diff --git a/cmd/gomobile/bind_androidapp.go b/cmd/gomobile/bind_androidapp.go
+index f8fcabe..07ffcd1 100644
+--- a/cmd/gomobile/bind_androidapp.go
++++ b/cmd/gomobile/bind_androidapp.go
+@@ -365,7 +365,7 @@ func buildAndroidSO(outputDir string, arch string) error {
+ 
+ 	srcDir := filepath.Join(tmpdir, "src")
+ 
+-	if modulesUsed {
++	if modulesUsed != "" {
+ 		// Copy the source directory for each architecture for concurrent building.
+ 		newSrcDir := filepath.Join(tmpdir, "src-android-"+arch)
+ 		if !buildN {
+@@ -375,7 +375,7 @@ func buildAndroidSO(outputDir string, arch string) error {
+ 		}
+ 		srcDir = newSrcDir
+ 
+-		if err := writeGoMod(srcDir, "android", arch); err != nil {
++		if err := writeGoMod(srcDir); err != nil {
+ 			return err
+ 		}
+ 
+diff --git a/cmd/gomobile/bind_iosapp.go b/cmd/gomobile/bind_iosapp.go
+index 9a3e521..4f348ef 100644
+--- a/cmd/gomobile/bind_iosapp.go
++++ b/cmd/gomobile/bind_iosapp.go
+@@ -98,7 +98,7 @@ func goAppleBind(gobind string, pkgs []*packages.Package, targets []targetInfo)
+ 			outDir := outDirsForPlatform[t.platform]
+ 			outSrcDir := filepath.Join(outDir, "src")
+ 
+-			if modulesUsed {
++			if modulesUsed != "" {
+ 				// Copy the source directory for each architecture for concurrent building.
+ 				newOutSrcDir := filepath.Join(outDir, "src-"+t.arch)
+ 				if !buildN {
+@@ -119,8 +119,8 @@ func goAppleBind(gobind string, pkgs []*packages.Package, targets []targetInfo)
+ 
+ 			// Run `go mod tidy` to force to create go.sum.
+ 			// Without go.sum, `go build` fails as of Go 1.16.
+-			if modulesUsed {
+-				if err := writeGoMod(outSrcDir, t.platform, t.arch); err != nil {
++			if modulesUsed != "" {
++				if err := writeGoMod(outSrcDir); err != nil {
+ 					return err
+ 				}
+ 				if err := goModTidyAt(outSrcDir, env); err != nil {
+diff --git a/cmd/gomobile/env.go b/cmd/gomobile/env.go
+index e9fd5dc..1e86720 100644
+--- a/cmd/gomobile/env.go
++++ b/cmd/gomobile/env.go
+@@ -134,7 +134,6 @@ func buildEnvInit() (cleanup func(), err error) {
+ 			fmt.Printf("WORK=%s\n", tmpdir)
+ 			return
+ 		}
+-		removeAll(tmpdir)
+ 	}
+ 	if buildN {
+ 		tmpdir = "$WORK"
+diff --git a/cmd/gomobile/init.go b/cmd/gomobile/init.go
+index e7392df..ba040fd 100644
+--- a/cmd/gomobile/init.go
++++ b/cmd/gomobile/init.go
+@@ -79,11 +79,6 @@ func runInit(cmd *command) error {
+ 		removeAll(tmpdir)
+ 	}()
+ 
+-	// Make sure gobind is up to date.
+-	if err := goInstall([]string{"golang.org/x/mobile/cmd/gobind@latest"}, nil); err != nil {
+-		return err
+-	}
+-
+ 	if buildN {
+ 		initOpenAL = "$OPENAL_PATH"
+ 	} else {
