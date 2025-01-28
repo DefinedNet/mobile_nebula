@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   };
 
   outputs = { self, nixpkgs }:
@@ -92,7 +92,7 @@
 
             src = ./nebula;
 
-            vendorHash = "sha256-2j5rp6utILTkkFFO88d9VuwAhPiPheHsi1BlFQQz7TM=";
+            vendorHash = "sha256-x1pK1JGAc2URXVUI2ApuP6KaX0t8qHtpqzaYsCKTDCY=";
 
             proxyVendor = true;
             overrideModAttrs = (final: prev: {
