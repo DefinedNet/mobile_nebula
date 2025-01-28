@@ -51,3 +51,8 @@ lib/generated_plugin_registrant.dart
 *.keystore
 /nebula/MobileNebula.xcframework/
 /ios/MobileNebula.xcframework/
+/*.secrets
+/*.jks
+/*.apk
+/*.apk.idsig
+result

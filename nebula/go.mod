@@ -4,7 +4,7 @@ go 1.22.0
 
 toolchain go1.22.4
 
-// replace github.com/slackhq/nebula => /Volumes/T7/nate/src/github.com/slackhq/nebula
+replace github.com/slackhq/nebula v1.9.3 => github.com/spiralp/nebula v1.9.3-custom4
 
 require (
 	github.com/DefinedNet/dnapi v0.0.0-20241212205635-1d1f0084d118
