@@ -88,7 +88,7 @@
 
           nebula-go = pkgs.buildGoModule {
             pname = "nebula-go";
-            version = "0.0.1-custom" + revSuffix;
+            version = "0.1.0" + revSuffix;
 
             src = ./nebula;
 
@@ -104,7 +104,7 @@
 
           default = pkgs.flutter.buildFlutterApplication rec {
             pname = "mobile_nebula";
-            version = "0.0.1" + revSuffix;
+            version = "0.1.0" + revSuffix;
 
             src = ./.;
 
@@ -113,6 +113,15 @@
                 --replace-fail \
                 'git rev-parse --short HEAD' \
                 'echo ${self.shortRev or self.dirtyShortRev}'
+
+              ${lib.getExe pkgs.sd} \
+                'version: .+\+(.+)' \
+                'version: ${version}+$1' \
+                pubspec.yaml
+              ${lib.getExe pkgs.ripgrep} \
+                'version: ${version}\+.+\d+$' \
+                pubspec.yaml \
+              || exit 1
             '';
 
             autoPubspecLock = ./pubspec.lock;
