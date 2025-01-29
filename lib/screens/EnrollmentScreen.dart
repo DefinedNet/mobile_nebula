@@ -10,7 +10,6 @@ import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/components/buttons/PrimaryButton.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../components/config/ConfigItem.dart';
 import '../components/config/ConfigSection.dart';
 
 class EnrollmentScreen extends StatefulWidget {

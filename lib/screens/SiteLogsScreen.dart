@@ -105,33 +105,42 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
 
     var padding = Platform.isAndroid ? EdgeInsets.fromLTRB(0, 20, 0, 30) : EdgeInsets.all(10);
 
-    return Container(
-        decoration: BoxDecoration(
-          border: Border(top: borderSide),
-        ),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-          Expanded(child: Builder(builder: (BuildContext context) {
-            return PlatformIconButton(
-              padding: padding,
-              icon: Icon(context.platformIcons.share, size: 30),
-              onPressed: () {
-                Share.shareFile(context,
-                    title: '${widget.site.name} logs',
-                    filePath: widget.site.logFile,
-                    filename: '${widget.site.name}.log');
-              },
-            );
-          })),
-          Expanded(
+    return PlatformWidgetBuilder(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          spacing: 8,
+          children: <Widget>[
+            Tooltip(
+              message: "Share logs",
               child: PlatformIconButton(
+                icon: Icon(context.platformIcons.share),
+                onPressed: () {
+                  Share.shareFile(context,
+                      title: '${widget.site.name} logs',
+                      filePath: widget.site.logFile,
+                      filename: '${widget.site.name}.log');
+                },
+              ),
+            ),
+            Tooltip(
+              message: 'Go to latest',
+              child: PlatformIconButton(
+                icon: Icon(context.platformIcons.downArrow),
+                onPressed: () async {
+                  controller.animateTo(controller.position.maxScrollExtent,
+                      duration: const Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
+                },
+              ),
+            ),
+          ],
+        ),
+        cupertino: (context, child, platform) => Container(
+            decoration: BoxDecoration(
+              border: Border(top: borderSide),
+            ),
             padding: padding,
-            icon: Icon(context.platformIcons.downArrow, size: 30),
-            onPressed: () async {
-              controller.animateTo(controller.position.maxScrollExtent,
-                  duration: const Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
-            },
-          )),
-        ]));
+            child: child),
+        material: (context, child, platform) => BottomAppBar(child: child));
   }
 
   loadLogs() async {
