@@ -69,6 +69,23 @@
             vendorHash = "sha256-HXkhKjHpBgRFykIcyAgcTO7o7bQU0ZeNjwAfprSBHcY=";
             proxyVendor = true;
           });
+
+          gradleZip = pkgs.fetchurl {
+            url = builtins.readFile (
+              pkgs.runCommandLocal "distributionUrl"
+                {
+                  nativeBuildInputs = with pkgs; [ coreutils ripgrep sd ];
+                }
+                ''
+                  rg -o --replace '$1' 'distributionUrl=(.+)' ${./android/gradle/wrapper/gradle-wrapper.properties} \
+                    | sd --fixed-strings '\:' ':' \
+                    | tr -d '\n' \
+                    > $out
+                  cat $out
+                ''
+            );
+            hash = "sha256-GUcXRCV1pvluHBvvosMOmk/JD3Adeu4z64ebeef/BcA=";
+          };
         in
         rec {
           inherit self gomobile androidComposition platformTools androidStudio jdk gradle flutter;
@@ -175,58 +192,51 @@
             GOPROXY = "file://${nebula-go.goModules}/";
             GOSUMDB = "off";
 
-            preBuild =
-              let
-                gradleAllZip = pkgs.fetchurl {
-                  url = "https://services.gradle.org/distributions/gradle-8.7-all.zip";
-                  hash = "sha256-GUcXRCV1pvluHBvvosMOmk/JD3Adeu4z64ebeef/BcA=";
-                };
-              in
-              ''
-                set -x
+            preBuild = ''
+              set -x
 
-                # set dep on ${nebula-go} so that it builds and checks before this
+              # set dep on ${nebula-go} so that it builds and checks before this
 
-                export HOME=$TMPDIR
+              export HOME=$TMPDIR
 
-                export GOCACHE=$TMPDIR/go-cache
-                export GOPATH="$TMPDIR/go"
+              export GOCACHE=$TMPDIR/go-cache
+              export GOPATH="$TMPDIR/go"
 
-                touch env.sh
+              touch env.sh
 
-                patchShebangs gen-artifacts.sh
+              patchShebangs gen-artifacts.sh
 
-                cat <<EOF > android/local.properties
-                sdk.dir=$ANDROID_SDK_ROOT
-                ndk.dir=$ANDROID_NDK_ROOT
-                flutter.sdk=${pkgs.flutter.sdk}
-                EOF
+              cat <<EOF > android/local.properties
+              sdk.dir=$ANDROID_SDK_ROOT
+              ndk.dir=$ANDROID_NDK_ROOT
+              flutter.sdk=${pkgs.flutter.sdk}
+              EOF
 
-                # Substitute the gradle-all zip URL by a local file to prevent downloads from happening while building an Android app
-                sed -i -e "s|distributionUrl=|#distributionUrl=|" android/gradle/wrapper/gradle-wrapper.properties
-                cp -v ${gradleAllZip} android/gradle/wrapper/gradle-8.7-all.zip
-                echo "distributionUrl=gradle-8.7-all.zip" >> android/gradle/wrapper/gradle-wrapper.properties
+              # Substitute the gradle-all zip URL by a local file to prevent downloads from happening while building an Android app
+              ${lib.getExe pkgs.sd} 'distributionUrl=.+' 'distributionUrl=file\://${gradleZip}' android/gradle/wrapper/gradle-wrapper.properties
 
-                flutter build apk -v --config-only
+              # sets up gradlew wrapper
+              flutter build apk -v --config-only
 
-                local flagsArray=()
-                concatTo flagsArray gradleFlags gradleFlagsArray
+              # add nix flags to gradlew
+              local flagsArray=()
+              concatTo flagsArray gradleFlags gradleFlagsArray
 
-                local wrapperFlagsArray=()
-                for flag in "''${flagsArray[@]}"; do
-                  wrapperFlagsArray+=("--add-flags" "$flag")
-                done
+              local wrapperFlagsArray=()
+              for flag in "''${flagsArray[@]}"; do
+                wrapperFlagsArray+=("--add-flags" "$flag")
+              done
 
-                gradlewPath="$PWD/android/gradlew"
-                wrapProgram "$gradlewPath" \
-                  --run 'set -x' \
-                  --add-flags '--info' \
-                  "''${wrapperFlagsArray[@]}"
+              gradlewPath="$PWD/android/gradlew"
+              wrapProgram "$gradlewPath" \
+                --run 'set -x' \
+                --add-flags '--info' \
+                "''${wrapperFlagsArray[@]}"
 
-                gradle() {
-                  command "$gradlewPath" "$@"
-                }
-              '';
+              gradle() {
+                command "$gradlewPath" "$@"
+              }
+            '';
 
             buildPhase = ''
               runHook preBuild
