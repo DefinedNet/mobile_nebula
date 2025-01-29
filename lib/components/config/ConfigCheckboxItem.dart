@@ -16,7 +16,7 @@ class ConfigCheckboxItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget item = Container(
-        padding: EdgeInsets.only(left: 15),
+        padding: EdgeInsets.symmetric(horizontal: 15),
         constraints: BoxConstraints(minHeight: Utils.minInteractiveSize, minWidth: double.infinity),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -24,7 +24,7 @@ class ConfigCheckboxItem extends StatelessWidget {
             label != null ? Container(width: labelWidth, child: label) : Container(),
             Expanded(child: Container(child: content, padding: EdgeInsets.only(right: 10))),
             checked
-                ? Icon(CupertinoIcons.check_mark, color: CupertinoColors.systemBlue.resolveFrom(context), size: 34)
+                ? Icon(CupertinoIcons.check_mark, color: CupertinoColors.systemBlue.resolveFrom(context))
                 : Container()
           ],
         ));
