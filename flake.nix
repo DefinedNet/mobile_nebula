@@ -244,6 +244,31 @@
 
               runHook postInstall
             '';
+
+            shellHook = ''
+              set -ex
+
+              flutter --version
+
+              if ! test -d android; then
+                echo "Run this in the root of the project"
+                exit 1
+              fi
+
+              export GOCACHE=$TMPDIR/go-cache
+              export GOPATH="$TMPDIR/go"
+
+              cat <<EOF > android/local.properties
+              sdk.dir=$ANDROID_SDK_ROOT
+              ndk.dir=$ANDROID_NDK_ROOT
+              flutter.sdk=${pkgs.flutter.sdk}
+              EOF
+              cat android/local.properties
+
+              rm -rf .idea/libraries
+
+              flutter build apk -v --config-only
+            '';
           };
         }
       );
