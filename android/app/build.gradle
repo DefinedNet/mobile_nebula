@@ -28,18 +28,22 @@ android {
 
     compileSdkVersion 34
 
+    // needs to match version in flake.nix
     // default ndk version for AGP 8.7: https://developer.android.com/build/releases/past-releases/agp-8-7-0-release-notes
     ndkVersion "27.0.12077973"
 
+    // needs to match version in flake.nix
+    buildToolsVersion "35.0.0"
+
     compileOptions {
         // needs to match version in flake.nix
-        sourceCompatibility = "21"
+        sourceCompatibility = JavaVersion.VERSION_21
         // needs to match version in flake.nix
-        targetCompatibility = "21"
+        targetCompatibility = JavaVersion.VERSION_21
     }
     kotlinOptions {
         // needs to match version in flake.nix
-        jvmTarget = "21"
+        jvmTarget = JavaVersion.VERSION_21
     }
 
     sourceSets {
