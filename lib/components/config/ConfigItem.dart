@@ -29,7 +29,7 @@ class ConfigItem extends StatelessWidget {
 
     return Container(
         color: Utils.configItemBackground(context),
-        padding: EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 20),
+        padding: EdgeInsets.symmetric(vertical: 6, horizontal: 15),
         constraints: BoxConstraints(minHeight: Utils.minInteractiveSize),
         child: Row(
           crossAxisAlignment: crossAxisAlignment,
