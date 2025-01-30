@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/DangerButton.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/components/config/ConfigCheckboxItem.dart';
@@ -60,9 +59,6 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
           await _getHostInfo();
           refreshController.refreshCompleted();
         },
-        leadingAction: Utils.leadingBackWidget(context, onPressed: () {
-          Navigator.pop(context);
-        }),
         child: Column(
             children: [_buildMain(), _buildDetails(), _buildRemotes(), !widget.pending ? _buildClose() : Container()]));
   }

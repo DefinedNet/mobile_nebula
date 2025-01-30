@@ -3,13 +3,14 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/models/Site.dart';
 import 'package:mobile_nebula/services/settings.dart';
 import 'package:mobile_nebula/services/share.dart';
 import 'package:mobile_nebula/services/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+
+import '../components/SiteTitle.dart';
 
 class SiteLogsScreen extends StatefulWidget {
   const SiteLogsScreen({Key? key, required this.site}) : super(key: key);
@@ -40,17 +41,11 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final dnIcon =
-        Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
-    final title = Row(children: [
-      widget.site.managed
-          ? Padding(padding: EdgeInsets.only(right: 10), child: SvgPicture.asset(dnIcon, width: 12))
-          : Container(),
-      Expanded(child: Text(widget.site.name, style: TextStyle(fontWeight: FontWeight.bold)))
-    ]);
+    final title = SiteTitle(site: widget.site);
 
     return SimplePage(
       title: title,
+      trailingActions: [Padding(padding: const EdgeInsets.only(right: 8), child: _buildTextWrapToggle())],
       scrollable: SimpleScrollable.both,
       scrollController: controller,
       onRefresh: () async {
@@ -70,6 +65,37 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
     );
   }
 
+  Widget _buildTextWrapToggle() {
+    return Platform.isIOS
+        ? Tooltip(
+            message: "Turn ${settings.logWrap ? "off" : "on"} text wrapping",
+            child: CupertinoButton.tinted(
+              // Use the default tint when enabled, match the background when not.
+              color: settings.logWrap ? null : CupertinoColors.systemBackground,
+              sizeStyle: CupertinoButtonSize.small,
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              child: const Icon(Icons.wrap_text),
+              onPressed: () => {
+                setState(() {
+                  settings.logWrap = !settings.logWrap;
+                })
+              },
+            ),
+          )
+        : IconButton.filledTonal(
+            isSelected: settings.logWrap,
+            tooltip: "Turn ${settings.logWrap ? "off" : "on"} text wrapping",
+            // The variants of wrap_text seem to be the same, but this seems most correct.
+            selectedIcon: const Icon(Icons.wrap_text_outlined),
+            icon: const Icon(Icons.wrap_text),
+            onPressed: () => {
+              setState(() {
+                settings.logWrap = !settings.logWrap;
+              })
+            },
+          );
+  }
+
   Widget _buildBottomBar() {
     var borderSide = BorderSide(
       color: CupertinoColors.separator,
@@ -79,33 +105,42 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
 
     var padding = Platform.isAndroid ? EdgeInsets.fromLTRB(0, 20, 0, 30) : EdgeInsets.all(10);
 
-    return Container(
-        decoration: BoxDecoration(
-          border: Border(top: borderSide),
-        ),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-          Expanded(child: Builder(builder: (BuildContext context) {
-            return PlatformIconButton(
-              padding: padding,
-              icon: Icon(context.platformIcons.share, size: 30),
-              onPressed: () {
-                Share.shareFile(context,
-                    title: '${widget.site.name} logs',
-                    filePath: widget.site.logFile,
-                    filename: '${widget.site.name}.log');
-              },
-            );
-          })),
-          Expanded(
+    return PlatformWidgetBuilder(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          spacing: 8,
+          children: <Widget>[
+            Tooltip(
+              message: "Share logs",
               child: PlatformIconButton(
+                icon: Icon(context.platformIcons.share),
+                onPressed: () {
+                  Share.shareFile(context,
+                      title: '${widget.site.name} logs',
+                      filePath: widget.site.logFile,
+                      filename: '${widget.site.name}.log');
+                },
+              ),
+            ),
+            Tooltip(
+              message: 'Go to latest',
+              child: PlatformIconButton(
+                icon: Icon(context.platformIcons.downArrow),
+                onPressed: () async {
+                  controller.animateTo(controller.position.maxScrollExtent,
+                      duration: const Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
+                },
+              ),
+            ),
+          ],
+        ),
+        cupertino: (context, child, platform) => Container(
+            decoration: BoxDecoration(
+              border: Border(top: borderSide),
+            ),
             padding: padding,
-            icon: Icon(context.platformIcons.downArrow, size: 30),
-            onPressed: () async {
-              controller.animateTo(controller.position.maxScrollExtent,
-                  duration: const Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
-            },
-          )),
-        ]));
+            child: child),
+        material: (context, child, platform) => BottomAppBar(child: child));
   }
 
   loadLogs() async {

@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
@@ -18,6 +17,7 @@ import 'package:mobile_nebula/services/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../components/DangerButton.dart';
+import '../components/SiteTitle.dart';
 
 //TODO: If the site isn't active, don't respond to reloads on hostmaps
 //TODO: ios is now the problem with connecting screwing our ability to query the hostmap (its a race)
@@ -81,14 +81,7 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final dnIcon =
-        Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
-    final title = Row(children: [
-      site.managed
-          ? Padding(padding: EdgeInsets.only(right: 10), child: SvgPicture.asset(dnIcon, width: 12))
-          : Container(),
-      Expanded(child: Text(site.name, style: TextStyle(fontWeight: FontWeight.bold)))
-    ]);
+    final title = SiteTitle(site: widget.site);
 
     return SimplePage(
         title: title,

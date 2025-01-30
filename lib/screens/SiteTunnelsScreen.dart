@@ -53,18 +53,14 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
   Widget build(BuildContext context) {
     final double ipWidth = Utils.textSize("000.000.000.000", CupertinoTheme.of(context).textTheme.textStyle).width + 32;
 
-    List<Widget> children = [];
-    tunnels.forEach((hostInfo) {
-      Widget icon;
-
+    final List<ConfigPageItem> children = tunnels.map((hostInfo) {
       final isLh = site.staticHostmap[hostInfo.vpnIp]?.lighthouse ?? false;
-      if (isLh) {
-        icon = Icon(Icons.lightbulb_outline, color: CupertinoColors.placeholderText.resolveFrom(context));
-      } else {
-        icon = Icon(Icons.computer, color: CupertinoColors.placeholderText.resolveFrom(context));
-      }
+      final icon = switch (isLh) {
+        true => Icon(Icons.lightbulb_outline, color: CupertinoColors.placeholderText.resolveFrom(context)),
+        false => Icon(Icons.computer, color: CupertinoColors.placeholderText.resolveFrom(context))
+      };
 
-      children.add(ConfigPageItem(
+      return (ConfigPageItem(
         onPressed: () => Utils.openPage(
           context,
           (context) => HostInfoScreen(
@@ -82,22 +78,17 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
         labelWidth: ipWidth,
         content: Container(alignment: Alignment.centerRight, child: Text(hostInfo.cert?.details.name ?? "")),
       ));
-    });
+    }).toList();
 
-    Widget child;
-    if (children.length == 0) {
-      child = Center(child: Padding(child: Text('No tunnels to show'), padding: EdgeInsets.only(top: 30)));
-    } else {
-      child = ConfigSection(children: children);
-    }
+    final Widget child = switch (children.length) {
+      0 => Center(child: Padding(child: Text('No tunnels to show'), padding: EdgeInsets.only(top: 30))),
+      _ => ConfigSection(children: children),
+    };
 
     final title = widget.pending ? 'Pending' : 'Active';
 
     return SimplePage(
         title: Text('$title Tunnels'),
-        leadingAction: Utils.leadingBackWidget(context, onPressed: () {
-          Navigator.pop(context);
-        }),
         refreshController: refreshController,
         onRefresh: () async {
           await _listHostmap();

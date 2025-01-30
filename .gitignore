@@ -45,6 +45,7 @@ lib/generated_plugin_registrant.dart
 /env.sh
 /lib/gen.versions.dart
 /lib/.gen.versions.dart
+/lib/oss_licenses.dart
 /ios/Flutter/.last_build_id
 /local.properties
 /.gradle/

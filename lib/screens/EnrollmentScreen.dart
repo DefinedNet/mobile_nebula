@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import 'package:mobile_nebula/components/SimplePage.dart';
+import 'package:mobile_nebula/components/buttons/PrimaryButton.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../components/config/ConfigSection.dart';
 
 class EnrollmentScreen extends StatefulWidget {
   final String? code;
@@ -105,7 +109,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
           Padding(
               child: SelectableText(
                   'There was an issue while attempting to enroll this device. Contact your administrator to obtain a new enrollment code.'),
-              padding: EdgeInsets.symmetric(vertical: 20)),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20)),
           Padding(
               child: SelectableText.rich(TextSpan(children: [
                 TextSpan(text: 'If the problem persists, please let us know at '),
@@ -121,9 +125,9 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                 ),
                 TextSpan(text: ' and provide the following error:'),
               ])),
-              padding: EdgeInsets.only(bottom: 10)),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10)),
           Container(
-            child: Padding(child: SelectableText(this.error!), padding: EdgeInsets.all(10)),
+            child: Padding(child: SelectableText(this.error!), padding: EdgeInsets.all(16)),
             color: Theme.of(context).colorScheme.errorContainer,
           ),
         ],
@@ -151,30 +155,59 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       ]));
     }
 
-    return SimplePage(
-        title: Text('Enroll with Managed Nebula', style: TextStyle(fontWeight: FontWeight.bold)),
-        child: Padding(child: child, padding: EdgeInsets.symmetric(horizontal: 10)),
-        alignment: alignment);
+    return SimplePage(title: Text('Enroll with Managed Nebula'), child: child, alignment: alignment);
   }
 
   Widget _codeEntry() {
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+    String? validator(String? value) {
+      if (value == null || value.isEmpty) {
+        return 'Code or link is required';
+      }
+      return null;
+    }
+
+    Future<void> onSubmit() async {
+      final bool isValid = _formKey.currentState?.validate() ?? false;
+      if (!isValid) {
+        return;
+      }
+
+      setState(() {
+        code = EnrollmentScreen.parseCode(enrollInput.text);
+        error = null;
+        _enroll();
+      });
+    }
+
+    final input = Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: PlatformTextFormField(
+          controller: enrollInput,
+          validator: validator,
+          hintText: 'from admin.defined.net',
+          cupertino: (_, __) => CupertinoTextFormFieldData(
+            prefix: Text("Code or link"),
+          ),
+          material: (_, __) => MaterialTextFormFieldData(
+            decoration: const InputDecoration(labelText: 'Code or link'),
+          ),
+        ));
+
+    final form = Form(
+      key: _formKey,
+      child: Platform.isAndroid ? input : ConfigSection(children: [input]),
+    );
+
     return Column(children: [
       Padding(
-          padding: EdgeInsets.only(top: 20),
-          child: PlatformTextField(
-            hintText: 'defined.net enrollment code or link',
-            controller: enrollInput,
-          )),
-      PlatformTextButton(
-        child: Text('Submit'),
-        onPressed: () {
-          setState(() {
-            code = EnrollmentScreen.parseCode(enrollInput.text);
-            error = null;
-            _enroll();
-          });
-        },
-      )
+        padding: EdgeInsets.symmetric(vertical: 32),
+        child: form,
+      ),
+      Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Row(children: [Expanded(child: PrimaryButton(child: Text('Submit'), onPressed: onSubmit))]))
     ]);
   }
 }

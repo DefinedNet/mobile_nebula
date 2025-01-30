@@ -1,7 +1,5 @@
-import 'package:flutter/cupertino.dart' as cupertino;
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:mobile_nebula/services/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 enum SimpleScrollable {
@@ -99,14 +97,16 @@ class SimplePage extends StatelessWidget {
     }
 
     return PlatformScaffold(
-        backgroundColor: cupertino.CupertinoColors.systemGroupedBackground.resolveFrom(context),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: PlatformAppBar(
           title: title,
-          leading: leadingAction != null ? leadingAction : Utils.leadingBackWidget(context),
+          leading: leadingAction,
           trailingActions: trailingActions,
           cupertino: (_, __) => CupertinoNavigationBarData(
-            transitionBetweenRoutes: false,
-          ),
+              transitionBetweenRoutes: false,
+              // TODO: set title on route, show here instead of just "Back"
+              previousPageTitle: 'Back',
+              padding: EdgeInsetsDirectional.only(end: 8.0)),
         ),
         body: SafeArea(child: realChild));
   }

@@ -50,3 +50,6 @@ cd ..
 # Try and avoid issues with building by moving into place after we are complete
 #TODO: this might be a parallel build of deps issue in kotlin, might need to solve there
 mv lib/.gen.versions.dart lib/gen.versions.dart
+
+# Generate licenses library
+flutter pub run flutter_oss_licenses:generate.dart

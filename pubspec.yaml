@@ -26,6 +26,7 @@ dependencies:
   flutter_platform_widgets: ^7.0.1
   path_provider: ^2.0.11
   file_picker: ^8.1.2
+  google_fonts: ^6.2.1
   uuid: ^4.4.2
   package_info_plus: ^8.0.2
   url_launcher: ^6.1.6
@@ -38,6 +39,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_oss_licenses: ^3.0.4
 
 
 # For information on the generic Dart part of this file, see the
