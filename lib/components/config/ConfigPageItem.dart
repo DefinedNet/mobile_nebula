@@ -46,7 +46,7 @@ class ConfigPageItem extends StatelessWidget {
       color: Utils.configItemBackground(context),
       child: Container(
           padding: EdgeInsets.symmetric(vertical: 6, horizontal: 15),
-          constraints: BoxConstraints(minHeight: Utils.minInteractiveSize, minWidth: double.infinity),
+          constraints: BoxConstraints(minHeight: Utils.minConfigItemHeight, minWidth: double.infinity),
           child: Row(
             crossAxisAlignment: crossAxisAlignment,
             children: <Widget>[

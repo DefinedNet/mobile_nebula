@@ -16,6 +16,8 @@ class Utils {
     return CupertinoColors.systemGroupedBackground.resolveFrom(context);
   }
 
+  static const double minConfigItemHeight = 54;
+
   /// The background color for a config item
   static Color configItemBackground(BuildContext context) {
     return CupertinoColors.secondarySystemGroupedBackground.resolveFrom(context);
