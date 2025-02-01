@@ -118,13 +118,15 @@
 
           sign = pkgs.writeShellApplication {
             name = "sign";
+            runtimeInputs = with pkgs; [ apksigner ];
             text = ''
               apk="$1"
               keystore="$2"
-              ${lib.getExe pkgs.apksigner} \
+
+              apksigner \
                 sign \
                 --ks "$keystore" \
-                --ks-pass stdin \
+                --ks-pass env:GOOGLE_PLAY_KEYSTORE_PASSWORD \
                 --in "$apk" \
                 --out app-release.apk
             '';

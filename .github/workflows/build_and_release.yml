@@ -43,9 +43,9 @@ jobs:
           GOOGLE_PLAY_KEYSTORE_PATH="$RUNNER_TEMP/gp_signing.jks"
           echo -n "$GOOGLE_PLAY_KEYSTORE_BASE64" | base64 -d > "$GOOGLE_PLAY_KEYSTORE_PATH"
 
-          nix build '.#sign' \
-            --print-build-logs --no-update-lock-file
-          echo "$GOOGLE_PLAY_KEYSTORE_PASSWORD" | ./result/bin/sign ./build-result/result "$GOOGLE_PLAY_KEYSTORE_PATH"
+          nix run '.#sign' \
+            --print-build-logs --no-update-lock-file \
+            -- ./build-result/result "$GOOGLE_PLAY_KEYSTORE_PATH"
 
           rm "$GOOGLE_PLAY_KEYSTORE_PATH"
           unset GOOGLE_PLAY_KEYSTORE_PASSWORD
