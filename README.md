@@ -51,4 +51,6 @@ Once `swift-format` supports ignoring directories (<https://github.com/swiftlang
 
 # Release
 
-We manually promote a prerelease build from TestFlight and Android internal track to the public app stores, and then mark the associated draft release as published, removing the `-##` from it.
+We manually promote a prerelease build from TestFlight and Android internal track to the public app stores, and then mark the associated draft release as published, removing the `-##` from it, ending with a release in the format `v#.#.#`, e.g. `v0.5.2`.
+
+Additionally, we should add the notable changes to the app to the release details.
