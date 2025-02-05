@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/models/Site.dart';
+import 'package:mobile_nebula/services/logs.dart';
+import 'package:mobile_nebula/services/result.dart';
 import 'package:mobile_nebula/services/settings.dart';
 import 'package:mobile_nebula/services/share.dart';
 import 'package:mobile_nebula/services/utils.dart';
@@ -22,14 +24,14 @@ class SiteLogsScreen extends StatefulWidget {
 }
 
 class _SiteLogsScreenState extends State<SiteLogsScreen> {
-  String logs = '';
-  ScrollController controller = ScrollController();
-  RefreshController refreshController = RefreshController(initialRefresh: false);
+  final ScrollController controller = ScrollController();
+  final RefreshController refreshController = RefreshController(initialRefresh: false);
+  final LogsNotifier logsNotifier = LogsNotifier();
 
   var settings = Settings();
   @override
   void initState() {
-    loadLogs();
+    logsNotifier.loadLogs(logFile: widget.site.logFile);
     super.initState();
   }
 
@@ -49,18 +51,29 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
       scrollable: SimpleScrollable.both,
       scrollController: controller,
       onRefresh: () async {
-        await loadLogs();
+        await logsNotifier.loadLogs(logFile: widget.site.logFile);
         refreshController.refreshCompleted();
       },
       onLoading: () async {
-        await loadLogs();
+        await logsNotifier.loadLogs(logFile: widget.site.logFile);
         refreshController.loadComplete();
       },
       refreshController: refreshController,
       child: Container(
           padding: EdgeInsets.all(5),
           constraints: logBoxConstraints(context),
-          child: SelectableText(logs.trim(), style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14))),
+          child: ListenableBuilder(
+            listenable: logsNotifier,
+            builder: (context, child) => SelectableText(
+                switch (logsNotifier.logsResult) {
+                  Ok<String>(:var value) => value.trim(),
+                  Error<String>(:var error) => error is LogsNotFoundException
+                      ? error.error()
+                      : Utils.popError(context, "Error while reading logs.", error.toString()),
+                  null => "",
+                },
+                style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
+          )),
       bottomBar: _buildBottomBar(),
     );
   }
@@ -141,27 +154,6 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
             padding: padding,
             child: child),
         material: (context, child, platform) => BottomAppBar(child: child));
-  }
-
-  loadLogs() async {
-    var file = File(widget.site.logFile);
-    try {
-      final v = await file.readAsString();
-
-      setState(() {
-        logs = v;
-      });
-    } on FileSystemException {
-      Utils.popError(context, 'Error while reading logs', 'No log file was present');
-    } catch (err) {
-      Utils.popError(context, 'Error while reading logs', err.toString());
-    }
-  }
-
-  deleteLogs() async {
-    var file = File(widget.site.logFile);
-    await file.writeAsBytes([]);
-    await loadLogs();
   }
 
   logBoxConstraints(BuildContext context) {
