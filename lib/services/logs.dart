@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:mobile_nebula/services/result.dart';
 
 class LogsNotFoundException implements Exception {
-  String error() => 'No logs file found';
+  String error() => 'No logs found. Has the site been started?';
 }
 
 class LogsNotifier extends ChangeNotifier {

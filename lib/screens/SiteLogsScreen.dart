@@ -68,7 +68,7 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
                 switch (logsNotifier.logsResult) {
                   Ok<String>(:var value) => value.trim(),
                   Error<String>(:var error) => error is LogsNotFoundException
-                      ? "No logs file found."
+                      ? error.error()
                       : Utils.popError(context, "Error while reading logs.", error.toString()),
                   null => "",
                 },
