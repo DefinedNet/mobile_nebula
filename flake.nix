@@ -70,8 +70,22 @@
 
           flutter = pkgs.flutter;
 
+          # fix starting vpn sometimes failing
+          # "bulkBarrierPreWrite: unaligned arguments"
+          go = pkgs.go.overrideAttrs (old: {
+            patches = old.patches ++ [
+              (pkgs.fetchpatch2 {
+                url = "https://github.com/golang/go/pull/53064.patch";
+                hash = "sha256-MB/8sSssGNJALHk7Xp+5IfQdsjqB3gz/Crj+MxbzVz0=";
+              })
+            ];
+          });
+          buildGoModule = pkgs.buildGoModule.override {
+            inherit go;
+          };
           gomobile = (pkgs.gomobile.override {
             androidPkgs = androidComposition;
+            inherit buildGoModule;
           }).overrideAttrs (prev: {
             src = (pkgs.applyPatches {
               src = pkgs.fetchFromGitHub {
@@ -153,7 +167,7 @@
             '';
           };
 
-          nebula-go = pkgs.buildGoModule {
+          nebula-go = buildGoModule {
             pname = "nebula-go";
             version = "0.1.0" + revSuffix;
 
