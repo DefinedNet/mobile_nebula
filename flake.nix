@@ -12,13 +12,11 @@
 
       makePackages = (pkgs: devShell:
         let
-          androidComposition = pkgs.androidenv.composeAndroidPackages {
-            includeNDK = true;
-            includeEmulator = true;
-
+          makeAndroidSdkArgs = (emulator: {
             # needs to match compileSdkVersion in android/app/build.gradle
             platformVersions = [ "34" ];
             # needs to match ndkVersion in android/app/build.gradle
+            includeNDK = true;
             ndkVersion = "27.0.12077973";
             # needs to match buildToolsVersion in android/app/build.gradle
             # latest https://developer.android.com/tools/releases/build-tools
@@ -37,12 +35,35 @@
               "intel-android-sysimage-license"
               "mips-android-sysimage-license"
             ];
-          };
-          buildToolsVersion = (lib.lists.last androidComposition.build-tools).version;
-          androidStudio = pkgs.android-studio.withSdk androidComposition.androidsdk;
 
+            includeEmulator = emulator;
+            includeSystemImages = emulator;
+            systemImageTypes = lib.lists.optionals emulator
+              [ "google_apis" ];
+            abiVersions = lib.lists.optionals emulator
+              [ "x86_64" "arm64-v8a" ];
+          });
+          androidSdkArgs = makeAndroidSdkArgs devShell;
+          platformVersion = lib.lists.last androidSdkArgs.platformVersions;
+          buildToolsVersion = lib.lists.last androidSdkArgs.buildToolsVersions;
+
+          androidComposition = pkgs.androidenv.composeAndroidPackages androidSdkArgs;
+          androidStudio = pkgs.android-studio.withSdk androidComposition.androidsdk;
           androidSdk = androidComposition.androidsdk;
           platformTools = androidComposition.platform-tools;
+
+          emulator = (pkgs.androidenv.emulateApp rec {
+            name = "emulator";
+            sdkExtraArgs = makeAndroidSdkArgs true;
+            inherit platformVersion;
+            systemImageType = lib.lists.last sdkExtraArgs.systemImageTypes;
+            abiVersion = "x86_64";
+          }).overrideAttrs (prev: {
+            meta = (prev.meta or { }) // {
+              mainProgram = "run-test-emulator";
+            };
+          });
+
           jdk = lib.trivial.throwIfNot (lib.versions.major pkgs.jdk.version == "21")
             "jdk updated to ${lib.versions.major pkgs.jdk.version}, sync android/app/build.gradle versions"
             pkgs.jdk;
@@ -114,7 +135,7 @@
           '';
         in
         rec {
-          inherit self gomobile androidComposition platformTools androidStudio jdk flutter;
+          inherit self gomobile androidComposition platformTools androidStudio jdk flutter emulator;
 
           sign = pkgs.writeShellApplication {
             name = "sign";

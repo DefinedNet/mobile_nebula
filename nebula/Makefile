@@ -8,7 +8,7 @@ clean:
 	rm -rf mobileNebula.aar MobileNebula.xcframework
 
 mobileNebula.aar: *.go go.sum
-	gomobile bind -trimpath -v -x --target=android/arm64 -androidapi=26
+	gomobile bind -trimpath -v -x --target=android/arm64,android/amd64 -androidapi=26
 
 MobileNebula.xcframework: *.go go.sum
 	gomobile bind -trimpath -v -target=ios

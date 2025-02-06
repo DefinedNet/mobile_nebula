@@ -1601,7 +1601,7 @@
    "pom": "sha256-J855WUJ6L/7kjQ/rRRKKPzbMQX7YqCKvoigiyPWliyU="
   },
   "play-sdk/index/snapshot": {
-   "gz": "sha256-nCVSXlhUtQjt+JR6jOiz1TNfFPjZWWOJqgGTNFQaGoM="
+   "gz": "sha256-nEioy+voUxIl4mlPJgBs4NBC4AwjVIXv9J2D/PZs/xI="
   }
  },
  "https://maven.google.com": {
@@ -1624,13 +1624,13 @@
    "xml": "sha256-C4Wt532Wgk5LgW+0/gILMkTZqcKLzj/FBLbKATdiJ2Y="
   },
   "androidx/test/group-index": {
-   "xml": "sha256-LQieKSHaR1Dqcq2G54YhIj/6Vcov2kwMNvDSeoy6IrU="
+   "xml": "sha256-5TbRtvyz1vPFjiuP8p2u8h0/TBtrbrUKv+4HotxDhDw="
   },
   "androidx/work/group-index": {
    "xml": "sha256-XJxtvCXHmJPBbm38eAYkOmSOKMnmuG+kDu2paRm+4RQ="
   },
   "com/android/tools/build/group-index": {
-   "xml": "sha256-dK4OtKQhFHF01MZOT6pS6USw073rJMvIdVZKN7kQbbc="
+   "xml": "sha256-AqkP8ik0+MW/cOiTmckTXrgIqtlt/pRO6c2XOPRD1eQ="
   },
   "com/google/android/gms/group-index": {
    "xml": "sha256-REv+tobFlRpQJCR0Isu2mBs39EQvLBZFB7hku3JBIuA="
