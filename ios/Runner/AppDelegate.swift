@@ -1,5 +1,5 @@
 import UIKit
-import Flutter
+@preconcurrency import Flutter
 import MobileNebula
 import NetworkExtension
 import SwiftyJSON
