@@ -56,10 +56,12 @@
         </activity>
         <activity
             android:name=".StartVpnActivity"
+            android:exported="true"
             android:excludeFromRecents="true"
             android:theme="@style/Transparent" />
         <activity
             android:name=".StopVpnActivity"
+            android:exported="true"
             android:excludeFromRecents="true"
             android:theme="@style/Transparent" />
         <service
