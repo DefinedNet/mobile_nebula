@@ -18,7 +18,6 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugins.GeneratedPluginRegistrant
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -101,6 +100,8 @@ class MainActivity: FlutterActivity() {
         ContextCompat.registerReceiver(context, refreshReceiver, IntentFilter(ACTION_REFRESH_SITES), ContextCompat.RECEIVER_NOT_EXPORTED)
 
         enqueueDNUpdater()
+
+        QuickTileService.askAddTile(context)
     }
 
     override fun onDestroy() {

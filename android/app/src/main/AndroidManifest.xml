@@ -49,7 +49,38 @@
                 <data android:scheme="http" android:host="api.defined.net" android:pathPrefix="/v1/mobile-enrollment"/>
                 <data android:scheme="https"/>
             </intent-filter>
+            <!-- Quick Settings tile long press -->
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES"/>
+            </intent-filter>
         </activity>
+        <activity
+            android:name=".StartVpnActivity"
+            android:excludeFromRecents="true"
+            android:theme="@style/Transparent" />
+        <activity
+            android:name=".StopVpnActivity"
+            android:excludeFromRecents="true"
+            android:theme="@style/Transparent" />
+        <service
+            android:name=".QuickTileService"
+            android:exported="true"
+            android:label="@string/quick_tile_label"
+            android:icon="@drawable/quick_tile_icon"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.service.quicksettings.ACTIVE_TILE"
+                android:value="false" />
+            
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
+        </service>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
