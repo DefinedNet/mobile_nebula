@@ -284,11 +284,11 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     }
 }
 
-func MissingArgumentError(message: String, details: Error? = nil) -> FlutterError {
+func MissingArgumentError(message: String, details: (any Error)? = nil) -> FlutterError {
     return FlutterError(code: "missingArgument", message: message, details: details)
 }
 
-func NoArgumentsError(message: String? = "no arguments were provided or could not be deserialized", details: Error? = nil) -> FlutterError {
+func NoArgumentsError(message: String? = "no arguments were provided or could not be deserialized", details: (any Error)? = nil) -> FlutterError {
     return FlutterError(code: "noArguments", message: message, details: details)
 }
 
