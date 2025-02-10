@@ -45,7 +45,7 @@ class SiteList {
         return try getSiteDir(id: id, create: createDir).appendingPathComponent("logs", isDirectory: false)
     }
     
-    init(completion: @escaping ([String: Site]?, Error?) -> ()) {
+    init(completion: @escaping ([String: Site]?, (any Error)?) -> ()) {
 #if targetEnvironment(simulator)
         SiteList.loadAllFromFS { sites, err in
             if sites != nil {
@@ -63,7 +63,7 @@ class SiteList {
 #endif
     }
     
-    private static func loadAllFromFS(completion: @escaping ([String: Site]?, Error?) -> ()) {
+    private static func loadAllFromFS(completion: @escaping ([String: Site]?, (any Error)?) -> ()) {
         let fileManager = FileManager.default
         var siteDirs: [URL]
         var sites = [String: Site]()
@@ -91,7 +91,7 @@ class SiteList {
         completion(sites, nil)
     }
     
-    private static func loadAllFromNETPM(completion: @escaping ([String: Site]?, Error?) -> ()) {
+    private static func loadAllFromNETPM(completion: @escaping ([String: Site]?, (any Error)?) -> ()) {
         var sites = [String: Site]()
         
         // dispatchGroup is used to ensure we have migrated all sites before returning them

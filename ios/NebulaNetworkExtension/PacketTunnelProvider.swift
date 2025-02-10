@@ -209,7 +209,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             return nil
         }
         
-        var error: Error?
+        var error: (any Error)?
         var data: JSON?
         
         // start command has special treatment due to needing to call two completers
@@ -251,25 +251,25 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         }
     }
     
-    private func listHostmap(pending: Bool) -> (JSON?, Error?) {
+    private func listHostmap(pending: Bool) -> (JSON?, (any Error)?) {
         var err: NSError?
         let res = nebula!.listHostmap(pending, error: &err)
         return (JSON(res), err)
     }
     
-    private func getHostInfo(args: JSON) -> (JSON?, Error?) {
+    private func getHostInfo(args: JSON) -> (JSON?, (any Error)?) {
         var err: NSError?
         let res = nebula!.getHostInfo(byVpnIp: args["vpnIp"].string, pending: args["pending"].boolValue, error: &err)
         return (JSON(res), err)
     }
     
-    private func setRemoteForTunnel(args: JSON) -> (JSON?, Error?) {
+    private func setRemoteForTunnel(args: JSON) -> (JSON?, (any Error)?) {
         var err: NSError?
         let res = nebula!.setRemoteForTunnel(args["vpnIp"].string, addr: args["addr"].string, error: &err)
         return (JSON(res), err)
     }
     
-    private func closeTunnel(args: JSON) -> (JSON?, Error?) {
+    private func closeTunnel(args: JSON) -> (JSON?, (any Error)?) {
         let res = nebula!.closeTunnel(args["vpnIp"].string)
         return (JSON(res), nil)
     }
