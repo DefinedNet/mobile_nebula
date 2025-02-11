@@ -116,7 +116,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         }
         
         self.nebula!.start()
-        self.dnUpdater.updateSingleLoop(site: self.site!, onUpdate: self.handleDNUpdate)
+        await self.dnUpdater.updateSingleLoop(site: self.site!, onUpdate: self.handleDNUpdate)
     }
     
     private func handleDNUpdate(newSite: Site) {
