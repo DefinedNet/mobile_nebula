@@ -8,13 +8,11 @@ actor DNUpdater {
 
     func updateAll(onUpdate: @escaping (Site) -> Void) {
         _ = SiteList { (sites, _) -> Void in
-            switch sites
-            {
-            case .some(let sites):
+            if let unwrappedSites = sites?.values {
                 // NEVPN seems to force us onto the main thread and we are about to make network calls that
                 // could block for a while. Push ourselves onto another thread to avoid blocking the UI.
                 Task.detached(priority: .userInitiated) {
-                    for site in sites.values {
+                    for site in unwrappedSites {
                         if site.connected == true {
                             // The vpn service is in charge of updating the currently connected site
                             return
@@ -24,7 +22,7 @@ actor DNUpdater {
                     }
 
                 }
-            default: break
+
             }
 
         }
@@ -44,7 +42,7 @@ actor DNUpdater {
         timer.resume()
     }
 
-    func updateSite(site: Site, onUpdate: @escaping (Site) -> Void) {
+    private func updateSite(site: Site, onUpdate: @escaping (Site) -> Void) {
         do {
             if !site.managed {
                 return
