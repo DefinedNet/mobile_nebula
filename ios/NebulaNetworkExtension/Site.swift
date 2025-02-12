@@ -1,12 +1,12 @@
-import NetworkExtension
 import MobileNebula
+import NetworkExtension
 import SwiftyJSON
 import os.log
 
 let log = Logger(subsystem: "net.defined.mobileNebula", category: "Site")
 
 enum SiteError: Error {
-    case nonConforming(site: [String : Any]?)
+    case nonConforming(site: [String: any Sendable]?)
     case noCertificate
     case keyLoad
     case keySave
@@ -131,7 +131,7 @@ struct CertificateValidity: Codable {
     }
 }
 
-let statusMap: Dictionary<NEVPNStatus, Bool> = [
+let statusMap: [NEVPNStatus: Bool] = [
     NEVPNStatus.invalid: false,
     NEVPNStatus.disconnected: false,
     NEVPNStatus.connecting: false,
@@ -140,7 +140,7 @@ let statusMap: Dictionary<NEVPNStatus, Bool> = [
     NEVPNStatus.disconnecting: true,
 ]
 
-let statusString: Dictionary<NEVPNStatus, String> = [
+let statusString: [NEVPNStatus: String] = [
     NEVPNStatus.invalid: "Invalid configuration",
     NEVPNStatus.disconnected: "Disconnected",
     NEVPNStatus.connecting: "Connecting...",
@@ -150,13 +150,14 @@ let statusString: Dictionary<NEVPNStatus, String> = [
 ]
 
 // Represents a site that was pulled out of the system configuration
-class Site: Codable {
+// FIXME: Make Site properly Sendable, or reconfigure things to not require sending it.
+class Site: Codable, @unchecked Sendable {
     // Stored in manager
     var name: String
     var id: String
 
     // Stored in proto
-    var staticHostmap: Dictionary<String, StaticHosts>
+    var staticHostmap: [String: StaticHosts]
     var unsafeRoutes: [UnsafeRoute]
     var cert: CertificateInfo?
     var ca: [CertificateInfo]
@@ -166,7 +167,7 @@ class Site: Codable {
     var cipher: String
     var sortKey: Int
     var logVerbosity: String
-    var connected: Bool? //TODO: active is a better name
+    var connected: Bool?  //TODO: active is a better name
     var status: String?
     var logFile: String?
     var managed: Bool
@@ -244,18 +245,19 @@ class Site: Codable {
         do {
             let rawCert = incoming.cert
             let rawDetails = MobileNebulaParseCerts(rawCert, &err)
-            if (err != nil) {
+            if err != nil {
                 throw err!
             }
 
             var certs: [CertificateInfo]
 
-            certs = try JSONDecoder().decode([CertificateInfo].self, from: rawDetails.data(using: .utf8)!)
-            if (certs.count == 0) {
+            certs = try JSONDecoder().decode(
+                [CertificateInfo].self, from: rawDetails.data(using: .utf8)!)
+            if certs.count == 0 {
                 throw SiteError.noCertificate
             }
             cert = certs[0]
-            if (!cert!.validity.valid) {
+            if !cert!.validity.valid {
                 errors.append("Certificate is invalid: \(cert!.validity.reason)")
             }
 
@@ -266,25 +268,27 @@ class Site: Codable {
         do {
             let rawCa = incoming.ca
             let rawCaDetails = MobileNebulaParseCerts(rawCa, &err)
-            if (err != nil) {
+            if err != nil {
                 throw err!
             }
-            ca = try JSONDecoder().decode([CertificateInfo].self, from: rawCaDetails.data(using: .utf8)!)
+            ca = try JSONDecoder().decode(
+                [CertificateInfo].self, from: rawCaDetails.data(using: .utf8)!)
 
             var hasErrors = false
             ca.forEach { cert in
-                if (!cert.validity.valid) {
+                if !cert.validity.valid {
                     hasErrors = true
                 }
             }
 
-            if (hasErrors && !managed) {
+            if hasErrors && !managed {
                 errors.append("There are issues with 1 or more ca certificates")
             }
 
         } catch {
             ca = []
-            errors.append("Error while loading certificate authorities: \(error.localizedDescription)")
+            errors.append(
+                "Error while loading certificate authorities: \(error.localizedDescription)")
         }
 
         do {
@@ -294,11 +298,11 @@ class Site: Codable {
             errors.append("Unable to create the site directory: \(error.localizedDescription)")
         }
 
-        if (managed && (try? getDNCredentials())?.invalid != false) {
+        if managed && (try? getDNCredentials())?.invalid != false {
             errors.append("Unable to fetch managed updates - please re-enroll the device")
         }
 
-        if (errors.isEmpty) {
+        if errors.isEmpty {
             do {
                 let encoder = JSONEncoder()
                 let rawConfig = try encoder.encode(incoming)
@@ -307,7 +311,7 @@ class Site: Codable {
                 var err: NSError?
 
                 MobileNebulaTestConfig(strConfig, key, &err)
-                if (err != nil) {
+                if err != nil {
                     throw err!
                 }
             } catch {
@@ -327,7 +331,7 @@ class Site: Codable {
     }
 
     func getDNCredentials() throws -> DNCredentials {
-        if (!managed) {
+        if !managed {
             throw SiteError.unmanagedGetCredentials
         }
 
@@ -344,7 +348,7 @@ class Site: Codable {
         let creds = try getDNCredentials()
         creds.invalid = true
 
-        if (!(try creds.save(siteID: self.id))) {
+        if !(try creds.save(siteID: self.id)) {
             throw SiteError.dnCredentialLoad
         }
     }
@@ -353,7 +357,7 @@ class Site: Codable {
         let creds = try getDNCredentials()
         creds.invalid = false
 
-        if (!(try creds.save(siteID: self.id))) {
+        if !(try creds.save(siteID: self.id)) {
             throw SiteError.dnCredentialSave
         }
     }
@@ -426,10 +430,11 @@ class DNCredentials: Codable {
 }
 
 // This class represents a site coming in from flutter, meant only to be saved and re-loaded as a proper Site
-struct IncomingSite: Codable {
+// FIXME: Make Site properly Sendable, or reconfigure things to not require sending it.
+struct IncomingSite: Codable, @unchecked Sendable {
     var name: String
     var id: String
-    var staticHostmap: Dictionary<String, StaticHosts>
+    var staticHostmap: [String: StaticHosts]
     var unsafeRoutes: [UnsafeRoute]?
     var cert: String?
     var ca: String?
@@ -456,7 +461,10 @@ struct IncomingSite: Codable {
         return try encoder.encode(config)
     }
 
-    func save(manager: NETunnelProviderManager?, saveToManager: Bool = true, callback: @escaping ((any Error)?) -> ()) {
+    func save(
+        manager: NETunnelProviderManager?, saveToManager: Bool = true,
+        callback: @escaping ((any Error)?) -> Void
+    ) {
         let configPath: URL
 
         do {
@@ -469,15 +477,17 @@ struct IncomingSite: Codable {
 
         log.notice("Saving to \(configPath, privacy: .public)")
         do {
-            if (self.key != nil) {
+            if self.key != nil {
                 let data = self.key!.data(using: .utf8)
-                if (!KeyChain.save(key: "\(self.id).key", data: data!, managed: self.managed ?? false)) {
+                if !KeyChain.save(
+                    key: "\(self.id).key", data: data!, managed: self.managed ?? false)
+                {
                     return callback(SiteError.keySave)
                 }
             }
 
             do {
-                if ((try self.dnCredentials?.save(siteID: self.id)) == false) {
+                if (try self.dnCredentials?.save(siteID: self.id)) == false {
                     return callback(SiteError.dnCredentialSave)
                 }
             } catch {
@@ -490,24 +500,25 @@ struct IncomingSite: Codable {
             return callback(error)
         }
 
-
-#if targetEnvironment(simulator)
-        // We are on a simulator and there is no NEVPNManager for us to interact with
-        callback(nil)
-#else
-        if saveToManager {
-            self.saveToManager(manager: manager, callback: callback)
-        } else {
+        #if targetEnvironment(simulator)
+            // We are on a simulator and there is no NEVPNManager for us to interact with
             callback(nil)
-        }
-#endif
+        #else
+            if saveToManager {
+                self.saveToManager(manager: manager, callback: callback)
+            } else {
+                callback(nil)
+            }
+        #endif
     }
 
-    private func saveToManager(manager: NETunnelProviderManager?, callback: @escaping ((any Error)?) -> ()) {
-        if (manager != nil) {
+    private func saveToManager(
+        manager: NETunnelProviderManager?, callback: @escaping ((any Error)?) -> Void
+    ) {
+        if manager != nil {
             // We need to refresh our settings to properly update config
             manager?.loadFromPreferences { error in
-                if (error != nil) {
+                if error != nil {
                     return callback(error)
                 }
 
@@ -519,10 +530,13 @@ struct IncomingSite: Codable {
         return finishSaveToManager(manager: NETunnelProviderManager(), callback: callback)
     }
 
-    private func finishSaveToManager(manager: NETunnelProviderManager, callback: @escaping ((any Error)?) -> ()) {
+    private func finishSaveToManager(
+        manager: NETunnelProviderManager, callback: @escaping ((any Error)?) -> Void
+    ) {
         // Stuff our details in the protocol
-        let proto = manager.protocolConfiguration as? NETunnelProviderProtocol ?? NETunnelProviderProtocol()
-        proto.providerBundleIdentifier = "net.defined.mobileNebula.NebulaNetworkExtension";
+        let proto =
+            manager.protocolConfiguration as? NETunnelProviderProtocol ?? NETunnelProviderProtocol()
+        proto.providerBundleIdentifier = "net.defined.mobileNebula.NebulaNetworkExtension"
         // WARN: If we stop setting providerConfiguration["id"] here, we'll need to use something else to match
         // managers in PacketTunnelProvider.findManager
         proto.providerConfiguration = ["id": self.id]
@@ -536,7 +550,7 @@ struct IncomingSite: Codable {
         manager.localizedDescription = self.name
         manager.isEnabled = true
 
-        manager.saveToPreferences{ error in
+        manager.saveToPreferences { error in
             return callback(error)
         }
     }

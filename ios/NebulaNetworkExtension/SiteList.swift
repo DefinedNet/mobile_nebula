@@ -47,12 +47,10 @@ class SiteList {
     static func loadAll(completion: @escaping ([String: Site]?, (any Error)?) -> Void) {
         #if targetEnvironment(simulator)
             SiteList.loadAllFromFS { sites, err in
-
                 completion(sites, err)
             }
         #else
             SiteList.loadAllFromNETPM { sites, err in
-
                 completion(sites, err)
             }
         #endif
