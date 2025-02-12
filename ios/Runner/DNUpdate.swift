@@ -1,7 +1,7 @@
 import Foundation
 import os.log
 
-actor DNUpdater {
+class DNUpdater {
     private let apiClient = APIClient()
     private let timer = RepeatingTimer(timeInterval: 15 * 60)  // 15 * 60 is 15 minutes
     private let log = Logger(subsystem: "net.defined.mobileNebula", category: "DNUpdater")
@@ -18,7 +18,7 @@ actor DNUpdater {
                             return
                         }
 
-                        await self.updateSite(site: site, onUpdate: onUpdate)
+                        self.updateSite(site: site, onUpdate: onUpdate)
                     }
 
                 }
@@ -91,6 +91,20 @@ actor DNUpdater {
         } catch {
             log.error(
                 "Error while updating \(site.name, privacy: .public): \(error.localizedDescription, privacy: .public)")
+        }
+    }
+}
+
+extension DNUpdater {
+    // Site updates provides an async/await alternative to `.updateAllLoop` that doesn't require a sendable closure.
+    // https://developer.apple.com/documentation/swift/asyncstream
+     var siteUpdates: AsyncStream<Site> {
+        AsyncStream { continuation in
+            self.updateAllLoop(onUpdate: { site in
+                continuation.yield(site)
+
+            })
+
         }
     }
 }
