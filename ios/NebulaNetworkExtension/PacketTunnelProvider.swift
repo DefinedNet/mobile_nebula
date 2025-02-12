@@ -24,7 +24,8 @@ extension AppMessageError: LocalizedError {
 }
 
 
-class PacketTunnelProvider: NEPacketTunnelProvider {
+// FIXME: marked as unchecked Sendable to allow sending `self.pathUpdate`, but we should refactor and re-enable linting.
+class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private var networkMonitor: NWPathMonitor?
     
     private var site: Site?
@@ -116,7 +117,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         }
         
         self.nebula!.start()
-        self.dnUpdater.updateSingleLoop(site: self.site!, onUpdate: self.handleDNUpdate)
+        await self.dnUpdater.updateSingleLoop(site: self.site!, onUpdate: self.handleDNUpdate)
     }
     
     private func handleDNUpdate(newSite: Site) {
@@ -177,7 +178,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
         
     private func pathUpdate(path: Network.NWPath) {
-        let routeDescription = collectAddresses(endpoints: path.gateways)
+        let routeDescription = PacketTunnelProvider.collectAddresses(endpoints: path.gateways)
         if routeDescription != cachedRouteDescription {
             // Don't bother to rebind if we don't have any gateways
             if routeDescription != "" {
@@ -187,7 +188,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         }
     }
     
-    private func collectAddresses(endpoints: [Network.NWEndpoint]) -> String {
+    static private func collectAddresses(endpoints: [Network.NWEndpoint]) -> String {
         var str: [String] = []
         endpoints.forEach{ endpoint in
             switch endpoint {
@@ -209,7 +210,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             return nil
         }
         
-        var error: Error?
+        var error: (any Error)?
         var data: JSON?
         
         // start command has special treatment due to needing to call two completers
@@ -251,25 +252,25 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         }
     }
     
-    private func listHostmap(pending: Bool) -> (JSON?, Error?) {
+    private func listHostmap(pending: Bool) -> (JSON?, (any Error)?) {
         var err: NSError?
         let res = nebula!.listHostmap(pending, error: &err)
         return (JSON(res), err)
     }
     
-    private func getHostInfo(args: JSON) -> (JSON?, Error?) {
+    private func getHostInfo(args: JSON) -> (JSON?, (any Error)?) {
         var err: NSError?
         let res = nebula!.getHostInfo(byVpnIp: args["vpnIp"].string, pending: args["pending"].boolValue, error: &err)
         return (JSON(res), err)
     }
     
-    private func setRemoteForTunnel(args: JSON) -> (JSON?, Error?) {
+    private func setRemoteForTunnel(args: JSON) -> (JSON?, (any Error)?) {
         var err: NSError?
         let res = nebula!.setRemoteForTunnel(args["vpnIp"].string, addr: args["addr"].string, error: &err)
         return (JSON(res), err)
     }
     
-    private func closeTunnel(args: JSON) -> (JSON?, Error?) {
+    private func closeTunnel(args: JSON) -> (JSON?, (any Error)?) {
         let res = nebula!.closeTunnel(args["vpnIp"].string)
         return (JSON(res), nil)
     }
