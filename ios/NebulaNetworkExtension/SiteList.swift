@@ -56,6 +56,26 @@ class SiteList {
         #endif
     }
 
+    static func loadAllAsync() async -> Result<[String: Site], any Error> {
+        await withCheckedContinuation { continuation in
+            #if targetEnvironment(simulator)
+                SiteList.loadAllFromFS { sites, err in
+                    if err != nil {
+                        continuation.resume(returning: Result.failure(err!))
+                    }
+                    continuation.resume(returning: Result.success(sites!))
+                }
+            #else
+                SiteList.loadAllFromNETPM { sites, err in
+                    if err != nil {
+                        continuation.resume(returning: Result.failure(err!))
+                    }
+                    continuation.resume(returning: Result.success(sites!))
+                }
+            #endif
+        }
+    }
+
     private static func loadAllFromFS(completion: @escaping ([String: Site]?, (any Error)?) -> Void) {
         let fileManager = FileManager.default
         var siteDirs: [URL]
