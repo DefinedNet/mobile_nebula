@@ -24,7 +24,8 @@ extension AppMessageError: LocalizedError {
 }
 
 
-class PacketTunnelProvider: NEPacketTunnelProvider {
+// FIXME: marked as unchecked Sendable to allow sending `self.pathUpdate`, but we should refactor and re-enable linting.
+class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private var networkMonitor: NWPathMonitor?
     
     private var site: Site?
@@ -177,7 +178,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
         
     private func pathUpdate(path: Network.NWPath) {
-        let routeDescription = collectAddresses(endpoints: path.gateways)
+        let routeDescription = PacketTunnelProvider.collectAddresses(endpoints: path.gateways)
         if routeDescription != cachedRouteDescription {
             // Don't bother to rebind if we don't have any gateways
             if routeDescription != "" {
@@ -187,7 +188,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         }
     }
     
-    private func collectAddresses(endpoints: [Network.NWEndpoint]) -> String {
+    static private func collectAddresses(endpoints: [Network.NWEndpoint]) -> String {
         var str: [String] = []
         endpoints.forEach{ endpoint in
             switch endpoint {

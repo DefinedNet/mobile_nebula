@@ -6,7 +6,7 @@ actor DNUpdater {
     private let timer = RepeatingTimer(timeInterval: 15 * 60)  // 15 * 60 is 15 minutes
     private let log = Logger(subsystem: "net.defined.mobileNebula", category: "DNUpdater")
 
-    private func updateAll(onUpdate: @escaping (Site) -> Void) {
+    private func updateAll(onUpdate: @Sendable @escaping (Site) -> Void) {
         SiteList.loadAll(completion: { (sites, _) -> Void in
             if let unwrappedSites = sites?.values {
                 // NEVPN seems to force us onto the main thread and we are about to make network calls that
@@ -28,7 +28,7 @@ actor DNUpdater {
         })
     }
 
-    func updateAllLoop(onUpdate: @escaping (Site) -> Void) {
+    func updateAllLoop(onUpdate: @Sendable @escaping (Site) -> Void) {
         timer.eventHandler = {
             self.updateAll(onUpdate: onUpdate)
         }
