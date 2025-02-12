@@ -6,7 +6,7 @@ import os.log
 let log = Logger(subsystem: "net.defined.mobileNebula", category: "Site")
 
 enum SiteError: Error {
-    case nonConforming(site: [String: any Sendable]?)
+    case nonConforming(siteDict: String)
     case noCertificate
     case keyLoad
     case keySave
@@ -21,8 +21,8 @@ enum SiteError: Error {
 extension SiteError: CustomStringConvertible {
     public var description: String {
         switch self {
-        case .nonConforming(let site):
-            return String("Non-conforming site \(String(describing: site))")
+        case .nonConforming(let siteDict):
+            return String("Non-conforming site \(siteDict)")
         case .noCertificate:
             return "No certificate found"
         case .keyLoad:
@@ -209,7 +209,8 @@ class Site: Codable, @unchecked Sendable {
 
         let id = dict?["id"] as? String ?? nil
         if id == nil {
-            throw SiteError.nonConforming(site: dict)
+            // Describe `dict` before passing to the error.
+            throw SiteError.nonConforming(siteDict: "\(String(describing: dict))")
         }
 
         try self.init(path: SiteList.getSiteConfigFile(id: id!, createDir: false))
