@@ -5,20 +5,18 @@ on:
       - main
   pull_request:
     paths:
-      - '.github/workflows/flutterfmt.yml'
-      - '.github/workflows/flutterfmt.sh'
-      - '**.dart'
+      - ".github/workflows/flutterfmt.yml"
+      - ".github/workflows/flutterfmt.sh"
+      - "**.dart"
 jobs:
-
   gofmt:
     name: Run flutter format
     runs-on: ubuntu-latest
     steps:
-
       - name: Install flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'
+          flutter-version: "3.29.0"
 
       - name: Check out code
         uses: actions/checkout@v4

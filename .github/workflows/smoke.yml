@@ -25,13 +25,13 @@ jobs:
 
       - uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '17'
+          distribution: "zulu"
+          java-version: "17"
 
       - name: Install flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'
+          flutter-version: "3.29.0"
 
       - name: install dependencies
         env:
@@ -102,7 +102,7 @@ jobs:
       - name: Install flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'
+          flutter-version: "3.29.0"
 
       - name: install dependencies
         run: |
@@ -110,7 +110,7 @@ jobs:
           gomobile init
           flutter pub get
           touch env.sh
-      
+
       - name: Build iOS
         run: |
           cd ios
