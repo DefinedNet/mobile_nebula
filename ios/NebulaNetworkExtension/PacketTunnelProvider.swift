@@ -1,4 +1,4 @@
-import MobileNebula
+@preconcurrency import MobileNebula
 import NetworkExtension
 import SwiftyJSON
 import os.log
