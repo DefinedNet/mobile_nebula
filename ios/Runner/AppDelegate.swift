@@ -27,14 +27,7 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
 
         Task.detached {
             await self.dnUpdater.updateAllLoop { [weak self] site in
-                // Signal the site has changed in case the current site details screen is active
-                let container = self?.sites?.getContainer(id: site.id)
-                if container != nil {
-                    // Update references to the site with the new site config
-                    container!.site = site
-                    container!.updater.update(connected: site.connected ?? false, replaceSite: site)
-                }
-
+                self?.sites?.updateSite(site: site)
                 // Send the refresh sites command on the main thread
                 DispatchQueue.main.async {
                     // Signal to the main screen to reload
