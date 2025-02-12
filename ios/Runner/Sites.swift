@@ -76,6 +76,17 @@ class Sites {
     func getContainer(id: String) -> SiteContainer? {
         return self.containers[id]
     }
+    
+    func updateSite(site: Site) {
+        // Signal the site has changed in case the current site details screen is active
+        let container = getContainer(id: site.id)
+        if container != nil {
+            // Update references to the site with the new site config
+            container!.site = site
+            container!.updater.update(connected: site.connected ?? false, replaceSite: site)
+        }
+
+    }
 }
 
 // FIXME: Make this class demonstrably Sendable
