@@ -26,13 +26,11 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
         GeneratedPluginRegistrant.register(with: self)
 
         Task {
-            for await site in dnUpdater.siteUpdates {
+            for await site in await dnUpdater.siteUpdates {
                 self.sites?.updateSite(site: site)
-                // Send the refresh sites command on the main thread
-                DispatchQueue.main.async {
-                    // Signal to the main screen to reload
-                    self.ui?.invokeMethod("refreshSites", arguments: nil)
-                }
+
+                // Signal to the main screen to reload
+                self.ui?.invokeMethod("refreshSites", arguments: nil)
             }
         }
 
