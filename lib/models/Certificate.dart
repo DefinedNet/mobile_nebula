@@ -3,9 +3,7 @@ class CertificateInfo {
   String? rawCert;
   CertificateValidity? validity;
 
-  CertificateInfo.debug({this.rawCert = ""})
-    : cert = Certificate.debug(),
-      validity = CertificateValidity.debug();
+  CertificateInfo.debug({this.rawCert = ""}) : cert = Certificate.debug(), validity = CertificateValidity.debug();
 
   CertificateInfo.fromJson(Map<String, dynamic> json)
     : cert = Certificate.fromJson(json['Cert']),

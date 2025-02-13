@@ -111,10 +111,7 @@ class _IPAndPortFormField extends FormFieldState<IPAndPort> {
   @override
   void didUpdateWidget(IPAndPortFormField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    var update = IPAndPort(
-      ip: widget.ipController?.text,
-      port: int.tryParse(widget.portController?.text ?? ""),
-    );
+    var update = IPAndPort(ip: widget.ipController?.text, port: int.tryParse(widget.portController?.text ?? ""));
     bool shouldUpdate = false;
 
     if (widget.ipController != oldWidget.ipController) {
