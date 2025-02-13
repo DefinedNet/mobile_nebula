@@ -1,12 +1,12 @@
-import NetworkExtension
 import MobileNebula
-import SwiftyJSON
+import NetworkExtension
 import os.log
+import SwiftyJSON
 
 let log = Logger(subsystem: "net.defined.mobileNebula", category: "Site")
 
 enum SiteError: Error {
-    case nonConforming(site: [String : Any]?)
+    case nonConforming(site: [String: Any]?)
     case noCertificate
     case keyLoad
     case keySave
@@ -21,7 +21,7 @@ enum SiteError: Error {
 extension SiteError: CustomStringConvertible {
     public var description: String {
         switch self {
-        case .nonConforming(let site):
+        case let .nonConforming(site):
             return String("Non-conforming site \(String(describing: site))")
         case .noCertificate:
             return "No certificate found"
@@ -35,20 +35,20 @@ extension SiteError: CustomStringConvertible {
             return "failed to find dn credentials in keychain"
         case .dnCredentialSave:
             return "failed to store dn credentials in keychain"
-        case .unexpected(_):
+        case .unexpected:
             return "An unexpected error occurred."
         }
     }
 }
 
 enum IPCResponseType: String, Codable {
-    case error = "error"
-    case success = "success"
+    case error
+    case success
 }
 
 class IPCResponse: Codable {
     var type: IPCResponseType
-    //TODO: change message to data?
+    // TODO: change message to data?
     var message: JSON?
 
     init(type: IPCResponseType, message: JSON?) {
@@ -131,7 +131,7 @@ struct CertificateValidity: Codable {
     }
 }
 
-let statusMap: Dictionary<NEVPNStatus, Bool> = [
+let statusMap: [NEVPNStatus: Bool] = [
     NEVPNStatus.invalid: false,
     NEVPNStatus.disconnected: false,
     NEVPNStatus.connecting: false,
@@ -140,7 +140,7 @@ let statusMap: Dictionary<NEVPNStatus, Bool> = [
     NEVPNStatus.disconnecting: true,
 ]
 
-let statusString: Dictionary<NEVPNStatus, String> = [
+let statusString: [NEVPNStatus: String] = [
     NEVPNStatus.invalid: "Invalid configuration",
     NEVPNStatus.disconnected: "Disconnected",
     NEVPNStatus.connecting: "Connecting...",
@@ -156,7 +156,7 @@ class Site: Codable {
     var id: String
 
     // Stored in proto
-    var staticHostmap: Dictionary<String, StaticHosts>
+    var staticHostmap: [String: StaticHosts]
     var unsafeRoutes: [UnsafeRoute]
     var cert: CertificateInfo?
     var ca: [CertificateInfo]
@@ -166,7 +166,7 @@ class Site: Codable {
     var cipher: String
     var sortKey: Int
     var logVerbosity: String
-    var connected: Bool? //TODO: active is a better name
+    var connected: Bool? // TODO: active is a better name
     var status: String?
     var logFile: String?
     var managed: Bool
@@ -186,12 +186,12 @@ class Site: Codable {
 
     /// Creates a new site from a vpn manager instance. Mainly used by the UI. A manager is required to be able to edit the system profile
     convenience init(manager: NETunnelProviderManager) throws {
-        //TODO: Throw an error and have Sites delete the site, notify the user instead of using !
+        // TODO: Throw an error and have Sites delete the site, notify the user instead of using !
         let proto = manager.protocolConfiguration as! NETunnelProviderProtocol
         try self.init(proto: proto)
         self.manager = manager
-        self.connected = statusMap[manager.connection.status]
-        self.status = statusString[manager.connection.status]
+        connected = statusMap[manager.connection.status]
+        status = statusString[manager.connection.status]
     }
 
     convenience init(proto: NETunnelProviderProtocol) throws {
@@ -202,7 +202,7 @@ class Site: Codable {
             let decoder = JSONDecoder()
             let incoming = try decoder.decode(IncomingSite.self, from: config)
             self.init(incoming: incoming)
-            self.needsToMigrateToFS = true
+            needsToMigrateToFS = true
             return
         }
 
@@ -244,18 +244,18 @@ class Site: Codable {
         do {
             let rawCert = incoming.cert
             let rawDetails = MobileNebulaParseCerts(rawCert, &err)
-            if (err != nil) {
+            if err != nil {
                 throw err!
             }
 
             var certs: [CertificateInfo]
 
             certs = try JSONDecoder().decode([CertificateInfo].self, from: rawDetails.data(using: .utf8)!)
-            if (certs.count == 0) {
+            if certs.count == 0 {
                 throw SiteError.noCertificate
             }
             cert = certs[0]
-            if (!cert!.validity.valid) {
+            if !cert!.validity.valid {
                 errors.append("Certificate is invalid: \(cert!.validity.reason)")
             }
 
@@ -266,19 +266,19 @@ class Site: Codable {
         do {
             let rawCa = incoming.ca
             let rawCaDetails = MobileNebulaParseCerts(rawCa, &err)
-            if (err != nil) {
+            if err != nil {
                 throw err!
             }
             ca = try JSONDecoder().decode([CertificateInfo].self, from: rawCaDetails.data(using: .utf8)!)
 
             var hasErrors = false
-            ca.forEach { cert in
-                if (!cert.validity.valid) {
+            for cert in ca {
+                if !cert.validity.valid {
                     hasErrors = true
                 }
             }
 
-            if (hasErrors && !managed) {
+            if hasErrors && !managed {
                 errors.append("There are issues with 1 or more ca certificates")
             }
 
@@ -288,17 +288,17 @@ class Site: Codable {
         }
 
         do {
-            logFile = try SiteList.getSiteLogFile(id: self.id, createDir: true).path
+            logFile = try SiteList.getSiteLogFile(id: id, createDir: true).path
         } catch {
             logFile = nil
             errors.append("Unable to create the site directory: \(error.localizedDescription)")
         }
 
-        if (managed && (try? getDNCredentials())?.invalid != false) {
+        if managed && (try? getDNCredentials())?.invalid != false {
             errors.append("Unable to fetch managed updates - please re-enroll the device")
         }
 
-        if (errors.isEmpty) {
+        if errors.isEmpty {
             do {
                 let encoder = JSONEncoder()
                 let rawConfig = try encoder.encode(incoming)
@@ -307,7 +307,7 @@ class Site: Codable {
                 var err: NSError?
 
                 MobileNebulaTestConfig(strConfig, key, &err)
-                if (err != nil) {
+                if err != nil {
                     throw err!
                 }
             } catch {
@@ -322,12 +322,12 @@ class Site: Codable {
             throw SiteError.keyLoad
         }
 
-        //TODO: make sure this is valid on return!
+        // TODO: make sure this is valid on return!
         return String(decoding: keyData, as: UTF8.self)
     }
 
     func getDNCredentials() throws -> DNCredentials {
-        if (!managed) {
+        if !managed {
             throw SiteError.unmanagedGetCredentials
         }
 
@@ -344,7 +344,7 @@ class Site: Codable {
         let creds = try getDNCredentials()
         creds.invalid = true
 
-        if (!(try creds.save(siteID: self.id))) {
+        if try !(creds.save(siteID: id)) {
             throw SiteError.dnCredentialLoad
         }
     }
@@ -353,13 +353,13 @@ class Site: Codable {
         let creds = try getDNCredentials()
         creds.invalid = false
 
-        if (!(try creds.save(siteID: self.id))) {
+        if try !(creds.save(siteID: id)) {
             throw SiteError.dnCredentialSave
         }
     }
 
     func getConfig() throws -> Data {
-        return try self.incomingSite!.getConfig()
+        return try incomingSite!.getConfig()
     }
 
     // Limits what we export to the UI
@@ -429,7 +429,7 @@ class DNCredentials: Codable {
 struct IncomingSite: Codable {
     var name: String
     var id: String
-    var staticHostmap: Dictionary<String, StaticHosts>
+    var staticHostmap: [String: StaticHosts]
     var unsafeRoutes: [UnsafeRoute]?
     var cert: String?
     var ca: String?
@@ -456,11 +456,11 @@ struct IncomingSite: Codable {
         return try encoder.encode(config)
     }
 
-    func save(manager: NETunnelProviderManager?, saveToManager: Bool = true, callback: @escaping (Error?) -> ()) {
+    func save(manager: NETunnelProviderManager?, saveToManager: Bool = true, callback: @escaping (Error?) -> Void) {
         let configPath: URL
 
         do {
-            configPath = try SiteList.getSiteConfigFile(id: self.id, createDir: true)
+            configPath = try SiteList.getSiteConfigFile(id: id, createDir: true)
 
         } catch {
             callback(error)
@@ -469,45 +469,44 @@ struct IncomingSite: Codable {
 
         log.notice("Saving to \(configPath, privacy: .public)")
         do {
-            if (self.key != nil) {
-                let data = self.key!.data(using: .utf8)
-                if (!KeyChain.save(key: "\(self.id).key", data: data!, managed: self.managed ?? false)) {
+            if key != nil {
+                let data = key!.data(using: .utf8)
+                if !KeyChain.save(key: "\(id).key", data: data!, managed: managed ?? false) {
                     return callback(SiteError.keySave)
                 }
             }
 
             do {
-                if ((try self.dnCredentials?.save(siteID: self.id)) == false) {
+                if try (dnCredentials?.save(siteID: id)) == false {
                     return callback(SiteError.dnCredentialSave)
                 }
             } catch {
                 return callback(error)
             }
 
-            try self.getConfig().write(to: configPath)
+            try getConfig().write(to: configPath)
 
         } catch {
             return callback(error)
         }
 
-
-#if targetEnvironment(simulator)
-        // We are on a simulator and there is no NEVPNManager for us to interact with
-        callback(nil)
-#else
-        if saveToManager {
-            self.saveToManager(manager: manager, callback: callback)
-        } else {
+        #if targetEnvironment(simulator)
+            // We are on a simulator and there is no NEVPNManager for us to interact with
             callback(nil)
-        }
-#endif
+        #else
+            if saveToManager {
+                self.saveToManager(manager: manager, callback: callback)
+            } else {
+                callback(nil)
+            }
+        #endif
     }
 
-    private func saveToManager(manager: NETunnelProviderManager?, callback: @escaping (Error?) -> ()) {
-        if (manager != nil) {
+    private func saveToManager(manager: NETunnelProviderManager?, callback: @escaping (Error?) -> Void) {
+        if manager != nil {
             // We need to refresh our settings to properly update config
             manager?.loadFromPreferences { error in
-                if (error != nil) {
+                if error != nil {
                     return callback(error)
                 }
 
@@ -519,25 +518,25 @@ struct IncomingSite: Codable {
         return finishSaveToManager(manager: NETunnelProviderManager(), callback: callback)
     }
 
-    private func finishSaveToManager(manager: NETunnelProviderManager, callback: @escaping (Error?) -> ()) {
+    private func finishSaveToManager(manager: NETunnelProviderManager, callback: @escaping (Error?) -> Void) {
         // Stuff our details in the protocol
         let proto = manager.protocolConfiguration as? NETunnelProviderProtocol ?? NETunnelProviderProtocol()
-        proto.providerBundleIdentifier = "net.defined.mobileNebula.NebulaNetworkExtension";
+        proto.providerBundleIdentifier = "net.defined.mobileNebula.NebulaNetworkExtension"
         // WARN: If we stop setting providerConfiguration["id"] here, we'll need to use something else to match
         // managers in PacketTunnelProvider.findManager
-        proto.providerConfiguration = ["id": self.id]
+        proto.providerConfiguration = ["id": id]
         proto.serverAddress = "Nebula"
 
         // Finish up the manager, this is what stores everything at the system level
         manager.protocolConfiguration = proto
-        //TODO: cert name?        manager.protocolConfiguration?.username
+        // TODO: cert name?        manager.protocolConfiguration?.username
 
-        //TODO: This is what is shown on the vpn page. We should add more identifying details in
-        manager.localizedDescription = self.name
+        // TODO: This is what is shown on the vpn page. We should add more identifying details in
+        manager.localizedDescription = name
         manager.isEnabled = true
 
-        manager.saveToPreferences{ error in
-            return callback(error)
+        manager.saveToPreferences { error in
+            callback(error)
         }
     }
 }
