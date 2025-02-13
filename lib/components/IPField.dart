@@ -72,7 +72,7 @@ class IPTextInputFormatter extends TextInputFormatter {
 
 TextEditingValue _selectionAwareTextManipulation(
   TextEditingValue value,
-  String substringManipulation(String substring),
+  String Function(String substring) substringManipulation,
 ) {
   final int selectionStartIndex = value.selection.start;
   final int selectionEndIndex = value.selection.end;
