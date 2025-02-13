@@ -15,18 +15,18 @@ class ConfigSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final border = BorderSide(color: borderColor ?? Utils.configSectionBorder(context));
 
-    List<Widget> _children = [];
+    List<Widget> mappedChildren = [];
     final len = children.length;
 
     for (var i = 0; i < len; i++) {
-      _children.add(children[i]);
+      mappedChildren.add(children[i]);
 
       if (i < len - 1) {
         double pad = 15;
         if (children[i + 1].runtimeType.toString() == 'ConfigButtonItem') {
           pad = 0;
         }
-        _children.add(
+        mappedChildren.add(
           Padding(
             padding: EdgeInsets.only(left: pad),
             child: Divider(height: 1, color: Utils.configSectionBorder(context)),
@@ -44,7 +44,7 @@ class ConfigSection extends StatelessWidget {
             border: Border(top: border, bottom: border),
             color: Utils.configItemBackground(context),
           ),
-          child: Column(children: _children),
+          child: Column(children: mappedChildren),
         ),
       ],
     );
