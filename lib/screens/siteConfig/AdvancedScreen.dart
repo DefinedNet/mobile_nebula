@@ -85,7 +85,7 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                 //TODO: Auto select on focus?
                 content:
                     widget.site.managed
-                        ? Text(settings.lhDuration.toString() + " seconds", textAlign: TextAlign.right)
+                        ? Text("${settings.lhDuration} seconds", textAlign: TextAlign.right)
                         : PlatformTextFormField(
                           initialValue: settings.lhDuration.toString(),
                           keyboardType: TextInputType.number,

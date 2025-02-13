@@ -41,10 +41,10 @@ class Utils {
 
   static String itemCountFormat(int items, {singleSuffix = "item", multiSuffix = "items"}) {
     if (items == 1) {
-      return items.toString() + " " + singleSuffix;
+      return "$items " + singleSuffix;
     }
 
-    return items.toString() + " " + multiSuffix;
+    return "$items " + multiSuffix;
   }
 
   /// Builds a simple leading widget that pops the current screen.
