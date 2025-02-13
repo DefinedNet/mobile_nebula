@@ -10,7 +10,7 @@ bool DEFAULT_TRACK_ERRORS = true;
 
 class Settings {
   final _storage = Storage();
-  StreamController _change = StreamController.broadcast();
+  final StreamController _change = StreamController.broadcast();
   var _settings = Map<String, dynamic>();
 
   bool get useSystemColors {

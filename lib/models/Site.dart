@@ -15,7 +15,7 @@ class Site {
   late EventChannel _updates;
 
   /// Signals that something about this site has changed. onError is called with an error string if there was an error
-  StreamController _change = StreamController.broadcast();
+  final StreamController _change = StreamController.broadcast();
 
   // Identifiers
   late String name;
