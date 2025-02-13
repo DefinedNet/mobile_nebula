@@ -43,7 +43,7 @@ class SimplePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget realChild = child;
-    var addScrollbar = this.scrollbar;
+    var addScrollbar = scrollbar;
 
     if (scrollable == SimpleScrollable.vertical || scrollable == SimpleScrollable.both) {
       realChild = SingleChildScrollView(
@@ -83,7 +83,7 @@ class SimplePage extends StatelessWidget {
     }
 
     if (alignment != null) {
-      realChild = Align(alignment: this.alignment!, child: realChild);
+      realChild = Align(alignment: alignment!, child: realChild);
     }
 
     if (bottomBar != null) {

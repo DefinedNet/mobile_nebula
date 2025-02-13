@@ -44,7 +44,7 @@ class ConfigPageItem extends StatelessWidget {
 
   Widget _buildContent(BuildContext context) {
     return SpecialButton(
-      onPressed: this.disabled ? null : onPressed,
+      onPressed: disabled ? null : onPressed,
       color: Utils.configItemBackground(context),
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 6, horizontal: 15),
@@ -54,7 +54,7 @@ class ConfigPageItem extends StatelessWidget {
           children: <Widget>[
             label != null ? Container(width: labelWidth, child: label) : Container(),
             Expanded(child: Container(child: content, padding: EdgeInsets.only(right: 10))),
-            this.disabled
+            disabled
                 ? Container()
                 : Icon(CupertinoIcons.forward, color: CupertinoColors.placeholderText.resolveFrom(context), size: 18),
           ],
