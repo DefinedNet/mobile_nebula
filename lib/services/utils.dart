@@ -39,12 +39,12 @@ class Utils {
     Navigator.push(context, platformPageRoute(context: context, builder: pageToDisplayBuilder));
   }
 
-  static String itemCountFormat(int items, {singleSuffix = "item", multiSuffix = "items"}) {
+  static String itemCountFormat(int items, {String singleSuffix = "item", String multiSuffix = "items"}) {
     if (items == 1) {
-      return items.toString() + " " + singleSuffix;
+      return "$items $singleSuffix";
     }
 
-    return items.toString() + " " + multiSuffix;
+    return "$items $multiSuffix";
   }
 
   /// Builds a simple leading widget that pops the current screen.

@@ -90,7 +90,7 @@ class _StaticHostsScreenState extends State<StaticHostsScreen> {
             ],
           ),
           labelWidth: ipWidth,
-          content: Text(host.destinations.length.toString() + ' items', textAlign: TextAlign.end),
+          content: Text('${host.destinations.length} items', textAlign: TextAlign.end),
           onPressed: () {
             Utils.openPage(context, (context) {
               return StaticHostmapScreen(
