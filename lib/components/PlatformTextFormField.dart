@@ -115,8 +115,9 @@ class _PlatformTextFormFieldState extends FormFieldState<String> {
       oldWidget.controller?.removeListener(_handleControllerChanged);
       widget.controller?.addListener(_handleControllerChanged);
 
-      if (oldWidget.controller != null && widget.controller == null)
+      if (oldWidget.controller != null && widget.controller == null) {
         _controller = TextEditingController.fromValue(oldWidget.controller!.value);
+      }
       if (widget.controller != null) {
         setValue(widget.controller!.text);
         if (oldWidget.controller == null) _controller = null;
