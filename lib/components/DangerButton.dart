@@ -13,18 +13,24 @@ class DangerButton extends StatelessWidget {
   Widget build(BuildContext context) {
     if (Platform.isAndroid) {
       return FilledButton(
-          onPressed: onPressed,
-          child: child,
-          style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-              foregroundColor: Theme.of(context).colorScheme.onError));
+        onPressed: onPressed,
+        child: child,
+        style: FilledButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.error,
+          foregroundColor: Theme.of(context).colorScheme.onError,
+        ),
+      );
     } else {
       // Workaround for https://github.com/flutter/flutter/issues/161590
       final themeData = CupertinoTheme.of(context);
       return CupertinoTheme(
-          data: themeData.copyWith(primaryColor: CupertinoColors.white),
-          child: CupertinoButton(
-              child: child, onPressed: onPressed, color: CupertinoColors.systemRed.resolveFrom(context)));
+        data: themeData.copyWith(primaryColor: CupertinoColors.white),
+        child: CupertinoButton(
+          child: child,
+          onPressed: onPressed,
+          color: CupertinoColors.systemRed.resolveFrom(context),
+        ),
+      );
     }
   }
 }

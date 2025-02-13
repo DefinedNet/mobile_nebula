@@ -24,20 +24,13 @@ class LicensesScreen extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.all(8),
             child: PlatformListTile(
-                onTap: () {
-                  Utils.openPage(
-                    context,
-                    (_) => LicenceDetailPage(
-                      title: capitalize(dep.name),
-                      licence: dep.license!,
-                    ),
-                  );
-                },
-                title: Text(
-                  capitalize(dep.name),
-                ),
-                subtitle: Text(dep.description),
-                trailing: Icon(context.platformIcons.forward, size: 18)),
+              onTap: () {
+                Utils.openPage(context, (_) => LicenceDetailPage(title: capitalize(dep.name), licence: dep.license!));
+              },
+              title: Text(capitalize(dep.name)),
+              subtitle: Text(dep.description),
+              trailing: Icon(context.platformIcons.forward, size: 18),
+            ),
           );
         },
       ),
@@ -62,14 +55,7 @@ class LicenceDetailPage extends StatelessWidget {
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            child: Column(
-              children: [
-                Text(
-                  licence,
-                  style: const TextStyle(fontSize: 15),
-                ),
-              ],
-            ),
+            child: Column(children: [Text(licence, style: const TextStyle(fontSize: 15))]),
           ),
         ),
       ),

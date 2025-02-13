@@ -38,10 +38,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     List<Widget> colorSection = [];
 
-    colorSection.add(ConfigItem(
-      label: Text('Use system colors'),
-      labelWidth: 200,
-      content: Align(
+    colorSection.add(
+      ConfigItem(
+        label: Text('Use system colors'),
+        labelWidth: 200,
+        content: Align(
           alignment: Alignment.centerRight,
           child: Switch.adaptive(
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -49,13 +50,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
               settings.useSystemColors = value;
             },
             value: settings.useSystemColors,
-          )),
-    ));
+          ),
+        ),
+      ),
+    );
 
     if (!settings.useSystemColors) {
-      colorSection.add(ConfigItem(
-        label: Text('Dark mode'),
-        content: Align(
+      colorSection.add(
+        ConfigItem(
+          label: Text('Dark mode'),
+          content: Align(
             alignment: Alignment.centerRight,
             child: Switch.adaptive(
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -63,16 +67,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 settings.darkMode = value;
               },
               value: settings.darkMode,
-            )),
-      ));
+            ),
+          ),
+        ),
+      );
     }
 
     List<Widget> items = [];
     items.add(ConfigSection(children: colorSection));
-    items.add(ConfigItem(
-      label: Text('Wrap log output'),
-      labelWidth: 200,
-      content: Align(
+    items.add(
+      ConfigItem(
+        label: Text('Wrap log output'),
+        labelWidth: 200,
+        content: Align(
           alignment: Alignment.centerRight,
           child: Switch.adaptive(
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -82,14 +89,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 settings.logWrap = value;
               });
             },
-          )),
-    ));
+          ),
+        ),
+      ),
+    );
 
-    items.add(ConfigSection(children: [
-      ConfigItem(
-          label: Text('Report errors automatically'),
-          labelWidth: 250,
-          content: Align(
+    items.add(
+      ConfigSection(
+        children: [
+          ConfigItem(
+            label: Text('Report errors automatically'),
+            labelWidth: 250,
+            content: Align(
               alignment: Alignment.centerRight,
               child: Switch.adaptive(
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -99,27 +110,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     settings.trackErrors = value;
                   });
                 },
-              ))),
-    ]));
-
-    items.add(ConfigSection(children: [
-      ConfigPageItem(
-          label: Text('Enroll with Managed Nebula'),
-          labelWidth: 250,
-          onPressed: () =>
-              Utils.openPage(context, (context) => EnrollmentScreen(stream: widget.stream, allowCodeEntry: true)))
-    ]));
-
-    items.add(ConfigSection(children: [
-      ConfigPageItem(
-        label: Text('About'),
-        onPressed: () => Utils.openPage(context, (context) => AboutScreen()),
-      )
-    ]));
-
-    return SimplePage(
-      title: Text('Settings'),
-      child: Column(children: items),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
+
+    items.add(
+      ConfigSection(
+        children: [
+          ConfigPageItem(
+            label: Text('Enroll with Managed Nebula'),
+            labelWidth: 250,
+            onPressed:
+                () =>
+                    Utils.openPage(context, (context) => EnrollmentScreen(stream: widget.stream, allowCodeEntry: true)),
+          ),
+        ],
+      ),
+    );
+
+    items.add(
+      ConfigSection(
+        children: [
+          ConfigPageItem(label: Text('About'), onPressed: () => Utils.openPage(context, (context) => AboutScreen())),
+        ],
+      ),
+    );
+
+    return SimplePage(title: Text('Settings'), child: Column(children: items));
   }
 }

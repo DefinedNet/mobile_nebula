@@ -5,7 +5,7 @@ import 'ConfigHeader.dart';
 
 class ConfigSection extends StatelessWidget {
   const ConfigSection({Key? key, this.label, required this.children, this.borderColor, this.labelColor})
-      : super(key: key);
+    : super(key: key);
 
   final List<Widget> children;
   final String? label;
@@ -27,19 +27,27 @@ class ConfigSection extends StatelessWidget {
         if (children[i + 1].runtimeType.toString() == 'ConfigButtonItem') {
           pad = 0;
         }
-        _children.add(Padding(
-            child: Divider(height: 1, color: Utils.configSectionBorder(context)), padding: EdgeInsets.only(left: pad)));
+        _children.add(
+          Padding(
+            child: Divider(height: 1, color: Utils.configSectionBorder(context)),
+            padding: EdgeInsets.only(left: pad),
+          ),
+        );
       }
     }
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      label != null ? ConfigHeader(label: label!, color: labelColor) : Container(height: 20),
-      Container(
-          decoration:
-              BoxDecoration(border: Border(top: border, bottom: border), color: Utils.configItemBackground(context)),
-          child: Column(
-            children: _children,
-          ))
-    ]);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        label != null ? ConfigHeader(label: label!, color: labelColor) : Container(height: 20),
+        Container(
+          decoration: BoxDecoration(
+            border: Border(top: border, bottom: border),
+            color: Utils.configItemBackground(context),
+          ),
+          child: Column(children: _children),
+        ),
+      ],
+    );
   }
 }

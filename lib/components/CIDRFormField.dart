@@ -18,51 +18,57 @@ class CIDRFormField extends FormField<CIDR> {
     this.ipController,
     this.bitsController,
   }) : super(
-            key: key,
-            initialValue: initialValue,
-            onSaved: onSaved,
-            validator: (cidr) {
-              if (cidr == null) {
-                return "Please fill out this field";
-              }
+         key: key,
+         initialValue: initialValue,
+         onSaved: onSaved,
+         validator: (cidr) {
+           if (cidr == null) {
+             return "Please fill out this field";
+           }
 
-              if (!ipValidator(cidr.ip, enableIPV6)) {
-                return 'Please enter a valid ip address';
-              }
+           if (!ipValidator(cidr.ip, enableIPV6)) {
+             return 'Please enter a valid ip address';
+           }
 
-              if (cidr.bits > 32 || cidr.bits < 0) {
-                return "Please enter a valid number of bits";
-              }
+           if (cidr.bits > 32 || cidr.bits < 0) {
+             return "Please enter a valid number of bits";
+           }
 
-              return null;
-            },
-            builder: (FormFieldState<CIDR> field) {
-              final _CIDRFormField state = field as _CIDRFormField;
+           return null;
+         },
+         builder: (FormFieldState<CIDR> field) {
+           final _CIDRFormField state = field as _CIDRFormField;
 
-              void onChangedHandler(CIDR value) {
-                if (onChanged != null) {
-                  onChanged(value);
-                }
-                field.didChange(value);
-              }
+           void onChangedHandler(CIDR value) {
+             if (onChanged != null) {
+               onChanged(value);
+             }
+             field.didChange(value);
+           }
 
-              return Column(crossAxisAlignment: CrossAxisAlignment.end, children: <Widget>[
-                CIDRField(
-                  autoFocus: autoFocus,
-                  focusNode: focusNode,
-                  nextFocusNode: nextFocusNode,
-                  onChanged: onChangedHandler,
-                  textInputAction: textInputAction,
-                  ipController: state._effectiveIPController,
-                  bitsController: state._effectiveBitsController,
-                ),
-                field.hasError
-                    ? Text(field.errorText ?? "Unknown error",
-                        style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
-                        textAlign: TextAlign.end)
-                    : Container(height: 0)
-              ]);
-            });
+           return Column(
+             crossAxisAlignment: CrossAxisAlignment.end,
+             children: <Widget>[
+               CIDRField(
+                 autoFocus: autoFocus,
+                 focusNode: focusNode,
+                 nextFocusNode: nextFocusNode,
+                 onChanged: onChangedHandler,
+                 textInputAction: textInputAction,
+                 ipController: state._effectiveIPController,
+                 bitsController: state._effectiveBitsController,
+               ),
+               field.hasError
+                   ? Text(
+                     field.errorText ?? "Unknown error",
+                     style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
+                     textAlign: TextAlign.end,
+                   )
+                   : Container(height: 0),
+             ],
+           );
+         },
+       );
 
   final TextEditingController? ipController;
   final TextEditingController? bitsController;

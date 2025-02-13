@@ -23,12 +23,8 @@ import '../components/SiteTitle.dart';
 //TODO: ios is now the problem with connecting screwing our ability to query the hostmap (its a race)
 
 class SiteDetailScreen extends StatefulWidget {
-  const SiteDetailScreen({
-    Key? key,
-    required this.site,
-    this.onChanged,
-    required this.supportsQRScanning,
-  }) : super(key: key);
+  const SiteDetailScreen({Key? key, required this.site, this.onChanged, required this.supportsQRScanning})
+    : super(key: key);
 
   final Site site;
   final Function? onChanged;
@@ -54,21 +50,24 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
       _listHostmap();
     }
 
-    onChange = site.onChange().listen((_) {
-      // TODO: Gross hack... we get site.connected = true to trigger the toggle before the VPN service has started.
-      // If we fetch the hostmap now we'll never get a response. Wait until Nebula is running.
-      if (site.status == 'Connected') {
-        _listHostmap();
-      } else {
-        activeHosts = null;
-        pendingHosts = null;
-      }
+    onChange = site.onChange().listen(
+      (_) {
+        // TODO: Gross hack... we get site.connected = true to trigger the toggle before the VPN service has started.
+        // If we fetch the hostmap now we'll never get a response. Wait until Nebula is running.
+        if (site.status == 'Connected') {
+          _listHostmap();
+        } else {
+          activeHosts = null;
+          pendingHosts = null;
+        }
 
-      setState(() {});
-    }, onError: (err) {
-      setState(() {});
-      Utils.popError(context, "Error", err);
-    });
+        setState(() {});
+      },
+      onError: (err) {
+        setState(() {});
+        Utils.popError(context, "Error", err);
+      },
+    );
 
     super.initState();
   }
@@ -84,27 +83,33 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
     final title = SiteTitle(site: widget.site);
 
     return SimplePage(
-        title: title,
-        leadingAction: Utils.leadingBackWidget(context, onPressed: () {
+      title: title,
+      leadingAction: Utils.leadingBackWidget(
+        context,
+        onPressed: () {
           if (changed && widget.onChanged != null) {
             widget.onChanged!();
           }
           Navigator.pop(context);
-        }),
-        refreshController: refreshController,
-        onRefresh: () async {
-          if (site.connected && site.status == "Connected") {
-            await _listHostmap();
-          }
-          refreshController.refreshCompleted();
         },
-        child: Column(children: [
+      ),
+      refreshController: refreshController,
+      onRefresh: () async {
+        if (site.connected && site.status == "Connected") {
+          await _listHostmap();
+        }
+        refreshController.refreshCompleted();
+      },
+      child: Column(
+        children: [
           _buildErrors(),
           _buildConfig(),
           site.connected ? _buildHosts() : Container(),
           _buildSiteDetails(),
           _buildDelete(),
-        ]));
+        ],
+      ),
+    );
   }
 
   Widget _buildErrors() {
@@ -114,8 +119,12 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
 
     List<Widget> items = [];
     site.errors.forEach((error) {
-      items.add(ConfigItem(
-          labelWidth: 0, content: Padding(padding: EdgeInsets.symmetric(vertical: 10), child: SelectableText(error))));
+      items.add(
+        ConfigItem(
+          labelWidth: 0,
+          content: Padding(padding: EdgeInsets.symmetric(vertical: 10), child: SelectableText(error)),
+        ),
+      );
     });
 
     return ConfigSection(
@@ -140,29 +149,38 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
       }
     }
 
-    return ConfigSection(children: <Widget>[
-      ConfigItem(
+    return ConfigSection(
+      children: <Widget>[
+        ConfigItem(
           label: Text('Status'),
-          content: Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
-            Padding(
+          content: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Padding(
                 padding: EdgeInsets.only(right: 5),
-                child: Text(widget.site.status,
-                    style: TextStyle(color: CupertinoColors.secondaryLabel.resolveFrom(context)))),
-            Switch.adaptive(
-              value: widget.site.connected,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              onChanged: widget.site.errors.length > 0 && !widget.site.connected ? null : handleChange,
-            )
-          ])),
-      ConfigPageItem(
-        label: Text('Logs'),
-        onPressed: () {
-          Utils.openPage(context, (context) {
-            return SiteLogsScreen(site: widget.site);
-          });
-        },
-      ),
-    ]);
+                child: Text(
+                  widget.site.status,
+                  style: TextStyle(color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+                ),
+              ),
+              Switch.adaptive(
+                value: widget.site.connected,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                onChanged: widget.site.errors.length > 0 && !widget.site.connected ? null : handleChange,
+              ),
+            ],
+          ),
+        ),
+        ConfigPageItem(
+          label: Text('Logs'),
+          onPressed: () {
+            Utils.openPage(context, (context) {
+              return SiteLogsScreen(site: widget.site);
+            });
+          },
+        ),
+      ],
+    );
   }
 
   Widget _buildHosts() {
@@ -184,83 +202,92 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
       label: "TUNNELS",
       children: <Widget>[
         ConfigPageItem(
-            onPressed: () {
-              if (activeHosts == null) return;
+          onPressed: () {
+            if (activeHosts == null) return;
 
-              Utils.openPage(
-                  context,
-                  (context) => SiteTunnelsScreen(
-                        pending: false,
-                        tunnels: activeHosts!,
-                        site: site,
-                        onChanged: (hosts) {
-                          setState(() {
-                            activeHosts = hosts;
-                          });
-                        },
-                        supportsQRScanning: widget.supportsQRScanning,
-                      ));
-            },
-            label: Text("Active"),
-            content: Container(alignment: Alignment.centerRight, child: active)),
+            Utils.openPage(
+              context,
+              (context) => SiteTunnelsScreen(
+                pending: false,
+                tunnels: activeHosts!,
+                site: site,
+                onChanged: (hosts) {
+                  setState(() {
+                    activeHosts = hosts;
+                  });
+                },
+                supportsQRScanning: widget.supportsQRScanning,
+              ),
+            );
+          },
+          label: Text("Active"),
+          content: Container(alignment: Alignment.centerRight, child: active),
+        ),
         ConfigPageItem(
-            onPressed: () {
-              if (pendingHosts == null) return;
+          onPressed: () {
+            if (pendingHosts == null) return;
 
-              Utils.openPage(
-                  context,
-                  (context) => SiteTunnelsScreen(
-                        pending: true,
-                        tunnels: pendingHosts!,
-                        site: site,
-                        onChanged: (hosts) {
-                          setState(() {
-                            pendingHosts = hosts;
-                          });
-                        },
-                        supportsQRScanning: widget.supportsQRScanning,
-                      ));
-            },
-            label: Text("Pending"),
-            content: Container(alignment: Alignment.centerRight, child: pending))
+            Utils.openPage(
+              context,
+              (context) => SiteTunnelsScreen(
+                pending: true,
+                tunnels: pendingHosts!,
+                site: site,
+                onChanged: (hosts) {
+                  setState(() {
+                    pendingHosts = hosts;
+                  });
+                },
+                supportsQRScanning: widget.supportsQRScanning,
+              ),
+            );
+          },
+          label: Text("Pending"),
+          content: Container(alignment: Alignment.centerRight, child: pending),
+        ),
       ],
     );
   }
 
   Widget _buildSiteDetails() {
-    return ConfigSection(children: <Widget>[
-      ConfigPageItem(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        content: Text('Configuration'),
-        onPressed: () {
-          Utils.openPage(context, (context) {
-            return SiteConfigScreen(
-              site: widget.site,
-              onSave: (site) async {
-                changed = true;
-                setState(() {});
-              },
-              supportsQRScanning: widget.supportsQRScanning,
-            );
-          });
-        },
-      ),
-    ]);
+    return ConfigSection(
+      children: <Widget>[
+        ConfigPageItem(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          content: Text('Configuration'),
+          onPressed: () {
+            Utils.openPage(context, (context) {
+              return SiteConfigScreen(
+                site: widget.site,
+                onSave: (site) async {
+                  changed = true;
+                  setState(() {});
+                },
+                supportsQRScanning: widget.supportsQRScanning,
+              );
+            });
+          },
+        ),
+      ],
+    );
   }
 
   Widget _buildDelete() {
     return Padding(
-        padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
-        child: SizedBox(
-            width: double.infinity,
-            child: DangerButton(
-              child: Text('Delete'),
-              onPressed: () => Utils.confirmDelete(context, 'Delete Site?', () async {
+      padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
+      child: SizedBox(
+        width: double.infinity,
+        child: DangerButton(
+          child: Text('Delete'),
+          onPressed:
+              () => Utils.confirmDelete(context, 'Delete Site?', () async {
                 if (await _deleteSite()) {
                   Navigator.of(context).pop();
                 }
               }),
-            )));
+        ),
+      ),
+    );
   }
 
   _listHostmap() async {

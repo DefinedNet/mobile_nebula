@@ -14,29 +14,28 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final scanWindow = Rect.fromCenter(
-      center: MediaQuery.sizeOf(context).center(Offset.zero),
-      width: 250,
-      height: 250,
-    );
+    final scanWindow = Rect.fromCenter(center: MediaQuery.sizeOf(context).center(Offset.zero), width: 250, height: 250);
 
     return Scaffold(
-        appBar: AppBar(title: const Text('Scan QR')),
-        backgroundColor: Colors.black,
-        body: Stack(fit: StackFit.expand, children: [
+      appBar: AppBar(title: const Text('Scan QR')),
+      backgroundColor: Colors.black,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
           Center(
             child: MobileScanner(
-                fit: BoxFit.contain,
-                controller: cameraController,
-                scanWindow: scanWindow,
-                onDetect: (BarcodeCapture barcodes) {
-                  var barcode = barcodes.barcodes.firstOrNull;
-                  if (barcode != null && mounted) {
-                    cameraController.stop().then((_) {
-                      Navigator.pop(context, barcode.rawValue);
-                    });
-                  }
-                }),
+              fit: BoxFit.contain,
+              controller: cameraController,
+              scanWindow: scanWindow,
+              onDetect: (BarcodeCapture barcodes) {
+                var barcode = barcodes.barcodes.firstOrNull;
+                if (barcode != null && mounted) {
+                  cameraController.stop().then((_) {
+                    Navigator.pop(context, barcode.rawValue);
+                  });
+                }
+              },
+            ),
           ),
           ValueListenableBuilder(
             valueListenable: cameraController,
@@ -45,9 +44,7 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
                 return const SizedBox();
               }
 
-              return CustomPaint(
-                painter: ScannerOverlay(scanWindow: scanWindow),
-              );
+              return CustomPaint(painter: ScannerOverlay(scanWindow: scanWindow));
             },
           ),
           Align(
@@ -63,15 +60,14 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
               ),
             ),
           ),
-        ]));
+        ],
+      ),
+    );
   }
 }
 
 class ScannerOverlay extends CustomPainter {
-  const ScannerOverlay({
-    required this.scanWindow,
-    this.borderRadius = 12.0,
-  });
+  const ScannerOverlay({required this.scanWindow, this.borderRadius = 12.0});
 
   final Rect scanWindow;
   final double borderRadius;
@@ -81,32 +77,30 @@ class ScannerOverlay extends CustomPainter {
     // we need to pass the size to the custom paint widget
     final backgroundPath = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
 
-    final cutoutPath = Path()
-      ..addRRect(
-        RRect.fromRectAndCorners(
-          scanWindow,
-          topLeft: Radius.circular(borderRadius),
-          topRight: Radius.circular(borderRadius),
-          bottomLeft: Radius.circular(borderRadius),
-          bottomRight: Radius.circular(borderRadius),
-        ),
-      );
+    final cutoutPath =
+        Path()..addRRect(
+          RRect.fromRectAndCorners(
+            scanWindow,
+            topLeft: Radius.circular(borderRadius),
+            topRight: Radius.circular(borderRadius),
+            bottomLeft: Radius.circular(borderRadius),
+            bottomRight: Radius.circular(borderRadius),
+          ),
+        );
 
-    final backgroundPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.5)
-      ..style = PaintingStyle.fill
-      ..blendMode = BlendMode.srcOver;
+    final backgroundPaint =
+        Paint()
+          ..color = Colors.black.withValues(alpha: 0.5)
+          ..style = PaintingStyle.fill
+          ..blendMode = BlendMode.srcOver;
 
-    final backgroundWithCutout = Path.combine(
-      PathOperation.difference,
-      backgroundPath,
-      cutoutPath,
-    );
+    final backgroundWithCutout = Path.combine(PathOperation.difference, backgroundPath, cutoutPath);
 
-    final borderPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4.0;
+    final borderPaint =
+        Paint()
+          ..color = Colors.white
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 4.0;
 
     final borderRect = RRect.fromRectAndCorners(
       scanWindow,
@@ -214,14 +208,7 @@ class ToggleFlashlightButton extends StatelessWidget {
               },
             );
           case TorchState.unavailable:
-            return const SizedBox.square(
-              dimension: 48.0,
-              child: Icon(
-                Icons.no_flash,
-                size: 32.0,
-                color: Colors.grey,
-              ),
-            );
+            return const SizedBox.square(dimension: 48.0, child: Icon(Icons.no_flash, size: 32.0, color: Colors.grey));
         }
       },
     );

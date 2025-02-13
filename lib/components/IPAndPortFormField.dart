@@ -24,54 +24,59 @@ class IPAndPortFormField extends FormField<IPAndPort> {
     this.ipController,
     this.portController,
   }) : super(
-            key: key,
-            initialValue: initialValue,
-            onSaved: onSaved,
-            validator: (ipAndPort) {
-              if (ipAndPort == null) {
-                return "Please fill out this field";
-              }
+         key: key,
+         initialValue: initialValue,
+         onSaved: onSaved,
+         validator: (ipAndPort) {
+           if (ipAndPort == null) {
+             return "Please fill out this field";
+           }
 
-              if (!ipValidator(ipAndPort.ip, enableIPV6) && (!ipOnly && !dnsValidator(ipAndPort.ip))) {
-                return ipOnly ? 'Please enter a valid ip address' : 'Please enter a valid ip address or dns name';
-              }
+           if (!ipValidator(ipAndPort.ip, enableIPV6) && (!ipOnly && !dnsValidator(ipAndPort.ip))) {
+             return ipOnly ? 'Please enter a valid ip address' : 'Please enter a valid ip address or dns name';
+           }
 
-              if (ipAndPort.port == null || ipAndPort.port! > 65535 || ipAndPort.port! < 0) {
-                return "Please enter a valid port";
-              }
+           if (ipAndPort.port == null || ipAndPort.port! > 65535 || ipAndPort.port! < 0) {
+             return "Please enter a valid port";
+           }
 
-              return null;
-            },
-            builder: (FormFieldState<IPAndPort> field) {
-              final _IPAndPortFormField state = field as _IPAndPortFormField;
+           return null;
+         },
+         builder: (FormFieldState<IPAndPort> field) {
+           final _IPAndPortFormField state = field as _IPAndPortFormField;
 
-              void onChangedHandler(IPAndPort value) {
-                if (onChanged != null) {
-                  onChanged(value);
-                }
-                field.didChange(value);
-              }
+           void onChangedHandler(IPAndPort value) {
+             if (onChanged != null) {
+               onChanged(value);
+             }
+             field.didChange(value);
+           }
 
-              return Column(children: <Widget>[
-                IPAndPortField(
-                  ipOnly: ipOnly,
-                  ipHelp: ipHelp,
-                  autoFocus: autoFocus,
-                  focusNode: focusNode,
-                  nextFocusNode: nextFocusNode,
-                  onChanged: onChangedHandler,
-                  textInputAction: textInputAction,
-                  ipController: state._effectiveIPController,
-                  portController: state._effectivePortController,
-                  noBorder: noBorder,
-                  ipTextAlign: ipTextAlign,
-                ),
-                field.hasError
-                    ? Text(field.errorText!,
-                        style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13))
-                    : Container(height: 0)
-              ]);
-            });
+           return Column(
+             children: <Widget>[
+               IPAndPortField(
+                 ipOnly: ipOnly,
+                 ipHelp: ipHelp,
+                 autoFocus: autoFocus,
+                 focusNode: focusNode,
+                 nextFocusNode: nextFocusNode,
+                 onChanged: onChangedHandler,
+                 textInputAction: textInputAction,
+                 ipController: state._effectiveIPController,
+                 portController: state._effectivePortController,
+                 noBorder: noBorder,
+                 ipTextAlign: ipTextAlign,
+               ),
+               field.hasError
+                   ? Text(
+                     field.errorText!,
+                     style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
+                   )
+                   : Container(height: 0),
+             ],
+           );
+         },
+       );
 
   final TextEditingController? ipController;
   final TextEditingController? portController;
@@ -109,8 +114,10 @@ class _IPAndPortFormField extends FormFieldState<IPAndPort> {
   @override
   void didUpdateWidget(IPAndPortFormField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    var update =
-        IPAndPort(ip: widget.ipController?.text, port: int.tryParse(widget.portController?.text ?? "") ?? null);
+    var update = IPAndPort(
+      ip: widget.ipController?.text,
+      port: int.tryParse(widget.portController?.text ?? "") ?? null,
+    );
     bool shouldUpdate = false;
 
     if (widget.ipController != oldWidget.ipController) {

@@ -60,20 +60,21 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
       },
       refreshController: refreshController,
       child: Container(
-          padding: EdgeInsets.all(5),
-          constraints: logBoxConstraints(context),
-          child: ListenableBuilder(
-            listenable: logsNotifier,
-            builder: (context, child) => SelectableText(
-                switch (logsNotifier.logsResult) {
-                  Ok<String>(:var value) => value.trim(),
-                  Error<String>(:var error) => error is LogsNotFoundException
+        padding: EdgeInsets.all(5),
+        constraints: logBoxConstraints(context),
+        child: ListenableBuilder(
+          listenable: logsNotifier,
+          builder:
+              (context, child) => SelectableText(switch (logsNotifier.logsResult) {
+                Ok<String>(:var value) => value.trim(),
+                Error<String>(:var error) =>
+                  error is LogsNotFoundException
                       ? error.error()
                       : Utils.popError(context, "Error while reading logs.", error.toString()),
-                  null => "",
-                },
-                style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
-          )),
+                null => "",
+              }, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
+        ),
+      ),
       bottomBar: _buildBottomBar(),
     );
   }
@@ -81,79 +82,80 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
   Widget _buildTextWrapToggle() {
     return Platform.isIOS
         ? Tooltip(
-            message: "Turn ${settings.logWrap ? "off" : "on"} text wrapping",
-            child: CupertinoButton.tinted(
-              // Use the default tint when enabled, match the background when not.
-              color: settings.logWrap ? null : CupertinoColors.systemBackground,
-              sizeStyle: CupertinoButtonSize.small,
-              borderRadius: const BorderRadius.all(Radius.circular(8)),
-              child: const Icon(Icons.wrap_text),
-              onPressed: () => {
+          message: "Turn ${settings.logWrap ? "off" : "on"} text wrapping",
+          child: CupertinoButton.tinted(
+            // Use the default tint when enabled, match the background when not.
+            color: settings.logWrap ? null : CupertinoColors.systemBackground,
+            sizeStyle: CupertinoButtonSize.small,
+            borderRadius: const BorderRadius.all(Radius.circular(8)),
+            child: const Icon(Icons.wrap_text),
+            onPressed:
+                () => {
+                  setState(() {
+                    settings.logWrap = !settings.logWrap;
+                  }),
+                },
+          ),
+        )
+        : IconButton.filledTonal(
+          isSelected: settings.logWrap,
+          tooltip: "Turn ${settings.logWrap ? "off" : "on"} text wrapping",
+          // The variants of wrap_text seem to be the same, but this seems most correct.
+          selectedIcon: const Icon(Icons.wrap_text_outlined),
+          icon: const Icon(Icons.wrap_text),
+          onPressed:
+              () => {
                 setState(() {
                   settings.logWrap = !settings.logWrap;
-                })
+                }),
               },
-            ),
-          )
-        : IconButton.filledTonal(
-            isSelected: settings.logWrap,
-            tooltip: "Turn ${settings.logWrap ? "off" : "on"} text wrapping",
-            // The variants of wrap_text seem to be the same, but this seems most correct.
-            selectedIcon: const Icon(Icons.wrap_text_outlined),
-            icon: const Icon(Icons.wrap_text),
-            onPressed: () => {
-              setState(() {
-                settings.logWrap = !settings.logWrap;
-              })
-            },
-          );
+        );
   }
 
   Widget _buildBottomBar() {
-    var borderSide = BorderSide(
-      color: CupertinoColors.separator,
-      style: BorderStyle.solid,
-      width: 0.0,
-    );
+    var borderSide = BorderSide(color: CupertinoColors.separator, style: BorderStyle.solid, width: 0.0);
 
     var padding = Platform.isAndroid ? EdgeInsets.fromLTRB(0, 20, 0, 30) : EdgeInsets.all(10);
 
     return PlatformWidgetBuilder(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          spacing: 8,
-          children: <Widget>[
-            Tooltip(
-              message: "Share logs",
-              child: PlatformIconButton(
-                icon: Icon(context.platformIcons.share),
-                onPressed: () {
-                  Share.shareFile(context,
-                      title: '${widget.site.name} logs',
-                      filePath: widget.site.logFile,
-                      filename: '${widget.site.name}.log');
-                },
-              ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        spacing: 8,
+        children: <Widget>[
+          Tooltip(
+            message: "Share logs",
+            child: PlatformIconButton(
+              icon: Icon(context.platformIcons.share),
+              onPressed: () {
+                Share.shareFile(
+                  context,
+                  title: '${widget.site.name} logs',
+                  filePath: widget.site.logFile,
+                  filename: '${widget.site.name}.log',
+                );
+              },
             ),
-            Tooltip(
-              message: 'Go to latest',
-              child: PlatformIconButton(
-                icon: Icon(context.platformIcons.downArrow),
-                onPressed: () async {
-                  controller.animateTo(controller.position.maxScrollExtent,
-                      duration: const Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
-                },
-              ),
+          ),
+          Tooltip(
+            message: 'Go to latest',
+            child: PlatformIconButton(
+              icon: Icon(context.platformIcons.downArrow),
+              onPressed: () async {
+                controller.animateTo(
+                  controller.position.maxScrollExtent,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.linearToEaseOut,
+                );
+              },
             ),
-          ],
-        ),
-        cupertino: (context, child, platform) => Container(
-            decoration: BoxDecoration(
-              border: Border(top: borderSide),
-            ),
-            padding: padding,
-            child: child),
-        material: (context, child, platform) => BottomAppBar(child: child));
+          ),
+        ],
+      ),
+      cupertino:
+          (context, child, platform) =>
+              Container(decoration: BoxDecoration(border: Border(top: borderSide)), padding: padding, child: child),
+      material: (context, child, platform) => BottomAppBar(child: child),
+    );
   }
 
   logBoxConstraints(BuildContext context) {

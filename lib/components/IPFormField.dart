@@ -25,52 +25,57 @@ class IPFormField extends FormField<String> {
     crossAxisAlignment = CrossAxisAlignment.center,
     textAlign = TextAlign.center,
   }) : super(
-            key: key,
-            initialValue: initialValue,
-            onSaved: onSaved,
-            validator: (ip) {
-              if (ip == null || ip == "") {
-                return "Please fill out this field";
-              }
+         key: key,
+         initialValue: initialValue,
+         onSaved: onSaved,
+         validator: (ip) {
+           if (ip == null || ip == "") {
+             return "Please fill out this field";
+           }
 
-              if (!ipValidator(ip, enableIPV6) || (!ipOnly && !dnsValidator(ip))) {
-                print(ip);
-                return ipOnly ? 'Please enter a valid ip address' : 'Please enter a valid ip address or dns name';
-              }
+           if (!ipValidator(ip, enableIPV6) || (!ipOnly && !dnsValidator(ip))) {
+             print(ip);
+             return ipOnly ? 'Please enter a valid ip address' : 'Please enter a valid ip address or dns name';
+           }
 
-              return null;
-            },
-            builder: (FormFieldState<String> field) {
-              final _IPFormField state = field as _IPFormField;
+           return null;
+         },
+         builder: (FormFieldState<String> field) {
+           final _IPFormField state = field as _IPFormField;
 
-              void onChangedHandler(String value) {
-                if (onChanged != null) {
-                  onChanged(value);
-                }
-                field.didChange(value);
-              }
+           void onChangedHandler(String value) {
+             if (onChanged != null) {
+               onChanged(value);
+             }
+             field.didChange(value);
+           }
 
-              return Column(crossAxisAlignment: crossAxisAlignment, children: <Widget>[
-                IPField(
-                    ipOnly: ipOnly,
-                    help: help,
-                    autoFocus: autoFocus,
-                    focusNode: focusNode,
-                    nextFocusNode: nextFocusNode,
-                    onChanged: onChangedHandler,
-                    textPadding: textPadding,
-                    textInputAction: textInputAction,
-                    controller: state._effectiveController,
-                    textAlign: textAlign),
-                field.hasError
-                    ? Text(
-                        field.errorText!,
-                        style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
-                        textAlign: textAlign,
-                      )
-                    : Container(height: 0)
-              ]);
-            });
+           return Column(
+             crossAxisAlignment: crossAxisAlignment,
+             children: <Widget>[
+               IPField(
+                 ipOnly: ipOnly,
+                 help: help,
+                 autoFocus: autoFocus,
+                 focusNode: focusNode,
+                 nextFocusNode: nextFocusNode,
+                 onChanged: onChangedHandler,
+                 textPadding: textPadding,
+                 textInputAction: textInputAction,
+                 controller: state._effectiveController,
+                 textAlign: textAlign,
+               ),
+               field.hasError
+                   ? Text(
+                     field.errorText!,
+                     style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
+                     textAlign: textAlign,
+                   )
+                   : Container(height: 0),
+             ],
+           );
+         },
+       );
 
   final TextEditingController? controller;
 

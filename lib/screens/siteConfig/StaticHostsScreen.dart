@@ -18,20 +18,11 @@ class _Hostmap {
   List<IPAndPort> destinations;
   bool lighthouse;
 
-  _Hostmap({
-    required this.focusNode,
-    required this.nebulaIp,
-    required this.destinations,
-    required this.lighthouse,
-  });
+  _Hostmap({required this.focusNode, required this.nebulaIp, required this.destinations, required this.lighthouse});
 }
 
 class StaticHostsScreen extends StatefulWidget {
-  const StaticHostsScreen({
-    Key? key,
-    required this.hostmap,
-    required this.onSave,
-  }) : super(key: key);
+  const StaticHostsScreen({Key? key, required this.hostmap, required this.onSave}) : super(key: key);
 
   final Map<String, StaticHost> hostmap;
   final ValueChanged<Map<String, StaticHost>>? onSave;
@@ -47,8 +38,12 @@ class _StaticHostsScreenState extends State<StaticHostsScreen> {
   @override
   void initState() {
     widget.hostmap.forEach((key, map) {
-      _hostmap[UniqueKey()] =
-          _Hostmap(focusNode: FocusNode(), nebulaIp: key, destinations: map.destinations, lighthouse: map.lighthouse);
+      _hostmap[UniqueKey()] = _Hostmap(
+        focusNode: FocusNode(),
+        nebulaIp: key,
+        destinations: map.destinations,
+        lighthouse: map.lighthouse,
+      );
     });
 
     super.initState();
@@ -57,12 +52,11 @@ class _StaticHostsScreenState extends State<StaticHostsScreen> {
   @override
   Widget build(BuildContext context) {
     return FormPage(
-        title: 'Static Hosts',
-        changed: changed,
-        onSave: _onSave,
-        child: ConfigSection(
-          children: _buildHosts(),
-        ));
+      title: 'Static Hosts',
+      changed: changed,
+      onSave: _onSave,
+      child: ConfigSection(children: _buildHosts()),
+    );
   }
 
   _onSave() {
@@ -81,59 +75,73 @@ class _StaticHostsScreenState extends State<StaticHostsScreen> {
     final double ipWidth = Utils.textSize("000.000.000.000", CupertinoTheme.of(context).textTheme.textStyle).width + 32;
     List<Widget> items = [];
     _hostmap.forEach((key, host) {
-      items.add(ConfigPageItem(
-        label: Row(children: <Widget>[
-          Padding(
-              child: Icon(host.lighthouse ? Icons.lightbulb_outline : Icons.computer,
-                  color: CupertinoColors.placeholderText.resolveFrom(context)),
-              padding: EdgeInsets.only(right: 10)),
-          Text(host.nebulaIp),
-        ]),
-        labelWidth: ipWidth,
-        content: Text(host.destinations.length.toString() + ' items', textAlign: TextAlign.end),
-        onPressed: () {
-          Utils.openPage(context, (context) {
-            return StaticHostmapScreen(
+      items.add(
+        ConfigPageItem(
+          label: Row(
+            children: <Widget>[
+              Padding(
+                child: Icon(
+                  host.lighthouse ? Icons.lightbulb_outline : Icons.computer,
+                  color: CupertinoColors.placeholderText.resolveFrom(context),
+                ),
+                padding: EdgeInsets.only(right: 10),
+              ),
+              Text(host.nebulaIp),
+            ],
+          ),
+          labelWidth: ipWidth,
+          content: Text(host.destinations.length.toString() + ' items', textAlign: TextAlign.end),
+          onPressed: () {
+            Utils.openPage(context, (context) {
+              return StaticHostmapScreen(
                 nebulaIp: host.nebulaIp,
                 destinations: host.destinations,
                 lighthouse: host.lighthouse,
-                onSave: widget.onSave == null
-                    ? null
-                    : (map) {
-                        setState(() {
-                          changed = true;
-                          host.nebulaIp = map.nebulaIp;
-                          host.destinations = map.destinations;
-                          host.lighthouse = map.lighthouse;
-                        });
-                      },
-                onDelete: widget.onSave == null
-                    ? null
-                    : () {
-                        setState(() {
-                          changed = true;
-                          _hostmap.remove(key);
-                        });
-                      });
-          });
-        },
-      ));
+                onSave:
+                    widget.onSave == null
+                        ? null
+                        : (map) {
+                          setState(() {
+                            changed = true;
+                            host.nebulaIp = map.nebulaIp;
+                            host.destinations = map.destinations;
+                            host.lighthouse = map.lighthouse;
+                          });
+                        },
+                onDelete:
+                    widget.onSave == null
+                        ? null
+                        : () {
+                          setState(() {
+                            changed = true;
+                            _hostmap.remove(key);
+                          });
+                        },
+              );
+            });
+          },
+        ),
+      );
     });
 
     if (widget.onSave != null) {
-      items.add(ConfigButtonItem(
-        content: Text('Add a new entry'),
-        onPressed: () {
-          Utils.openPage(context, (context) {
-            return StaticHostmapScreen(onSave: (map) {
-              setState(() {
-                changed = true;
-                _addHostmap(map);
-              });
+      items.add(
+        ConfigButtonItem(
+          content: Text('Add a new entry'),
+          onPressed: () {
+            Utils.openPage(context, (context) {
+              return StaticHostmapScreen(
+                onSave: (map) {
+                  setState(() {
+                    changed = true;
+                    _addHostmap(map);
+                  });
+                },
+              );
             });
-          });
-        },
-      ));
+          },
+        ),
+      );
     }
 
     return items;
@@ -141,7 +149,11 @@ class _StaticHostsScreenState extends State<StaticHostsScreen> {
 
   _addHostmap(Hostmap map) {
     _hostmap[UniqueKey()] = (_Hostmap(
-        focusNode: FocusNode(), nebulaIp: map.nebulaIp, destinations: map.destinations, lighthouse: map.lighthouse));
+      focusNode: FocusNode(),
+      nebulaIp: map.nebulaIp,
+      destinations: map.destinations,
+      lighthouse: map.lighthouse,
+    ));
   }
 
   @override

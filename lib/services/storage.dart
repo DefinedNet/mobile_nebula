@@ -20,11 +20,14 @@ class Storage {
 
     var completer = Completer<List<FileSystemEntity>>();
 
-    Directory(parent).list().listen((FileSystemEntity entity) {
-      list.add(entity);
-    }).onDone(() {
-      completer.complete(list);
-    });
+    Directory(parent)
+        .list()
+        .listen((FileSystemEntity entity) {
+          list.add(entity);
+        })
+        .onDone(() {
+          completer.complete(list);
+        });
 
     return completer.future;
   }

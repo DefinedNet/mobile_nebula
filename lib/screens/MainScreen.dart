@@ -115,11 +115,7 @@ class _MainScreenState extends State<MainScreen> {
 
     if (kDebugMode) {
       debugSite = Row(
-        children: [
-          _debugSave(badDebugSave),
-          _debugSave(goodDebugSave),
-          _debugClearKeys(),
-        ],
+        children: [_debugSave(badDebugSave), _debugSave(goodDebugSave), _debugClearKeys()],
         mainAxisAlignment: MainAxisAlignment.center,
       );
     }
@@ -141,13 +137,15 @@ class _MainScreenState extends State<MainScreen> {
       leadingAction: PlatformIconButton(
         padding: EdgeInsets.zero,
         icon: Icon(Icons.add, size: 28.0),
-        onPressed: () => Utils.openPage(context, (context) {
-          return SiteConfigScreen(
-              onSave: (_) {
-                _loadSites();
-              },
-              supportsQRScanning: supportsQRScanning);
-        }),
+        onPressed:
+            () => Utils.openPage(context, (context) {
+              return SiteConfigScreen(
+                onSave: (_) {
+                  _loadSites();
+                },
+                supportsQRScanning: supportsQRScanning,
+              );
+            }),
       ),
       refreshController: refreshController,
       onRefresh: () {
@@ -169,13 +167,15 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildBody() {
     if (error != null) {
       return Center(
-          child: Padding(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: error!,
-              ),
-              padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10)));
+        child: Padding(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: error!,
+          ),
+          padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+        ),
+      );
     }
 
     return _buildSites();
@@ -183,19 +183,22 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildNoSites() {
     return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Center(
-          child: Column(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 8.0),
-                child: Text('Welcome to Nebula!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-              ),
-              Text('You don\'t have any site configurations installed yet. Hit the plus button above to get started.',
-                  textAlign: TextAlign.center),
-            ],
-          ),
-        ));
+      padding: const EdgeInsets.all(8.0),
+      child: Center(
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 8.0),
+              child: Text('Welcome to Nebula!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+            ),
+            Text(
+              'You don\'t have any site configurations installed yet. Hit the plus button above to get started.',
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildSites() {
@@ -205,7 +208,8 @@ class _MainScreenState extends State<MainScreen> {
 
     List<Widget> items = [];
     sites!.forEach((site) {
-      items.add(SiteItem(
+      items.add(
+        SiteItem(
           key: Key(site.id),
           site: site,
           onPressed: () {
@@ -216,41 +220,44 @@ class _MainScreenState extends State<MainScreen> {
                 supportsQRScanning: supportsQRScanning,
               );
             });
-          }));
+          },
+        ),
+      );
     });
 
     Widget child = ReorderableListView(
-        shrinkWrap: true,
-        scrollController: scrollController,
-        padding: EdgeInsets.symmetric(vertical: 5),
-        children: items,
-        onReorder: (oldI, newI) async {
-          if (oldI < newI) {
-            // removing the item at oldIndex will shorten the list by 1.
-            newI -= 1;
-          }
+      shrinkWrap: true,
+      scrollController: scrollController,
+      padding: EdgeInsets.symmetric(vertical: 5),
+      children: items,
+      onReorder: (oldI, newI) async {
+        if (oldI < newI) {
+          // removing the item at oldIndex will shorten the list by 1.
+          newI -= 1;
+        }
 
-          setState(() {
-            final Site moved = sites!.removeAt(oldI);
-            sites!.insert(newI, moved);
-          });
-
-          for (var i = 0; i < sites!.length; i++) {
-            if (sites![i].sortKey == i) {
-              continue;
-            }
-
-            sites![i].sortKey = i;
-            try {
-              await sites![i].save();
-            } catch (err) {
-              //TODO: display error at the end
-              print('ERR ${sites![i].name} - $err');
-            }
-          }
-
-          _loadSites();
+        setState(() {
+          final Site moved = sites!.removeAt(oldI);
+          sites!.insert(newI, moved);
         });
+
+        for (var i = 0; i < sites!.length; i++) {
+          if (sites![i].sortKey == i) {
+            continue;
+          }
+
+          sites![i].sortKey = i;
+          try {
+            await sites![i].save();
+          } catch (err) {
+            //TODO: display error at the end
+            print('ERR ${sites![i].name} - $err');
+          }
+        }
+
+        _loadSites();
+      },
+    );
 
     if (Platform.isIOS) {
       child = CupertinoTheme(child: child, data: CupertinoTheme.of(context));
@@ -267,16 +274,18 @@ class _MainScreenState extends State<MainScreen> {
         var uuid = Uuid();
 
         var s = Site(
-            name: siteConfig['name']!,
-            id: uuid.v4(),
-            staticHostmap: {
-              "10.1.0.1": StaticHost(
-                  lighthouse: true,
-                  destinations: [IPAndPort(ip: '10.1.1.53', port: 4242), IPAndPort(ip: '1::1', port: 4242)])
-            },
-            ca: [CertificateInfo.debug(rawCert: siteConfig['ca'])],
-            certInfo: CertificateInfo.debug(rawCert: siteConfig['cert']),
-            unsafeRoutes: [UnsafeRoute(route: '10.3.3.3/32', via: '10.1.0.1')]);
+          name: siteConfig['name']!,
+          id: uuid.v4(),
+          staticHostmap: {
+            "10.1.0.1": StaticHost(
+              lighthouse: true,
+              destinations: [IPAndPort(ip: '10.1.1.53', port: 4242), IPAndPort(ip: '1::1', port: 4242)],
+            ),
+          },
+          ca: [CertificateInfo.debug(rawCert: siteConfig['ca'])],
+          certInfo: CertificateInfo.debug(rawCert: siteConfig['cert']),
+          unsafeRoutes: [UnsafeRoute(route: '10.3.3.3/32', via: '10.1.0.1')],
+        );
 
         s.key = siteConfig['key'];
 
@@ -309,14 +318,17 @@ class _MainScreenState extends State<MainScreen> {
         var site = Site.fromJson(rawSite);
 
         //TODO: we need to cancel change listeners when we rebuild
-        site.onChange().listen((_) {
-          setState(() {});
-        }, onError: (err) {
-          setState(() {});
-          if (ModalRoute.of(context)!.isCurrent) {
-            Utils.popError(context, "${site.name} Error", err);
-          }
-        });
+        site.onChange().listen(
+          (_) {
+            setState(() {});
+          },
+          onError: (err) {
+            setState(() {});
+            if (ModalRoute.of(context)!.isCurrent) {
+              Utils.popError(context, "${site.name} Error", err);
+            }
+          },
+        );
 
         sites!.add(site);
       } catch (err) {

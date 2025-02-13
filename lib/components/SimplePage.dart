@@ -2,29 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-enum SimpleScrollable {
-  none,
-  vertical,
-  horizontal,
-  both,
-}
+enum SimpleScrollable { none, vertical, horizontal, both }
 
 class SimplePage extends StatelessWidget {
-  const SimplePage(
-      {Key? key,
-      required this.title,
-      required this.child,
-      this.leadingAction,
-      this.trailingActions = const [],
-      this.scrollable = SimpleScrollable.vertical,
-      this.scrollbar = true,
-      this.scrollController,
-      this.bottomBar,
-      this.onRefresh,
-      this.onLoading,
-      this.alignment,
-      this.refreshController})
-      : super(key: key);
+  const SimplePage({
+    Key? key,
+    required this.title,
+    required this.child,
+    this.leadingAction,
+    this.trailingActions = const [],
+    this.scrollable = SimpleScrollable.vertical,
+    this.scrollbar = true,
+    this.scrollController,
+    this.bottomBar,
+    this.onRefresh,
+    this.onLoading,
+    this.alignment,
+    this.refreshController,
+  }) : super(key: key);
 
   final Widget title;
   final Widget child;
@@ -52,9 +47,10 @@ class SimplePage extends StatelessWidget {
 
     if (scrollable == SimpleScrollable.vertical || scrollable == SimpleScrollable.both) {
       realChild = SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: realChild,
-          controller: refreshController == null ? scrollController : null);
+        scrollDirection: Axis.vertical,
+        child: realChild,
+        controller: refreshController == null ? scrollController : null,
+      );
       addScrollbar = true;
     }
 
@@ -65,19 +61,20 @@ class SimplePage extends StatelessWidget {
 
     if (refreshController != null) {
       realChild = RefreshConfiguration(
-          headerTriggerDistance: 100,
-          footerTriggerDistance: -100,
-          maxUnderScrollExtent: 100,
-          child: SmartRefresher(
-            scrollController: scrollController,
-            onRefresh: onRefresh,
-            onLoading: onLoading,
-            controller: refreshController!,
-            child: realChild,
-            enablePullUp: onLoading != null,
-            enablePullDown: onRefresh != null,
-            footer: ClassicFooter(loadStyle: LoadStyle.ShowWhenLoading),
-          ));
+        headerTriggerDistance: 100,
+        footerTriggerDistance: -100,
+        maxUnderScrollExtent: 100,
+        child: SmartRefresher(
+          scrollController: scrollController,
+          onRefresh: onRefresh,
+          onLoading: onLoading,
+          controller: refreshController!,
+          child: realChild,
+          enablePullUp: onLoading != null,
+          enablePullDown: onRefresh != null,
+          footer: ClassicFooter(loadStyle: LoadStyle.ShowWhenLoading),
+        ),
+      );
       addScrollbar = true;
     }
 
@@ -90,24 +87,24 @@ class SimplePage extends StatelessWidget {
     }
 
     if (bottomBar != null) {
-      realChild = Column(children: [
-        Expanded(child: realChild),
-        bottomBar!,
-      ]);
+      realChild = Column(children: [Expanded(child: realChild), bottomBar!]);
     }
 
     return PlatformScaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        appBar: PlatformAppBar(
-          title: title,
-          leading: leadingAction,
-          trailingActions: trailingActions,
-          cupertino: (_, __) => CupertinoNavigationBarData(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: PlatformAppBar(
+        title: title,
+        leading: leadingAction,
+        trailingActions: trailingActions,
+        cupertino:
+            (_, __) => CupertinoNavigationBarData(
               transitionBetweenRoutes: false,
               // TODO: set title on route, show here instead of just "Back"
               previousPageTitle: 'Back',
-              padding: EdgeInsetsDirectional.only(end: 8.0)),
-        ),
-        body: SafeArea(child: realChild));
+              padding: EdgeInsetsDirectional.only(end: 8.0),
+            ),
+      ),
+      body: SafeArea(child: realChild),
+    );
   }
 }

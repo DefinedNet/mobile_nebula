@@ -53,49 +53,66 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
     final title = widget.pending ? 'Pending' : 'Active';
 
     return SimplePage(
-        title: Text('$title Host Info'),
-        refreshController: refreshController,
-        onRefresh: () async {
-          await _getHostInfo();
-          refreshController.refreshCompleted();
-        },
-        child: Column(
-            children: [_buildMain(), _buildDetails(), _buildRemotes(), !widget.pending ? _buildClose() : Container()]));
+      title: Text('$title Host Info'),
+      refreshController: refreshController,
+      onRefresh: () async {
+        await _getHostInfo();
+        refreshController.refreshCompleted();
+      },
+      child: Column(
+        children: [_buildMain(), _buildDetails(), _buildRemotes(), !widget.pending ? _buildClose() : Container()],
+      ),
+    );
   }
 
   Widget _buildMain() {
-    return ConfigSection(children: [
-      ConfigItem(label: Text('VPN IP'), labelWidth: 150, content: SelectableText(hostInfo.vpnIp)),
-      hostInfo.cert != null
-          ? ConfigPageItem(
+    return ConfigSection(
+      children: [
+        ConfigItem(label: Text('VPN IP'), labelWidth: 150, content: SelectableText(hostInfo.vpnIp)),
+        hostInfo.cert != null
+            ? ConfigPageItem(
               label: Text('Certificate'),
               labelWidth: 150,
               content: Text(hostInfo.cert!.details.name),
-              onPressed: () => Utils.openPage(
-                  context,
-                  (context) => CertificateDetailsScreen(
-                        certInfo: CertificateInfo(cert: hostInfo.cert!),
-                        supportsQRScanning: widget.supportsQRScanning,
-                      )))
-          : Container(),
-    ]);
+              onPressed:
+                  () => Utils.openPage(
+                    context,
+                    (context) => CertificateDetailsScreen(
+                      certInfo: CertificateInfo(cert: hostInfo.cert!),
+                      supportsQRScanning: widget.supportsQRScanning,
+                    ),
+                  ),
+            )
+            : Container(),
+      ],
+    );
   }
 
   Widget _buildDetails() {
-    return ConfigSection(children: <Widget>[
-      ConfigItem(
-          label: Text('Lighthouse'), labelWidth: 150, content: SelectableText(widget.isLighthouse ? 'Yes' : 'No')),
-      ConfigItem(label: Text('Local Index'), labelWidth: 150, content: SelectableText('${hostInfo.localIndex}')),
-      ConfigItem(label: Text('Remote Index'), labelWidth: 150, content: SelectableText('${hostInfo.remoteIndex}')),
-      ConfigItem(
-          label: Text('Message Counter'), labelWidth: 150, content: SelectableText('${hostInfo.messageCounter}')),
-    ]);
+    return ConfigSection(
+      children: <Widget>[
+        ConfigItem(
+          label: Text('Lighthouse'),
+          labelWidth: 150,
+          content: SelectableText(widget.isLighthouse ? 'Yes' : 'No'),
+        ),
+        ConfigItem(label: Text('Local Index'), labelWidth: 150, content: SelectableText('${hostInfo.localIndex}')),
+        ConfigItem(label: Text('Remote Index'), labelWidth: 150, content: SelectableText('${hostInfo.remoteIndex}')),
+        ConfigItem(
+          label: Text('Message Counter'),
+          labelWidth: 150,
+          content: SelectableText('${hostInfo.messageCounter}'),
+        ),
+      ],
+    );
   }
 
   Widget _buildRemotes() {
     if (hostInfo.remoteAddresses.length == 0) {
       return ConfigSection(
-          label: 'REMOTES', children: [ConfigItem(content: Text('No remote addresses yet'), labelWidth: 0)]);
+        label: 'REMOTES',
+        children: [ConfigItem(content: Text('No remote addresses yet'), labelWidth: 0)],
+      );
     }
 
     return widget.pending ? _buildStaticRemotes() : _buildEditRemotes();
@@ -109,26 +126,28 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
 
     hostInfo.remoteAddresses.forEach((remoteObj) {
       String remote = remoteObj.toString();
-      items.add(ConfigCheckboxItem(
-        key: Key(remote),
-        label: Text(remote), //TODO: need to do something to adjust the font size in the event we have an ipv6 address
-        labelWidth: ipWidth,
-        checked: currentRemote == remote,
-        onChanged: () async {
-          if (remote == currentRemote) {
-            return;
-          }
-
-          try {
-            final h = await widget.site.setRemoteForTunnel(hostInfo.vpnIp, remote);
-            if (h != null) {
-              _setHostInfo(h);
+      items.add(
+        ConfigCheckboxItem(
+          key: Key(remote),
+          label: Text(remote), //TODO: need to do something to adjust the font size in the event we have an ipv6 address
+          labelWidth: ipWidth,
+          checked: currentRemote == remote,
+          onChanged: () async {
+            if (remote == currentRemote) {
+              return;
             }
-          } catch (err) {
-            Utils.popError(context, 'Error while changing the remote', err.toString());
-          }
-        },
-      ));
+
+            try {
+              final h = await widget.site.setRemoteForTunnel(hostInfo.vpnIp, remote);
+              if (h != null) {
+                _setHostInfo(h);
+              }
+            } catch (err) {
+              Utils.popError(context, 'Error while changing the remote', err.toString());
+            }
+          },
+        ),
+      );
     });
 
     return ConfigSection(label: items.length > 0 ? 'Tap to change the active address' : null, children: items);
@@ -142,12 +161,14 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
 
     hostInfo.remoteAddresses.forEach((remoteObj) {
       String remote = remoteObj.toString();
-      items.add(ConfigCheckboxItem(
-        key: Key(remote),
-        label: Text(remote), //TODO: need to do something to adjust the font size in the event we have an ipv6 address
-        labelWidth: ipWidth,
-        checked: currentRemote == remote,
-      ));
+      items.add(
+        ConfigCheckboxItem(
+          key: Key(remote),
+          label: Text(remote), //TODO: need to do something to adjust the font size in the event we have an ipv6 address
+          labelWidth: ipWidth,
+          checked: currentRemote == remote,
+        ),
+      );
     });
 
     return ConfigSection(label: items.length > 0 ? 'REMOTES' : null, children: items);
@@ -155,22 +176,26 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
 
   Widget _buildClose() {
     return Padding(
-        padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
-        child: SizedBox(
-            width: double.infinity,
-            child: DangerButton(
-                child: Text('Close Tunnel'),
-                onPressed: () => Utils.confirmDelete(context, 'Close Tunnel?', () async {
-                      try {
-                        await widget.site.closeTunnel(hostInfo.vpnIp);
-                        if (widget.onChanged != null) {
-                          widget.onChanged!();
-                        }
-                        Navigator.pop(context);
-                      } catch (err) {
-                        Utils.popError(context, 'Error while trying to close the tunnel', err.toString());
-                      }
-                    }, deleteLabel: 'Close'))));
+      padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
+      child: SizedBox(
+        width: double.infinity,
+        child: DangerButton(
+          child: Text('Close Tunnel'),
+          onPressed:
+              () => Utils.confirmDelete(context, 'Close Tunnel?', () async {
+                try {
+                  await widget.site.closeTunnel(hostInfo.vpnIp);
+                  if (widget.onChanged != null) {
+                    widget.onChanged!();
+                  }
+                  Navigator.pop(context);
+                } catch (err) {
+                  Utils.popError(context, 'Error while trying to close the tunnel', err.toString());
+                }
+              }, deleteLabel: 'Close'),
+        ),
+      ),
+    );
   }
 
   _getHostInfo() async {

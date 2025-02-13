@@ -14,17 +14,17 @@ class SiteTitle extends StatelessWidget {
         Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
 
     return IntrinsicWidth(
-        child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Row(children: [
-              site.managed
-                  ? Padding(padding: EdgeInsets.only(right: 10), child: SvgPicture.asset(dnIcon, width: 12))
-                  : Container(),
-              Expanded(
-                  child: Text(
-                site.name,
-                overflow: TextOverflow.ellipsis,
-              ))
-            ])));
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            site.managed
+                ? Padding(padding: EdgeInsets.only(right: 10), child: SvgPicture.asset(dnIcon, width: 12))
+                : Container(),
+            Expanded(child: Text(site.name, overflow: TextOverflow.ellipsis)),
+          ],
+        ),
+      ),
+    );
   }
 }
