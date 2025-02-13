@@ -49,6 +49,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
 
   static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
 
+  @override
   void initState() {
     code = widget.code;
     super.initState();
@@ -94,27 +95,30 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       } else {
         // No code, show the error
         child = Padding(
+          padding: EdgeInsets.only(top: 20),
           child: Center(
             child: Text(
               'No valid enrollment code was found.\n\nContact your administrator to obtain a new enrollment code.',
               textAlign: TextAlign.center,
             ),
           ),
-          padding: EdgeInsets.only(top: 20),
         );
       }
-    } else if (this.error != null) {
+    } else if (error != null) {
       // Error while enrolling, display it
       child = Center(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: SelectableText(
                 'There was an issue while attempting to enroll this device. Contact your administrator to obtain a new enrollment code.',
               ),
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             ),
             Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: SelectableText.rich(
                 TextSpan(
                   children: [
@@ -134,22 +138,19 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                   ],
                 ),
               ),
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             ),
             Container(
-              child: Padding(child: SelectableText(this.error!), padding: EdgeInsets.all(16)),
               color: Theme.of(context).colorScheme.errorContainer,
+              child: Padding(padding: EdgeInsets.all(16), child: SelectableText(error!)),
             ),
           ],
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
         ),
       );
-    } else if (this.enrolled) {
+    } else if (enrolled) {
       // Enrollment complete!
       child = Padding(
-        child: Center(child: Text('Enrollment complete! 🎉', textAlign: TextAlign.center)),
         padding: EdgeInsets.only(top: 20),
+        child: Center(child: Text('Enrollment complete! 🎉', textAlign: TextAlign.center)),
       );
     } else {
       // Have a code and actively enrolling
@@ -157,7 +158,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       child = Center(
         child: Column(
           children: [
-            Padding(child: Text('Contacting DN for enrollment'), padding: EdgeInsets.only(bottom: 25)),
+            Padding(padding: EdgeInsets.only(bottom: 25), child: Text('Contacting DN for enrollment')),
             PlatformCircularProgressIndicator(
               cupertino: (_, __) {
                 return CupertinoProgressIndicatorData(radius: 50);
@@ -168,11 +169,11 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       );
     }
 
-    return SimplePage(title: Text('Enroll with Managed Nebula'), child: child, alignment: alignment);
+    return SimplePage(title: Text('Enroll with Managed Nebula'), alignment: alignment, child: child);
   }
 
   Widget _codeEntry() {
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
     String? validator(String? value) {
       if (value == null || value.isEmpty) {
@@ -182,7 +183,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     }
 
     Future<void> onSubmit() async {
-      final bool isValid = _formKey.currentState?.validate() ?? false;
+      final bool isValid = formKey.currentState?.validate() ?? false;
       if (!isValid) {
         return;
       }
@@ -205,14 +206,14 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       ),
     );
 
-    final form = Form(key: _formKey, child: Platform.isAndroid ? input : ConfigSection(children: [input]));
+    final form = Form(key: formKey, child: Platform.isAndroid ? input : ConfigSection(children: [input]));
 
     return Column(
       children: [
         Padding(padding: EdgeInsets.symmetric(vertical: 32), child: form),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Row(children: [Expanded(child: PrimaryButton(child: Text('Submit'), onPressed: onSubmit))]),
+          child: Row(children: [Expanded(child: PrimaryButton(onPressed: onSubmit, child: Text('Submit')))]),
         ),
       ],
     );

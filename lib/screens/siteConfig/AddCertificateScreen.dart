@@ -26,13 +26,13 @@ class CertificateResult {
 
 class AddCertificateScreen extends StatefulWidget {
   const AddCertificateScreen({
-    Key? key,
+    super.key,
     this.onSave,
     this.onReplace,
     required this.pubKey,
     required this.privKey,
     required this.supportsQRScanning,
-  }) : super(key: key);
+  });
 
   // onSave will pop a new CertificateDetailsScreen.
   // If onSave is null, onReplace must be set.
@@ -223,7 +223,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
             onPressed: () async {
               var result = await Navigator.push(
                 context,
-                platformPageRoute(context: context, builder: (context) => new ScanQRScreen()),
+                platformPageRoute(context: context, builder: (context) => ScanQRScreen()),
               );
               if (result != null) {
                 _addCertEntry(result);
@@ -245,7 +245,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
       var rawCerts = await platform.invokeMethod("nebula.parseCerts", <String, String>{"certs": rawCert});
 
       List<dynamic> certs = jsonDecode(rawCerts);
-      if (certs.length > 0) {
+      if (certs.isNotEmpty) {
         var tryCertInfo = CertificateInfo.fromJson(certs.first);
         if (tryCertInfo.cert.details.isCa) {
           return Utils.popError(

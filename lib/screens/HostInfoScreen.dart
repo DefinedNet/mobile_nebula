@@ -15,14 +15,14 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class HostInfoScreen extends StatefulWidget {
   const HostInfoScreen({
-    Key? key,
+    super.key,
     required this.hostInfo,
     required this.isLighthouse,
     required this.pending,
     this.onChanged,
     required this.site,
     required this.supportsQRScanning,
-  }) : super(key: key);
+  });
 
   final bool isLighthouse;
   final bool pending;
@@ -108,7 +108,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
   }
 
   Widget _buildRemotes() {
-    if (hostInfo.remoteAddresses.length == 0) {
+    if (hostInfo.remoteAddresses.isEmpty) {
       return ConfigSection(
         label: 'REMOTES',
         children: [ConfigItem(content: Text('No remote addresses yet'), labelWidth: 0)],
@@ -124,7 +124,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
     final double ipWidth =
         Utils.textSize("000.000.000.000:000000", CupertinoTheme.of(context).textTheme.textStyle).width;
 
-    hostInfo.remoteAddresses.forEach((remoteObj) {
+    for (var remoteObj in hostInfo.remoteAddresses) {
       String remote = remoteObj.toString();
       items.add(
         ConfigCheckboxItem(
@@ -148,9 +148,9 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
           },
         ),
       );
-    });
+    }
 
-    return ConfigSection(label: items.length > 0 ? 'Tap to change the active address' : null, children: items);
+    return ConfigSection(label: items.isNotEmpty ? 'Tap to change the active address' : null, children: items);
   }
 
   Widget _buildStaticRemotes() {
@@ -159,7 +159,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
     final double ipWidth =
         Utils.textSize("000.000.000.000:000000", CupertinoTheme.of(context).textTheme.textStyle).width;
 
-    hostInfo.remoteAddresses.forEach((remoteObj) {
+    for (var remoteObj in hostInfo.remoteAddresses) {
       String remote = remoteObj.toString();
       items.add(
         ConfigCheckboxItem(
@@ -169,9 +169,9 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
           checked: currentRemote == remote,
         ),
       );
-    });
+    }
 
-    return ConfigSection(label: items.length > 0 ? 'REMOTES' : null, children: items);
+    return ConfigSection(label: items.isNotEmpty ? 'REMOTES' : null, children: items);
   }
 
   Widget _buildClose() {

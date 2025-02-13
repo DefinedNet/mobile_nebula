@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 
 class ConfigTextItem extends StatelessWidget {
   const ConfigTextItem({
-    Key? key,
+    super.key,
     this.placeholder,
     this.controller,
     this.style = const TextStyle(fontFamily: 'RobotoMono'),
-  }) : super(key: key);
+  });
 
   final String? placeholder;
   final TextEditingController? controller;

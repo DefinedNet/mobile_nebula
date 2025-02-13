@@ -11,7 +11,7 @@ import 'package:mobile_nebula/services/utils.dart';
 /// Displays the details of a CertificateInfo object. Respects incomplete objects (missing validity or rawCert)
 class CertificateDetailsScreen extends StatefulWidget {
   const CertificateDetailsScreen({
-    Key? key,
+    super.key,
     required this.certInfo,
     this.onDelete,
     this.onSave,
@@ -19,7 +19,7 @@ class CertificateDetailsScreen extends StatefulWidget {
     this.pubKey,
     this.privKey,
     required this.supportsQRScanning,
-  }) : super(key: key);
+  });
 
   final CertificateInfo certInfo;
 
@@ -120,19 +120,19 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
 
   Widget _buildFilters() {
     List<Widget> items = [];
-    if (certInfo.cert.details.groups.length > 0) {
+    if (certInfo.cert.details.groups.isNotEmpty) {
       items.add(ConfigItem(label: Text('Groups'), content: SelectableText(certInfo.cert.details.groups.join(', '))));
     }
 
-    if (certInfo.cert.details.ips.length > 0) {
+    if (certInfo.cert.details.ips.isNotEmpty) {
       items.add(ConfigItem(label: Text('IPs'), content: SelectableText(certInfo.cert.details.ips.join(', '))));
     }
 
-    if (certInfo.cert.details.subnets.length > 0) {
+    if (certInfo.cert.details.subnets.isNotEmpty) {
       items.add(ConfigItem(label: Text('Subnets'), content: SelectableText(certInfo.cert.details.subnets.join(', '))));
     }
 
-    return items.length > 0
+    return items.isNotEmpty
         ? ConfigSection(label: certInfo.cert.details.isCa ? 'FILTERS' : 'DETAILS', children: items)
         : Container();
   }
