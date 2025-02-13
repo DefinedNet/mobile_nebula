@@ -32,7 +32,7 @@ class StaticHostsScreen extends StatefulWidget {
 }
 
 class _StaticHostsScreenState extends State<StaticHostsScreen> {
-  Map<Key, _Hostmap> _hostmap = {};
+  final Map<Key, _Hostmap> _hostmap = {};
   bool changed = false;
 
   @override
