@@ -20,7 +20,7 @@ jobs:
       - name: Set up Go 1.22
         uses: actions/setup-go@v5
         with:
-          go-version: "1.22"
+          go-version: '1.22'
           cache-dependency-path: nebula/go.sum
 
       - uses: actions/setup-java@v4
@@ -31,7 +31,7 @@ jobs:
       - name: Install flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'
+          flutter-version: '3.29.0'
 
       - name: Setup bundletool for APK generation
         uses: amyu/setup-bundletool@f7a6fdd8e04bb23d2fdf3c2f60c9257a6298a40a
@@ -60,8 +60,7 @@ jobs:
       - name: Place Github token for fastlane match
         env:
           TOKEN: ${{ secrets.MACHINE_USER_PAT }}
-        run:
-          echo "MATCH_GIT_BASIC_AUTHORIZATION=$(echo -n "defined-machine:${TOKEN}" | base64)" >> $GITHUB_ENV
+        run: echo "MATCH_GIT_BASIC_AUTHORIZATION=$(echo -n "defined-machine:${TOKEN}" | base64)" >> $GITHUB_ENV
 
       - name: Get build name and number, install dependencies
         env:

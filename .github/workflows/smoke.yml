@@ -20,7 +20,7 @@ jobs:
       - name: Set up Go 1.22
         uses: actions/setup-go@v5
         with:
-          go-version: "1.22"
+          go-version: '1.22'
           cache-dependency-path: nebula/go.sum
 
       - uses: actions/setup-java@v4
@@ -31,7 +31,7 @@ jobs:
       - name: Install flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'
+          flutter-version: '3.29.0'
 
       - name: install dependencies
         env:
@@ -96,13 +96,13 @@ jobs:
       - name: Set up Go 1.22
         uses: actions/setup-go@v5
         with:
-          go-version: "1.22"
+          go-version: '1.22'
           cache-dependency-path: nebula/go.sum
 
       - name: Install flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'
+          flutter-version: '3.29.0'
 
       - name: install dependencies
         run: |
@@ -110,7 +110,7 @@ jobs:
           gomobile init
           flutter pub get
           touch env.sh
-      
+
       - name: Build iOS
         run: |
           cd ios
