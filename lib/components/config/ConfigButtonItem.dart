@@ -13,12 +13,13 @@ class ConfigButtonItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SpecialButton(
-        color: Utils.configItemBackground(context),
-        onPressed: onPressed,
-        useButtonTheme: true,
-        child: Container(
-          constraints: BoxConstraints(minHeight: Utils.minInteractiveSize, minWidth: double.infinity),
-          child: Center(child: content),
-        ));
+      color: Utils.configItemBackground(context),
+      onPressed: onPressed,
+      useButtonTheme: true,
+      child: Container(
+        constraints: BoxConstraints(minHeight: Utils.minInteractiveSize, minWidth: double.infinity),
+        child: Center(child: content),
+      ),
+    );
   }
 }

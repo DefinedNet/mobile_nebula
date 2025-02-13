@@ -59,9 +59,10 @@ class _IPAndPortFieldState extends State<IPAndPortField> {
     var textStyle = CupertinoTheme.of(context).textTheme.textStyle;
 
     return Container(
-        child: Row(children: <Widget>[
-      Expanded(
-          child: Padding(
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: Padding(
               padding: EdgeInsets.fromLTRB(6, 6, 2, 6),
               child: IPField(
                 help: widget.ipHelp,
@@ -76,26 +77,31 @@ class _IPAndPortFieldState extends State<IPAndPortField> {
                 },
                 textAlign: widget.ipTextAlign,
                 controller: widget.ipController,
-              ))),
-      Text(":"),
-      Container(
-          width: Utils.textSize("00000", textStyle).width + 12,
-          padding: EdgeInsets.fromLTRB(2, 6, 6, 6),
-          child: SpecialTextField(
-            keyboardType: TextInputType.number,
-            focusNode: _portFocus,
-            nextFocusNode: widget.nextFocusNode,
-            controller: widget.portController,
-            onChanged: (val) {
-              _ipAndPort.port = int.tryParse(val);
-              widget.onChanged(_ipAndPort);
-            },
-            maxLength: 5,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            textInputAction: TextInputAction.done,
-            placeholder: 'port',
-          ))
-    ]));
+              ),
+            ),
+          ),
+          Text(":"),
+          Container(
+            width: Utils.textSize("00000", textStyle).width + 12,
+            padding: EdgeInsets.fromLTRB(2, 6, 6, 6),
+            child: SpecialTextField(
+              keyboardType: TextInputType.number,
+              focusNode: _portFocus,
+              nextFocusNode: widget.nextFocusNode,
+              controller: widget.portController,
+              onChanged: (val) {
+                _ipAndPort.port = int.tryParse(val);
+                widget.onChanged(_ipAndPort);
+              },
+              maxLength: 5,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              textInputAction: TextInputAction.done,
+              placeholder: 'port',
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

@@ -52,10 +52,7 @@ class UDPAddress {
   String ip;
   int port;
 
-  UDPAddress({
-    required this.ip,
-    required this.port,
-  });
+  UDPAddress({required this.ip, required this.port});
 
   @override
   String toString() {

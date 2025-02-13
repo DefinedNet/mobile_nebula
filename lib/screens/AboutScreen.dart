@@ -37,52 +37,67 @@ class _AboutScreenState extends State<AboutScreen> {
     // packageInfo is null until ready is true
     if (!ready) {
       return Center(
-        child: PlatformCircularProgressIndicator(cupertino: (_, __) {
-          return CupertinoProgressIndicatorData(radius: 50);
-        }),
+        child: PlatformCircularProgressIndicator(
+          cupertino: (_, __) {
+            return CupertinoProgressIndicatorData(radius: 50);
+          },
+        ),
       );
     }
 
     return SimplePage(
       title: Text('About'),
-      child: Column(children: [
-        ConfigSection(children: <Widget>[
-          ConfigItem(
-              label: Text('App version'),
-              labelWidth: 150,
-              content: _buildText('${packageInfo!.version}-${packageInfo!.buildNumber} (sha: $gitSha)')),
-          ConfigItem(
-              label: Text('Nebula version'), labelWidth: 150, content: _buildText('$nebulaVersion ($goVersion)')),
-          ConfigItem(
-              label: Text('Flutter version'),
-              labelWidth: 150,
-              content: _buildText(flutterVersion['frameworkVersion'] ?? 'Unknown')),
-          ConfigItem(
-              label: Text('Dart version'),
-              labelWidth: 150,
-              content: _buildText(flutterVersion['dartSdkVersion'] ?? 'Unknown')),
-        ]),
-        ConfigSection(children: <Widget>[
-          //TODO: wire up these other pages
-//          ConfigPageItem(label: Text('Changelog'), labelWidth: 300, onPressed: () => Utils.launchUrl('https://defined.net/mobile/changelog', context)),
-          ConfigPageItem(
-              label: Text('Privacy policy'),
-              labelWidth: 300,
-              onPressed: () => Utils.launchUrl('https://www.defined.net/privacy/', context)),
-          ConfigPageItem(
-              label: Text('Licenses'),
-              labelWidth: 300,
-              onPressed: () => Utils.openPage(context, (context) {
-                    return LicensesScreen();
-                  })),
-        ]),
-        Padding(
+      child: Column(
+        children: [
+          ConfigSection(
+            children: <Widget>[
+              ConfigItem(
+                label: Text('App version'),
+                labelWidth: 150,
+                content: _buildText('${packageInfo!.version}-${packageInfo!.buildNumber} (sha: $gitSha)'),
+              ),
+              ConfigItem(
+                label: Text('Nebula version'),
+                labelWidth: 150,
+                content: _buildText('$nebulaVersion ($goVersion)'),
+              ),
+              ConfigItem(
+                label: Text('Flutter version'),
+                labelWidth: 150,
+                content: _buildText(flutterVersion['frameworkVersion'] ?? 'Unknown'),
+              ),
+              ConfigItem(
+                label: Text('Dart version'),
+                labelWidth: 150,
+                content: _buildText(flutterVersion['dartSdkVersion'] ?? 'Unknown'),
+              ),
+            ],
+          ),
+          ConfigSection(
+            children: <Widget>[
+              //TODO: wire up these other pages
+              //          ConfigPageItem(label: Text('Changelog'), labelWidth: 300, onPressed: () => Utils.launchUrl('https://defined.net/mobile/changelog', context)),
+              ConfigPageItem(
+                label: Text('Privacy policy'),
+                labelWidth: 300,
+                onPressed: () => Utils.launchUrl('https://www.defined.net/privacy/', context),
+              ),
+              ConfigPageItem(
+                label: Text('Licenses'),
+                labelWidth: 300,
+                onPressed:
+                    () => Utils.openPage(context, (context) {
+                      return LicensesScreen();
+                    }),
+              ),
+            ],
+          ),
+          Padding(
             padding: EdgeInsets.only(top: 20),
-            child: Text(
-              'Copyright © 2024 Defined Networking, Inc',
-              textAlign: TextAlign.center,
-            )),
-      ]),
+            child: Text('Copyright © 2024 Defined Networking, Inc', textAlign: TextAlign.center),
+          ),
+        ],
+      ),
     );
   }
 

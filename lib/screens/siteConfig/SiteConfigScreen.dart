@@ -23,12 +23,8 @@ import 'package:mobile_nebula/services/utils.dart';
 //TODO: Enforce a name
 
 class SiteConfigScreen extends StatefulWidget {
-  const SiteConfigScreen({
-    Key? key,
-    this.site,
-    required this.onSave,
-    required this.supportsQRScanning,
-  }) : super(key: key);
+  const SiteConfigScreen({Key? key, this.site, required this.onSave, required this.supportsQRScanning})
+    : super(key: key);
 
   final Site? site;
 
@@ -71,36 +67,39 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
   Widget build(BuildContext context) {
     if (pubKey == null || privKey == null) {
       return Center(
-        child: fpw.PlatformCircularProgressIndicator(cupertino: (_, __) {
-          return fpw.CupertinoProgressIndicatorData(radius: 50);
-        }),
+        child: fpw.PlatformCircularProgressIndicator(
+          cupertino: (_, __) {
+            return fpw.CupertinoProgressIndicatorData(radius: 50);
+          },
+        ),
       );
     }
 
     return FormPage(
-        title: newSite ? 'New Site' : 'Edit Site',
-        changed: changed,
-        onSave: () async {
-          site.name = nameController.text;
-          try {
-            await site.save();
-          } catch (error) {
-            return Utils.popError(context, 'Failed to save the site configuration', error.toString());
-          }
+      title: newSite ? 'New Site' : 'Edit Site',
+      changed: changed,
+      onSave: () async {
+        site.name = nameController.text;
+        try {
+          await site.save();
+        } catch (error) {
+          return Utils.popError(context, 'Failed to save the site configuration', error.toString());
+        }
 
-          Navigator.pop(context);
-          widget.onSave(site);
-        },
-        child: Column(
-          children: <Widget>[
-            _main(),
-            _keys(),
-            _hosts(),
-            _advanced(),
-            _managed(),
-            kDebugMode ? _debugConfig() : Container(height: 0),
-          ],
-        ));
+        Navigator.pop(context);
+        widget.onSave(site);
+      },
+      child: Column(
+        children: <Widget>[
+          _main(),
+          _keys(),
+          _hosts(),
+          _advanced(),
+          _managed(),
+          kDebugMode ? _debugConfig() : Container(height: 0),
+        ],
+      ),
+    );
   }
 
   Widget _debugConfig() {
@@ -116,8 +115,9 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
   }
 
   Widget _main() {
-    return ConfigSection(children: <Widget>[
-      ConfigItem(
+    return ConfigSection(
+      children: <Widget>[
+        ConfigItem(
           label: Text("Name"),
           content: PlatformTextFormField(
             placeholder: 'Required',
@@ -128,8 +128,10 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
               }
               return null;
             },
-          ))
-    ]);
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _managed() {
@@ -140,15 +142,19 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
     }
 
     return site.managed
-        ? ConfigSection(label: "MANAGED CONFIG", children: <Widget>[
+        ? ConfigSection(
+          label: "MANAGED CONFIG",
+          children: <Widget>[
             ConfigItem(
               label: Text("Last Update"),
-              content:
-                  Wrap(alignment: WrapAlignment.end, crossAxisAlignment: WrapCrossAlignment.center, children: <Widget>[
-                Text(lastUpdate),
-              ]),
-            )
-          ])
+              content: Wrap(
+                alignment: WrapAlignment.end,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: <Widget>[Text(lastUpdate)],
+              ),
+            ),
+          ],
+        )
         : Container();
   }
 
@@ -171,14 +177,19 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
       children: [
         ConfigPageItem(
           label: Text('Certificate'),
-          content: Wrap(alignment: WrapAlignment.end, crossAxisAlignment: WrapCrossAlignment.center, children: <Widget>[
-            certError
-                ? Padding(
+          content: Wrap(
+            alignment: WrapAlignment.end,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: <Widget>[
+              certError
+                  ? Padding(
                     child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
-                    padding: EdgeInsets.only(right: 5))
-                : Container(),
-            certError ? Text('Needs attention') : Text(site.certInfo?.cert.details.name ?? 'Unknown certificate')
-          ]),
+                    padding: EdgeInsets.only(right: 5),
+                  )
+                  : Container(),
+              certError ? Text('Needs attention') : Text(site.certInfo?.cert.details.name ?? 'Unknown certificate'),
+            ],
+          ),
           onPressed: () {
             Utils.openPage(context, (context) {
               if (site.certInfo != null) {
@@ -186,15 +197,16 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
                   certInfo: site.certInfo!,
                   pubKey: pubKey,
                   privKey: privKey,
-                  onReplace: site.managed
-                      ? null
-                      : (result) {
-                          setState(() {
-                            changed = true;
-                            site.certInfo = result.certInfo;
-                            site.key = result.key;
-                          });
-                        },
+                  onReplace:
+                      site.managed
+                          ? null
+                          : (result) {
+                            setState(() {
+                              changed = true;
+                              site.certInfo = result.certInfo;
+                              site.key = result.key;
+                            });
+                          },
                   supportsQRScanning: widget.supportsQRScanning,
                 );
               }
@@ -215,32 +227,38 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
           },
         ),
         ConfigPageItem(
-            label: Text("CA"),
-            content:
-                Wrap(alignment: WrapAlignment.end, crossAxisAlignment: WrapCrossAlignment.center, children: <Widget>[
+          label: Text("CA"),
+          content: Wrap(
+            alignment: WrapAlignment.end,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: <Widget>[
               caError
                   ? Padding(
-                      child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
-                      padding: EdgeInsets.only(right: 5))
+                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
+                    padding: EdgeInsets.only(right: 5),
+                  )
                   : Container(),
-              caError ? Text('Needs attention') : Text(Utils.itemCountFormat(site.ca.length))
-            ]),
-            onPressed: () {
-              Utils.openPage(context, (context) {
-                return CAListScreen(
-                  cas: site.ca,
-                  onSave: site.managed
-                      ? null
-                      : (ca) {
+              caError ? Text('Needs attention') : Text(Utils.itemCountFormat(site.ca.length)),
+            ],
+          ),
+          onPressed: () {
+            Utils.openPage(context, (context) {
+              return CAListScreen(
+                cas: site.ca,
+                onSave:
+                    site.managed
+                        ? null
+                        : (ca) {
                           setState(() {
                             changed = true;
                             site.ca = ca;
                           });
                         },
-                  supportsQRScanning: widget.supportsQRScanning,
-                );
-              });
-            })
+                supportsQRScanning: widget.supportsQRScanning,
+              );
+            });
+          },
+        ),
       ],
     );
   }
@@ -251,28 +269,35 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
       children: <Widget>[
         ConfigPageItem(
           label: Text('Hosts'),
-          content: Wrap(alignment: WrapAlignment.end, crossAxisAlignment: WrapCrossAlignment.center, children: <Widget>[
-            site.staticHostmap.length == 0
-                ? Padding(
+          content: Wrap(
+            alignment: WrapAlignment.end,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: <Widget>[
+              site.staticHostmap.length == 0
+                  ? Padding(
                     child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
-                    padding: EdgeInsets.only(right: 5))
-                : Container(),
-            site.staticHostmap.length == 0
-                ? Text('Needs attention')
-                : Text(Utils.itemCountFormat(site.staticHostmap.length))
-          ]),
+                    padding: EdgeInsets.only(right: 5),
+                  )
+                  : Container(),
+              site.staticHostmap.length == 0
+                  ? Text('Needs attention')
+                  : Text(Utils.itemCountFormat(site.staticHostmap.length)),
+            ],
+          ),
           onPressed: () {
             Utils.openPage(context, (context) {
               return StaticHostsScreen(
-                  hostmap: site.staticHostmap,
-                  onSave: site.managed
-                      ? null
-                      : (map) {
+                hostmap: site.staticHostmap,
+                onSave:
+                    site.managed
+                        ? null
+                        : (map) {
                           setState(() {
                             changed = true;
                             site.staticHostmap = map;
                           });
-                        });
+                        },
+              );
             });
           },
         ),
@@ -285,24 +310,26 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
       label: "ADVANCED",
       children: <Widget>[
         ConfigPageItem(
-            label: Text('Advanced'),
-            onPressed: () {
-              Utils.openPage(context, (context) {
-                return AdvancedScreen(
-                    site: site,
-                    onSave: (settings) {
-                      setState(() {
-                        changed = true;
-                        site.cipher = settings.cipher;
-                        site.lhDuration = settings.lhDuration;
-                        site.port = settings.port;
-                        site.logVerbosity = settings.verbosity;
-                        site.unsafeRoutes = settings.unsafeRoutes;
-                        site.mtu = settings.mtu;
-                      });
-                    });
-              });
-            })
+          label: Text('Advanced'),
+          onPressed: () {
+            Utils.openPage(context, (context) {
+              return AdvancedScreen(
+                site: site,
+                onSave: (settings) {
+                  setState(() {
+                    changed = true;
+                    site.cipher = settings.cipher;
+                    site.lhDuration = settings.lhDuration;
+                    site.port = settings.port;
+                    site.logVerbosity = settings.verbosity;
+                    site.unsafeRoutes = settings.unsafeRoutes;
+                    site.mtu = settings.mtu;
+                  });
+                },
+              );
+            });
+          },
+        ),
       ],
     );
   }

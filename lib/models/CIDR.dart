@@ -19,9 +19,6 @@ class CIDR {
       throw 'Invalid CIDR string';
     }
 
-    return CIDR(
-      ip: parts[0],
-      bits: int.parse(parts[1]),
-    );
+    return CIDR(ip: parts[0], bits: int.parse(parts[1]));
   }
 }

@@ -53,9 +53,10 @@ class _CIDRFieldState extends State<CIDRField> {
     var textStyle = CupertinoTheme.of(context).textTheme.textStyle;
 
     return Container(
-        child: Row(children: <Widget>[
-      Expanded(
-          child: Padding(
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: Padding(
               padding: EdgeInsets.fromLTRB(6, 6, 2, 6),
               child: IPField(
                 help: widget.ipHelp,
@@ -74,30 +75,35 @@ class _CIDRFieldState extends State<CIDRField> {
                   widget.onChanged!(cidr);
                 },
                 controller: widget.ipController,
-              ))),
-      Text("/"),
-      Container(
-          width: Utils.textSize("bits", textStyle).width + 12,
-          padding: EdgeInsets.fromLTRB(2, 6, 6, 6),
-          child: SpecialTextField(
-            keyboardType: TextInputType.number,
-            focusNode: bitsFocus,
-            nextFocusNode: widget.nextFocusNode,
-            controller: widget.bitsController,
-            onChanged: (val) {
-              if (widget.onChanged == null) {
-                return;
-              }
+              ),
+            ),
+          ),
+          Text("/"),
+          Container(
+            width: Utils.textSize("bits", textStyle).width + 12,
+            padding: EdgeInsets.fromLTRB(2, 6, 6, 6),
+            child: SpecialTextField(
+              keyboardType: TextInputType.number,
+              focusNode: bitsFocus,
+              nextFocusNode: widget.nextFocusNode,
+              controller: widget.bitsController,
+              onChanged: (val) {
+                if (widget.onChanged == null) {
+                  return;
+                }
 
-              cidr.bits = int.tryParse(val) ?? 0;
-              widget.onChanged!(cidr);
-            },
-            maxLength: 2,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            textInputAction: widget.textInputAction ?? TextInputAction.done,
-            placeholder: 'bits',
-          ))
-    ]));
+                cidr.bits = int.tryParse(val) ?? 0;
+                widget.onChanged!(cidr);
+              },
+              maxLength: 2,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              textInputAction: widget.textInputAction ?? TextInputAction.done,
+              placeholder: 'bits',
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

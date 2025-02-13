@@ -14,16 +14,10 @@ class StaticHost {
       result.add(IPAndPort.fromString(item));
     });
 
-    return StaticHost(
-      lighthouse: json['lighthouse'],
-      destinations: result,
-    );
+    return StaticHost(lighthouse: json['lighthouse'], destinations: result);
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'lighthouse': lighthouse,
-      'destinations': destinations,
-    };
+    return {'lighthouse': lighthouse, 'destinations': destinations};
   }
 }

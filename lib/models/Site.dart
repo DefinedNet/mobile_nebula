@@ -94,19 +94,22 @@ class Site {
     this.lastManagedUpdate = lastManagedUpdate;
 
     _updates = EventChannel('net.defined.nebula/${this.id}');
-    _updates.receiveBroadcastStream().listen((d) {
-      try {
-        _updateFromJson(d);
-        _change.add(null);
-      } catch (err) {
-        //TODO: handle the error
-        print(err);
-      }
-    }, onError: (err) {
-      _updateFromJson(err.details);
-      var error = err as PlatformException;
-      _change.addError(error.message ?? 'An unexpected error occurred');
-    });
+    _updates.receiveBroadcastStream().listen(
+      (d) {
+        try {
+          _updateFromJson(d);
+          _change.add(null);
+        } catch (err) {
+          //TODO: handle the error
+          print(err);
+        }
+      },
+      onError: (err) {
+        _updateFromJson(err.details);
+        var error = err as PlatformException;
+        _change.addError(error.message ?? 'An unexpected error occurred');
+      },
+    );
   }
 
   factory Site.fromJson(Map<String, dynamic> json) {
@@ -220,9 +223,11 @@ class Site {
       'id': id,
       'staticHostmap': staticHostmap,
       'unsafeRoutes': unsafeRoutes,
-      'ca': ca.map((cert) {
-        return cert.rawCert;
-      }).join('\n'),
+      'ca': ca
+          .map((cert) {
+            return cert.rawCert;
+          })
+          .join('\n'),
       'cert': certInfo?.rawCert,
       'key': key,
       'lhDuration': lhDuration,
@@ -341,8 +346,11 @@ class Site {
 
   Future<HostInfo?> getHostInfo(String vpnIp, bool pending) async {
     try {
-      var ret = await platform
-          .invokeMethod("active.getHostInfo", <String, dynamic>{"id": id, "vpnIp": vpnIp, "pending": pending});
+      var ret = await platform.invokeMethod("active.getHostInfo", <String, dynamic>{
+        "id": id,
+        "vpnIp": vpnIp,
+        "pending": pending,
+      });
       final h = jsonDecode(ret);
       if (h == null) {
         return null;
@@ -358,8 +366,11 @@ class Site {
 
   Future<HostInfo?> setRemoteForTunnel(String vpnIp, String addr) async {
     try {
-      var ret = await platform
-          .invokeMethod("active.setRemoteForTunnel", <String, dynamic>{"id": id, "vpnIp": vpnIp, "addr": addr});
+      var ret = await platform.invokeMethod("active.setRemoteForTunnel", <String, dynamic>{
+        "id": id,
+        "vpnIp": vpnIp,
+        "addr": addr,
+      });
       final h = jsonDecode(ret);
       if (h == null) {
         return null;

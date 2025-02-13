@@ -27,20 +27,16 @@ class Utils {
   }
 
   static Size textSize(String text, TextStyle style) {
-    final TextPainter textPainter =
-        TextPainter(text: TextSpan(text: text, style: style), maxLines: 1, textDirection: TextDirection.ltr)
-          ..layout(minWidth: 0, maxWidth: double.infinity);
+    final TextPainter textPainter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+    )..layout(minWidth: 0, maxWidth: double.infinity);
     return textPainter.size;
   }
 
   static openPage(BuildContext context, WidgetBuilder pageToDisplayBuilder) {
-    Navigator.push(
-      context,
-      platformPageRoute(
-        context: context,
-        builder: pageToDisplayBuilder,
-      ),
-    );
+    Navigator.push(context, platformPageRoute(context: context, builder: pageToDisplayBuilder));
   }
 
   static String itemCountFormat(int items, {singleSuffix = "item", multiSuffix = "items"}) {
@@ -56,14 +52,15 @@ class Utils {
   static Widget leadingBackWidget(BuildContext context, {label = 'Back', Function? onPressed}) {
     if (Platform.isIOS) {
       return CupertinoNavigationBarBackButton(
-          previousPageTitle: label,
-          onPressed: () {
-            if (onPressed == null) {
-              Navigator.pop(context);
-            } else {
-              onPressed();
-            }
-          });
+        previousPageTitle: label,
+        onPressed: () {
+          if (onPressed == null) {
+            Navigator.pop(context);
+          } else {
+            onPressed();
+          }
+        },
+      );
     }
 
     return IconButton(
@@ -82,37 +79,47 @@ class Utils {
 
   static Widget trailingSaveWidget(BuildContext context, Function onPressed) {
     return PlatformTextButton(
-        child: Text('Save'), padding: Platform.isAndroid ? null : EdgeInsets.zero, onPressed: () => onPressed());
+      child: Text('Save'),
+      padding: Platform.isAndroid ? null : EdgeInsets.zero,
+      onPressed: () => onPressed(),
+    );
   }
 
   /// Simple cross platform delete confirmation dialog - can also be used to confirm throwing away a change by swapping the deleteLabel
-  static confirmDelete(BuildContext context, String title, Function onConfirm,
-      {String deleteLabel = 'Delete', String cancelLabel = 'Cancel'}) {
+  static confirmDelete(
+    BuildContext context,
+    String title,
+    Function onConfirm, {
+    String deleteLabel = 'Delete',
+    String cancelLabel = 'Cancel',
+  }) {
     showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) {
-          return PlatformAlertDialog(
-            title: Text(title),
-            actions: <Widget>[
-              PlatformDialogAction(
-                child: Text(deleteLabel,
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, color: CupertinoColors.systemRed.resolveFrom(context))),
-                onPressed: () {
-                  Navigator.pop(context);
-                  onConfirm();
-                },
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return PlatformAlertDialog(
+          title: Text(title),
+          actions: <Widget>[
+            PlatformDialogAction(
+              child: Text(
+                deleteLabel,
+                style: TextStyle(fontWeight: FontWeight.bold, color: CupertinoColors.systemRed.resolveFrom(context)),
               ),
-              PlatformDialogAction(
-                child: Text(cancelLabel),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              )
-            ],
-          );
-        });
+              onPressed: () {
+                Navigator.pop(context);
+                onConfirm();
+              },
+            ),
+            PlatformDialogAction(
+              child: Text(cancelLabel),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   static popError(BuildContext context, String title, String error, {StackTrace? stack}) {
@@ -121,33 +128,38 @@ class Utils {
     }
 
     showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) {
-          if (Platform.isAndroid) {
-            return AlertDialog(title: Text(title), content: Text(error), actions: <Widget>[
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        if (Platform.isAndroid) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(error),
+            actions: <Widget>[
               TextButton(
                 child: Text('Ok'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-              )
-            ]);
-          }
-
-          return CupertinoAlertDialog(
-            title: Text(title),
-            content: Text(error),
-            actions: <Widget>[
-              CupertinoDialogAction(
-                child: Text('Ok'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              )
+              ),
             ],
           );
-        });
+        }
+
+        return CupertinoAlertDialog(
+          title: Text(title),
+          content: Text(error),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: Text('Ok'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   static launchUrl(String url, BuildContext context) async {
