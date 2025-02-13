@@ -41,6 +41,8 @@ dart format lib/ test/ -l 120
 
 In Android Studio, set the line length using Preferences -> Editor -> Code Style -> Dart -> Line length, set it to 120.  Enable auto-format with Preferences -> Languages & Frameworks -> Flutter -> Format code on save.
 
+`xcrun swift-format . --parallel --recursive --in-place` can be used to format the Swift code. See <https://calebhearth.com/swift-format-github-action> for more info.
+
 
 # Release
 
