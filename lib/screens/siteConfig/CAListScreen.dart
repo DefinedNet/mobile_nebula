@@ -236,7 +236,7 @@ class _CAListScreenState extends State<CAListScreen> {
             onPressed: () async {
               var result = await Navigator.push(
                 context,
-                platformPageRoute(context: context, builder: (context) => new ScanQRScreen()),
+                platformPageRoute(context: context, builder: (context) => ScanQRScreen()),
               );
               if (result != null) {
                 _addCAEntry(result, (err) {
