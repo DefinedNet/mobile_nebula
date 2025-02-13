@@ -1,12 +1,11 @@
-name: Flutter format
+name: Flutter check
 on:
   push:
     branches:
       - main
   pull_request:
     paths:
-      - '.github/workflows/flutterfmt.yml'
-      - '.github/workflows/flutterfmt.sh'
+      - '.github/workflows/fluttercheck.yml'
       - '**.dart'
 jobs:
   flutterfmt:
@@ -25,3 +24,19 @@ jobs:
 
       - name: Check formating
         run: dart format -l120 lib/ --set-exit-if-changed --suppress-analytics --output none
+  flutterlint:
+    name: Run flutter lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.0'
+
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          show-progress: false
+
+      - name: Check linting
+        run: dart fix --dry-run
