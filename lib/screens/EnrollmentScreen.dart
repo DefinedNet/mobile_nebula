@@ -49,6 +49,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
 
   static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
 
+  @override
   void initState() {
     code = widget.code;
     super.initState();
