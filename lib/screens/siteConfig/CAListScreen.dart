@@ -39,9 +39,9 @@ class _CAListScreenState extends State<CAListScreen> {
 
   @override
   void initState() {
-    widget.cas.forEach((ca) {
+    for (var ca in widget.cas) {
       cas[ca.cert.fingerprint] = ca;
-    });
+    }
 
     super.initState();
   }
@@ -115,14 +115,14 @@ class _CAListScreenState extends State<CAListScreen> {
       var ignored = 0;
 
       List<dynamic> certs = jsonDecode(rawCerts);
-      certs.forEach((rawCert) {
+      for (var rawCert in certs) {
         final info = CertificateInfo.fromJson(rawCert);
         if (!info.cert.details.isCa) {
           ignored++;
-          return;
+          continue;
         }
         cas[info.cert.fingerprint] = info;
-      });
+      }
 
       if (ignored > 0) {
         error = 'One or more certificates were ignored because they were not certificate authorities.';

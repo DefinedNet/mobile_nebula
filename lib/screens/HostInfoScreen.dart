@@ -124,7 +124,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
     final double ipWidth =
         Utils.textSize("000.000.000.000:000000", CupertinoTheme.of(context).textTheme.textStyle).width;
 
-    hostInfo.remoteAddresses.forEach((remoteObj) {
+    for (var remoteObj in hostInfo.remoteAddresses) {
       String remote = remoteObj.toString();
       items.add(
         ConfigCheckboxItem(
@@ -148,7 +148,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
           },
         ),
       );
-    });
+    }
 
     return ConfigSection(label: items.isNotEmpty ? 'Tap to change the active address' : null, children: items);
   }
@@ -159,7 +159,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
     final double ipWidth =
         Utils.textSize("000.000.000.000:000000", CupertinoTheme.of(context).textTheme.textStyle).width;
 
-    hostInfo.remoteAddresses.forEach((remoteObj) {
+    for (var remoteObj in hostInfo.remoteAddresses) {
       String remote = remoteObj.toString();
       items.add(
         ConfigCheckboxItem(
@@ -169,7 +169,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
           checked: currentRemote == remote,
         ),
       );
-    });
+    }
 
     return ConfigSection(label: items.isNotEmpty ? 'REMOTES' : null, children: items);
   }

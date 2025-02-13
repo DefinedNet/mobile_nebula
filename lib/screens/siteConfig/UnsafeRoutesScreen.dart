@@ -24,9 +24,9 @@ class _UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
   @override
   void initState() {
     unsafeRoutes = {};
-    widget.unsafeRoutes.forEach((route) {
+    for (var route in widget.unsafeRoutes) {
       unsafeRoutes[UniqueKey()] = route;
-    });
+    }
 
     super.initState();
   }

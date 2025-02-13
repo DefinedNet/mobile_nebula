@@ -117,14 +117,14 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
     }
 
     List<Widget> items = [];
-    site.errors.forEach((error) {
+    for (var error in site.errors) {
       items.add(
         ConfigItem(
           labelWidth: 0,
           content: Padding(padding: EdgeInsets.symmetric(vertical: 10), child: SelectableText(error)),
         ),
       );
-    });
+    }
 
     return ConfigSection(
       label: 'ERRORS',

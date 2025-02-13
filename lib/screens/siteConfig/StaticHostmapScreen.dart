@@ -50,9 +50,9 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
     _nebulaIp = widget.nebulaIp;
     _lighthouse = widget.lighthouse;
     _destinations = {};
-    widget.destinations.forEach((dest) {
+    for (var dest in widget.destinations) {
       _destinations[UniqueKey()] = _IPAndPort(focusNode: FocusNode(), destination: dest);
-    });
+    }
 
     if (_destinations.isEmpty) {
       _addDestination();

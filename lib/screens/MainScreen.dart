@@ -207,7 +207,7 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     List<Widget> items = [];
-    sites!.forEach((site) {
+    for (var site in sites!) {
       items.add(
         SiteItem(
           key: Key(site.id),
@@ -223,7 +223,7 @@ class _MainScreenState extends State<MainScreen> {
           },
         ),
       );
-    });
+    }
 
     Widget child = ReorderableListView(
       shrinkWrap: true,
