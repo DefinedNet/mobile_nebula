@@ -54,7 +54,7 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
       _destinations[UniqueKey()] = _IPAndPort(focusNode: FocusNode(), destination: dest);
     });
 
-    if (_destinations.length == 0) {
+    if (_destinations.isEmpty) {
       _addDestination();
     }
 

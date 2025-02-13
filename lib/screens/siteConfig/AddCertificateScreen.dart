@@ -245,7 +245,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
       var rawCerts = await platform.invokeMethod("nebula.parseCerts", <String, String>{"certs": rawCert});
 
       List<dynamic> certs = jsonDecode(rawCerts);
-      if (certs.length > 0) {
+      if (certs.isNotEmpty) {
         var tryCertInfo = CertificateInfo.fromJson(certs.first);
         if (tryCertInfo.cert.details.isCa) {
           return Utils.popError(

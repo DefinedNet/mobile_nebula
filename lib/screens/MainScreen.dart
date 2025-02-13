@@ -202,7 +202,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildSites() {
-    if (sites == null || sites!.length == 0) {
+    if (sites == null || sites!.isEmpty) {
       return _buildNoSites();
     }
 

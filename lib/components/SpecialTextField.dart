@@ -64,7 +64,7 @@ class _SpecialTextFieldState extends State<SpecialTextField> {
 
   @override
   void initState() {
-    if (widget.inputFormatters == null || formatters.length == 0) {
+    if (widget.inputFormatters == null || formatters.isEmpty) {
       formatters = [FilteringTextInputFormatter.allow(RegExp(r'[^\t]'))];
     } else {
       formatters = widget.inputFormatters!;

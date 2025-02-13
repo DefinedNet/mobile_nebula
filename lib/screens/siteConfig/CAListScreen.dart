@@ -51,7 +51,7 @@ class _CAListScreenState extends State<CAListScreen> {
     List<Widget> items = [];
     final caItems = _buildCAs();
 
-    if (caItems.length > 0) {
+    if (caItems.isNotEmpty) {
       items.add(ConfigSection(children: caItems));
     }
 
