@@ -1,5 +1,5 @@
-import NetworkExtension
 import MobileNebula
+import NetworkExtension
 import os.log
 import SwiftyJSON
 
@@ -17,66 +17,65 @@ enum AppMessageError: Error {
 extension AppMessageError: LocalizedError {
     public var description: String? {
         switch self {
-        case .unknownIPCType(let command):
+        case let .unknownIPCType(command):
             return NSLocalizedString("Unknown IPC message type \(String(command))", comment: "")
         }
     }
 }
 
-
 class PacketTunnelProvider: NEPacketTunnelProvider {
     private var networkMonitor: NWPathMonitor?
-    
+
     private var site: Site?
     private let log = Logger(subsystem: "net.defined.mobileNebula", category: "PacketTunnelProvider")
     private var nebula: MobileNebulaNebula?
     private var dnUpdater = DNUpdater()
     private var didSleep = false
     private var cachedRouteDescription: String?
-    
-    override func startTunnel(options: [String : NSObject]? = nil) async throws {
+
+    override func startTunnel(options: [String: NSObject]? = nil) async throws {
         // There is currently no way to get initialization errors back to the UI via completionHandler here
         // `expectStart` is sent only via the UI which means we should wait for the real start command which has another completion handler the UI can intercept
         if options?["expectStart"] != nil {
             // startTunnel must complete before IPC will work
             return
         }
-        
+
         // VPN is being booted out of band of the UI. Use the system completion handler as there will be nothing to route initialization errors to but we still need to report
         // success/fail by the presence of an error or nil
         try await start()
     }
-    
+
     private func start() async throws {
         var manager: NETunnelProviderManager?
         var config: Data
         var key: String
-        
+
         do {
             // Cannot use NETunnelProviderManager.loadAllFromPreferences() in earlier versions of iOS
             // TODO: Remove else once we drop support for iOS 16
             if ProcessInfo().isOperatingSystemAtLeast(OperatingSystemVersion(majorVersion: 17, minorVersion: 0, patchVersion: 0)) {
-                manager = try await self.findManager()
+                manager = try await findManager()
                 guard let foundManager = manager else {
                     throw VPNStartError.couldNotFindManager
                 }
-                self.site = try Site(manager: foundManager)
+                site = try Site(manager: foundManager)
             } else {
                 // This does not save the manager with the site, which means we cannot update the
                 // vpn profile name when updates happen (rare).
-                self.site = try Site(proto: self.protocolConfiguration as! NETunnelProviderProtocol)
+                site = try Site(proto: protocolConfiguration as! NETunnelProviderProtocol)
             }
-            config = try self.site!.getConfig()
+            config = try site!.getConfig()
         } catch {
-            //TODO: need a way to notify the app
-            self.log.error("Failed to render config from vpn object")
+            // TODO: need a way to notify the app
+            log.error("Failed to render config from vpn object")
             throw error
         }
 
-        let _site = self.site!
+        let _site = site!
         key = try _site.getKey()
-        
-        guard let fileDescriptor = self.tunnelFileDescriptor else {
+
+        guard let fileDescriptor = tunnelFileDescriptor else {
             throw VPNStartError.noTunFileDescriptor
         }
         let tunFD = Int(fileDescriptor)
@@ -87,7 +86,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         // Make sure our ip is routed to the tun device
         var err: NSError?
         let ipNet = MobileNebulaParseCIDR(_site.cert!.cert.details.ips[0], &err)
-        if (err != nil) {
+        if err != nil {
             throw err!
         }
         tunnelNetworkSettings.ipv4Settings = NEIPv4Settings(addresses: [ipNet!.ip], subnetMasks: [ipNet!.maskCIDR])
@@ -96,7 +95,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         // Add our unsafe routes
         try _site.unsafeRoutes.forEach { unsafeRoute in
             let ipNet = MobileNebulaParseCIDR(unsafeRoute.route, &err)
-            if (err != nil) {
+            if err != nil {
                 throw err!
             }
             routes.append(NEIPv4Route(destinationAddress: ipNet!.network, subnetMask: ipNet!.maskCIDR))
@@ -105,43 +104,43 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         tunnelNetworkSettings.ipv4Settings!.includedRoutes = routes
         tunnelNetworkSettings.mtu = _site.mtu as NSNumber
 
-        try await self.setTunnelNetworkSettings(tunnelNetworkSettings)
+        try await setTunnelNetworkSettings(tunnelNetworkSettings)
         var nebulaErr: NSError?
-        self.nebula = MobileNebulaNewNebula(String(data: config, encoding: .utf8), key, self.site!.logFile, tunFD, &nebulaErr)
-        self.startNetworkMonitor()
+        nebula = MobileNebulaNewNebula(String(data: config, encoding: .utf8), key, site!.logFile, tunFD, &nebulaErr)
+        startNetworkMonitor()
 
         if nebulaErr != nil {
-            self.log.error("We had an error starting up: \(nebulaErr, privacy: .public)")
+            log.error("We had an error starting up: \(nebulaErr, privacy: .public)")
             throw nebulaErr!
         }
-        
-        self.nebula!.start()
-        self.dnUpdater.updateSingleLoop(site: self.site!, onUpdate: self.handleDNUpdate)
+
+        nebula!.start()
+        dnUpdater.updateSingleLoop(site: site!, onUpdate: handleDNUpdate)
     }
-    
+
     private func handleDNUpdate(newSite: Site) {
         do {
-            self.site = newSite
-            try self.nebula?.reload(String(data: newSite.getConfig(), encoding: .utf8), key: newSite.getKey())
-            
+            site = newSite
+            try nebula?.reload(String(data: newSite.getConfig(), encoding: .utf8), key: newSite.getKey())
+
         } catch {
             log.error("Got an error while updating nebula \(error.localizedDescription, privacy: .public)")
         }
     }
-    
-//TODO: Sleep/wake get called aggressively and do nothing to help us here, we should locate why that is and make these work appropriately
+
+    // TODO: Sleep/wake get called aggressively and do nothing to help us here, we should locate why that is and make these work appropriately
 //    override func sleep(completionHandler: @escaping () -> Void) {
 //        nebula!.sleep()
 //        completionHandler()
 //    }
-    
+
     private func findManager() async throws -> NETunnelProviderManager {
-        let targetProtoConfig = self.protocolConfiguration as? NETunnelProviderProtocol
+        let targetProtoConfig = protocolConfiguration as? NETunnelProviderProtocol
         guard let targetProviderConfig = targetProtoConfig?.providerConfiguration else {
             throw VPNStartError.noProviderConfig
         }
         let targetID = targetProviderConfig["id"] as? String
-        
+
         // Load vpn configs from system, and find the manager matching the one being started
         let managers = try await NETunnelProviderManager.loadAllFromPreferences()
         for manager in managers {
@@ -150,32 +149,32 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 throw VPNStartError.noProviderConfig
             }
             let id = mgrProviderConfig["id"] as? String
-            if (id == targetID) {
+            if id == targetID {
                 return manager
             }
         }
-        
+
         // If we didn't find anything, throw an error
         throw VPNStartError.noManagers
     }
-    
+
     private func startNetworkMonitor() {
         networkMonitor = NWPathMonitor()
-        networkMonitor!.pathUpdateHandler = self.pathUpdate
+        networkMonitor!.pathUpdateHandler = pathUpdate
         networkMonitor!.start(queue: DispatchQueue(label: "NetworkMonitor"))
     }
-    
+
     private func stopNetworkMonitor() {
-        self.networkMonitor?.cancel()
+        networkMonitor?.cancel()
         networkMonitor = nil
     }
-    
-    override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
+
+    override func stopTunnel(with _: NEProviderStopReason, completionHandler: @escaping () -> Void) {
         nebula?.stop()
         stopNetworkMonitor()
         completionHandler()
     }
-        
+
     private func pathUpdate(path: Network.NWPath) {
         let routeDescription = collectAddresses(endpoints: path.gateways)
         if routeDescription != cachedRouteDescription {
@@ -186,94 +185,93 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             cachedRouteDescription = routeDescription
         }
     }
-    
+
     private func collectAddresses(endpoints: [Network.NWEndpoint]) -> String {
         var str: [String] = []
-        endpoints.forEach{ endpoint in
+        for endpoint in endpoints {
             switch endpoint {
             case let .hostPort(.ipv6(host), port):
                 str.append("[\(host)]:\(port)")
             case let .hostPort(.ipv4(host), port):
                 str.append("\(host):\(port)")
             default:
-                return
+                continue
             }
         }
-        
+
         return str.sorted().joined(separator: ", ")
     }
-    
+
     override func handleAppMessage(_ data: Data) async -> Data? {
         guard let call = try? JSONDecoder().decode(IPCRequest.self, from: data) else {
             log.error("Failed to decode IPCRequest from network extension")
             return nil
         }
-        
+
         var error: Error?
         var data: JSON?
-        
+
         // start command has special treatment due to needing to call two completers
         if call.command == "start" {
             do {
-                try await self.start()
+                try await start()
                 // No response data, this is expected on a clean start
-                return try? JSONEncoder().encode(IPCResponse.init(type: .success, message: nil))
+                return try? JSONEncoder().encode(IPCResponse(type: .success, message: nil))
             } catch {
                 defer {
                     self.cancelTunnelWithError(error)
                 }
-                return try? JSONEncoder().encode(IPCResponse.init(type: .error, message: JSON(error.localizedDescription)))
+                return try? JSONEncoder().encode(IPCResponse(type: .error, message: JSON(error.localizedDescription)))
             }
         }
-        
+
         if nebula == nil {
             // Respond with an empty success message in the event a command comes in before we've truly started
             log.warning("Received command but do not have a nebula instance")
-            return try? JSONEncoder().encode(IPCResponse.init(type: .success, message: nil))
+            return try? JSONEncoder().encode(IPCResponse(type: .success, message: nil))
         }
-        
-        //TODO: try catch over all this
+
+        // TODO: try catch over all this
         switch call.command {
         case "listHostmap": (data, error) = listHostmap(pending: false)
         case "listPendingHostmap": (data, error) = listHostmap(pending: true)
         case "getHostInfo": (data, error) = getHostInfo(args: call.arguments!)
         case "setRemoteForTunnel": (data, error) = setRemoteForTunnel(args: call.arguments!)
         case "closeTunnel": (data, error) = closeTunnel(args: call.arguments!)
-            
         default:
             error = AppMessageError.unknownIPCType(command: call.command)
         }
-        
-        if (error != nil) {
-            return try? JSONEncoder().encode(IPCResponse.init(type: .error, message: JSON(error?.localizedDescription ?? "Unknown error")))
+
+        if error != nil {
+            return try? JSONEncoder().encode(IPCResponse(type: .error, message: JSON(error?.localizedDescription ?? "Unknown error")))
         } else {
-            return try? JSONEncoder().encode(IPCResponse.init(type: .success, message: data))
+            return try? JSONEncoder().encode(IPCResponse(type: .success, message: data))
         }
     }
-    
+
     private func listHostmap(pending: Bool) -> (JSON?, Error?) {
         var err: NSError?
         let res = nebula!.listHostmap(pending, error: &err)
         return (JSON(res), err)
     }
-    
+
     private func getHostInfo(args: JSON) -> (JSON?, Error?) {
         var err: NSError?
         let res = nebula!.getHostInfo(byVpnIp: args["vpnIp"].string, pending: args["pending"].boolValue, error: &err)
         return (JSON(res), err)
     }
-    
+
     private func setRemoteForTunnel(args: JSON) -> (JSON?, Error?) {
         var err: NSError?
         let res = nebula!.setRemoteForTunnel(args["vpnIp"].string, addr: args["addr"].string, error: &err)
         return (JSON(res), err)
     }
-    
+
     private func closeTunnel(args: JSON) -> (JSON?, Error?) {
         let res = nebula!.closeTunnel(args["vpnIp"].string)
         return (JSON(res), nil)
     }
-    
+
     private var tunnelFileDescriptor: Int32? {
         var ctlInfo = ctl_info()
         withUnsafeMutablePointer(to: &ctlInfo.ctl_name) {
@@ -281,7 +279,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 _ = strcpy($0, "com.apple.net.utun_control")
             }
         }
-        for fd: Int32 in 0...1024 {
+        for fd: Int32 in 0 ... 1024 {
             var addr = sockaddr_ctl()
             var ret: Int32 = -1
             var len = socklen_t(MemoryLayout.size(ofValue: addr))
@@ -306,4 +304,3 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         return nil
     }
 }
-
