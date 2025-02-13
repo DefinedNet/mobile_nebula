@@ -1,0 +1,25 @@
+name: Swift format
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - '.github/workflows/swiftfmt.yml'
+      - '**.swift'
+jobs:
+  swiftfmt:
+    name: Run swift format
+    runs-on: macos-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          show-progress: false
+
+      - name: Check formating
+        run: |
+            xcrun swift-format lint . \
+            --parallel \
+            --recursive \
+            --strict
