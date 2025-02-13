@@ -22,7 +22,7 @@ class _Hostmap {
 }
 
 class StaticHostsScreen extends StatefulWidget {
-  const StaticHostsScreen({Key? key, required this.hostmap, required this.onSave}) : super(key: key);
+  const StaticHostsScreen({super.key, required this.hostmap, required this.onSave});
 
   final Map<String, StaticHost> hostmap;
   final ValueChanged<Map<String, StaticHost>>? onSave;

@@ -40,7 +40,7 @@ class Advanced {
 }
 
 class AdvancedScreen extends StatefulWidget {
-  const AdvancedScreen({Key? key, required this.site, required this.onSave}) : super(key: key);
+  const AdvancedScreen({super.key, required this.site, required this.onSave});
 
   final Site site;
   final ValueChanged<Advanced> onSave;

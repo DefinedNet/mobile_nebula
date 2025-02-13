@@ -15,14 +15,14 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class HostInfoScreen extends StatefulWidget {
   const HostInfoScreen({
-    Key? key,
+    super.key,
     required this.hostInfo,
     required this.isLighthouse,
     required this.pending,
     this.onChanged,
     required this.site,
     required this.supportsQRScanning,
-  }) : super(key: key);
+  });
 
   final bool isLighthouse;
   final bool pending;

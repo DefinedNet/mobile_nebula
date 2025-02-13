@@ -8,7 +8,7 @@ import 'IPAndPortField.dart';
 class IPAndPortFormField extends FormField<IPAndPort> {
   //TODO: onSaved, validator, auto-validate, enabled?
   IPAndPortFormField({
-    Key? key,
+    super.key,
     ipOnly = false,
     enableIPV6 = false,
     ipHelp = "ip address",
@@ -16,17 +16,14 @@ class IPAndPortFormField extends FormField<IPAndPort> {
     focusNode,
     nextFocusNode,
     ValueChanged<IPAndPort>? onChanged,
-    FormFieldSetter<IPAndPort>? onSaved,
+    super.onSaved,
     textInputAction,
-    IPAndPort? initialValue,
+    super.initialValue,
     noBorder,
     ipTextAlign = TextAlign.center,
     this.ipController,
     this.portController,
   }) : super(
-         key: key,
-         initialValue: initialValue,
-         onSaved: onSaved,
          validator: (ipAndPort) {
            if (ipAndPort == null) {
              return "Please fill out this field";

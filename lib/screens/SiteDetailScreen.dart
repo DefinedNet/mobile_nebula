@@ -23,8 +23,7 @@ import '../components/SiteTitle.dart';
 //TODO: ios is now the problem with connecting screwing our ability to query the hostmap (its a race)
 
 class SiteDetailScreen extends StatefulWidget {
-  const SiteDetailScreen({Key? key, required this.site, this.onChanged, required this.supportsQRScanning})
-    : super(key: key);
+  const SiteDetailScreen({super.key, required this.site, this.onChanged, required this.supportsQRScanning});
 
   final Site site;
   final Function? onChanged;

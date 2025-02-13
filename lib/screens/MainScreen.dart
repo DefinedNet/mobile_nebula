@@ -60,7 +60,7 @@ MAIH7gzreMGgrH/yR6rZpIHR3DxJ3E0aHtEI
 };
 
 class MainScreen extends StatefulWidget {
-  const MainScreen(this.dnEnrollStream, {Key? key}) : super(key: key);
+  const MainScreen(this.dnEnrollStream, {super.key});
 
   final StreamController dnEnrollStream;
 

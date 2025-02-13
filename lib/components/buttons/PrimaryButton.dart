@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class PrimaryButton extends StatelessWidget {
-  const PrimaryButton({Key? key, required this.child, this.onPressed}) : super(key: key);
+  const PrimaryButton({super.key, required this.child, this.onPressed});
 
   final Widget child;
   final GestureTapCallback? onPressed;

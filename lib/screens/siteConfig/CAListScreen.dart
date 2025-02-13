@@ -18,7 +18,7 @@ import 'package:mobile_nebula/services/utils.dart';
 //TODO: In addition you will want to think about re-generation while the site is still active (This means storing multiple keys in secure storage)
 
 class CAListScreen extends StatefulWidget {
-  const CAListScreen({Key? key, required this.cas, this.onSave, required this.supportsQRScanning}) : super(key: key);
+  const CAListScreen({super.key, required this.cas, this.onSave, required this.supportsQRScanning});
 
   final List<CertificateInfo> cas;
   final ValueChanged<List<CertificateInfo>>? onSave;

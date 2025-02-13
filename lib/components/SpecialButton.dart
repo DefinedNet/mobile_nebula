@@ -5,8 +5,14 @@ import 'package:flutter/material.dart';
 
 // This is a button that pushes the bare minimum onto you, it doesn't even respect button themes - unless you tell it to
 class SpecialButton extends StatefulWidget {
-  const SpecialButton({Key? key, this.child, this.color, this.onPressed, this.useButtonTheme = false, this.decoration})
-    : super(key: key);
+  const SpecialButton({
+    super.key,
+    this.child,
+    this.color,
+    this.onPressed,
+    this.useButtonTheme = false,
+    this.decoration,
+  });
 
   final Widget? child;
   final Color? color;
