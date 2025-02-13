@@ -108,7 +108,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
   }
 
   Widget _buildRemotes() {
-    if (hostInfo.remoteAddresses.length == 0) {
+    if (hostInfo.remoteAddresses.isEmpty) {
       return ConfigSection(
         label: 'REMOTES',
         children: [ConfigItem(content: Text('No remote addresses yet'), labelWidth: 0)],
@@ -150,7 +150,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
       );
     });
 
-    return ConfigSection(label: items.length > 0 ? 'Tap to change the active address' : null, children: items);
+    return ConfigSection(label: items.isNotEmpty ? 'Tap to change the active address' : null, children: items);
   }
 
   Widget _buildStaticRemotes() {
@@ -171,7 +171,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
       );
     });
 
-    return ConfigSection(label: items.length > 0 ? 'REMOTES' : null, children: items);
+    return ConfigSection(label: items.isNotEmpty ? 'REMOTES' : null, children: items);
   }
 
   Widget _buildClose() {

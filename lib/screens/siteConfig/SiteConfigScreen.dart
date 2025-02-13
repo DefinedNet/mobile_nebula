@@ -161,7 +161,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
     final certError = site.certInfo == null || site.certInfo!.validity == null || !site.certInfo!.validity!.valid;
     var caError = false;
     if (!site.managed) {
-      caError = site.ca.length == 0;
+      caError = site.ca.isEmpty;
       if (!caError) {
         site.ca.forEach((ca) {
           if (ca.validity == null || !ca.validity!.valid) {
@@ -272,13 +272,13 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
             alignment: WrapAlignment.end,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: <Widget>[
-              site.staticHostmap.length == 0
+              site.staticHostmap.isEmpty
                   ? Padding(
                     padding: EdgeInsets.only(right: 5),
                     child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                   )
                   : Container(),
-              site.staticHostmap.length == 0
+              site.staticHostmap.isEmpty
                   ? Text('Needs attention')
                   : Text(Utils.itemCountFormat(site.staticHostmap.length)),
             ],

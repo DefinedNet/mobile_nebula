@@ -112,7 +112,7 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
   }
 
   Widget _buildErrors() {
-    if (site.errors.length == 0) {
+    if (site.errors.isEmpty) {
       return Container();
     }
 
@@ -165,7 +165,7 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
               Switch.adaptive(
                 value: widget.site.connected,
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                onChanged: widget.site.errors.length > 0 && !widget.site.connected ? null : handleChange,
+                onChanged: widget.site.errors.isNotEmpty && !widget.site.connected ? null : handleChange,
               ),
             ],
           ),

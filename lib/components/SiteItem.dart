@@ -14,7 +14,7 @@ class SiteItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final borderColor =
-        site.errors.length > 0
+        site.errors.isNotEmpty
             ? CupertinoColors.systemRed.resolveFrom(context)
             : site.connected
             ? CupertinoColors.systemGreen.resolveFrom(context)
