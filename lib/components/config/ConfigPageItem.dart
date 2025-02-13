@@ -52,7 +52,7 @@ class ConfigPageItem extends StatelessWidget {
         child: Row(
           crossAxisAlignment: crossAxisAlignment,
           children: <Widget>[
-            label != null ? Container(width: labelWidth, child: label) : Container(),
+            label != null ? SizedBox(width: labelWidth, child: label) : Container(),
             Expanded(child: Container(padding: EdgeInsets.only(right: 10), child: content)),
             disabled
                 ? Container()
