@@ -28,3 +28,8 @@ linter:
 # https://dart.dev/tools/analysis
 formatter:
   page_width: 120
+
+analyzer:
+  exclude:
+    # This is a generated file, let's ignore it.
+    - lib/services/theme.dart
