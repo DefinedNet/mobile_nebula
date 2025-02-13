@@ -115,8 +115,8 @@ class _MainScreenState extends State<MainScreen> {
 
     if (kDebugMode) {
       debugSite = Row(
-        children: [_debugSave(badDebugSave), _debugSave(goodDebugSave), _debugClearKeys()],
         mainAxisAlignment: MainAxisAlignment.center,
+        children: [_debugSave(badDebugSave), _debugSave(goodDebugSave), _debugClearKeys()],
       );
     }
 
@@ -168,12 +168,12 @@ class _MainScreenState extends State<MainScreen> {
     if (error != null) {
       return Center(
         child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: error!,
           ),
-          padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
         ),
       );
     }
@@ -260,7 +260,7 @@ class _MainScreenState extends State<MainScreen> {
     );
 
     if (Platform.isIOS) {
-      child = CupertinoTheme(child: child, data: CupertinoTheme.of(context));
+      child = CupertinoTheme(data: CupertinoTheme.of(context), child: child);
     }
 
     // The theme here is to remove the hardcoded canvas border reordering forces on us

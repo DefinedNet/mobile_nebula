@@ -59,6 +59,7 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
         refreshController.loadComplete();
       },
       refreshController: refreshController,
+      bottomBar: _buildBottomBar(),
       child: Container(
         padding: EdgeInsets.all(5),
         constraints: logBoxConstraints(context),
@@ -75,7 +76,6 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
               }, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
         ),
       ),
-      bottomBar: _buildBottomBar(),
     );
   }
 

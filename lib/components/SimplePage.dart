@@ -48,8 +48,8 @@ class SimplePage extends StatelessWidget {
     if (scrollable == SimpleScrollable.vertical || scrollable == SimpleScrollable.both) {
       realChild = SingleChildScrollView(
         scrollDirection: Axis.vertical,
-        child: realChild,
         controller: refreshController == null ? scrollController : null,
+        child: realChild,
       );
       addScrollbar = true;
     }
@@ -69,10 +69,10 @@ class SimplePage extends StatelessWidget {
           onRefresh: onRefresh,
           onLoading: onLoading,
           controller: refreshController!,
-          child: realChild,
           enablePullUp: onLoading != null,
           enablePullDown: onRefresh != null,
           footer: ClassicFooter(loadStyle: LoadStyle.ShowWhenLoading),
+          child: realChild,
         ),
       );
       addScrollbar = true;

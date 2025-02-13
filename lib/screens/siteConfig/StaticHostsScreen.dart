@@ -80,11 +80,11 @@ class _StaticHostsScreenState extends State<StaticHostsScreen> {
           label: Row(
             children: <Widget>[
               Padding(
+                padding: EdgeInsets.only(right: 10),
                 child: Icon(
                   host.lighthouse ? Icons.lightbulb_outline : Icons.computer,
                   color: CupertinoColors.placeholderText.resolveFrom(context),
                 ),
-                padding: EdgeInsets.only(right: 10),
               ),
               Text(host.nebulaIp),
             ],
