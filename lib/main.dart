@@ -9,14 +9,11 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/screens/MainScreen.dart';
 import 'package:mobile_nebula/screens/EnrollmentScreen.dart';
 import 'package:mobile_nebula/services/settings.dart';
-import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:mobile_nebula/services/theme.dart';
 import 'package:mobile_nebula/services/utils.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 Future<void> main() async {
-  usePathUrlStrategy();
-
   var settings = Settings();
   if (settings.trackErrors) {
     await SentryFlutter.init((options) {
