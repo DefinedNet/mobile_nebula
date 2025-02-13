@@ -31,12 +31,16 @@ Future<void> main() async {
 //TODO: EventChannel might be better than the stream controller we are using now
 
 class Main extends StatelessWidget {
+  const Main({super.key});
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) => App();
 }
 
 class App extends StatefulWidget {
+  const App({super.key});
+
   @override
   _AppState createState() => _AppState();
 }
