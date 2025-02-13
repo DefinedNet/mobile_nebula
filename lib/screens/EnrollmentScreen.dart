@@ -172,7 +172,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   }
 
   Widget _codeEntry() {
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
     String? validator(String? value) {
       if (value == null || value.isEmpty) {
@@ -182,7 +182,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     }
 
     Future<void> onSubmit() async {
-      final bool isValid = _formKey.currentState?.validate() ?? false;
+      final bool isValid = formKey.currentState?.validate() ?? false;
       if (!isValid) {
         return;
       }
@@ -205,7 +205,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       ),
     );
 
-    final form = Form(key: _formKey, child: Platform.isAndroid ? input : ConfigSection(children: [input]));
+    final form = Form(key: formKey, child: Platform.isAndroid ? input : ConfigSection(children: [input]));
 
     return Column(
       children: [
