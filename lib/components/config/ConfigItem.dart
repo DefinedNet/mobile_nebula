@@ -34,7 +34,7 @@ class ConfigItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: crossAxisAlignment,
         children: <Widget>[
-          Container(width: labelWidth, child: DefaultTextStyle(style: textStyle, child: Container(child: label))),
+          SizedBox(width: labelWidth, child: DefaultTextStyle(style: textStyle, child: Container(child: label))),
           Expanded(child: DefaultTextStyle(style: textStyle, child: Container(child: content))),
         ],
       ),
