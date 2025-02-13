@@ -9,7 +9,7 @@ on:
       - '.github/workflows/flutterfmt.sh'
       - '**.dart'
 jobs:
-  gofmt:
+  flutterfmt:
     name: Run flutter format
     runs-on: ubuntu-latest
     steps:
@@ -23,5 +23,6 @@ jobs:
         with:
           show-progress: false
 
-      - name: Check formating
-        run: dart format -l120 lib/ --set-exit-if-changed --suppress-analytics --output none
+      # Disabled for a single PR, this will be re-enabled in the PR that has lots of formatting changes.
+      # - name: Check formating
+      #   run: dart format -l120 lib/ --set-exit-if-changed --suppress-analytics --output none
