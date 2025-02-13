@@ -42,7 +42,7 @@ class _SpecialButtonState extends State<SpecialButton> with SingleTickerProvider
       child: Ink(
         decoration: widget.decoration,
         color: widget.color,
-        child: InkWell(child: widget.child, onTap: widget.onPressed),
+        child: InkWell(onTap: widget.onPressed, child: widget.child),
       ),
     );
   }
@@ -65,7 +65,7 @@ class _SpecialButtonState extends State<SpecialButton> with SingleTickerProvider
           button: true,
           child: FadeTransition(
             opacity: _opacityAnimation!,
-            child: DefaultTextStyle(style: textStyle, child: Container(child: widget.child, color: widget.color)),
+            child: DefaultTextStyle(style: textStyle, child: Container(color: widget.color, child: widget.child)),
           ),
         ),
       ),

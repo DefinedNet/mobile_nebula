@@ -79,9 +79,9 @@ class Utils {
 
   static Widget trailingSaveWidget(BuildContext context, Function onPressed) {
     return PlatformTextButton(
-      child: Text('Save'),
       padding: Platform.isAndroid ? null : EdgeInsets.zero,
       onPressed: () => onPressed(),
+      child: Text('Save'),
     );
   }
 

@@ -182,8 +182,8 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
             children: <Widget>[
               certError
                   ? Padding(
-                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                     padding: EdgeInsets.only(right: 5),
+                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                   )
                   : Container(),
               certError ? Text('Needs attention') : Text(site.certInfo?.cert.details.name ?? 'Unknown certificate'),
@@ -233,8 +233,8 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
             children: <Widget>[
               caError
                   ? Padding(
-                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                     padding: EdgeInsets.only(right: 5),
+                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                   )
                   : Container(),
               caError ? Text('Needs attention') : Text(Utils.itemCountFormat(site.ca.length)),
@@ -274,8 +274,8 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
             children: <Widget>[
               site.staticHostmap.length == 0
                   ? Padding(
-                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                     padding: EdgeInsets.only(right: 5),
+                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                   )
                   : Container(),
               site.staticHostmap.length == 0

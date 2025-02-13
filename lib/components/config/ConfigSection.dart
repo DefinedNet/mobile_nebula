@@ -28,8 +28,8 @@ class ConfigSection extends StatelessWidget {
         }
         _children.add(
           Padding(
-            child: Divider(height: 1, color: Utils.configSectionBorder(context)),
             padding: EdgeInsets.only(left: pad),
+            child: Divider(height: 1, color: Utils.configSectionBorder(context)),
           ),
         );
       }

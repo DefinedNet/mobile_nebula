@@ -27,7 +27,7 @@ class ConfigCheckboxItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           label != null ? Container(width: labelWidth, child: label) : Container(),
-          Expanded(child: Container(child: content, padding: EdgeInsets.only(right: 10))),
+          Expanded(child: Container(padding: EdgeInsets.only(right: 10), child: content)),
           checked
               ? Icon(CupertinoIcons.check_mark, color: CupertinoColors.systemBlue.resolveFrom(context))
               : Container(),

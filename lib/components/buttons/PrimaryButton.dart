@@ -14,8 +14,8 @@ class PrimaryButton extends StatelessWidget {
     if (Platform.isAndroid) {
       return FilledButton(
         onPressed: onPressed,
-        child: child,
         style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary),
+        child: child,
       );
     } else {
       // Workaround for https://github.com/flutter/flutter/issues/161590
@@ -23,9 +23,9 @@ class PrimaryButton extends StatelessWidget {
       return CupertinoTheme(
         data: themeData.copyWith(primaryColor: CupertinoColors.white),
         child: CupertinoButton(
-          child: child,
           onPressed: onPressed,
           color: CupertinoColors.secondaryLabel.resolveFrom(context),
+          child: child,
         ),
       );
     }
