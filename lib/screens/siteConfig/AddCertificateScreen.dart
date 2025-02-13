@@ -223,7 +223,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
             onPressed: () async {
               var result = await Navigator.push(
                 context,
-                platformPageRoute(context: context, builder: (context) => new ScanQRScreen()),
+                platformPageRoute(context: context, builder: (context) => ScanQRScreen()),
               );
               if (result != null) {
                 _addCertEntry(result);

@@ -99,7 +99,7 @@ class _AppState extends State<App> {
             ],
             title: 'Nebula',
             material: (_, __) {
-              return new MaterialAppData(
+              return MaterialAppData(
                 themeMode: brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
                 theme: brightness == Brightness.light ? theme.light() : theme.dark(),
               );

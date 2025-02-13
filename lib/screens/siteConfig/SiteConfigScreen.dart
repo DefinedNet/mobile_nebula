@@ -104,7 +104,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
   Widget _debugConfig() {
     var data = "";
     try {
-      final encoder = new JsonEncoder.withIndent('  ');
+      final encoder = JsonEncoder.withIndent('  ');
       data = encoder.convert(site);
     } catch (err) {
       data = err.toString();
