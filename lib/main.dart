@@ -107,7 +107,7 @@ class _AppState extends State<App> {
             cupertino: (_, __) => CupertinoAppData(theme: CupertinoThemeData(brightness: brightness)),
             onGenerateRoute: (settings) {
               if (settings.name == '/') {
-                return platformPageRoute(context: context, builder: (context) => MainScreen(this.dnEnrolled));
+                return platformPageRoute(context: context, builder: (context) => MainScreen(dnEnrolled));
               }
 
               final uri = Uri.parse(settings.name!);
@@ -117,7 +117,7 @@ class _AppState extends State<App> {
                   context: context,
                   builder:
                       (context) =>
-                          EnrollmentScreen(code: EnrollmentScreen.parseCode(settings.name!), stream: this.dnEnrolled),
+                          EnrollmentScreen(code: EnrollmentScreen.parseCode(settings.name!), stream: dnEnrolled),
                 );
               }
 

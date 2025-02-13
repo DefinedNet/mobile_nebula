@@ -103,7 +103,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
           padding: EdgeInsets.only(top: 20),
         );
       }
-    } else if (this.error != null) {
+    } else if (error != null) {
       // Error while enrolling, display it
       child = Center(
         child: Column(
@@ -137,7 +137,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             ),
             Container(
-              child: Padding(child: SelectableText(this.error!), padding: EdgeInsets.all(16)),
+              child: Padding(child: SelectableText(error!), padding: EdgeInsets.all(16)),
               color: Theme.of(context).colorScheme.errorContainer,
             ),
           ],
@@ -145,7 +145,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
         ),
       );
-    } else if (this.enrolled) {
+    } else if (enrolled) {
       // Enrollment complete!
       child = Padding(
         child: Center(child: Text('Enrollment complete! 🎉', textAlign: TextAlign.center)),

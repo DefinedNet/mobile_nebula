@@ -27,7 +27,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     //TODO: we need to unregister on dispose?
     settings.onChange().listen((_) {
-      if (this.mounted) {
+      if (mounted) {
         setState(() {});
       }
     });
