@@ -113,7 +113,7 @@ class _IPAndPortFormField extends FormFieldState<IPAndPort> {
     super.didUpdateWidget(oldWidget);
     var update = IPAndPort(
       ip: widget.ipController?.text,
-      port: int.tryParse(widget.portController?.text ?? "") ?? null,
+      port: int.tryParse(widget.portController?.text ?? ""),
     );
     bool shouldUpdate = false;
 
