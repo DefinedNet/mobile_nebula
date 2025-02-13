@@ -163,11 +163,11 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
     if (!site.managed) {
       caError = site.ca.isEmpty;
       if (!caError) {
-        site.ca.forEach((ca) {
+        for (var ca in site.ca) {
           if (ca.validity == null || !ca.validity!.valid) {
             caError = true;
           }
-        });
+        }
       }
     }
 

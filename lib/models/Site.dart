@@ -169,15 +169,15 @@ class Site {
 
     List<dynamic> rawUnsafeRoutes = json['unsafeRoutes'];
     List<UnsafeRoute> unsafeRoutes = [];
-    rawUnsafeRoutes.forEach((val) {
+    for (var val in rawUnsafeRoutes) {
       unsafeRoutes.add(UnsafeRoute.fromJson(val));
-    });
+    }
 
     List<dynamic> rawCA = json['ca'];
     List<CertificateInfo> ca = [];
-    rawCA.forEach((val) {
+    for (var val in rawCA) {
       ca.add(CertificateInfo.fromJson(val));
-    });
+    }
 
     CertificateInfo? certInfo;
     if (json['cert'] != null) {
@@ -186,9 +186,9 @@ class Site {
 
     List<dynamic> rawErrors = json["errors"];
     List<String> errors = [];
-    rawErrors.forEach((error) {
+    for (var error in rawErrors) {
       errors.add(error);
-    });
+    }
 
     return {
       "name": json["name"],
@@ -295,9 +295,9 @@ class Site {
 
       List<dynamic> f = jsonDecode(ret);
       List<HostInfo> hosts = [];
-      f.forEach((v) {
+      for (var v in f) {
         hosts.add(HostInfo.fromJson(v));
-      });
+      }
 
       return hosts;
     } on PlatformException catch (err) {
@@ -317,9 +317,9 @@ class Site {
 
       List<dynamic> f = jsonDecode(ret);
       List<HostInfo> hosts = [];
-      f.forEach((v) {
+      for (var v in f) {
         hosts.add(HostInfo.fromJson(v));
-      });
+      }
 
       return hosts;
     } on PlatformException catch (err) {
