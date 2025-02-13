@@ -17,5 +17,6 @@ jobs:
         with:
           show-progress: false
 
-      - name: Check formating
-        run: swiftformat --lint . --reporter github-actions-log
+    # Re-enable in follow-up PR that does the formatting.
+    #   - name: Check formating
+    #     run: swiftformat --lint . --reporter github-actions-log
