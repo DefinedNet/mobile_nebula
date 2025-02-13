@@ -10,7 +10,7 @@ import 'package:mobile_nebula/models/UnsafeRoute.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 class UnsafeRouteScreen extends StatefulWidget {
-  const UnsafeRouteScreen({Key? key, required this.route, required this.onSave, this.onDelete}) : super(key: key);
+  const UnsafeRouteScreen({super.key, required this.route, required this.onSave, this.onDelete});
 
   final UnsafeRoute route;
   final ValueChanged<UnsafeRoute> onSave;

@@ -11,7 +11,7 @@ import 'package:mobile_nebula/services/utils.dart';
 /// Displays the details of a CertificateInfo object. Respects incomplete objects (missing validity or rawCert)
 class CertificateDetailsScreen extends StatefulWidget {
   const CertificateDetailsScreen({
-    Key? key,
+    super.key,
     required this.certInfo,
     this.onDelete,
     this.onSave,
@@ -19,7 +19,7 @@ class CertificateDetailsScreen extends StatefulWidget {
     this.pubKey,
     this.privKey,
     required this.supportsQRScanning,
-  }) : super(key: key);
+  });
 
   final CertificateInfo certInfo;
 

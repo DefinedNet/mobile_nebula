@@ -26,13 +26,13 @@ class CertificateResult {
 
 class AddCertificateScreen extends StatefulWidget {
   const AddCertificateScreen({
-    Key? key,
+    super.key,
     this.onSave,
     this.onReplace,
     required this.pubKey,
     required this.privKey,
     required this.supportsQRScanning,
-  }) : super(key: key);
+  });
 
   // onSave will pop a new CertificateDetailsScreen.
   // If onSave is null, onReplace must be set.

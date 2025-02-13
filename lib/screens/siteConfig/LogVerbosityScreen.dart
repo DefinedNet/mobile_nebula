@@ -6,7 +6,7 @@ import 'package:mobile_nebula/components/config/ConfigCheckboxItem.dart';
 import 'package:mobile_nebula/components/config/ConfigSection.dart';
 
 class LogVerbosityScreen extends StatefulWidget {
-  const LogVerbosityScreen({Key? key, required this.verbosity, required this.onSave}) : super(key: key);
+  const LogVerbosityScreen({super.key, required this.verbosity, required this.onSave});
 
   final String verbosity;
   final ValueChanged<String> onSave;

@@ -17,7 +17,7 @@ class IPField extends StatelessWidget {
   final textAlign;
 
   const IPField({
-    Key? key,
+    super.key,
     this.ipOnly = false,
     this.help = "ip address",
     this.autoFocus = false,
@@ -28,7 +28,7 @@ class IPField extends StatelessWidget {
     this.textInputAction,
     this.controller,
     this.textAlign = TextAlign.center,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

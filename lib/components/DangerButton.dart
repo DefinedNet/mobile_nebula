@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class DangerButton extends StatelessWidget {
-  const DangerButton({Key? key, required this.child, this.onPressed}) : super(key: key);
+  const DangerButton({super.key, required this.child, this.onPressed});
 
   final Widget child;
   final GestureTapCallback? onPressed;

@@ -15,7 +15,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import '../components/SiteTitle.dart';
 
 class SiteLogsScreen extends StatefulWidget {
-  const SiteLogsScreen({Key? key, required this.site}) : super(key: key);
+  const SiteLogsScreen({super.key, required this.site});
 
   final Site site;
 

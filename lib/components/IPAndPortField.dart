@@ -8,7 +8,7 @@ import 'IPField.dart';
 //TODO: Support initialValue
 class IPAndPortField extends StatefulWidget {
   const IPAndPortField({
-    Key? key,
+    super.key,
     this.ipOnly = false,
     this.ipHelp = "ip address",
     this.autoFocus = false,
@@ -20,7 +20,7 @@ class IPAndPortField extends StatefulWidget {
     this.ipTextAlign,
     this.ipController,
     this.portController,
-  }) : super(key: key);
+  });
 
   final String ipHelp;
   final bool ipOnly;

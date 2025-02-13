@@ -6,21 +6,18 @@ import 'package:mobile_nebula/validators/ipValidator.dart';
 class CIDRFormField extends FormField<CIDR> {
   //TODO: onSaved, validator, auto-validate, enabled?
   CIDRFormField({
-    Key? key,
+    super.key,
     autoFocus = false,
     enableIPV6 = false,
     focusNode,
     nextFocusNode,
     ValueChanged<CIDR>? onChanged,
-    FormFieldSetter<CIDR>? onSaved,
+    super.onSaved,
     textInputAction,
-    CIDR? initialValue,
+    super.initialValue,
     this.ipController,
     this.bitsController,
   }) : super(
-         key: key,
-         initialValue: initialValue,
-         onSaved: onSaved,
          validator: (cidr) {
            if (cidr == null) {
              return "Please fill out this field";

@@ -10,7 +10,7 @@ import 'package:mobile_nebula/services/utils.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class AboutScreen extends StatefulWidget {
-  const AboutScreen({Key? key}) : super(key: key);
+  const AboutScreen({super.key});
 
   @override
   _AboutScreenState createState() => _AboutScreenState();

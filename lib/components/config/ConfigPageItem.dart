@@ -7,14 +7,14 @@ import 'package:mobile_nebula/services/utils.dart';
 
 class ConfigPageItem extends StatelessWidget {
   const ConfigPageItem({
-    Key? key,
+    super.key,
     this.label,
     this.content,
     this.labelWidth = 100,
     this.onPressed,
     this.disabled = false,
     this.crossAxisAlignment = CrossAxisAlignment.center,
-  }) : super(key: key);
+  });
 
   final Widget? label;
   final Widget? content;

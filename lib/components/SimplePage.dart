@@ -6,7 +6,7 @@ enum SimpleScrollable { none, vertical, horizontal, both }
 
 class SimplePage extends StatelessWidget {
   const SimplePage({
-    Key? key,
+    super.key,
     required this.title,
     required this.child,
     this.leadingAction,
@@ -19,7 +19,7 @@ class SimplePage extends StatelessWidget {
     this.onLoading,
     this.alignment,
     this.refreshController,
-  }) : super(key: key);
+  });
 
   final Widget title;
   final Widget child;

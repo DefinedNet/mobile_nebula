@@ -4,13 +4,13 @@ import 'package:mobile_nebula/services/utils.dart';
 
 class ConfigCheckboxItem extends StatelessWidget {
   const ConfigCheckboxItem({
-    Key? key,
+    super.key,
     this.label,
     this.content,
     this.labelWidth = 100,
     this.onChanged,
     this.checked = false,
-  }) : super(key: key);
+  });
 
   final Widget? label;
   final Widget? content;

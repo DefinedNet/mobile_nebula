@@ -23,8 +23,7 @@ import 'package:mobile_nebula/services/utils.dart';
 //TODO: Enforce a name
 
 class SiteConfigScreen extends StatefulWidget {
-  const SiteConfigScreen({Key? key, this.site, required this.onSave, required this.supportsQRScanning})
-    : super(key: key);
+  const SiteConfigScreen({super.key, this.site, required this.onSave, required this.supportsQRScanning});
 
   final Site? site;
 

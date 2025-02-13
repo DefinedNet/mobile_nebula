@@ -21,14 +21,13 @@ class _IPAndPort {
 
 class StaticHostmapScreen extends StatefulWidget {
   StaticHostmapScreen({
-    Key? key,
+    super.key,
     this.nebulaIp = '',
     destinations,
     this.lighthouse = false,
     this.onDelete,
     required this.onSave,
-  }) : this.destinations = destinations ?? [],
-       super(key: key);
+  }) : this.destinations = destinations ?? [];
 
   final List<IPAndPort> destinations;
   final String nebulaIp;

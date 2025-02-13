@@ -7,7 +7,7 @@ class RenderedConfigScreen extends StatelessWidget {
   final String config;
   final String name;
 
-  RenderedConfigScreen({Key? key, required this.config, required this.name}) : super(key: key);
+  RenderedConfigScreen({super.key, required this.config, required this.name});
 
   @override
   Widget build(BuildContext context) {
