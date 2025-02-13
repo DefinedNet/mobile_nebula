@@ -32,7 +32,7 @@ class _SpecialButtonState extends State<SpecialButton> with SingleTickerProvider
   }
 
   Widget _buildAndroid() {
-    var textStyle;
+    TextStyle? textStyle;
     if (widget.useButtonTheme) {
       textStyle = Theme.of(context).textTheme.labelLarge;
     }

@@ -20,7 +20,7 @@ class ConfigItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var textStyle;
+    TextStyle textStyle;
     if (Platform.isAndroid) {
       textStyle = Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.normal);
     } else {
