@@ -7,8 +7,9 @@ actor DNUpdater {
   private let log = Logger(subsystem: "net.defined.mobileNebula", category: "DNUpdater")
 
   func updateAll(onUpdate: @Sendable @escaping (Site) -> Void) {
-    _ = SiteList { sites, _ in
-      guard let unwrappedSites = sites else {
+    Task {
+      let sitesResult = await SiteList()?.loadSites()
+      guard case let .success(unwrappedSites) = sitesResult else {
         // There was an error, let's bail.
         return
       }
@@ -24,6 +25,22 @@ actor DNUpdater {
           await self.updateSite(site: site, onUpdate: onUpdate)
         }
       }
+
+    }
+
+  }
+
+  // Site updates provides an async/await alternative to `.updateAllLoop` that doesn't require a sendable closure.
+  // https://developer.apple.com/documentation/swift/asyncstream
+  var siteUpdates: AsyncStream<Site> {
+    AsyncStream { continuation in
+      timer.eventHandler = {
+        self.updateAll(onUpdate: { site in
+          continuation.yield(site)
+        })
+      }
+      timer.resume()
+
     }
   }
 

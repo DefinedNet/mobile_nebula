@@ -1,7 +1,10 @@
 import NetworkExtension
 
-class SiteList {
-  private var sites = [String: Site]()
+typealias SiteDictionary = [String: Site]
+
+actor SiteList {
+  // This keeps a reference around to the sites that are loaded. It's not referenced elsewhere.
+  private var sites = SiteDictionary()
 
   /// Gets the root directory that can be used to share files between the UI and VPN process. Does ensure the directory exists
   static func getRootDir() throws -> URL {
@@ -50,25 +53,33 @@ class SiteList {
     )
   }
 
-  init(completion: @escaping ([String: Site]?, (any Error)?) -> Void) {
+  init?() async {
+    _ = await loadSites()
+  }
+
+  func loadSites() async -> Result<SiteDictionary, any Error> {
     #if targetEnvironment(simulator)
-      SiteList.loadAllFromFS { sites, err in
-        if sites != nil {
-          self.sites = sites!
-        }
-        completion(sites, err)
+      let sitesResult = await SiteList.loadAllFromFS()
+      switch sitesResult {
+      case .success(let sites):
+        self.sites = sites
+        return .success(sites)
+      case .failure(let error):
+        return .failure(error)
       }
     #else
-      SiteList.loadAllFromNETPM { sites, err in
-        if sites != nil {
-          self.sites = sites!
-        }
-        completion(sites, err)
+      let sitesResult = await SiteList.loadAllFromNETPM()
+      switch sitesResult {
+      case .success(let sites):
+        self.sites = sites
+        return .success(sites)
+      case .failure(let error):
+        return .failure(error)
       }
     #endif
   }
 
-  private static func loadAllFromFS(completion: @escaping ([String: Site]?, (any Error)?) -> Void) {
+  private static func loadAllFromFS() async -> Result<SiteDictionary, any Error> {
     let fileManager = FileManager.default
     var siteDirs: [URL]
     var sites = [String: Site]()
@@ -79,8 +90,7 @@ class SiteList {
       )
 
     } catch {
-      completion(nil, error)
-      return
+      return Result.failure(error)
     }
 
     for path in siteDirs {
@@ -96,55 +106,50 @@ class SiteList {
       }
     }
 
-    completion(sites, nil)
+    return Result.success(sites)
   }
 
-  private static func loadAllFromNETPM(
-    completion: @escaping ([String: Site]?, (any Error)?) -> Void
-  ) {
+  private static func loadAllFromNETPM() async -> Result<SiteDictionary, any Error> {
     var sites = [String: Site]()
 
-    // dispatchGroup is used to ensure we have migrated all sites before returning them
-    // If there are no sites to migrate, there are never any entrants
-    let dispatchGroup = DispatchGroup()
-
-    NETunnelProviderManager.loadAllFromPreferences { newManagers, err in
-      if err != nil {
-        return completion(nil, err)
-      }
-
-      newManagers?.forEach { manager in
+    do {
+      let newManagers = try await NETunnelProviderManager.loadAllFromPreferences()
+      for manager in newManagers {
         do {
           let site = try Site(manager: manager)
           if site.needsToMigrateToFS {
-            dispatchGroup.enter()
-            site.incomingSite?.save(manager: manager) { error in
-              if error != nil {
-                print("Error while migrating site to fs: \(error!.localizedDescription)")
+            let error = await withCheckedContinuation({ continuation in
+              site.incomingSite?.save(manager: manager) { error in
+                continuation.resume(returning: error)
               }
+            })
 
-              print("Migrated site to fs: \(site.name)")
-              site.needsToMigrateToFS = false
-              dispatchGroup.leave()
+            if error != nil {
+              print("Error while migrating site to fs: \(error!.localizedDescription)")
             }
+
+            print("Migrated site to fs: \(site.name)")
+            site.needsToMigrateToFS = false
+
           }
           sites[site.id] = site
 
         } catch {
           // TODO: notify the user about this
           print("Deleted non conforming site \(manager) \(error)")
-          manager.removeFromPreferences()
+          try await manager.removeFromPreferences()
           // TODO: delete from disk, we need to try and discover the site id though
         }
       }
 
-      dispatchGroup.notify(queue: .main) {
-        completion(sites, nil)
-      }
+      return Result.success(sites)
+
+    } catch {
+      return Result.failure(error)
     }
   }
 
-  func getSites() -> [String: Site] {
+  func getSites() -> SiteDictionary {
     return sites
   }
 }

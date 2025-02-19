@@ -1,6 +1,10 @@
 import MobileNebula
 import NetworkExtension
 
+enum SitesListError: Error {
+  case missingSitesList
+}
+
 class SiteContainer {
   var site: Site
   var updater: SiteUpdater
@@ -19,13 +23,13 @@ class Sites {
     self.messenger = messenger
   }
 
-  func loadSites(completion: @escaping ([String: Site]?, (any Error)?) -> Void) {
-    _ = SiteList { sites, err in
-      if err != nil {
-        return completion(nil, err)
-      }
-
-      sites?.values.forEach { site in
+  func loadSites() async -> Result<[String: Site], any Error> {
+    let sitesResult = await SiteList()?.loadSites()
+    switch sitesResult {
+    case .failure(let error):
+      return Result.failure(error)
+    case .success(let sites):
+      sites.values.forEach { site in
         var updater = self.containers[site.id]?.updater
         if updater != nil {
           updater!.setSite(site: site)
@@ -38,8 +42,11 @@ class Sites {
       let justSites = self.containers.mapValues {
         $0.site
       }
-      completion(justSites, nil)
+      return Result.success(justSites)
+    case nil:
+      return Result.failure(SitesListError.missingSitesList)
     }
+
   }
 
   func deleteSite(id: String, callback: @escaping ((any Error)?) -> Void) {
