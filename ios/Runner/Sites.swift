@@ -13,14 +13,14 @@ class SiteContainer {
 
 class Sites {
   private var containers = [String: SiteContainer]()
-  private var messenger: FlutterBinaryMessenger?
+  private var messenger: (any FlutterBinaryMessenger)?
 
-  init(messenger: FlutterBinaryMessenger?) {
+  init(messenger: (any FlutterBinaryMessenger)?) {
     self.messenger = messenger
   }
 
-  func loadSites(completion: @escaping ([String: Site]?, Error?) -> Void) {
-    _ = SiteList { (sites, err) in
+  func loadSites(completion: @escaping ([String: Site]?, (any Error)?) -> Void) {
+    _ = SiteList { sites, err in
       if err != nil {
         return completion(nil, err)
       }
@@ -36,14 +36,14 @@ class Sites {
       }
 
       let justSites = self.containers.mapValues {
-        return $0.site
+        $0.site
       }
       completion(justSites, nil)
     }
   }
 
-  func deleteSite(id: String, callback: @escaping (Error?) -> Void) {
-    if let site = self.containers.removeValue(forKey: id) {
+  func deleteSite(id: String, callback: @escaping ((any Error)?) -> Void) {
+    if let site = containers.removeValue(forKey: id) {
       _ = KeyChain.delete(key: "\(site.site.id).dnCredentials")
       _ = KeyChain.delete(key: "\(site.site.id).key")
 
@@ -66,15 +66,15 @@ class Sites {
   }
 
   func getSite(id: String) -> Site? {
-    return self.containers[id]?.site
+    return containers[id]?.site
   }
 
   func getUpdater(id: String) -> SiteUpdater? {
-    return self.containers[id]?.updater
+    return containers[id]?.updater
   }
 
   func getContainer(id: String) -> SiteContainer? {
-    return self.containers[id]
+    return containers[id]
   }
 }
 
@@ -85,38 +85,39 @@ class SiteUpdater: NSObject, FlutterStreamHandler {
   private var notification: Any?
   public var startFunc: (() -> Void)?
   private var configFd: Int32? = nil
-  private var configObserver: DispatchSourceFileSystemObject? = nil
+  private var configObserver: (any DispatchSourceFileSystemObject)? = nil
 
-  init(messenger: FlutterBinaryMessenger, site: Site) {
+  init(messenger: any FlutterBinaryMessenger, site: Site) {
     do {
       let configPath = try SiteList.getSiteConfigFile(id: site.id, createDir: false)
-      self.configFd = open(configPath.path, O_EVTONLY)
-      self.configObserver = DispatchSource.makeFileSystemObjectSource(
-        fileDescriptor: self.configFd!,
+      configFd = open(configPath.path, O_EVTONLY)
+      configObserver = DispatchSource.makeFileSystemObjectSource(
+        fileDescriptor: configFd!,
         eventMask: .write
       )
 
     } catch {
       // SiteList.getSiteConfigFile should never throw because we are not creating it here
-      self.configObserver = nil
+      configObserver = nil
     }
 
     eventChannel = FlutterEventChannel(
-      name: "net.defined.nebula/\(site.id)", binaryMessenger: messenger)
+      name: "net.defined.nebula/\(site.id)", binaryMessenger: messenger
+    )
     self.site = site
     super.init()
 
     eventChannel.setStreamHandler(self)
 
-    self.configObserver?.setEventHandler(handler: self.configUpdated)
-    self.configObserver?.setCancelHandler {
+    configObserver?.setEventHandler(handler: configUpdated)
+    configObserver?.setCancelHandler {
       if self.configFd != nil {
         close(self.configFd!)
       }
       self.configObserver = nil
     }
 
-    self.configObserver?.resume()
+    configObserver?.resume()
   }
 
   func setSite(site: Site) {
@@ -124,29 +125,30 @@ class SiteUpdater: NSObject, FlutterStreamHandler {
   }
 
   /// onListen is called when flutter code attaches an event listener
-  func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink)
+  func onListen(withArguments _: Any?, eventSink events: @escaping FlutterEventSink)
     -> FlutterError?
   {
     eventSink = events
 
     #if !targetEnvironment(simulator)
       if site.manager == nil {
-        //TODO: The dn updater path seems to race to build a site that lacks a manager. The UI does not display this error
+        // TODO: The dn updater path seems to race to build a site that lacks a manager. The UI does not display this error
         // and a another listen should occur and succeed.
         return FlutterError(
-          code: "Internal Error", message: "Flutter manager was not present", details: nil)
+          code: "Internal Error", message: "Flutter manager was not present", details: nil
+        )
       }
 
-      self.notification = NotificationCenter.default.addObserver(
+      notification = NotificationCenter.default.addObserver(
         forName: NSNotification.Name.NEVPNStatusDidChange, object: site.manager!.connection,
         queue: nil
-      ) { n in
+      ) { _ in
         let oldConnected = self.site.connected
         self.site.status = statusString[self.site.manager!.connection.status]
         self.site.connected = statusMap[self.site.manager!.connection.status]
 
         // Check to see if we just moved to connected and if we have a start function to call when that happens
-        if self.site.connected! && oldConnected != self.site.connected && self.startFunc != nil {
+        if self.site.connected!, oldConnected != self.site.connected, self.startFunc != nil {
           self.startFunc!()
           self.startFunc = nil
         }
@@ -158,9 +160,9 @@ class SiteUpdater: NSObject, FlutterStreamHandler {
   }
 
   /// onCancel is called when the flutter listener stops listening
-  func onCancel(withArguments arguments: Any?) -> FlutterError? {
-    if self.notification != nil {
-      NotificationCenter.default.removeObserver(self.notification!)
+  func onCancel(withArguments _: Any?) -> FlutterError? {
+    if notification != nil {
+      NotificationCenter.default.removeObserver(notification!)
     }
     return nil
   }
@@ -175,18 +177,18 @@ class SiteUpdater: NSObject, FlutterStreamHandler {
 
     let encoder = JSONEncoder()
     let data = try! encoder.encode(site)
-    self.eventSink?(String(data: data, encoding: .utf8))
+    eventSink?(String(data: data, encoding: .utf8))
   }
 
   private func configUpdated() {
-    if self.site.connected != true {
+    if site.connected != true {
       return
     }
 
-    guard let newSite = try? Site(manager: self.site.manager!) else {
+    guard let newSite = try? Site(manager: site.manager!) else {
       return
     }
 
-    self.update(connected: newSite.connected ?? false, replaceSite: newSite)
+    update(connected: newSite.connected ?? false, replaceSite: newSite)
   }
 }

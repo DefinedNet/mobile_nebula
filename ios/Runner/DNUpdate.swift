@@ -7,7 +7,7 @@ class DNUpdater {
   private let log = Logger(subsystem: "net.defined.mobileNebula", category: "DNUpdater")
 
   func updateAll(onUpdate: @escaping (Site) -> Void) {
-    _ = SiteList { (sites, _) -> Void in
+    _ = SiteList { sites, _ in
       // NEVPN seems to force us onto the main thread and we are about to make network calls that
       // could block for a while. Push ourselves onto another thread to avoid blocking the UI.
       Task.detached(priority: .userInitiated) {
@@ -93,14 +93,13 @@ class DNUpdater {
 
 // From https://medium.com/over-engineering/a-background-repeating-timer-in-swift-412cecfd2ef9
 class RepeatingTimer {
-
   let timeInterval: TimeInterval
 
   init(timeInterval: TimeInterval) {
     self.timeInterval = timeInterval
   }
 
-  private lazy var timer: DispatchSourceTimer = {
+  private lazy var timer: any DispatchSourceTimer = {
     let t = DispatchSource.makeTimerSource()
     t.schedule(deadline: .now(), repeating: self.timeInterval)
     t.setEventHandler(handler: { [weak self] in
@@ -122,9 +121,9 @@ class RepeatingTimer {
     timer.setEventHandler {}
     timer.cancel()
     /*
-         If the timer is suspended, calling cancel without resuming
-         triggers a crash. This is documented here https://forums.developer.apple.com/thread/15902
-         */
+     If the timer is suspended, calling cancel without resuming
+     triggers a crash. This is documented here https://forums.developer.apple.com/thread/15902
+     */
     resume()
     eventHandler = nil
   }
