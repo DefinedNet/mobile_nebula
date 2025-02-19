@@ -88,7 +88,8 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     if err != nil {
       return result(
         CallFailedError(
-          message: "Error while parsing certificate(s)", details: err!.localizedDescription))
+          message: "Error while parsing certificate(s)", details: err!.localizedDescription
+        ))
     }
 
     return result(json)
@@ -110,7 +111,8 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
       return result(
         CallFailedError(
           message: "Error while verifying certificate and private key",
-          details: err!.localizedDescription))
+          details: err!.localizedDescription
+        ))
     }
 
     return result(valid)
@@ -122,7 +124,8 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     if err != nil {
       return result(
         CallFailedError(
-          message: "Error while generating key pairs", details: err!.localizedDescription))
+          message: "Error while generating key pairs", details: err!.localizedDescription
+        ))
     }
 
     return result(kp)
@@ -240,7 +243,8 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
             } catch {
               return result(
                 CallFailedError(
-                  message: "Could not start site", details: error.localizedDescription))
+                  message: "Could not start site", details: error.localizedDescription
+                ))
             }
           }
         }
