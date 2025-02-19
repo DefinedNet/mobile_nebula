@@ -23,7 +23,7 @@ extension AppMessageError: LocalizedError {
   }
 }
 
-class PacketTunnelProvider: NEPacketTunnelProvider {
+final class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
   private var networkMonitor: NWPathMonitor?
 
   private var site: Site?
@@ -92,8 +92,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
       throw err!
     }
     tunnelNetworkSettings.ipv4Settings = NEIPv4Settings(
-      addresses: [ipNet!.ip], subnetMasks: [ipNet!.maskCIDR]
-    )
+      addresses: [ipNet!.ip], subnetMasks: [ipNet!.maskCIDR])
     var routes: [NEIPv4Route] = [
       NEIPv4Route(destinationAddress: ipNet!.network, subnetMask: ipNet!.maskCIDR)
     ]
@@ -113,8 +112,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     try await setTunnelNetworkSettings(tunnelNetworkSettings)
     var nebulaErr: NSError?
     nebula = MobileNebulaNewNebula(
-      String(data: config, encoding: .utf8), key, site!.logFile, tunFD, &nebulaErr
-    )
+      String(data: config, encoding: .utf8), key, site!.logFile, tunFD, &nebulaErr)
     startNetworkMonitor()
 
     if nebulaErr != nil {
@@ -123,15 +121,13 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     nebula!.start()
-    dnUpdater.updateSingleLoop(site: site!, onUpdate: handleDNUpdate)
+    await dnUpdater.updateSingleLoop(site: site!, onUpdate: handleDNUpdate)
   }
 
   private func handleDNUpdate(newSite: Site) {
     do {
       site = newSite
-      try nebula?.reload(
-        String(data: newSite.getConfig(), encoding: .utf8), key: newSite.getKey()
-      )
+      try nebula?.reload(String(data: newSite.getConfig(), encoding: .utf8), key: newSite.getKey())
 
     } catch {
       log.error(
@@ -180,9 +176,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     networkMonitor = nil
   }
 
-  override func stopTunnel(
-    with _: NEProviderStopReason, completionHandler: @escaping () -> Void
-  ) {
+  override func stopTunnel(with _: NEProviderStopReason, completionHandler: @escaping () -> Void) {
     nebula?.stop()
     stopNetworkMonitor()
     completionHandler()
@@ -259,9 +253,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     if error != nil {
       return try? JSONEncoder().encode(
-        IPCResponse(
-          type: .error, message: JSON(error?.localizedDescription ?? "Unknown error")
-        ))
+        IPCResponse(type: .error, message: JSON(error?.localizedDescription ?? "Unknown error")))
     } else {
       return try? JSONEncoder().encode(IPCResponse(type: .success, message: data))
     }
@@ -276,14 +268,16 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
   private func getHostInfo(args: JSON) -> (JSON?, (any Error)?) {
     var err: NSError?
     let res = nebula!.getHostInfo(
-      byVpnIp: args["vpnIp"].string, pending: args["pending"].boolValue, error: &err)
+      byVpnIp: args["vpnIp"].string, pending: args["pending"].boolValue, error: &err
+    )
     return (JSON(res), err)
   }
 
   private func setRemoteForTunnel(args: JSON) -> (JSON?, (any Error)?) {
     var err: NSError?
     let res = nebula!.setRemoteForTunnel(
-      args["vpnIp"].string, addr: args["addr"].string, error: &err)
+      args["vpnIp"].string, addr: args["addr"].string, error: &err
+    )
     return (JSON(res), err)
   }
 

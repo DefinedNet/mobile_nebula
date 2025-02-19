@@ -25,17 +25,19 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
 
-    dnUpdater.updateAllLoop { site in
-      // Signal the site has changed in case the current site details screen is active
-      let container = self.sites?.getContainer(id: site.id)
-      if container != nil {
-        // Update references to the site with the new site config
-        container!.site = site
-        container!.updater.update(connected: site.connected ?? false, replaceSite: site)
-      }
+    Task {
+      await dnUpdater.updateAllLoop { @MainActor site in
+        // Signal the site has changed in case the current site details screen is active
+        let container = self.sites?.getContainer(id: site.id)
+        if container != nil {
+          // Update references to the site with the new site config
+          container!.site = site
+          container!.updater.update(connected: site.connected ?? false, replaceSite: site)
+        }
 
-      // Signal to the main screen to reload
-      self.ui?.invokeMethod("refreshSites", arguments: nil)
+        // Signal to the main screen to reload
+        self.ui?.invokeMethod("refreshSites", arguments: nil)
+      }
     }
 
     guard let controller = window?.rootViewController as? FlutterViewController else {
@@ -86,8 +88,7 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     if err != nil {
       return result(
         CallFailedError(
-          message: "Error while parsing certificate(s)", details: err!.localizedDescription
-        ))
+          message: "Error while parsing certificate(s)", details: err!.localizedDescription))
     }
 
     return result(json)
@@ -109,8 +110,7 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
       return result(
         CallFailedError(
           message: "Error while verifying certificate and private key",
-          details: err!.localizedDescription
-        ))
+          details: err!.localizedDescription))
     }
 
     return result(valid)
@@ -122,8 +122,7 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     if err != nil {
       return result(
         CallFailedError(
-          message: "Error while generating key pairs", details: err!.localizedDescription
-        ))
+          message: "Error while generating key pairs", details: err!.localizedDescription))
     }
 
     return result(kp)
@@ -241,8 +240,7 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
             } catch {
               return result(
                 CallFailedError(
-                  message: "Could not start site", details: error.localizedDescription
-                ))
+                  message: "Could not start site", details: error.localizedDescription))
             }
           }
         }
