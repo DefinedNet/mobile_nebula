@@ -78,7 +78,7 @@ class Sites {
     }
 }
 
-class SiteUpdater: NSObject, FlutterStreamHandler {
+class SiteUpdater: NSObject, FlutterStreamHandler, @unchecked Sendable {
     private var eventSink: FlutterEventSink?
     private var eventChannel: FlutterEventChannel
     private var site: Site
