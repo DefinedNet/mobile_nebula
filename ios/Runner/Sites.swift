@@ -13,13 +13,13 @@ class SiteContainer {
 
 class Sites {
     private var containers = [String: SiteContainer]()
-    private var messenger: FlutterBinaryMessenger?
+    private var messenger: (any FlutterBinaryMessenger)?
 
-    init(messenger: FlutterBinaryMessenger?) {
+    init(messenger: (any FlutterBinaryMessenger)?) {
         self.messenger = messenger
     }
 
-    func loadSites(completion: @escaping ([String: Site]?, Error?) -> Void) {
+    func loadSites(completion: @escaping ([String: Site]?, (any Error)?) -> Void) {
         _ = SiteList { sites, err in
             if err != nil {
                 return completion(nil, err)
@@ -42,7 +42,7 @@ class Sites {
         }
     }
 
-    func deleteSite(id: String, callback: @escaping (Error?) -> Void) {
+    func deleteSite(id: String, callback: @escaping ((any Error)?) -> Void) {
         if let site = containers.removeValue(forKey: id) {
             _ = KeyChain.delete(key: "\(site.site.id).dnCredentials")
             _ = KeyChain.delete(key: "\(site.site.id).key")
@@ -85,9 +85,9 @@ class SiteUpdater: NSObject, FlutterStreamHandler {
     private var notification: Any?
     public var startFunc: (() -> Void)?
     private var configFd: Int32? = nil
-    private var configObserver: DispatchSourceFileSystemObject? = nil
+    private var configObserver: (any DispatchSourceFileSystemObject)? = nil
 
-    init(messenger: FlutterBinaryMessenger, site: Site) {
+    init(messenger: any FlutterBinaryMessenger, site: Site) {
         do {
             let configPath = try SiteList.getSiteConfigFile(id: site.id, createDir: false)
             configFd = open(configPath.path, O_EVTONLY)

@@ -456,7 +456,7 @@ struct IncomingSite: Codable {
         return try encoder.encode(config)
     }
 
-    func save(manager: NETunnelProviderManager?, saveToManager: Bool = true, callback: @escaping (Error?) -> Void) {
+    func save(manager: NETunnelProviderManager?, saveToManager: Bool = true, callback: @escaping ((any Error)?) -> Void) {
         let configPath: URL
 
         do {
@@ -502,7 +502,7 @@ struct IncomingSite: Codable {
         #endif
     }
 
-    private func saveToManager(manager: NETunnelProviderManager?, callback: @escaping (Error?) -> Void) {
+    private func saveToManager(manager: NETunnelProviderManager?, callback: @escaping ((any Error)?) -> Void) {
         if manager != nil {
             // We need to refresh our settings to properly update config
             manager?.loadFromPreferences { error in
@@ -518,7 +518,7 @@ struct IncomingSite: Codable {
         return finishSaveToManager(manager: NETunnelProviderManager(), callback: callback)
     }
 
-    private func finishSaveToManager(manager: NETunnelProviderManager, callback: @escaping (Error?) -> Void) {
+    private func finishSaveToManager(manager: NETunnelProviderManager, callback: @escaping ((any Error)?) -> Void) {
         // Stuff our details in the protocol
         let proto = manager.protocolConfiguration as? NETunnelProviderProtocol ?? NETunnelProviderProtocol()
         proto.providerBundleIdentifier = "net.defined.mobileNebula.NebulaNetworkExtension"
