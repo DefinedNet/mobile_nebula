@@ -26,14 +26,14 @@ if [[ -f .swiftformatignore ]]; then
     log "Found swiftformatignore file..."
 
     log "Running swift format format..."
-    tr '\n' '\0' < .swiftformatignore| xargs -0 -I% printf '":(exclude)%" '| xargs git ls-files -z '*.swift' | xargs -0 swift format format --parallel --in-place
+    tr '\n' '\0' < .swiftformatignore| xargs -0 -I% printf '":(exclude)%" '| xargs git ls-files -z '*.swift' | xargs -0 xcrun swift-format --parallel --recursive --in-place
 
     # log "Running swift format lint..."
 
     # tr '\n' '\0' < .swiftformatignore | xargs -0 -I% printf '":(exclude)%" '| xargs git ls-files -z '*.swift' | xargs -0 swift format lint --strict --parallel
 else
     log "Running swift format format..."
-    git ls-files -z '*.swift' | xargs -0 swift format format --parallel --in-place
+    git ls-files -z '*.swift' | xargs -0 xcrun swift-format --parallel --recursive --in-place
 
     # log "Running swift format lint..."
 
