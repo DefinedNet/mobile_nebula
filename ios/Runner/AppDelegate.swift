@@ -27,7 +27,13 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
 
     Task {
       for await site in await dnUpdater.siteUpdates {
-        self.sites?.updateSite(site: site)
+        // Signal the site has changed in case the current site details screen is active
+        let container = sites?.getContainer(id: site.id)
+        if container != nil {
+          // Update references to the site with the new site config
+          container!.site = site
+          container!.updater.update(connected: site.connected ?? false, replaceSite: site)
+        }
 
         // Signal to the main screen to reload
         self.ui?.invokeMethod("refreshSites", arguments: nil)

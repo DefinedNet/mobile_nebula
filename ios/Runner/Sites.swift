@@ -29,12 +29,12 @@ class Sites {
     case .failure(let error):
       return Result.failure(error)
     case .success(let sites):
-      sites.values.forEach { site in
+      for site in sites.values {
         var updater = self.containers[site.id]?.updater
         if updater != nil {
-          updater!.setSite(site: site)
+          await updater!.setSite(site: site)
         } else {
-          updater = SiteUpdater(messenger: self.messenger!, site: site)
+          updater = await SiteUpdater(messenger: self.messenger!, site: site)
         }
         self.containers[site.id] = SiteContainer(site: site, updater: updater!)
       }
@@ -84,18 +84,10 @@ class Sites {
     return containers[id]
   }
 
-  func updateSite(site: Site) {
-    // Signal the site has changed in case the current site details screen is active
-    let container = getContainer(id: site.id)
-    if container != nil {
-      // Update references to the site with the new site config
-      container!.site = site
-      container!.updater.update(connected: site.connected ?? false, replaceSite: site)
-    }
-  }
 }
 
-class SiteUpdater: NSObject, FlutterStreamHandler, @unchecked Sendable {
+@MainActor
+final class SiteUpdater: NSObject, FlutterStreamHandler, @unchecked Sendable {
   private var eventSink: FlutterEventSink?
   private var eventChannel: FlutterEventChannel
   private var site: Site
