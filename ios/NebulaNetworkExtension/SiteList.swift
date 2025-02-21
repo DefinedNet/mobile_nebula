@@ -46,10 +46,11 @@ class SiteList {
   /// Gets the file that represents the site log output, $rootDir/sites/$siteID/log
   static func getSiteLogFile(id: String, createDir: Bool) throws -> URL {
     return try getSiteDir(id: id, create: createDir).appendingPathComponent(
-      "logs", isDirectory: false)
+      "logs", isDirectory: false
+    )
   }
 
-  init(completion: @escaping ([String: Site]?, Error?) -> Void) {
+  init(completion: @escaping ([String: Site]?, (any Error)?) -> Void) {
     #if targetEnvironment(simulator)
       SiteList.loadAllFromFS { sites, err in
         if sites != nil {
@@ -67,21 +68,22 @@ class SiteList {
     #endif
   }
 
-  private static func loadAllFromFS(completion: @escaping ([String: Site]?, Error?) -> Void) {
+  private static func loadAllFromFS(completion: @escaping ([String: Site]?, (any Error)?) -> Void) {
     let fileManager = FileManager.default
     var siteDirs: [URL]
     var sites = [String: Site]()
 
     do {
       siteDirs = try fileManager.contentsOfDirectory(
-        at: getSitesDir(), includingPropertiesForKeys: nil)
+        at: getSitesDir(), includingPropertiesForKeys: nil
+      )
 
     } catch {
       completion(nil, error)
       return
     }
 
-    siteDirs.forEach { path in
+    for path in siteDirs {
       do {
         let site = try Site(
           path: path.appendingPathComponent("config").appendingPathExtension("json"))
@@ -97,7 +99,9 @@ class SiteList {
     completion(sites, nil)
   }
 
-  private static func loadAllFromNETPM(completion: @escaping ([String: Site]?, Error?) -> Void) {
+  private static func loadAllFromNETPM(
+    completion: @escaping ([String: Site]?, (any Error)?) -> Void
+  ) {
     var sites = [String: Site]()
 
     // dispatchGroup is used to ensure we have migrated all sites before returning them
@@ -127,10 +131,10 @@ class SiteList {
           sites[site.id] = site
 
         } catch {
-          //TODO: notify the user about this
+          // TODO: notify the user about this
           print("Deleted non conforming site \(manager) \(error)")
           manager.removeFromPreferences()
-          //TODO: delete from disk, we need to try and discover the site id though
+          // TODO: delete from disk, we need to try and discover the site id though
         }
       }
 

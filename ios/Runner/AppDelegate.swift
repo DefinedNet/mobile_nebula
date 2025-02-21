@@ -45,21 +45,18 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     sites = Sites(messenger: controller.binaryMessenger)
     ui = FlutterMethodChannel(name: ChannelName.vpn, binaryMessenger: controller.binaryMessenger)
 
-    ui!.setMethodCallHandler({ (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+    ui!.setMethodCallHandler { (call: FlutterMethodCall, result: @escaping FlutterResult) in
       switch call.method {
       case "nebula.parseCerts": return self.nebulaParseCerts(call: call, result: result)
       case "nebula.generateKeyPair": return self.nebulaGenerateKeyPair(result: result)
       case "nebula.renderConfig": return self.nebulaRenderConfig(call: call, result: result)
       case "nebula.verifyCertAndKey": return self.nebulaVerifyCertAndKey(call: call, result: result)
-
       case "dn.enroll": return self.dnEnroll(call: call, result: result)
-
       case "listSites": return self.listSites(result: result)
       case "deleteSite": return self.deleteSite(call: call, result: result)
       case "saveSite": return self.saveSite(call: call, result: result)
       case "startSite": return self.startSite(call: call, result: result)
       case "stopSite": return self.stopSite(call: call, result: result)
-
       case "active.listHostmap":
         self.vpnRequest(command: "listHostmap", arguments: call.arguments, result: result)
       case "active.listPendingHostmap":
@@ -70,11 +67,10 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
         self.vpnRequest(command: "setRemoteForTunnel", arguments: call.arguments, result: result)
       case "active.closeTunnel":
         self.vpnRequest(command: "closeTunnel", arguments: call.arguments, result: result)
-
       default:
         result(FlutterMethodNotImplemented)
       }
-    })
+    }
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
@@ -90,7 +86,8 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     if err != nil {
       return result(
         CallFailedError(
-          message: "Error while parsing certificate(s)", details: err!.localizedDescription))
+          message: "Error while parsing certificate(s)", details: err!.localizedDescription
+        ))
     }
 
     return result(json)
@@ -112,7 +109,8 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
       return result(
         CallFailedError(
           message: "Error while verifying certificate and private key",
-          details: err!.localizedDescription))
+          details: err!.localizedDescription
+        ))
     }
 
     return result(valid)
@@ -124,7 +122,8 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     if err != nil {
       return result(
         CallFailedError(
-          message: "Error while generating key pairs", details: err!.localizedDescription))
+          message: "Error while generating key pairs", details: err!.localizedDescription
+        ))
     }
 
     return result(kp)
@@ -150,7 +149,7 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     do {
       let site = try apiClient.enroll(code: code)
 
-      let oldSite = self.sites?.getSite(id: site.id)
+      let oldSite = sites?.getSite(id: site.id)
       site.save(manager: oldSite?.manager) { error in
         if error != nil {
           return result(
@@ -166,7 +165,7 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
   }
 
   func listSites(result: @escaping FlutterResult) {
-    self.sites?.loadSites { (sites, err) -> Void in
+    sites?.loadSites { sites, err in
       if err != nil {
         return result(
           CallFailedError(message: "Failed to load site list", details: err!.localizedDescription))
@@ -181,8 +180,8 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
 
   func deleteSite(call: FlutterMethodCall, result: @escaping FlutterResult) {
     guard let id = call.arguments as? String else { return result(NoArgumentsError()) }
-    //TODO: stop the site if its running currently
-    self.sites?.deleteSite(id: id) { error in
+    // TODO: stop the site if its running currently
+    sites?.deleteSite(id: id) { error in
       if error != nil {
         result(
           CallFailedError(message: "Failed to delete site", details: error!.localizedDescription))
@@ -200,7 +199,7 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
       return result(NoArgumentsError())
     }
 
-    let oldSite = self.sites?.getSite(id: site.id)
+    let oldSite = sites?.getSite(id: site.id)
     site.save(manager: oldSite?.manager) { error in
       if error != nil {
         return result(
@@ -220,29 +219,30 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     }
 
     #if targetEnvironment(simulator)
-      let updater = self.sites?.getUpdater(id: id)
+      let updater = sites?.getUpdater(id: id)
       updater?.update(connected: true)
     #else
-      let container = self.sites?.getContainer(id: id)
+      let container = sites?.getContainer(id: id)
       let manager = container?.site.manager
 
       manager?.loadFromPreferences { error in
-        //TODO: Handle load error
+        // TODO: Handle load error
         // This is silly but we need to enable the site each time to avoid situations where folks have multiple sites
         manager?.isEnabled = true
         manager?.saveToPreferences { error in
-          //TODO: Handle load error
+          // TODO: Handle load error
           manager?.loadFromPreferences { error in
-            //TODO: Handle load error
+            // TODO: Handle load error
             do {
-              container?.updater.startFunc = { () -> Void in
-                return self.vpnRequest(command: "start", arguments: args, result: result)
+              container?.updater.startFunc = { () in
+                self.vpnRequest(command: "start", arguments: args, result: result)
               }
               try manager?.connection.startVPNTunnel(options: ["expectStart": NSNumber(1)])
             } catch {
               return result(
                 CallFailedError(
-                  message: "Could not start site", details: error.localizedDescription))
+                  message: "Could not start site", details: error.localizedDescription
+                ))
             }
           }
         }
@@ -256,13 +256,13 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
       return result(MissingArgumentError(message: "id is a required argument"))
     }
     #if targetEnvironment(simulator)
-      let updater = self.sites?.getUpdater(id: id)
+      let updater = sites?.getUpdater(id: id)
       updater?.update(connected: false)
 
     #else
-      let manager = self.sites?.getSite(id: id)?.manager
-      manager?.loadFromPreferences { error in
-        //TODO: Handle load error
+      let manager = sites?.getSite(id: id)?.manager
+      manager?.loadFromPreferences { _ in
+        // TODO: Handle load error
 
         manager?.connection.stopVPNTunnel()
         return result(nil)
@@ -290,13 +290,13 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     if let session = container!.site.manager?.connection as? NETunnelProviderSession {
       do {
         try session.sendProviderMessage(
-          try JSONEncoder().encode(IPCRequest(command: command, arguments: JSON(args)))
+          JSONEncoder().encode(IPCRequest(command: command, arguments: JSON(args)))
         ) { data in
           if data == nil {
             return result(nil)
           }
 
-          //print(String(decoding: data!, as: UTF8.self))
+          // print(String(decoding: data!, as: UTF8.self))
           guard let res = try? JSONDecoder().decode(IPCResponse.self, from: data!) else {
             return result(CallFailedError(message: "Failed to decode response"))
           }
@@ -312,19 +312,19 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
         return result(CallFailedError(message: error.localizedDescription))
       }
     } else {
-      //TODO: we have a site without a manager, things have gone weird. How to handle since this shouldn't happen?
+      // TODO: we have a site without a manager, things have gone weird. How to handle since this shouldn't happen?
       result(nil)
     }
   }
 }
 
-func MissingArgumentError(message: String, details: Error? = nil) -> FlutterError {
+func MissingArgumentError(message: String, details: (any Error)? = nil) -> FlutterError {
   return FlutterError(code: "missingArgument", message: message, details: details)
 }
 
 func NoArgumentsError(
   message: String? = "no arguments were provided or could not be deserialized",
-  details: Error? = nil
+  details: (any Error)? = nil
 ) -> FlutterError {
   return FlutterError(code: "noArguments", message: message, details: details)
 }
