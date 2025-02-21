@@ -1,6 +1,10 @@
 import MobileNebula
 import NetworkExtension
 
+enum SitesListError: Error {
+  case missingSitesList
+}
+
 class SiteContainer {
   var site: Site
   var updater: SiteUpdater
@@ -19,18 +23,18 @@ class Sites {
     self.messenger = messenger
   }
 
-  func loadSites(completion: @escaping ([String: Site]?, (any Error)?) -> Void) {
-    _ = SiteList { sites, err in
-      if err != nil {
-        return completion(nil, err)
-      }
-
-      sites?.values.forEach { site in
+  func loadSites() async -> Result<[String: Site], any Error> {
+    let sitesResult = await SiteList()?.loadSites()
+    switch sitesResult {
+    case .failure(let error):
+      return Result.failure(error)
+    case .success(let sites):
+      for site in sites.values {
         var updater = self.containers[site.id]?.updater
         if updater != nil {
-          updater!.setSite(site: site)
+          await updater!.setSite(site: site)
         } else {
-          updater = SiteUpdater(messenger: self.messenger!, site: site)
+          updater = await SiteUpdater(messenger: self.messenger!, site: site)
         }
         self.containers[site.id] = SiteContainer(site: site, updater: updater!)
       }
@@ -38,8 +42,11 @@ class Sites {
       let justSites = self.containers.mapValues {
         $0.site
       }
-      completion(justSites, nil)
+      return Result.success(justSites)
+    case nil:
+      return Result.failure(SitesListError.missingSitesList)
     }
+
   }
 
   func deleteSite(id: String, callback: @escaping ((any Error)?) -> Void) {
@@ -76,16 +83,18 @@ class Sites {
   func getContainer(id: String) -> SiteContainer? {
     return containers[id]
   }
+
 }
 
-class SiteUpdater: NSObject, FlutterStreamHandler {
+@MainActor
+final class SiteUpdater: NSObject, FlutterStreamHandler, @unchecked Sendable {
   private var eventSink: FlutterEventSink?
   private var eventChannel: FlutterEventChannel
   private var site: Site
   private var notification: Any?
   public var startFunc: (() -> Void)?
-  private var configFd: Int32? = nil
-  private var configObserver: (any DispatchSourceFileSystemObject)? = nil
+  private var configFd: Int32?
+  private var configObserver: (any DispatchSourceFileSystemObject)?
 
   init(messenger: any FlutterBinaryMessenger, site: Site) {
     do {

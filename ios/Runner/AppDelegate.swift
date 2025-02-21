@@ -1,4 +1,4 @@
-import Flutter
+@preconcurrency import Flutter
 import MobileNebula
 import NetworkExtension
 import SwiftyJSON
@@ -25,17 +25,19 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
 
-    dnUpdater.updateAllLoop { site in
-      // Signal the site has changed in case the current site details screen is active
-      let container = self.sites?.getContainer(id: site.id)
-      if container != nil {
-        // Update references to the site with the new site config
-        container!.site = site
-        container!.updater.update(connected: site.connected ?? false, replaceSite: site)
-      }
+    Task {
+      for await site in await dnUpdater.siteUpdates {
+        // Signal the site has changed in case the current site details screen is active
+        let container = sites?.getContainer(id: site.id)
+        if container != nil {
+          // Update references to the site with the new site config
+          container!.site = site
+          container!.updater.update(connected: site.connected ?? false, replaceSite: site)
+        }
 
-      // Signal to the main screen to reload
-      self.ui?.invokeMethod("refreshSites", arguments: nil)
+        // Signal to the main screen to reload
+        self.ui?.invokeMethod("refreshSites", arguments: nil)
+      }
     }
 
     guard let controller = window?.rootViewController as? FlutterViewController else {
@@ -165,17 +167,24 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
   }
 
   func listSites(result: @escaping FlutterResult) {
-    sites?.loadSites { sites, err in
-      if err != nil {
+    Task {
+      let sitesResult = await sites?.loadSites()
+      switch sitesResult {
+      case let .success(sites):
+        let encoder = JSONEncoder()
+        let data = try! encoder.encode(sites)
+        let ret = String(data: data, encoding: .utf8)
+        result(ret)
+      case let .failure(error):
         return result(
-          CallFailedError(message: "Failed to load site list", details: err!.localizedDescription))
+          CallFailedError(message: "Failed to load site list", details: error.localizedDescription))
+      case nil:
+        return result(
+          CallFailedError(message: "Failed to load site list"))
       }
 
-      let encoder = JSONEncoder()
-      let data = try! encoder.encode(sites)
-      let ret = String(data: data, encoding: .utf8)
-      result(ret)
     }
+
   }
 
   func deleteSite(call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -206,9 +215,11 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
           CallFailedError(message: "Failed to save site", details: error!.localizedDescription))
       }
 
-      self.sites?.loadSites { _, _ in
+      Task {
+        _ = await self.sites?.loadSites()
         result(nil)
       }
+
     }
   }
 

@@ -6,7 +6,7 @@ import os.log
 let log = Logger(subsystem: "net.defined.mobileNebula", category: "Site")
 
 enum SiteError: Error {
-  case nonConforming(site: [String: Any]?)
+  case nonConforming(site: String?)
   case noCertificate
   case keyLoad
   case keySave
@@ -22,7 +22,7 @@ extension SiteError: CustomStringConvertible {
   public var description: String {
     switch self {
     case let .nonConforming(site):
-      return String("Non-conforming site \(String(describing: site))")
+      return String("Non-conforming site \(site)")
     case .noCertificate:
       return "No certificate found"
     case .keyLoad:
@@ -150,7 +150,7 @@ let statusString: [NEVPNStatus: String] = [
 ]
 
 // Represents a site that was pulled out of the system configuration
-class Site: Codable {
+final class Site: Codable, @unchecked Sendable {
   // Stored in manager
   var name: String
   var id: String
@@ -208,7 +208,7 @@ class Site: Codable {
 
     let id = dict?["id"] as? String ?? nil
     if id == nil {
-      throw SiteError.nonConforming(site: dict)
+      throw SiteError.nonConforming(site: String(describing: dict))
     }
 
     try self.init(path: SiteList.getSiteConfigFile(id: id!, createDir: false))
@@ -278,7 +278,10 @@ class Site: Codable {
         }
       }
 
-      if hasErrors && !managed {
+      if hasErrors, !managed {
+        errors.append("There are issues with 1 or more ca certificates")
+      }
+      if hasErrors, !managed {
         errors.append("There are issues with 1 or more ca certificates")
       }
 
@@ -294,7 +297,7 @@ class Site: Codable {
       errors.append("Unable to create the site directory: \(error.localizedDescription)")
     }
 
-    if managed && (try? getDNCredentials())?.invalid != false {
+    if managed, (try? getDNCredentials())?.invalid != false {
       errors.append("Unable to fetch managed updates - please re-enroll the device")
     }
 
@@ -426,7 +429,7 @@ class DNCredentials: Codable {
 }
 
 // This class represents a site coming in from flutter, meant only to be saved and re-loaded as a proper Site
-struct IncomingSite: Codable {
+struct IncomingSite: Codable, @unchecked Sendable {
   var name: String
   var id: String
   var staticHostmap: [String: StaticHosts]

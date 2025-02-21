@@ -1,29 +1,50 @@
 import Foundation
 import os.log
 
-class DNUpdater {
+actor DNUpdater {
   private let apiClient = APIClient()
   private let timer = RepeatingTimer(timeInterval: 15 * 60)  // 15 * 60 is 15 minutes
   private let log = Logger(subsystem: "net.defined.mobileNebula", category: "DNUpdater")
 
-  func updateAll(onUpdate: @escaping (Site) -> Void) {
-    _ = SiteList { sites, _ in
+  func updateAll(onUpdate: @Sendable @escaping (Site) -> Void) {
+    Task {
+      let sitesResult = await SiteList()?.loadSites()
+      guard case let .success(unwrappedSites) = sitesResult else {
+        // There was an error, let's bail.
+        return
+      }
       // NEVPN seems to force us onto the main thread and we are about to make network calls that
       // could block for a while. Push ourselves onto another thread to avoid blocking the UI.
       Task.detached(priority: .userInitiated) {
-        sites?.values.forEach { site in
+        for site in unwrappedSites.values {
           if site.connected == true {
             // The vpn service is in charge of updating the currently connected site
             return
           }
 
-          self.updateSite(site: site, onUpdate: onUpdate)
+          await self.updateSite(site: site, onUpdate: onUpdate)
         }
       }
+
+    }
+
+  }
+
+  // Site updates provides an async/await alternative to `.updateAllLoop` that doesn't require a sendable closure.
+  // https://developer.apple.com/documentation/swift/asyncstream
+  var siteUpdates: AsyncStream<Site> {
+    AsyncStream { continuation in
+      timer.eventHandler = {
+        self.updateAll(onUpdate: { site in
+          continuation.yield(site)
+        })
+      }
+      timer.resume()
+
     }
   }
 
-  func updateAllLoop(onUpdate: @escaping (Site) -> Void) {
+  func updateAllLoop(onUpdate: @Sendable @escaping (Site) -> Void) {
     timer.eventHandler = {
       self.updateAll(onUpdate: onUpdate)
     }
@@ -37,7 +58,7 @@ class DNUpdater {
     timer.resume()
   }
 
-  func updateSite(site: Site, onUpdate: @escaping (Site) -> Void) {
+  func updateSite(site: Site, onUpdate: sending @escaping (Site) -> Void) {
     do {
       if !site.managed {
         return
