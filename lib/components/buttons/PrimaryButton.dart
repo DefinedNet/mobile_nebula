@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class PrimaryButton extends StatelessWidget {
-  const PrimaryButton({Key? key, required this.child, this.onPressed}) : super(key: key);
+  const PrimaryButton({super.key, required this.child, this.onPressed});
 
   final Widget child;
   final GestureTapCallback? onPressed;
@@ -14,8 +14,8 @@ class PrimaryButton extends StatelessWidget {
     if (Platform.isAndroid) {
       return FilledButton(
         onPressed: onPressed,
-        child: child,
         style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary),
+        child: child,
       );
     } else {
       // Workaround for https://github.com/flutter/flutter/issues/161590
@@ -23,9 +23,9 @@ class PrimaryButton extends StatelessWidget {
       return CupertinoTheme(
         data: themeData.copyWith(primaryColor: CupertinoColors.white),
         child: CupertinoButton(
-          child: child,
           onPressed: onPressed,
           color: CupertinoColors.secondaryLabel.resolveFrom(context),
+          child: child,
         ),
       );
     }

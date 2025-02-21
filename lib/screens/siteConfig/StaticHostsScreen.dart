@@ -22,7 +22,7 @@ class _Hostmap {
 }
 
 class StaticHostsScreen extends StatefulWidget {
-  const StaticHostsScreen({Key? key, required this.hostmap, required this.onSave}) : super(key: key);
+  const StaticHostsScreen({super.key, required this.hostmap, required this.onSave});
 
   final Map<String, StaticHost> hostmap;
   final ValueChanged<Map<String, StaticHost>>? onSave;
@@ -32,7 +32,7 @@ class StaticHostsScreen extends StatefulWidget {
 }
 
 class _StaticHostsScreenState extends State<StaticHostsScreen> {
-  Map<Key, _Hostmap> _hostmap = {};
+  final Map<Key, _Hostmap> _hostmap = {};
   bool changed = false;
 
   @override
@@ -80,17 +80,17 @@ class _StaticHostsScreenState extends State<StaticHostsScreen> {
           label: Row(
             children: <Widget>[
               Padding(
+                padding: EdgeInsets.only(right: 10),
                 child: Icon(
                   host.lighthouse ? Icons.lightbulb_outline : Icons.computer,
                   color: CupertinoColors.placeholderText.resolveFrom(context),
                 ),
-                padding: EdgeInsets.only(right: 10),
               ),
               Text(host.nebulaIp),
             ],
           ),
           labelWidth: ipWidth,
-          content: Text(host.destinations.length.toString() + ' items', textAlign: TextAlign.end),
+          content: Text('${host.destinations.length} items', textAlign: TextAlign.end),
           onPressed: () {
             Utils.openPage(context, (context) {
               return StaticHostmapScreen(

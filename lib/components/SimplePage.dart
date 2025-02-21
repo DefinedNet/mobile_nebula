@@ -6,7 +6,7 @@ enum SimpleScrollable { none, vertical, horizontal, both }
 
 class SimplePage extends StatelessWidget {
   const SimplePage({
-    Key? key,
+    super.key,
     required this.title,
     required this.child,
     this.leadingAction,
@@ -19,7 +19,7 @@ class SimplePage extends StatelessWidget {
     this.onLoading,
     this.alignment,
     this.refreshController,
-  }) : super(key: key);
+  });
 
   final Widget title;
   final Widget child;
@@ -43,13 +43,13 @@ class SimplePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget realChild = child;
-    var addScrollbar = this.scrollbar;
+    var addScrollbar = scrollbar;
 
     if (scrollable == SimpleScrollable.vertical || scrollable == SimpleScrollable.both) {
       realChild = SingleChildScrollView(
         scrollDirection: Axis.vertical,
-        child: realChild,
         controller: refreshController == null ? scrollController : null,
+        child: realChild,
       );
       addScrollbar = true;
     }
@@ -69,10 +69,10 @@ class SimplePage extends StatelessWidget {
           onRefresh: onRefresh,
           onLoading: onLoading,
           controller: refreshController!,
-          child: realChild,
           enablePullUp: onLoading != null,
           enablePullDown: onRefresh != null,
           footer: ClassicFooter(loadStyle: LoadStyle.ShowWhenLoading),
+          child: realChild,
         ),
       );
       addScrollbar = true;
@@ -83,7 +83,7 @@ class SimplePage extends StatelessWidget {
     }
 
     if (alignment != null) {
-      realChild = Align(alignment: this.alignment!, child: realChild);
+      realChild = Align(alignment: alignment!, child: realChild);
     }
 
     if (bottomBar != null) {

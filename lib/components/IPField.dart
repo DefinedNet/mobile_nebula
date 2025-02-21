@@ -17,7 +17,7 @@ class IPField extends StatelessWidget {
   final textAlign;
 
   const IPField({
-    Key? key,
+    super.key,
     this.ipOnly = false,
     this.help = "ip address",
     this.autoFocus = false,
@@ -28,7 +28,7 @@ class IPField extends StatelessWidget {
     this.textInputAction,
     this.controller,
     this.textAlign = TextAlign.center,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,7 @@ class IPField extends StatelessWidget {
         maxLength: ipOnly ? 15 : null,
         maxLengthEnforcement: ipOnly ? MaxLengthEnforcement.enforced : MaxLengthEnforcement.none,
         inputFormatters: ipOnly ? [IPTextInputFormatter()] : [FilteringTextInputFormatter.allow(RegExp(r'[^\s]+'))],
-        textInputAction: this.textInputAction,
+        textInputAction: textInputAction,
         placeholder: help,
       ),
     );
@@ -72,7 +72,7 @@ class IPTextInputFormatter extends TextInputFormatter {
 
 TextEditingValue _selectionAwareTextManipulation(
   TextEditingValue value,
-  String substringManipulation(String substring),
+  String Function(String substring) substringManipulation,
 ) {
   final int selectionStartIndex = value.selection.start;
   final int selectionEndIndex = value.selection.end;
