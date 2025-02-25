@@ -36,6 +36,10 @@ class MainActivity: FlutterActivity() {
     private var apiClient: APIClient? = null
     private var sites: Sites? = null
 
+    // Don't attempt to unbind from the service unless the client has received some
+    // information about the service's state.
+    private var isServiceBound = false
+
     // When starting a site we may need to request VPN permissions. These variables help us
     // maintain state while waiting for a permission result.
     private var startResult: MethodChannel.Result? = null
@@ -440,6 +444,7 @@ class MainActivity: FlutterActivity() {
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             outMessenger = Messenger(service)
+            isServiceBound = true
 
             // We want to monitor the service for as long as we are connected to it.
             try {
@@ -461,6 +466,7 @@ class MainActivity: FlutterActivity() {
 
         override fun onServiceDisconnected(arg0: ComponentName) {
             outMessenger = null
+            isServiceBound = false
             if (activeSiteId != null) {
                 //TODO: this indicates the service died, notify that it is disconnected
             }
@@ -510,7 +516,14 @@ class MainActivity: FlutterActivity() {
             msg.replyTo = inMessenger
             outMessenger!!.send(msg)
             // Unbind
-            unbindService(connection)
+            if (isServiceBound) {
+                try {
+                    unbindService(connection)
+                    isServiceBound = false
+                } catch (e: IllegalArgumentException) {
+                    Log.e(TAG, e.toString())
+                }
+            }
         }
         outMessenger = null
     }
