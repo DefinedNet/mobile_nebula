@@ -23,7 +23,7 @@ extension AppMessageError: LocalizedError {
   }
 }
 
-class PacketTunnelProvider: NEPacketTunnelProvider {
+class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
   private var networkMonitor: NWPathMonitor?
 
   private var site: Site?
