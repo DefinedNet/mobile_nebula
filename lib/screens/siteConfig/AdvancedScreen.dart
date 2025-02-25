@@ -40,7 +40,7 @@ class Advanced {
 }
 
 class AdvancedScreen extends StatefulWidget {
-  const AdvancedScreen({Key? key, required this.site, required this.onSave}) : super(key: key);
+  const AdvancedScreen({super.key, required this.site, required this.onSave});
 
   final Site site;
   final ValueChanged<Advanced> onSave;
@@ -85,7 +85,7 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                 //TODO: Auto select on focus?
                 content:
                     widget.site.managed
-                        ? Text(settings.lhDuration.toString() + " seconds", textAlign: TextAlign.right)
+                        ? Text("${settings.lhDuration} seconds", textAlign: TextAlign.right)
                         : PlatformTextFormField(
                           initialValue: settings.lhDuration.toString(),
                           keyboardType: TextInputType.number,

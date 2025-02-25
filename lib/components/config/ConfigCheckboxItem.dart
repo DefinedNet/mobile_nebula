@@ -4,13 +4,13 @@ import 'package:mobile_nebula/services/utils.dart';
 
 class ConfigCheckboxItem extends StatelessWidget {
   const ConfigCheckboxItem({
-    Key? key,
+    super.key,
     this.label,
     this.content,
     this.labelWidth = 100,
     this.onChanged,
     this.checked = false,
-  }) : super(key: key);
+  });
 
   final Widget? label;
   final Widget? content;
@@ -26,8 +26,8 @@ class ConfigCheckboxItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          label != null ? Container(width: labelWidth, child: label) : Container(),
-          Expanded(child: Container(child: content, padding: EdgeInsets.only(right: 10))),
+          label != null ? SizedBox(width: labelWidth, child: label) : Container(),
+          Expanded(child: Container(padding: EdgeInsets.only(right: 10), child: content)),
           checked
               ? Icon(CupertinoIcons.check_mark, color: CupertinoColors.systemBlue.resolveFrom(context))
               : Container(),

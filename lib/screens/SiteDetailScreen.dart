@@ -23,8 +23,7 @@ import '../components/SiteTitle.dart';
 //TODO: ios is now the problem with connecting screwing our ability to query the hostmap (its a race)
 
 class SiteDetailScreen extends StatefulWidget {
-  const SiteDetailScreen({Key? key, required this.site, this.onChanged, required this.supportsQRScanning})
-    : super(key: key);
+  const SiteDetailScreen({super.key, required this.site, this.onChanged, required this.supportsQRScanning});
 
   final Site site;
   final Function? onChanged;
@@ -113,19 +112,19 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
   }
 
   Widget _buildErrors() {
-    if (site.errors.length == 0) {
+    if (site.errors.isEmpty) {
       return Container();
     }
 
     List<Widget> items = [];
-    site.errors.forEach((error) {
+    for (var error in site.errors) {
       items.add(
         ConfigItem(
           labelWidth: 0,
           content: Padding(padding: EdgeInsets.symmetric(vertical: 10), child: SelectableText(error)),
         ),
       );
-    });
+    }
 
     return ConfigSection(
       label: 'ERRORS',
@@ -166,7 +165,7 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
               Switch.adaptive(
                 value: widget.site.connected,
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                onChanged: widget.site.errors.length > 0 && !widget.site.connected ? null : handleChange,
+                onChanged: widget.site.errors.isNotEmpty && !widget.site.connected ? null : handleChange,
               ),
             ],
           ),
