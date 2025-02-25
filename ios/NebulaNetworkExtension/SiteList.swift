@@ -49,7 +49,7 @@ class SiteList {
       "logs", isDirectory: false)
   }
 
-  init(completion: @escaping ([String: Site]?, Error?) -> Void) {
+  init(completion: @escaping ([String: Site]?, (any Error)?) -> Void) {
     #if targetEnvironment(simulator)
       SiteList.loadAllFromFS { sites, err in
         if sites != nil {
@@ -67,7 +67,7 @@ class SiteList {
     #endif
   }
 
-  private static func loadAllFromFS(completion: @escaping ([String: Site]?, Error?) -> Void) {
+  private static func loadAllFromFS(completion: @escaping ([String: Site]?, (any Error)?) -> Void) {
     let fileManager = FileManager.default
     var siteDirs: [URL]
     var sites = [String: Site]()
@@ -97,7 +97,9 @@ class SiteList {
     completion(sites, nil)
   }
 
-  private static func loadAllFromNETPM(completion: @escaping ([String: Site]?, Error?) -> Void) {
+  private static func loadAllFromNETPM(
+    completion: @escaping ([String: Site]?, (any Error)?) -> Void
+  ) {
     var sites = [String: Site]()
 
     // dispatchGroup is used to ensure we have migrated all sites before returning them
