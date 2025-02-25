@@ -145,7 +145,7 @@ let statusString: [NEVPNStatus: String] = [
 ]
 
 // Represents a site that was pulled out of the system configuration
-class Site: Codable {
+class Site: Codable, @unchecked Sendable {
   // Stored in manager
   var name: String
   var id: String

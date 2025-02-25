@@ -25,17 +25,19 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
 
-    dnUpdater.updateAllLoop { site in
-      // Signal the site has changed in case the current site details screen is active
-      let container = self.sites?.getContainer(id: site.id)
-      if container != nil {
-        // Update references to the site with the new site config
-        container!.site = site
-        container!.updater.update(connected: site.connected ?? false, replaceSite: site)
-      }
+    Task {
+      for await site in dnUpdater.siteUpdates {
+        // Signal the site has changed in case the current site details screen is active
+        let container = self.sites?.getContainer(id: site.id)
+        if container != nil {
+          // Update references to the site with the new site config
+          container!.site = site
+          container!.updater.update(connected: site.connected ?? false, replaceSite: site)
+        }
 
-      // Signal to the main screen to reload
-      self.ui?.invokeMethod("refreshSites", arguments: nil)
+        // Signal to the main screen to reload
+        self.ui?.invokeMethod("refreshSites", arguments: nil)
+      }
     }
 
     guard let controller = window?.rootViewController as? FlutterViewController else {

@@ -1,7 +1,7 @@
 import Foundation
 import os.log
 
-class DNUpdater {
+class DNUpdater: @unchecked Sendable {
   private let apiClient = APIClient()
   private let timer = RepeatingTimer(timeInterval: 15 * 60)  // 15 * 60 is 15 minutes
   private let log = Logger(subsystem: "net.defined.mobileNebula", category: "DNUpdater")
@@ -28,6 +28,18 @@ class DNUpdater {
       self.updateAll(onUpdate: onUpdate)
     }
     timer.resume()
+  }
+
+  // Site updates provides an async/await alternative to `.updateAllLoop` that doesn't require a sendable closure.
+  // https://developer.apple.com/documentation/swift/asyncstream
+  var siteUpdates: AsyncStream<Site> {
+    AsyncStream { continuation in
+      self.updateAllLoop(onUpdate: { site in
+        continuation.yield(site)
+
+      })
+
+    }
   }
 
   func updateSingleLoop(site: Site, onUpdate: @Sendable @escaping (Site) -> Void) {
