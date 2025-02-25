@@ -6,7 +6,7 @@ import os.log
 let log = Logger(subsystem: "net.defined.mobileNebula", category: "Site")
 
 enum SiteError: Error {
-  case nonConforming(site: [String: Any]?)
+  case nonConforming(site: String)
   case noCertificate
   case keyLoad
   case keySave
@@ -22,7 +22,7 @@ extension SiteError: CustomStringConvertible {
   public var description: String {
     switch self {
     case .nonConforming(let site):
-      return String("Non-conforming site \(String(describing: site))")
+      return String("Non-conforming site \(site)")
     case .noCertificate:
       return "No certificate found"
     case .keyLoad:
@@ -150,7 +150,7 @@ let statusString: [NEVPNStatus: String] = [
 ]
 
 // Represents a site that was pulled out of the system configuration
-class Site: Codable {
+class Site: Codable, @unchecked Sendable {
   // Stored in manager
   var name: String
   var id: String
@@ -208,7 +208,7 @@ class Site: Codable {
 
     let id = dict?["id"] as? String ?? nil
     if id == nil {
-      throw SiteError.nonConforming(site: dict)
+      throw SiteError.nonConforming(site: String(describing: dict))
     }
 
     try self.init(path: SiteList.getSiteConfigFile(id: id!, createDir: false))
