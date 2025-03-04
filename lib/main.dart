@@ -12,8 +12,10 @@ import 'package:mobile_nebula/services/settings.dart';
 import 'package:mobile_nebula/services/theme.dart';
 import 'package:mobile_nebula/services/utils.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 Future<void> main() async {
+  usePathUrlStrategy();
   var settings = Settings();
   if (settings.trackErrors) {
     await SentryFlutter.init((options) {
@@ -106,6 +108,7 @@ class _AppState extends State<App> {
             },
             cupertino: (_, __) => CupertinoAppData(theme: CupertinoThemeData(brightness: brightness)),
             onGenerateRoute: (settings) {
+              print(settings);
               if (settings.name == '/') {
                 return platformPageRoute(context: context, builder: (context) => MainScreen(dnEnrolled));
               }
