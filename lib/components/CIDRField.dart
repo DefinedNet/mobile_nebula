@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_nebula/components/SpecialTextField.dart';
 import 'package:mobile_nebula/models/CIDR.dart';
+
 import '../services/utils.dart';
 import 'IPField.dart';
 
@@ -52,57 +53,55 @@ class _CIDRFieldState extends State<CIDRField> {
   Widget build(BuildContext context) {
     var textStyle = CupertinoTheme.of(context).textTheme.textStyle;
 
-    return Container(
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(6, 6, 2, 6),
-              child: IPField(
-                help: widget.ipHelp,
-                ipOnly: true,
-                textPadding: EdgeInsets.all(0),
-                textInputAction: TextInputAction.next,
-                textAlign: TextAlign.end,
-                focusNode: widget.focusNode,
-                nextFocusNode: bitsFocus,
-                onChanged: (val) {
-                  if (widget.onChanged == null) {
-                    return;
-                  }
-
-                  cidr.ip = val;
-                  widget.onChanged!(cidr);
-                },
-                controller: widget.ipController,
-              ),
-            ),
-          ),
-          Text("/"),
-          Container(
-            width: Utils.textSize("bits", textStyle).width + 12,
-            padding: EdgeInsets.fromLTRB(2, 6, 6, 6),
-            child: SpecialTextField(
-              keyboardType: TextInputType.number,
-              focusNode: bitsFocus,
-              nextFocusNode: widget.nextFocusNode,
-              controller: widget.bitsController,
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(6, 6, 2, 6),
+            child: IPField(
+              help: widget.ipHelp,
+              ipOnly: true,
+              textPadding: EdgeInsets.all(0),
+              textInputAction: TextInputAction.next,
+              textAlign: TextAlign.end,
+              focusNode: widget.focusNode,
+              nextFocusNode: bitsFocus,
               onChanged: (val) {
                 if (widget.onChanged == null) {
                   return;
                 }
 
-                cidr.bits = int.tryParse(val) ?? 0;
+                cidr.ip = val;
                 widget.onChanged!(cidr);
               },
-              maxLength: 2,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              textInputAction: widget.textInputAction ?? TextInputAction.done,
-              placeholder: 'bits',
+              controller: widget.ipController,
             ),
           ),
-        ],
-      ),
+        ),
+        Text("/"),
+        Container(
+          width: Utils.textSize("bits", textStyle).width + 12,
+          padding: EdgeInsets.fromLTRB(2, 6, 6, 6),
+          child: SpecialTextField(
+            keyboardType: TextInputType.number,
+            focusNode: bitsFocus,
+            nextFocusNode: widget.nextFocusNode,
+            controller: widget.bitsController,
+            onChanged: (val) {
+              if (widget.onChanged == null) {
+                return;
+              }
+
+              cidr.bits = int.tryParse(val) ?? 0;
+              widget.onChanged!(cidr);
+            },
+            maxLength: 2,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            textInputAction: widget.textInputAction ?? TextInputAction.done,
+            placeholder: 'bits',
+          ),
+        ),
+      ],
     );
   }
 
