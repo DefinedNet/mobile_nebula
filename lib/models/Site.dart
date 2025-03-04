@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:mobile_nebula/models/HostInfo.dart';
 import 'package:mobile_nebula/models/UnsafeRoute.dart';
 import 'package:uuid/uuid.dart';
+
 import 'Certificate.dart';
 import 'StaticHosts.dart';
 
@@ -53,45 +54,31 @@ class Site {
   late List<String> errors;
 
   Site({
-    String name = '',
+    this.name = '',
     String? id,
     Map<String, StaticHost>? staticHostmap,
     List<CertificateInfo>? ca,
-    CertificateInfo? certInfo,
-    int lhDuration = 0,
-    int port = 0,
-    String cipher = "aes",
-    int sortKey = 0,
-    int mtu = 1300,
-    bool connected = false,
-    String status = '',
-    String logFile = '',
-    String logVerbosity = 'info',
+    this.certInfo,
+    this.lhDuration = 0,
+    this.port = 0,
+    this.cipher = "aes",
+    this.sortKey = 0,
+    this.mtu = 1300,
+    this.connected = false,
+    this.status = '',
+    this.logFile = '',
+    this.logVerbosity = 'info',
     List<String>? errors,
     List<UnsafeRoute>? unsafeRoutes,
-    bool managed = false,
-    String? rawConfig,
-    DateTime? lastManagedUpdate,
+    this.managed = false,
+    this.rawConfig,
+    this.lastManagedUpdate,
   }) {
-    this.name = name;
     this.id = id ?? uuid.v4();
     this.staticHostmap = staticHostmap ?? {};
     this.ca = ca ?? [];
-    this.certInfo = certInfo;
-    this.lhDuration = lhDuration;
-    this.port = port;
-    this.cipher = cipher;
-    this.sortKey = sortKey;
-    this.mtu = mtu;
-    this.connected = connected;
-    this.status = status;
-    this.logFile = logFile;
-    this.logVerbosity = logVerbosity;
     this.errors = errors ?? [];
     this.unsafeRoutes = unsafeRoutes ?? [];
-    this.managed = managed;
-    this.rawConfig = rawConfig;
-    this.lastManagedUpdate = lastManagedUpdate;
 
     _updates = EventChannel('net.defined.nebula/${this.id}');
     _updates.receiveBroadcastStream().listen(
