@@ -9,7 +9,7 @@ class SiteItem extends StatelessWidget {
   const SiteItem({super.key, required this.site, this.onPressed});
 
   final Site site;
-  final onPressed;
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {

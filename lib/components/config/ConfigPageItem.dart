@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'package:mobile_nebula/components/SpecialButton.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
@@ -21,7 +20,7 @@ class ConfigPageItem extends StatelessWidget {
   final Widget? content;
   final double labelWidth;
   final CrossAxisAlignment crossAxisAlignment;
-  final onPressed;
+  final void Function()? onPressed;
   final bool disabled;
 
   @override
