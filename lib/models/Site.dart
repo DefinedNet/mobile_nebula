@@ -15,7 +15,7 @@ class Site {
   late EventChannel _updates;
 
   /// Signals that something about this site has changed. onError is called with an error string if there was an error
-  StreamController _change = StreamController.broadcast();
+  final StreamController _change = StreamController.broadcast();
 
   // Identifiers
   late String name;
@@ -139,25 +139,25 @@ class Site {
 
   _updateFromJson(String json) {
     var decoded = Site._fromJson(jsonDecode(json));
-    this.name = decoded["name"];
-    this.id = decoded['id']; // TODO update EventChannel
-    this.staticHostmap = decoded['staticHostmap'];
-    this.ca = decoded['ca'];
-    this.certInfo = decoded['certInfo'];
-    this.lhDuration = decoded['lhDuration'];
-    this.port = decoded['port'];
-    this.cipher = decoded['cipher'];
-    this.sortKey = decoded['sortKey'];
-    this.mtu = decoded['mtu'];
-    this.connected = decoded['connected'];
-    this.status = decoded['status'];
-    this.logFile = decoded['logFile'];
-    this.logVerbosity = decoded['logVerbosity'];
-    this.errors = decoded['errors'];
-    this.unsafeRoutes = decoded['unsafeRoutes'];
-    this.managed = decoded['managed'];
-    this.rawConfig = decoded['rawConfig'];
-    this.lastManagedUpdate = decoded['lastManagedUpdate'];
+    name = decoded["name"];
+    id = decoded['id']; // TODO update EventChannel
+    staticHostmap = decoded['staticHostmap'];
+    ca = decoded['ca'];
+    certInfo = decoded['certInfo'];
+    lhDuration = decoded['lhDuration'];
+    port = decoded['port'];
+    cipher = decoded['cipher'];
+    sortKey = decoded['sortKey'];
+    mtu = decoded['mtu'];
+    connected = decoded['connected'];
+    status = decoded['status'];
+    logFile = decoded['logFile'];
+    logVerbosity = decoded['logVerbosity'];
+    errors = decoded['errors'];
+    unsafeRoutes = decoded['unsafeRoutes'];
+    managed = decoded['managed'];
+    rawConfig = decoded['rawConfig'];
+    lastManagedUpdate = decoded['lastManagedUpdate'];
   }
 
   static _fromJson(Map<String, dynamic> json) {
@@ -169,15 +169,15 @@ class Site {
 
     List<dynamic> rawUnsafeRoutes = json['unsafeRoutes'];
     List<UnsafeRoute> unsafeRoutes = [];
-    rawUnsafeRoutes.forEach((val) {
+    for (var val in rawUnsafeRoutes) {
       unsafeRoutes.add(UnsafeRoute.fromJson(val));
-    });
+    }
 
     List<dynamic> rawCA = json['ca'];
     List<CertificateInfo> ca = [];
-    rawCA.forEach((val) {
+    for (var val in rawCA) {
       ca.add(CertificateInfo.fromJson(val));
-    });
+    }
 
     CertificateInfo? certInfo;
     if (json['cert'] != null) {
@@ -186,9 +186,9 @@ class Site {
 
     List<dynamic> rawErrors = json["errors"];
     List<String> errors = [];
-    rawErrors.forEach((error) {
+    for (var error in rawErrors) {
       errors.add(error);
-    });
+    }
 
     return {
       "name": json["name"],
@@ -295,9 +295,9 @@ class Site {
 
       List<dynamic> f = jsonDecode(ret);
       List<HostInfo> hosts = [];
-      f.forEach((v) {
+      for (var v in f) {
         hosts.add(HostInfo.fromJson(v));
-      });
+      }
 
       return hosts;
     } on PlatformException catch (err) {
@@ -317,9 +317,9 @@ class Site {
 
       List<dynamic> f = jsonDecode(ret);
       List<HostInfo> hosts = [];
-      f.forEach((v) {
+      for (var v in f) {
         hosts.add(HostInfo.fromJson(v));
-      });
+      }
 
       return hosts;
     } on PlatformException catch (err) {
@@ -331,7 +331,7 @@ class Site {
 
   Future<Map<String, List<HostInfo>>> listAllHostmaps() async {
     try {
-      var res = await Future.wait([this.listHostmap(), this.listPendingHostmap()]);
+      var res = await Future.wait([listHostmap(), listPendingHostmap()]);
       return {"active": res[0], "pending": res[1]};
     } on PlatformException catch (err) {
       throw err.details ?? err.message ?? err.toString();

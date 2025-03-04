@@ -8,7 +8,7 @@ import 'IPField.dart';
 //TODO: Support initialValue
 class CIDRField extends StatefulWidget {
   const CIDRField({
-    Key? key,
+    super.key,
     this.ipHelp = "ip address",
     this.autoFocus = false,
     this.focusNode,
@@ -17,7 +17,7 @@ class CIDRField extends StatefulWidget {
     this.textInputAction,
     this.ipController,
     this.bitsController,
-  }) : super(key: key);
+  });
 
   final String ipHelp;
   final bool autoFocus;

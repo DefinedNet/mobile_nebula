@@ -3,9 +3,7 @@ class CertificateInfo {
   String? rawCert;
   CertificateValidity? validity;
 
-  CertificateInfo.debug({this.rawCert = ""})
-    : this.cert = Certificate.debug(),
-      this.validity = CertificateValidity.debug();
+  CertificateInfo.debug({this.rawCert = ""}) : cert = Certificate.debug(), validity = CertificateValidity.debug();
 
   CertificateInfo.fromJson(Map<String, dynamic> json)
     : cert = Certificate.fromJson(json['Cert']),
@@ -24,7 +22,7 @@ class Certificate {
   String fingerprint;
   String signature;
 
-  Certificate.debug() : this.details = CertificateDetails.debug(), this.fingerprint = "DEBUG", this.signature = "DEBUG";
+  Certificate.debug() : details = CertificateDetails.debug(), fingerprint = "DEBUG", signature = "DEBUG";
 
   Certificate.fromJson(Map<String, dynamic> json)
     : details = CertificateDetails.fromJson(json['details']),
@@ -44,7 +42,7 @@ class CertificateDetails {
   String issuer;
 
   CertificateDetails.debug()
-    : this.name = "DEBUG",
+    : name = "DEBUG",
       notBefore = DateTime.now(),
       notAfter = DateTime.now(),
       publicKey = "",
@@ -70,7 +68,7 @@ class CertificateValidity {
   bool valid;
   String reason;
 
-  CertificateValidity.debug() : this.valid = true, this.reason = "";
+  CertificateValidity.debug() : valid = true, reason = "";
 
   CertificateValidity.fromJson(Map<String, dynamic> json) : valid = json['Valid'], reason = json['Reason'];
 }

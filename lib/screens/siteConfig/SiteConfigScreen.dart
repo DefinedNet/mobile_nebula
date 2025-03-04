@@ -23,8 +23,7 @@ import 'package:mobile_nebula/services/utils.dart';
 //TODO: Enforce a name
 
 class SiteConfigScreen extends StatefulWidget {
-  const SiteConfigScreen({Key? key, this.site, required this.onSave, required this.supportsQRScanning})
-    : super(key: key);
+  const SiteConfigScreen({super.key, this.site, required this.onSave, required this.supportsQRScanning});
 
   final Site? site;
 
@@ -105,7 +104,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
   Widget _debugConfig() {
     var data = "";
     try {
-      final encoder = new JsonEncoder.withIndent('  ');
+      final encoder = JsonEncoder.withIndent('  ');
       data = encoder.convert(site);
     } catch (err) {
       data = err.toString();
@@ -162,13 +161,13 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
     final certError = site.certInfo == null || site.certInfo!.validity == null || !site.certInfo!.validity!.valid;
     var caError = false;
     if (!site.managed) {
-      caError = site.ca.length == 0;
+      caError = site.ca.isEmpty;
       if (!caError) {
-        site.ca.forEach((ca) {
+        for (var ca in site.ca) {
           if (ca.validity == null || !ca.validity!.valid) {
             caError = true;
           }
-        });
+        }
       }
     }
 
@@ -183,8 +182,8 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
             children: <Widget>[
               certError
                   ? Padding(
-                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                     padding: EdgeInsets.only(right: 5),
+                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                   )
                   : Container(),
               certError ? Text('Needs attention') : Text(site.certInfo?.cert.details.name ?? 'Unknown certificate'),
@@ -234,8 +233,8 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
             children: <Widget>[
               caError
                   ? Padding(
-                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                     padding: EdgeInsets.only(right: 5),
+                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                   )
                   : Container(),
               caError ? Text('Needs attention') : Text(Utils.itemCountFormat(site.ca.length)),
@@ -273,13 +272,13 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
             alignment: WrapAlignment.end,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: <Widget>[
-              site.staticHostmap.length == 0
+              site.staticHostmap.isEmpty
                   ? Padding(
-                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                     padding: EdgeInsets.only(right: 5),
+                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                   )
                   : Container(),
-              site.staticHostmap.length == 0
+              site.staticHostmap.isEmpty
                   ? Text('Needs attention')
                   : Text(Utils.itemCountFormat(site.staticHostmap.length)),
             ],

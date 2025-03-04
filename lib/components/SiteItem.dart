@@ -6,7 +6,7 @@ import 'package:mobile_nebula/models/Site.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 class SiteItem extends StatelessWidget {
-  const SiteItem({Key? key, required this.site, this.onPressed}) : super(key: key);
+  const SiteItem({super.key, required this.site, this.onPressed});
 
   final Site site;
   final onPressed;
@@ -14,7 +14,7 @@ class SiteItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final borderColor =
-        site.errors.length > 0
+        site.errors.isNotEmpty
             ? CupertinoColors.systemRed.resolveFrom(context)
             : site.connected
             ? CupertinoColors.systemGreen.resolveFrom(context)

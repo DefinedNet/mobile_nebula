@@ -5,8 +5,14 @@ import 'package:flutter/material.dart';
 
 // This is a button that pushes the bare minimum onto you, it doesn't even respect button themes - unless you tell it to
 class SpecialButton extends StatefulWidget {
-  const SpecialButton({Key? key, this.child, this.color, this.onPressed, this.useButtonTheme = false, this.decoration})
-    : super(key: key);
+  const SpecialButton({
+    super.key,
+    this.child,
+    this.color,
+    this.onPressed,
+    this.useButtonTheme = false,
+    this.decoration,
+  });
 
   final Widget? child;
   final Color? color;
@@ -26,7 +32,7 @@ class _SpecialButtonState extends State<SpecialButton> with SingleTickerProvider
   }
 
   Widget _buildAndroid() {
-    var textStyle;
+    TextStyle? textStyle;
     if (widget.useButtonTheme) {
       textStyle = Theme.of(context).textTheme.labelLarge;
     }
@@ -36,7 +42,7 @@ class _SpecialButtonState extends State<SpecialButton> with SingleTickerProvider
       child: Ink(
         decoration: widget.decoration,
         color: widget.color,
-        child: InkWell(child: widget.child, onTap: widget.onPressed),
+        child: InkWell(onTap: widget.onPressed, child: widget.child),
       ),
     );
   }
@@ -59,7 +65,7 @@ class _SpecialButtonState extends State<SpecialButton> with SingleTickerProvider
           button: true,
           child: FadeTransition(
             opacity: _opacityAnimation!,
-            child: DefaultTextStyle(style: textStyle, child: Container(child: widget.child, color: widget.color)),
+            child: DefaultTextStyle(style: textStyle, child: Container(color: widget.color, child: widget.child)),
           ),
         ),
       ),

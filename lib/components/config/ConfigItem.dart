@@ -6,12 +6,12 @@ import 'package:mobile_nebula/services/utils.dart';
 
 class ConfigItem extends StatelessWidget {
   const ConfigItem({
-    Key? key,
+    super.key,
     this.label,
     required this.content,
     this.labelWidth = 100,
     this.crossAxisAlignment = CrossAxisAlignment.center,
-  }) : super(key: key);
+  });
 
   final Widget? label;
   final Widget content;
@@ -20,7 +20,7 @@ class ConfigItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var textStyle;
+    TextStyle textStyle;
     if (Platform.isAndroid) {
       textStyle = Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.normal);
     } else {
@@ -34,7 +34,7 @@ class ConfigItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: crossAxisAlignment,
         children: <Widget>[
-          Container(width: labelWidth, child: DefaultTextStyle(style: textStyle, child: Container(child: label))),
+          SizedBox(width: labelWidth, child: DefaultTextStyle(style: textStyle, child: Container(child: label))),
           Expanded(child: DefaultTextStyle(style: textStyle, child: Container(child: content))),
         ],
       ),

@@ -11,13 +11,13 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class SiteTunnelsScreen extends StatefulWidget {
   const SiteTunnelsScreen({
-    Key? key,
+    super.key,
     required this.site,
     required this.tunnels,
     required this.pending,
     required this.onChanged,
     required this.supportsQRScanning,
-  }) : super(key: key);
+  });
 
   final Site site;
   final List<HostInfo> tunnels;
@@ -77,7 +77,7 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
                   ),
                 ),
             label: Row(
-              children: <Widget>[Padding(child: icon, padding: EdgeInsets.only(right: 10)), Text(hostInfo.vpnIp)],
+              children: <Widget>[Padding(padding: EdgeInsets.only(right: 10), child: icon), Text(hostInfo.vpnIp)],
             ),
             labelWidth: ipWidth,
             content: Container(alignment: Alignment.centerRight, child: Text(hostInfo.cert?.details.name ?? "")),
@@ -85,7 +85,7 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
         }).toList();
 
     final Widget child = switch (children.length) {
-      0 => Center(child: Padding(child: Text('No tunnels to show'), padding: EdgeInsets.only(top: 30))),
+      0 => Center(child: Padding(padding: EdgeInsets.only(top: 30), child: Text('No tunnels to show'))),
       _ => ConfigSection(children: children),
     };
 

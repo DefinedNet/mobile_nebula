@@ -9,14 +9,13 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/screens/MainScreen.dart';
 import 'package:mobile_nebula/screens/EnrollmentScreen.dart';
 import 'package:mobile_nebula/services/settings.dart';
-import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:mobile_nebula/services/theme.dart';
 import 'package:mobile_nebula/services/utils.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 Future<void> main() async {
   usePathUrlStrategy();
-
   var settings = Settings();
   if (settings.trackErrors) {
     await SentryFlutter.init((options) {
@@ -34,12 +33,16 @@ Future<void> main() async {
 //TODO: EventChannel might be better than the stream controller we are using now
 
 class Main extends StatelessWidget {
+  const Main({super.key});
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) => App();
 }
 
 class App extends StatefulWidget {
+  const App({super.key});
+
   @override
   _AppState createState() => _AppState();
 }
@@ -98,15 +101,16 @@ class _AppState extends State<App> {
             ],
             title: 'Nebula',
             material: (_, __) {
-              return new MaterialAppData(
+              return MaterialAppData(
                 themeMode: brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
                 theme: brightness == Brightness.light ? theme.light() : theme.dark(),
               );
             },
             cupertino: (_, __) => CupertinoAppData(theme: CupertinoThemeData(brightness: brightness)),
             onGenerateRoute: (settings) {
+              print(settings);
               if (settings.name == '/') {
-                return platformPageRoute(context: context, builder: (context) => MainScreen(this.dnEnrolled));
+                return platformPageRoute(context: context, builder: (context) => MainScreen(dnEnrolled));
               }
 
               final uri = Uri.parse(settings.name!);
@@ -116,7 +120,7 @@ class _AppState extends State<App> {
                   context: context,
                   builder:
                       (context) =>
-                          EnrollmentScreen(code: EnrollmentScreen.parseCode(settings.name!), stream: this.dnEnrolled),
+                          EnrollmentScreen(code: EnrollmentScreen.parseCode(settings.name!), stream: dnEnrolled),
                 );
               }
 

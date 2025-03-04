@@ -6,7 +6,7 @@ import 'package:mobile_nebula/components/SpecialTextField.dart';
 class PlatformTextFormField extends FormField<String> {
   //TODO: auto-validate, enabled?
   PlatformTextFormField({
-    Key? key,
+    super.key,
     widgetKey,
     this.controller,
     focusNode,
@@ -28,11 +28,9 @@ class PlatformTextFormField extends FormField<String> {
     String? initialValue,
     String? placeholder,
     FormFieldValidator<String>? validator,
-    ValueChanged<String?>? onSaved,
+    super.onSaved,
   }) : super(
-         key: key,
          initialValue: controller != null ? controller.text : (initialValue ?? ''),
-         onSaved: onSaved,
          validator: (str) {
            if (validator != null) {
              return validator(str);
@@ -117,8 +115,9 @@ class _PlatformTextFormFieldState extends FormFieldState<String> {
       oldWidget.controller?.removeListener(_handleControllerChanged);
       widget.controller?.addListener(_handleControllerChanged);
 
-      if (oldWidget.controller != null && widget.controller == null)
+      if (oldWidget.controller != null && widget.controller == null) {
         _controller = TextEditingController.fromValue(oldWidget.controller!.value);
+      }
       if (widget.controller != null) {
         setValue(widget.controller!.text);
         if (oldWidget.controller == null) _controller = null;

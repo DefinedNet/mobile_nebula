@@ -9,7 +9,7 @@ import 'IPField.dart';
 class IPFormField extends FormField<String> {
   //TODO: validator, auto-validate, enabled?
   IPFormField({
-    Key? key,
+    super.key,
     ipOnly = false,
     enableIPV6 = false,
     help = "ip address",
@@ -17,7 +17,7 @@ class IPFormField extends FormField<String> {
     focusNode,
     nextFocusNode,
     ValueChanged<String>? onChanged,
-    FormFieldSetter<String>? onSaved,
+    super.onSaved,
     textPadding = const EdgeInsets.all(6.0),
     textInputAction,
     initialValue,
@@ -25,9 +25,7 @@ class IPFormField extends FormField<String> {
     crossAxisAlignment = CrossAxisAlignment.center,
     textAlign = TextAlign.center,
   }) : super(
-         key: key,
          initialValue: initialValue,
-         onSaved: onSaved,
          validator: (ip) {
            if (ip == null || ip == "") {
              return "Please fill out this field";
@@ -108,8 +106,9 @@ class _IPFormField extends FormFieldState<String> {
       oldWidget.controller?.removeListener(_handleControllerChanged);
       widget.controller?.addListener(_handleControllerChanged);
 
-      if (oldWidget.controller != null && widget.controller == null)
+      if (oldWidget.controller != null && widget.controller == null) {
         _controller = TextEditingController.fromValue(oldWidget.controller!.value);
+      }
       if (widget.controller != null) {
         setValue(widget.controller!.text);
         if (oldWidget.controller == null) _controller = null;

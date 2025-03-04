@@ -5,7 +5,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 /// A normal TextField or CupertinoTextField that looks the same on all platforms
 class SpecialTextField extends StatefulWidget {
   const SpecialTextField({
-    Key? key,
+    super.key,
     this.placeholder,
     this.suffix,
     this.controller,
@@ -28,7 +28,7 @@ class SpecialTextField extends StatefulWidget {
     this.keyboardAppearance,
     this.textAlignVertical,
     this.inputFormatters,
-  }) : super(key: key);
+  });
 
   final String? placeholder;
   final TextEditingController? controller;
@@ -64,7 +64,7 @@ class _SpecialTextFieldState extends State<SpecialTextField> {
 
   @override
   void initState() {
-    if (widget.inputFormatters == null || formatters.length == 0) {
+    if (widget.inputFormatters == null || formatters.isEmpty) {
       formatters = [FilteringTextInputFormatter.allow(RegExp(r'[^\t]'))];
     } else {
       formatters = widget.inputFormatters!;

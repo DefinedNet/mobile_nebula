@@ -18,7 +18,7 @@ import 'package:mobile_nebula/services/utils.dart';
 //TODO: In addition you will want to think about re-generation while the site is still active (This means storing multiple keys in secure storage)
 
 class CAListScreen extends StatefulWidget {
-  const CAListScreen({Key? key, required this.cas, this.onSave, required this.supportsQRScanning}) : super(key: key);
+  const CAListScreen({super.key, required this.cas, this.onSave, required this.supportsQRScanning});
 
   final List<CertificateInfo> cas;
   final ValueChanged<List<CertificateInfo>>? onSave;
@@ -39,9 +39,9 @@ class _CAListScreenState extends State<CAListScreen> {
 
   @override
   void initState() {
-    widget.cas.forEach((ca) {
+    for (var ca in widget.cas) {
       cas[ca.cert.fingerprint] = ca;
-    });
+    }
 
     super.initState();
   }
@@ -51,7 +51,7 @@ class _CAListScreenState extends State<CAListScreen> {
     List<Widget> items = [];
     final caItems = _buildCAs();
 
-    if (caItems.length > 0) {
+    if (caItems.isNotEmpty) {
       items.add(ConfigSection(children: caItems));
     }
 
@@ -115,14 +115,14 @@ class _CAListScreenState extends State<CAListScreen> {
       var ignored = 0;
 
       List<dynamic> certs = jsonDecode(rawCerts);
-      certs.forEach((rawCert) {
+      for (var rawCert in certs) {
         final info = CertificateInfo.fromJson(rawCert);
         if (!info.cert.details.isCa) {
           ignored++;
-          return;
+          continue;
         }
         cas[info.cert.fingerprint] = info;
-      });
+      }
 
       if (ignored > 0) {
         error = 'One or more certificates were ignored because they were not certificate authorities.';
@@ -236,7 +236,7 @@ class _CAListScreenState extends State<CAListScreen> {
             onPressed: () async {
               var result = await Navigator.push(
                 context,
-                platformPageRoute(context: context, builder: (context) => new ScanQRScreen()),
+                platformPageRoute(context: context, builder: (context) => ScanQRScreen()),
               );
               if (result != null) {
                 _addCAEntry(result, (err) {

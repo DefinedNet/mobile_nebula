@@ -4,7 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import '../models/Site.dart';
 
 class SiteTitle extends StatelessWidget {
-  const SiteTitle({Key? key, required this.site}) : super(key: key);
+  const SiteTitle({super.key, required this.site});
 
   final Site site;
 
