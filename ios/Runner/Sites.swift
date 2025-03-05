@@ -78,14 +78,14 @@ class Sites {
   }
 }
 
-class SiteUpdater: NSObject, FlutterStreamHandler {
+class SiteUpdater: NSObject, FlutterStreamHandler, @unchecked Sendable {
   private var eventSink: FlutterEventSink?
   private var eventChannel: FlutterEventChannel
   private var site: Site
   private var notification: Any?
   public var startFunc: (() -> Void)?
-  private var configFd: Int32? = nil
-  private var configObserver: (any DispatchSourceFileSystemObject)? = nil
+  private var configFd: Int32?
+  private var configObserver: (any DispatchSourceFileSystemObject)?
 
   init(messenger: any FlutterBinaryMessenger, site: Site) {
     do {
