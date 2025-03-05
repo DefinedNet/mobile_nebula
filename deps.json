@@ -1601,7 +1601,7 @@
             "pom": "sha256-J855WUJ6L/7kjQ/rRRKKPzbMQX7YqCKvoigiyPWliyU="
         },
         "play-sdk/index/snapshot": {
-            "gz": "sha256-nEioy+voUxIl4mlPJgBs4NBC4AwjVIXv9J2D/PZs/xI="
+            "gz": "sha256-y3QKGrgngvjdd91xE3ku4FsMs+oItHik6Yzdz8TMTfk="
         }
     },
     "https://maven.google.com": {
@@ -1612,16 +1612,16 @@
             "xml": "sha256-GtQY6TkOxYnNxDROWZ1X7MgaORRPsogYk1rTAEwTwpU="
         },
         "androidx/camera/group-index": {
-            "xml": "sha256-ZOzcIgmLfv08clhM3ClB7UU5WJIFecwq7OxVe9TCAWA="
+            "xml": "sha256-ItFPXp83BCfVjbdldNzljS8dhUYdnoCuXofcVvuU+KQ="
         },
         "androidx/core/group-index": {
-            "xml": "sha256-yDGgUFaFDD+YI+1Ed+9d/p2didNDYBqKJhd7JXDMEw8="
+            "xml": "sha256-4sMixOXu1+FQNrYYvwj85bCBRk2JUGp0U8Sy9eDjlOM="
         },
         "androidx/lifecycle/group-index": {
-            "xml": "sha256-zrtZJe4G2dhPmJIx6bHXH04pZbC1HaYfPyxBzlohGoc="
+            "xml": "sha256-3UFv7BUxQbm2JdKWo95PF5j/7di3TXMX6FXgrPyH5/s="
         },
         "androidx/security/group-index": {
-            "xml": "sha256-C4Wt532Wgk5LgW+0/gILMkTZqcKLzj/FBLbKATdiJ2Y="
+            "xml": "sha256-Uovex3YZYn3aVH2B8eedrJ03zzmBFag0xVHrFJCbzK0="
         },
         "androidx/test/group-index": {
             "xml": "sha256-5TbRtvyz1vPFjiuP8p2u8h0/TBtrbrUKv+4HotxDhDw="
@@ -1630,16 +1630,16 @@
             "xml": "sha256-XJxtvCXHmJPBbm38eAYkOmSOKMnmuG+kDu2paRm+4RQ="
         },
         "com/android/tools/build/group-index": {
-            "xml": "sha256-PAopZka0ByQQzQHX+ETTv8BvxFwk9UtJBajqHM7yafA="
+            "xml": "sha256-67fdGnpEsvVfGNI8i91QP4p3Z+yJtz9Uw23cgrBVvuU="
         },
         "com/google/android/gms/group-index": {
-            "xml": "sha256-REv+tobFlRpQJCR0Isu2mBs39EQvLBZFB7hku3JBIuA="
+            "xml": "sha256-6XPzCU5n4ueitKMavJwVMYfyKfF6doKCpQwR9lTABS8="
         },
         "com/google/mlkit/group-index": {
             "xml": "sha256-O6qO5OvkyJq3yWSq3/WVHVXv7P1NwPAU3boeuyUMG7U="
         },
         "master-index": {
-            "xml": "sha256-jUExcklZrE5Ak64z6Z1qeUQgpW8Bme8VaVxsRHyb4aA="
+            "xml": "sha256-DabTjq2gSqYq5HpGlHmmLdYHsvPccYS+oXrd9tXTSes="
         },
         "org/jetbrains/kotlin/group-index": {
             "xml": "sha256-glY6ToQ3jNGY70z2kU5W+jOpeyC7t+KwoxQ8TXHGzuk="
