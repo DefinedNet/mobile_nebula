@@ -2962,21 +2962,21 @@
         }
     },
     "https://storage.googleapis.com/download.flutter.io/io": {
-        "flutter#arm64_v8a_release/1.0.0-cb4b5fff73850b2e42bd4de7cb9a4310a78ac40d": {
-            "jar": "sha256-m3zcfc1la5tnqCN6sI1+jJZ3Kce2M1RSnOdugwAhLEU=",
-            "pom": "sha256-cRfGKpR+UC6Qh/U+5tFC4yVRUoY5Vs97OVb3qkvAsak="
+        "flutter#arm64_v8a_release/1.0.0-82bd5b7209295a5b7ff8cae0df96e7870171e3a5": {
+            "jar": "sha256-GVbD+ybaww5SK3PBRBmc8zzcZ/CT11B4aKtnDjoHdfY=",
+            "pom": "sha256-zATb6YaHh3AY7p1xxfOqaq0mISxlOFxv1B/R4mL8zk0="
         },
-        "flutter#armeabi_v7a_release/1.0.0-cb4b5fff73850b2e42bd4de7cb9a4310a78ac40d": {
-            "jar": "sha256-w6LOKPd/bYpvG0kUk73o7eq14BPX1r9QJCmxYIge2rs=",
-            "pom": "sha256-lcunaKcpsp86D2j0nYVadFPfYQazYLmbJEdIqeN2yrI="
+        "flutter#armeabi_v7a_release/1.0.0-82bd5b7209295a5b7ff8cae0df96e7870171e3a5": {
+            "jar": "sha256-J2D4v2g0mAK9knVG4IgjX1FlClsp1urJjuCB1SPoVgE=",
+            "pom": "sha256-Erua73f/+BplUTLfrOmUkjwTv79qqGGsuxBmjxholC0="
         },
-        "flutter#flutter_embedding_release/1.0.0-cb4b5fff73850b2e42bd4de7cb9a4310a78ac40d": {
-            "jar": "sha256-Fo+UaZejw3IVr3V3+MGC5p7Bpn8rrrXgL7tJ5cLlguI=",
-            "pom": "sha256-GcCGxbVVAhNmuwRSFNyhLt41XDjhsrpfOPC9MkHb2g0="
+        "flutter#flutter_embedding_release/1.0.0-82bd5b7209295a5b7ff8cae0df96e7870171e3a5": {
+            "jar": "sha256-Do6s2sPf3grtugYzbJrpPH1vhA1hvE+qNH5omQQzU3k=",
+            "pom": "sha256-NhigTtPrRE1v763bW8rRyA++3FqHKcmPGHc1Ti7xabU="
         },
-        "flutter#x86_64_release/1.0.0-cb4b5fff73850b2e42bd4de7cb9a4310a78ac40d": {
-            "jar": "sha256-uZhV6wWspZAOQ3cWjKJCn5q60sU9ryvRJ6uZMDCkQqg=",
-            "pom": "sha256-VbFCzR6vdBR8qaMV9wS/KzKFJ/vUpctHiFVnUTa7hF4="
+        "flutter#x86_64_release/1.0.0-82bd5b7209295a5b7ff8cae0df96e7870171e3a5": {
+            "jar": "sha256-6XPTaRFdEUMOULPGgJUNU+2p8IfFrkTn69dMZtQkJsU=",
+            "pom": "sha256-I79yaSzNC3zu8wMDyD+63BNkuOnMXFeNToUf8d+7Geg="
         }
     }
 }
