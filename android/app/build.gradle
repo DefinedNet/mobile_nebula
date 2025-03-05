@@ -26,6 +26,7 @@ if (flutterVersionName == null) {
 android {
     namespace "net.defined.mobile_nebula"
 
+    // needs to match version in flake.nix
     compileSdkVersion 34
 
     // needs to match version in flake.nix

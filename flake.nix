@@ -13,10 +13,10 @@
       makePackages = (pkgs: devShell:
         let
           makeAndroidSdkArgs = (emulator: {
-            # needs to match compileSdkVersion in android/app/build.gradle
+            # needs to match compileSdkVersion AND targetSdkVersion in android/app/build.gradle
             platformVersions = [ "34" ];
-            # needs to match ndkVersion in android/app/build.gradle
             includeNDK = true;
+            # needs to match ndkVersion in android/app/build.gradle
             ndkVersion = "27.0.12077973";
             # needs to match buildToolsVersion in android/app/build.gradle
             # latest https://developer.android.com/tools/releases/build-tools
@@ -285,7 +285,7 @@
 
             mitmCache = pkgs.gradle.fetchDeps {
               # to update, run in non-develop shell:
-              # nix build --print-build-logs .#app.mitmCache.updateScript && ./result
+              # nix build --print-build-logs .#default.mitmCache.updateScript && bash -x ./result
               data = ./deps.json;
               pkg = default;
             };
