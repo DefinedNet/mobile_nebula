@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_nebula/components/SpecialTextField.dart';
 import 'package:mobile_nebula/models/IPAndPort.dart';
+
 import '../services/utils.dart';
 import 'IPField.dart';
 
@@ -58,49 +59,47 @@ class _IPAndPortFieldState extends State<IPAndPortField> {
   Widget build(BuildContext context) {
     var textStyle = CupertinoTheme.of(context).textTheme.textStyle;
 
-    return Container(
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(6, 6, 2, 6),
-              child: IPField(
-                help: widget.ipHelp,
-                ipOnly: widget.ipOnly,
-                nextFocusNode: _portFocus,
-                textPadding: EdgeInsets.all(0),
-                textInputAction: TextInputAction.next,
-                focusNode: widget.focusNode,
-                onChanged: (val) {
-                  _ipAndPort.ip = val;
-                  widget.onChanged(_ipAndPort);
-                },
-                textAlign: widget.ipTextAlign,
-                controller: widget.ipController,
-              ),
-            ),
-          ),
-          Text(":"),
-          Container(
-            width: Utils.textSize("00000", textStyle).width + 12,
-            padding: EdgeInsets.fromLTRB(2, 6, 6, 6),
-            child: SpecialTextField(
-              keyboardType: TextInputType.number,
-              focusNode: _portFocus,
-              nextFocusNode: widget.nextFocusNode,
-              controller: widget.portController,
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(6, 6, 2, 6),
+            child: IPField(
+              help: widget.ipHelp,
+              ipOnly: widget.ipOnly,
+              nextFocusNode: _portFocus,
+              textPadding: EdgeInsets.all(0),
+              textInputAction: TextInputAction.next,
+              focusNode: widget.focusNode,
               onChanged: (val) {
-                _ipAndPort.port = int.tryParse(val);
+                _ipAndPort.ip = val;
                 widget.onChanged(_ipAndPort);
               },
-              maxLength: 5,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              textInputAction: TextInputAction.done,
-              placeholder: 'port',
+              textAlign: widget.ipTextAlign,
+              controller: widget.ipController,
             ),
           ),
-        ],
-      ),
+        ),
+        Text(":"),
+        Container(
+          width: Utils.textSize("00000", textStyle).width + 12,
+          padding: EdgeInsets.fromLTRB(2, 6, 6, 6),
+          child: SpecialTextField(
+            keyboardType: TextInputType.number,
+            focusNode: _portFocus,
+            nextFocusNode: widget.nextFocusNode,
+            controller: widget.portController,
+            onChanged: (val) {
+              _ipAndPort.port = int.tryParse(val);
+              widget.onChanged(_ipAndPort);
+            },
+            maxLength: 5,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            textInputAction: TextInputAction.done,
+            placeholder: 'port',
+          ),
+        ),
+      ],
     );
   }
 

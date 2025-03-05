@@ -5,7 +5,7 @@ bool dnsValidator(str, {requireTld = true, allowUnderscore = false}) {
     return false;
   }
 
-  List parts = str.split('.');
+  List<String> parts = str.split('.');
   if (requireTld) {
     var tld = parts.removeLast();
     if (parts.isEmpty || !RegExp(r'^[a-z]{2,}$').hasMatch(tld)) {

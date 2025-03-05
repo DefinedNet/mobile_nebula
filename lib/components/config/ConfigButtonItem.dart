@@ -8,7 +8,7 @@ class ConfigButtonItem extends StatelessWidget {
   const ConfigButtonItem({super.key, this.content, this.onPressed});
 
   final Widget? content;
-  final onPressed;
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
