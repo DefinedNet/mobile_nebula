@@ -9,8 +9,8 @@ bool DEFAULT_TRACK_ERRORS = true;
 
 class Settings {
   final _storage = Storage();
-  StreamController _change = StreamController.broadcast();
-  var _settings = Map<String, dynamic>();
+  final StreamController _change = StreamController.broadcast();
+  var _settings = <String, dynamic>{};
 
   bool get useSystemColors {
     return _getBool('systemDarkMode', true);

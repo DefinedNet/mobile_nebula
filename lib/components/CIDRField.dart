@@ -2,13 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_nebula/components/SpecialTextField.dart';
 import 'package:mobile_nebula/models/CIDR.dart';
+
 import '../services/utils.dart';
 import 'IPField.dart';
 
 //TODO: Support initialValue
 class CIDRField extends StatefulWidget {
   const CIDRField({
-    Key? key,
+    super.key,
     this.ipHelp = "ip address",
     this.autoFocus = false,
     this.focusNode,
@@ -17,7 +18,7 @@ class CIDRField extends StatefulWidget {
     this.textInputAction,
     this.ipController,
     this.bitsController,
-  }) : super(key: key);
+  });
 
   final String ipHelp;
   final bool autoFocus;
@@ -52,31 +53,33 @@ class _CIDRFieldState extends State<CIDRField> {
   Widget build(BuildContext context) {
     var textStyle = CupertinoTheme.of(context).textTheme.textStyle;
 
-    return Container(
-        child: Row(children: <Widget>[
-      Expanded(
+    return Row(
+      children: <Widget>[
+        Expanded(
           child: Padding(
-              padding: EdgeInsets.fromLTRB(6, 6, 2, 6),
-              child: IPField(
-                help: widget.ipHelp,
-                ipOnly: true,
-                textPadding: EdgeInsets.all(0),
-                textInputAction: TextInputAction.next,
-                textAlign: TextAlign.end,
-                focusNode: widget.focusNode,
-                nextFocusNode: bitsFocus,
-                onChanged: (val) {
-                  if (widget.onChanged == null) {
-                    return;
-                  }
+            padding: EdgeInsets.fromLTRB(6, 6, 2, 6),
+            child: IPField(
+              help: widget.ipHelp,
+              ipOnly: true,
+              textPadding: EdgeInsets.all(0),
+              textInputAction: TextInputAction.next,
+              textAlign: TextAlign.end,
+              focusNode: widget.focusNode,
+              nextFocusNode: bitsFocus,
+              onChanged: (val) {
+                if (widget.onChanged == null) {
+                  return;
+                }
 
-                  cidr.ip = val;
-                  widget.onChanged!(cidr);
-                },
-                controller: widget.ipController,
-              ))),
-      Text("/"),
-      Container(
+                cidr.ip = val;
+                widget.onChanged!(cidr);
+              },
+              controller: widget.ipController,
+            ),
+          ),
+        ),
+        Text("/"),
+        Container(
           width: Utils.textSize("bits", textStyle).width + 12,
           padding: EdgeInsets.fromLTRB(2, 6, 6, 6),
           child: SpecialTextField(
@@ -96,8 +99,10 @@ class _CIDRFieldState extends State<CIDRField> {
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             textInputAction: widget.textInputAction ?? TextInputAction.done,
             placeholder: 'bits',
-          ))
-    ]));
+          ),
+        ),
+      ],
+    );
   }
 
   @override

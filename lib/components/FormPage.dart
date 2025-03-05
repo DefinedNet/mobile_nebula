@@ -5,15 +5,15 @@ import 'package:mobile_nebula/services/utils.dart';
 
 /// SimplePage with a form and built in validation and confirmation to discard changes if any are made
 class FormPage extends StatefulWidget {
-  const FormPage(
-      {Key? key,
-      required this.title,
-      required this.child,
-      required this.onSave,
-      required this.changed,
-      this.hideSave = false,
-      this.scrollController})
-      : super(key: key);
+  const FormPage({
+    super.key,
+    required this.title,
+    required this.child,
+    required this.onSave,
+    required this.changed,
+    this.hideSave = false,
+    this.scrollController,
+  });
 
   final String title;
   final Function onSave;
@@ -39,42 +39,61 @@ class _FormPageState extends State<FormPage> {
     changed = widget.changed || changed;
 
     return PopScope<Object?>(
-        canPop: !changed,
-        onPopInvokedWithResult: (bool didPop, Object? result) async {
-          if (didPop) {
-            return;
-          }
-          final NavigatorState navigator = Navigator.of(context);
+      canPop: !changed,
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        if (didPop) {
+          return;
+        }
+        final NavigatorState navigator = Navigator.of(context);
 
-          Utils.confirmDelete(context, 'Discard changes?', () {
+        Utils.confirmDelete(
+          context,
+          'Discard changes?',
+          () {
             navigator.pop();
-          }, deleteLabel: 'Yes', cancelLabel: 'No');
-        },
-        child: SimplePage(
-          leadingAction: _buildLeader(context),
-          trailingActions: _buildTrailer(context),
-          scrollController: widget.scrollController,
-          title: Text(widget.title),
-          child: Form(
-              key: _formKey,
-              onChanged: () => setState(() {
-                    changed = true;
-                  }),
-              child: widget.child),
-        ));
+          },
+          deleteLabel: 'Yes',
+          cancelLabel: 'No',
+        );
+      },
+      child: SimplePage(
+        leadingAction: _buildLeader(context),
+        trailingActions: _buildTrailer(context),
+        scrollController: widget.scrollController,
+        title: Text(widget.title),
+        child: Form(
+          key: _formKey,
+          onChanged:
+              () => setState(() {
+                changed = true;
+              }),
+          child: widget.child,
+        ),
+      ),
+    );
   }
 
   Widget _buildLeader(BuildContext context) {
-    return Utils.leadingBackWidget(context, label: changed ? 'Cancel' : 'Back', onPressed: () {
-      if (changed) {
-        Utils.confirmDelete(context, 'Discard changes?', () {
-          changed = false;
+    return Utils.leadingBackWidget(
+      context,
+      label: changed ? 'Cancel' : 'Back',
+      onPressed: () {
+        if (changed) {
+          Utils.confirmDelete(
+            context,
+            'Discard changes?',
+            () {
+              changed = false;
+              Navigator.pop(context);
+            },
+            deleteLabel: 'Yes',
+            cancelLabel: 'No',
+          );
+        } else {
           Navigator.pop(context);
-        }, deleteLabel: 'Yes', cancelLabel: 'No');
-      } else {
-        Navigator.pop(context);
-      }
-    });
+        }
+      },
+    );
   }
 
   List<Widget> _buildTrailer(BuildContext context) {
@@ -83,21 +102,18 @@ class _FormPageState extends State<FormPage> {
     }
 
     return [
-      Utils.trailingSaveWidget(
-        context,
-        () {
-          if (_formKey.currentState == null) {
-            return;
-          }
+      Utils.trailingSaveWidget(context, () {
+        if (_formKey.currentState == null) {
+          return;
+        }
 
-          if (!_formKey.currentState!.validate()) {
-            return;
-          }
+        if (!_formKey.currentState!.validate()) {
+          return;
+        }
 
-          _formKey.currentState!.save();
-          widget.onSave();
-        },
-      )
+        _formKey.currentState!.save();
+        widget.onSave();
+      }),
     ];
   }
 }

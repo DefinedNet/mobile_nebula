@@ -5,8 +5,14 @@ import 'package:flutter/material.dart';
 
 // This is a button that pushes the bare minimum onto you, it doesn't even respect button themes - unless you tell it to
 class SpecialButton extends StatefulWidget {
-  const SpecialButton({Key? key, this.child, this.color, this.onPressed, this.useButtonTheme = false, this.decoration})
-      : super(key: key);
+  const SpecialButton({
+    super.key,
+    this.child,
+    this.color,
+    this.onPressed,
+    this.useButtonTheme = false,
+    this.decoration,
+  });
 
   final Widget? child;
   final Color? color;
@@ -26,20 +32,19 @@ class _SpecialButtonState extends State<SpecialButton> with SingleTickerProvider
   }
 
   Widget _buildAndroid() {
-    var textStyle;
+    TextStyle? textStyle;
     if (widget.useButtonTheme) {
       textStyle = Theme.of(context).textTheme.labelLarge;
     }
 
     return Material(
-        textStyle: textStyle,
-        child: Ink(
-            decoration: widget.decoration,
-            color: widget.color,
-            child: InkWell(
-              child: widget.child,
-              onTap: widget.onPressed,
-            )));
+      textStyle: textStyle,
+      child: Ink(
+        decoration: widget.decoration,
+        color: widget.color,
+        child: InkWell(onTap: widget.onPressed, child: widget.child),
+      ),
+    );
   }
 
   Widget _buildGeneric() {
@@ -49,21 +54,22 @@ class _SpecialButtonState extends State<SpecialButton> with SingleTickerProvider
     }
 
     return Container(
-        decoration: widget.decoration,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: _handleTapDown,
-          onTapUp: _handleTapUp,
-          onTapCancel: _handleTapCancel,
-          onTap: widget.onPressed,
-          child: Semantics(
-            button: true,
-            child: FadeTransition(
-              opacity: _opacityAnimation!,
-              child: DefaultTextStyle(style: textStyle, child: Container(child: widget.child, color: widget.color)),
-            ),
+      decoration: widget.decoration,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: _handleTapDown,
+        onTapUp: _handleTapUp,
+        onTapCancel: _handleTapCancel,
+        onTap: widget.onPressed,
+        child: Semantics(
+          button: true,
+          child: FadeTransition(
+            opacity: _opacityAnimation!,
+            child: DefaultTextStyle(style: textStyle, child: Container(color: widget.color, child: widget.child)),
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   // Eyeballed values. Feel free to tweak.
@@ -77,11 +83,7 @@ class _SpecialButtonState extends State<SpecialButton> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      value: 0.0,
-      vsync: this,
-    );
+    _animationController = AnimationController(duration: const Duration(milliseconds: 200), value: 0.0, vsync: this);
     _opacityAnimation = _animationController!.drive(CurveTween(curve: Curves.decelerate)).drive(_opacityTween);
     _setTween();
   }
@@ -131,9 +133,10 @@ class _SpecialButtonState extends State<SpecialButton> with SingleTickerProvider
     }
 
     final bool wasHeldDown = _buttonHeldDown;
-    final TickerFuture ticker = _buttonHeldDown
-        ? _animationController!.animateTo(1.0, duration: kFadeOutDuration)
-        : _animationController!.animateTo(0.0, duration: kFadeInDuration);
+    final TickerFuture ticker =
+        _buttonHeldDown
+            ? _animationController!.animateTo(1.0, duration: kFadeOutDuration)
+            : _animationController!.animateTo(0.0, duration: kFadeInDuration);
 
     ticker.then<void>((void value) {
       if (mounted && wasHeldDown != _buttonHeldDown) {

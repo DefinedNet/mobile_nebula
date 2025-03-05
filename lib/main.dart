@@ -9,9 +9,9 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/screens/MainScreen.dart';
 import 'package:mobile_nebula/screens/EnrollmentScreen.dart';
 import 'package:mobile_nebula/services/settings.dart';
-import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:mobile_nebula/services/theme.dart';
 import 'package:mobile_nebula/services/utils.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 void main() {
   usePathUrlStrategy();
@@ -21,12 +21,16 @@ void main() {
 //TODO: EventChannel might be better than the stream controller we are using now
 
 class Main extends StatelessWidget {
+  const Main({super.key});
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) => App();
 }
 
 class App extends StatefulWidget {
+  const App({super.key});
+
   @override
   _AppState createState() => _AppState();
 }
@@ -75,41 +79,42 @@ class _AppState extends State<App> {
 
     return PlatformProvider(
       settings: PlatformSettingsData(iosUsesMaterialWidgets: true),
-      builder: (context) => PlatformApp(
-        debugShowCheckedModeBanner: false,
-        localizationsDelegates: <LocalizationsDelegate<dynamic>>[
-          DefaultMaterialLocalizations.delegate,
-          DefaultWidgetsLocalizations.delegate,
-          DefaultCupertinoLocalizations.delegate,
-        ],
-        title: 'Nebula',
-        material: (_, __) {
-          return new MaterialAppData(
-            themeMode: brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
-            theme: brightness == Brightness.light ? theme.light() : theme.dark(),
-          );
-        },
-        cupertino: (_, __) => CupertinoAppData(
-          theme: CupertinoThemeData(brightness: brightness),
-        ),
-        onGenerateRoute: (settings) {
-          if (settings.name == '/') {
-            return platformPageRoute(context: context, builder: (context) => MainScreen(this.dnEnrolled));
-          }
+      builder:
+          (context) => PlatformApp(
+            debugShowCheckedModeBanner: false,
+            localizationsDelegates: <LocalizationsDelegate<dynamic>>[
+              DefaultMaterialLocalizations.delegate,
+              DefaultWidgetsLocalizations.delegate,
+              DefaultCupertinoLocalizations.delegate,
+            ],
+            title: 'Nebula',
+            material: (_, __) {
+              return MaterialAppData(
+                themeMode: brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
+                theme: brightness == Brightness.light ? theme.light() : theme.dark(),
+              );
+            },
+            cupertino: (_, __) => CupertinoAppData(theme: CupertinoThemeData(brightness: brightness)),
+            onGenerateRoute: (settings) {
+              print(settings);
+              if (settings.name == '/') {
+                return platformPageRoute(context: context, builder: (context) => MainScreen(dnEnrolled));
+              }
 
-          final uri = Uri.parse(settings.name!);
-          if (uri.path == EnrollmentScreen.routeName) {
-            // TODO: maybe implement this as a dialog instead of a page, you can stack multiple enrollment screens which is annoying in dev
-            return platformPageRoute(
-              context: context,
-              builder: (context) =>
-                  EnrollmentScreen(code: EnrollmentScreen.parseCode(settings.name!), stream: this.dnEnrolled),
-            );
-          }
+              final uri = Uri.parse(settings.name!);
+              if (uri.path == EnrollmentScreen.routeName) {
+                // TODO: maybe implement this as a dialog instead of a page, you can stack multiple enrollment screens which is annoying in dev
+                return platformPageRoute(
+                  context: context,
+                  builder:
+                      (context) =>
+                          EnrollmentScreen(code: EnrollmentScreen.parseCode(settings.name!), stream: dnEnrolled),
+                );
+              }
 
-          return null;
-        },
-      ),
+              return null;
+            },
+          ),
     );
   }
 }

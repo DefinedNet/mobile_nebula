@@ -9,7 +9,7 @@ TextStyle basicTextStyle(BuildContext context) =>
 const double _headerFontSize = 13.0;
 
 class ConfigHeader extends StatelessWidget {
-  const ConfigHeader({Key? key, required this.label, this.color}) : super(key: key);
+  const ConfigHeader({super.key, required this.label, this.color});
 
   final String label;
   final Color? color;
@@ -20,10 +20,9 @@ class ConfigHeader extends StatelessWidget {
       padding: const EdgeInsets.only(left: 10.0, top: 30.0, bottom: 5.0, right: 10.0),
       child: Text(
         label,
-        style: basicTextStyle(context).copyWith(
-          color: color ?? CupertinoColors.secondaryLabel.resolveFrom(context),
-          fontSize: _headerFontSize,
-        ),
+        style: basicTextStyle(
+          context,
+        ).copyWith(color: color ?? CupertinoColors.secondaryLabel.resolveFrom(context), fontSize: _headerFontSize),
       ),
     );
   }

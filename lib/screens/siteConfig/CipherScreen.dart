@@ -6,11 +6,7 @@ import 'package:mobile_nebula/components/config/ConfigCheckboxItem.dart';
 import 'package:mobile_nebula/components/config/ConfigSection.dart';
 
 class CipherScreen extends StatefulWidget {
-  const CipherScreen({
-    Key? key,
-    required this.cipher,
-    required this.onSave,
-  }) : super(key: key);
+  const CipherScreen({super.key, required this.cipher, required this.onSave});
 
   final String cipher;
   final ValueChanged<String> onSave;
@@ -32,15 +28,16 @@ class _CipherScreenState extends State<CipherScreen> {
   @override
   Widget build(BuildContext context) {
     return FormPage(
-        title: 'Cipher Selection',
-        changed: changed,
-        onSave: () {
-          Navigator.pop(context);
-          widget.onSave(cipher);
-        },
-        child: Column(
-          children: <Widget>[
-            ConfigSection(children: [
+      title: 'Cipher Selection',
+      changed: changed,
+      onSave: () {
+        Navigator.pop(context);
+        widget.onSave(cipher);
+      },
+      child: Column(
+        children: <Widget>[
+          ConfigSection(
+            children: [
               ConfigCheckboxItem(
                 label: Text("aes"),
                 labelWidth: 150,
@@ -62,9 +59,11 @@ class _CipherScreenState extends State<CipherScreen> {
                     cipher = "chachapoly";
                   });
                 },
-              )
-            ])
-          ],
-        ));
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }

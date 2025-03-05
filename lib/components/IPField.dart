@@ -16,19 +16,19 @@ class IPField extends StatelessWidget {
   final controller;
   final textAlign;
 
-  const IPField(
-      {Key? key,
-      this.ipOnly = false,
-      this.help = "ip address",
-      this.autoFocus = false,
-      this.focusNode,
-      this.nextFocusNode,
-      this.onChanged,
-      this.textPadding = const EdgeInsets.all(6.0),
-      this.textInputAction,
-      this.controller,
-      this.textAlign = TextAlign.center})
-      : super(key: key);
+  const IPField({
+    super.key,
+    this.ipOnly = false,
+    this.help = "ip address",
+    this.autoFocus = false,
+    this.focusNode,
+    this.nextFocusNode,
+    this.onChanged,
+    this.textPadding = const EdgeInsets.all(6.0),
+    this.textInputAction,
+    this.controller,
+    this.textAlign = TextAlign.center,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,21 +36,22 @@ class IPField extends StatelessWidget {
     final double? ipWidth = ipOnly ? Utils.textSize("000000000000000", textStyle).width + 12 : null;
 
     return SizedBox(
-        width: ipWidth,
-        child: SpecialTextField(
-          keyboardType: ipOnly ? TextInputType.numberWithOptions(decimal: true, signed: true) : null,
-          textAlign: textAlign,
-          autofocus: autoFocus,
-          focusNode: focusNode,
-          nextFocusNode: nextFocusNode,
-          controller: controller,
-          onChanged: onChanged,
-          maxLength: ipOnly ? 15 : null,
-          maxLengthEnforcement: ipOnly ? MaxLengthEnforcement.enforced : MaxLengthEnforcement.none,
-          inputFormatters: ipOnly ? [IPTextInputFormatter()] : [FilteringTextInputFormatter.allow(RegExp(r'[^\s]+'))],
-          textInputAction: this.textInputAction,
-          placeholder: help,
-        ));
+      width: ipWidth,
+      child: SpecialTextField(
+        keyboardType: ipOnly ? TextInputType.numberWithOptions(decimal: true, signed: true) : null,
+        textAlign: textAlign,
+        autofocus: autoFocus,
+        focusNode: focusNode,
+        nextFocusNode: nextFocusNode,
+        controller: controller,
+        onChanged: onChanged,
+        maxLength: ipOnly ? 15 : null,
+        maxLengthEnforcement: ipOnly ? MaxLengthEnforcement.enforced : MaxLengthEnforcement.none,
+        inputFormatters: ipOnly ? [IPTextInputFormatter()] : [FilteringTextInputFormatter.allow(RegExp(r'[^\s]+'))],
+        textInputAction: textInputAction,
+        placeholder: help,
+      ),
+    );
   }
 }
 
@@ -59,22 +60,19 @@ class IPTextInputFormatter extends TextInputFormatter {
 
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    return _selectionAwareTextManipulation(
-      newValue,
-      (String substring) {
-        return whitelistedPattern
-            .allMatches(substring)
-            .map<String>((Match match) => match.group(0)!)
-            .join()
-            .replaceAll(RegExp(r','), '.');
-      },
-    );
+    return _selectionAwareTextManipulation(newValue, (String substring) {
+      return whitelistedPattern
+          .allMatches(substring)
+          .map<String>((Match match) => match.group(0)!)
+          .join()
+          .replaceAll(RegExp(r','), '.');
+    });
   }
 }
 
 TextEditingValue _selectionAwareTextManipulation(
   TextEditingValue value,
-  String substringManipulation(String substring),
+  String Function(String substring) substringManipulation,
 ) {
   final int selectionStartIndex = value.selection.start;
   final int selectionEndIndex = value.selection.end;

@@ -5,81 +5,84 @@ import 'package:mobile_nebula/components/SpecialTextField.dart';
 
 class PlatformTextFormField extends FormField<String> {
   //TODO: auto-validate, enabled?
-  PlatformTextFormField(
-      {Key? key,
-      widgetKey,
-      this.controller,
-      focusNode,
-      nextFocusNode,
-      TextInputType? keyboardType,
-      textInputAction,
-      List<TextInputFormatter>? inputFormatters,
-      textAlign,
-      autofocus,
-      maxLines = 1,
-      maxLength,
-      maxLengthEnforcement,
-      onChanged,
-      keyboardAppearance,
-      minLines,
-      expands,
-      suffix,
-      textAlignVertical,
-      String? initialValue,
-      String? placeholder,
-      FormFieldValidator<String>? validator,
-      ValueChanged<String?>? onSaved})
-      : super(
-            key: key,
-            initialValue: controller != null ? controller.text : (initialValue ?? ''),
-            onSaved: onSaved,
-            validator: (str) {
-              if (validator != null) {
-                return validator(str);
-              }
+  PlatformTextFormField({
+    super.key,
+    widgetKey,
+    this.controller,
+    focusNode,
+    nextFocusNode,
+    TextInputType? keyboardType,
+    textInputAction,
+    List<TextInputFormatter>? inputFormatters,
+    textAlign,
+    autofocus,
+    maxLines = 1,
+    maxLength,
+    maxLengthEnforcement,
+    onChanged,
+    keyboardAppearance,
+    minLines,
+    expands,
+    suffix,
+    textAlignVertical,
+    String? initialValue,
+    String? placeholder,
+    FormFieldValidator<String>? validator,
+    super.onSaved,
+  }) : super(
+         initialValue: controller != null ? controller.text : (initialValue ?? ''),
+         validator: (str) {
+           if (validator != null) {
+             return validator(str);
+           }
 
-              return null;
-            },
-            builder: (FormFieldState<String> field) {
-              final _PlatformTextFormFieldState state = field as _PlatformTextFormFieldState;
+           return null;
+         },
+         builder: (FormFieldState<String> field) {
+           final _PlatformTextFormFieldState state = field as _PlatformTextFormFieldState;
 
-              void onChangedHandler(String value) {
-                if (onChanged != null) {
-                  onChanged(value);
-                }
-                field.didChange(value);
-              }
+           void onChangedHandler(String value) {
+             if (onChanged != null) {
+               onChanged(value);
+             }
+             field.didChange(value);
+           }
 
-              return Column(crossAxisAlignment: CrossAxisAlignment.end, children: <Widget>[
-                SpecialTextField(
-                    key: widgetKey,
-                    controller: state._effectiveController,
-                    focusNode: focusNode,
-                    nextFocusNode: nextFocusNode,
-                    keyboardType: keyboardType,
-                    textInputAction: textInputAction,
-                    textAlign: textAlign,
-                    autofocus: autofocus,
-                    maxLines: maxLines,
-                    maxLength: maxLength,
-                    maxLengthEnforcement: maxLengthEnforcement,
-                    onChanged: onChangedHandler,
-                    keyboardAppearance: keyboardAppearance,
-                    minLines: minLines,
-                    expands: expands,
-                    textAlignVertical: textAlignVertical,
-                    placeholder: placeholder,
-                    inputFormatters: inputFormatters,
-                    suffix: suffix),
-                field.hasError
-                    ? Text(
-                        field.errorText!,
-                        style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
-                        textAlign: textAlign,
-                      )
-                    : Container(height: 0)
-              ]);
-            });
+           return Column(
+             crossAxisAlignment: CrossAxisAlignment.end,
+             children: <Widget>[
+               SpecialTextField(
+                 key: widgetKey,
+                 controller: state._effectiveController,
+                 focusNode: focusNode,
+                 nextFocusNode: nextFocusNode,
+                 keyboardType: keyboardType,
+                 textInputAction: textInputAction,
+                 textAlign: textAlign,
+                 autofocus: autofocus,
+                 maxLines: maxLines,
+                 maxLength: maxLength,
+                 maxLengthEnforcement: maxLengthEnforcement,
+                 onChanged: onChangedHandler,
+                 keyboardAppearance: keyboardAppearance,
+                 minLines: minLines,
+                 expands: expands,
+                 textAlignVertical: textAlignVertical,
+                 placeholder: placeholder,
+                 inputFormatters: inputFormatters,
+                 suffix: suffix,
+               ),
+               field.hasError
+                   ? Text(
+                     field.errorText!,
+                     style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
+                     textAlign: textAlign,
+                   )
+                   : Container(height: 0),
+             ],
+           );
+         },
+       );
 
   final TextEditingController? controller;
 
@@ -112,8 +115,9 @@ class _PlatformTextFormFieldState extends FormFieldState<String> {
       oldWidget.controller?.removeListener(_handleControllerChanged);
       widget.controller?.addListener(_handleControllerChanged);
 
-      if (oldWidget.controller != null && widget.controller == null)
+      if (oldWidget.controller != null && widget.controller == null) {
         _controller = TextEditingController.fromValue(oldWidget.controller!.value);
+      }
       if (widget.controller != null) {
         setValue(widget.controller!.text);
         if (oldWidget.controller == null) _controller = null;

@@ -21,14 +21,13 @@ class _IPAndPort {
 
 class StaticHostmapScreen extends StatefulWidget {
   StaticHostmapScreen({
-    Key? key,
+    super.key,
     this.nebulaIp = '',
     destinations,
     this.lighthouse = false,
     this.onDelete,
     required this.onSave,
-  })  : this.destinations = destinations ?? [],
-        super(key: key);
+  }) : destinations = destinations ?? [];
 
   final List<IPAndPort> destinations;
   final String nebulaIp;
@@ -51,11 +50,11 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
     _nebulaIp = widget.nebulaIp;
     _lighthouse = widget.lighthouse;
     _destinations = {};
-    widget.destinations.forEach((dest) {
+    for (var dest in widget.destinations) {
       _destinations[UniqueKey()] = _IPAndPort(focusNode: FocusNode(), destination: dest);
-    });
+    }
 
-    if (_destinations.length == 0) {
+    if (_destinations.isEmpty) {
       _addDestination();
     }
 
@@ -67,67 +66,81 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
   @override
   Widget build(BuildContext context) {
     return FormPage(
-        title: widget.onDelete == null
-            ? widget.onSave == null
-                ? 'View Static Host'
-                : 'New Static Host'
-            : 'Edit Static Host',
-        changed: changed,
-        onSave: _onSave,
-        child: Column(children: [
-          ConfigSection(label: 'Maps a nebula ip address to multiple real world addresses', children: <Widget>[
-            ConfigItem(
+      title:
+          widget.onDelete == null
+              ? widget.onSave == null
+                  ? 'View Static Host'
+                  : 'New Static Host'
+              : 'Edit Static Host',
+      changed: changed,
+      onSave: _onSave,
+      child: Column(
+        children: [
+          ConfigSection(
+            label: 'Maps a nebula ip address to multiple real world addresses',
+            children: <Widget>[
+              ConfigItem(
                 label: Text('Nebula IP'),
                 labelWidth: 200,
-                content: widget.onSave == null
-                    ? Text(_nebulaIp, textAlign: TextAlign.end)
-                    : IPFormField(
-                        help: "Required",
-                        initialValue: _nebulaIp,
-                        ipOnly: true,
-                        textAlign: TextAlign.end,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        textInputAction: TextInputAction.next,
-                        onSaved: (v) {
-                          if (v != null) {
-                            _nebulaIp = v;
-                          }
-                        })),
-            ConfigItem(
-              label: Text('Lighthouse'),
-              labelWidth: 200,
-              content: Container(
+                content:
+                    widget.onSave == null
+                        ? Text(_nebulaIp, textAlign: TextAlign.end)
+                        : IPFormField(
+                          help: "Required",
+                          initialValue: _nebulaIp,
+                          ipOnly: true,
+                          textAlign: TextAlign.end,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          textInputAction: TextInputAction.next,
+                          onSaved: (v) {
+                            if (v != null) {
+                              _nebulaIp = v;
+                            }
+                          },
+                        ),
+              ),
+              ConfigItem(
+                label: Text('Lighthouse'),
+                labelWidth: 200,
+                content: Container(
                   alignment: Alignment.centerRight,
                   child: Switch.adaptive(
-                      value: _lighthouse,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      onChanged: widget.onSave == null
-                          ? null
-                          : (v) {
+                    value: _lighthouse,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    onChanged:
+                        widget.onSave == null
+                            ? null
+                            : (v) {
                               setState(() {
                                 changed = true;
                                 _lighthouse = v;
                               });
-                            })),
-            ),
-          ]),
-          ConfigSection(
-            label: 'List of public ips or dns names where for this host',
-            children: _buildHosts(),
+                            },
+                  ),
+                ),
+              ),
+            ],
           ),
+          ConfigSection(label: 'List of public ips or dns names where for this host', children: _buildHosts()),
           widget.onDelete != null
               ? Padding(
-                  padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
-                  child: SizedBox(
-                      width: double.infinity,
-                      child: DangerButton(
-                          child: Text('Delete'),
-                          onPressed: () => Utils.confirmDelete(context, 'Delete host map?', () {
-                                Navigator.of(context).pop();
-                                widget.onDelete!();
-                              }))))
-              : Container()
-        ]));
+                padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: DangerButton(
+                    child: Text('Delete'),
+                    onPressed:
+                        () => Utils.confirmDelete(context, 'Delete host map?', () {
+                          Navigator.of(context).pop();
+                          widget.onDelete!();
+                        }),
+                  ),
+                ),
+              )
+              : Container(),
+        ],
+      ),
+    );
   }
 
   _onSave() {
@@ -147,47 +160,61 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
     List<Widget> items = [];
 
     _destinations.forEach((key, dest) {
-      items.add(ConfigItem(
-        key: key,
-        label: Align(
+      items.add(
+        ConfigItem(
+          key: key,
+          label: Align(
             alignment: Alignment.centerLeft,
-            child: widget.onSave == null
-                ? Container()
-                : PlatformIconButton(
-                    padding: EdgeInsets.zero,
-                    icon: Icon(Icons.remove_circle, color: CupertinoColors.systemRed.resolveFrom(context)),
-                    onPressed: () => setState(() {
-                          _removeDestination(key);
-                          _dismissKeyboard();
-                        }))),
-        labelWidth: 70,
-        content: Row(children: <Widget>[
-          Expanded(
-              child: widget.onSave == null
-                  ? Text(dest.destination.toString(), textAlign: TextAlign.end)
-                  : IPAndPortFormField(
-                      ipHelp: 'public ip or name',
-                      ipTextAlign: TextAlign.end,
-                      enableIPV6: true,
-                      noBorder: true,
-                      initialValue: dest.destination,
-                      onSaved: (v) {
-                        if (v != null) {
-                          dest.destination = v;
-                        }
-                      },
-                    )),
-        ]),
-      ));
+            child:
+                widget.onSave == null
+                    ? Container()
+                    : PlatformIconButton(
+                      padding: EdgeInsets.zero,
+                      icon: Icon(Icons.remove_circle, color: CupertinoColors.systemRed.resolveFrom(context)),
+                      onPressed:
+                          () => setState(() {
+                            _removeDestination(key);
+                            _dismissKeyboard();
+                          }),
+                    ),
+          ),
+          labelWidth: 70,
+          content: Row(
+            children: <Widget>[
+              Expanded(
+                child:
+                    widget.onSave == null
+                        ? Text(dest.destination.toString(), textAlign: TextAlign.end)
+                        : IPAndPortFormField(
+                          ipHelp: 'public ip or name',
+                          ipTextAlign: TextAlign.end,
+                          enableIPV6: true,
+                          noBorder: true,
+                          initialValue: dest.destination,
+                          onSaved: (v) {
+                            if (v != null) {
+                              dest.destination = v;
+                            }
+                          },
+                        ),
+              ),
+            ],
+          ),
+        ),
+      );
     });
 
     if (widget.onSave != null) {
-      items.add(ConfigButtonItem(
+      items.add(
+        ConfigButtonItem(
           content: Text('Add another'),
-          onPressed: () => setState(() {
+          onPressed:
+              () => setState(() {
                 _addDestination();
                 _dismissKeyboard();
-              })));
+              }),
+        ),
+      );
     }
 
     return items;

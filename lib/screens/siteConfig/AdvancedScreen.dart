@@ -40,11 +40,7 @@ class Advanced {
 }
 
 class AdvancedScreen extends StatefulWidget {
-  const AdvancedScreen({
-    Key? key,
-    required this.site,
-    required this.onSave,
-  }) : super(key: key);
+  const AdvancedScreen({super.key, required this.site, required this.onSave});
 
   final Site site;
   final ValueChanged<Advanced> onSave;
@@ -73,22 +69,24 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
   @override
   Widget build(BuildContext context) {
     return FormPage(
-        title: 'Advanced Settings',
-        changed: changed,
-        onSave: () {
-          Navigator.pop(context);
-          widget.onSave(settings);
-        },
-        child: Column(children: [
+      title: 'Advanced Settings',
+      changed: changed,
+      onSave: () {
+        Navigator.pop(context);
+        widget.onSave(settings);
+      },
+      child: Column(
+        children: [
           ConfigSection(
             children: [
               ConfigItem(
-                  label: Text("Lighthouse interval"),
-                  labelWidth: 200,
-                  //TODO: Auto select on focus?
-                  content: widget.site.managed
-                      ? Text(settings.lhDuration.toString() + " seconds", textAlign: TextAlign.right)
-                      : PlatformTextFormField(
+                label: Text("Lighthouse interval"),
+                labelWidth: 200,
+                //TODO: Auto select on focus?
+                content:
+                    widget.site.managed
+                        ? Text("${settings.lhDuration} seconds", textAlign: TextAlign.right)
+                        : PlatformTextFormField(
                           initialValue: settings.lhDuration.toString(),
                           keyboardType: TextInputType.number,
                           suffix: Text("seconds"),
@@ -102,14 +100,16 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                               }
                             });
                           },
-                        )),
+                        ),
+              ),
               ConfigItem(
-                  label: Text("Listen port"),
-                  labelWidth: 150,
-                  //TODO: Auto select on focus?
-                  content: widget.site.managed
-                      ? Text(settings.port.toString(), textAlign: TextAlign.right)
-                      : PlatformTextFormField(
+                label: Text("Listen port"),
+                labelWidth: 150,
+                //TODO: Auto select on focus?
+                content:
+                    widget.site.managed
+                        ? Text(settings.port.toString(), textAlign: TextAlign.right)
+                        : PlatformTextFormField(
                           initialValue: settings.port.toString(),
                           keyboardType: TextInputType.number,
                           textAlign: TextAlign.right,
@@ -122,13 +122,15 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                               }
                             });
                           },
-                        )),
+                        ),
+              ),
               ConfigItem(
-                  label: Text("MTU"),
-                  labelWidth: 150,
-                  content: widget.site.managed
-                      ? Text(settings.mtu.toString(), textAlign: TextAlign.right)
-                      : PlatformTextFormField(
+                label: Text("MTU"),
+                labelWidth: 150,
+                content:
+                    widget.site.managed
+                        ? Text(settings.mtu.toString(), textAlign: TextAlign.right)
+                        : PlatformTextFormField(
                           initialValue: settings.mtu.toString(),
                           keyboardType: TextInputType.number,
                           textAlign: TextAlign.right,
@@ -141,41 +143,46 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                               }
                             });
                           },
-                        )),
+                        ),
+              ),
               ConfigPageItem(
-                  disabled: widget.site.managed,
-                  label: Text('Cipher'),
-                  labelWidth: 150,
-                  content: Text(settings.cipher, textAlign: TextAlign.end),
-                  onPressed: () {
-                    Utils.openPage(context, (context) {
-                      return CipherScreen(
-                          cipher: settings.cipher,
-                          onSave: (cipher) {
-                            setState(() {
-                              settings.cipher = cipher;
-                              changed = true;
-                            });
-                          });
-                    });
-                  }),
+                disabled: widget.site.managed,
+                label: Text('Cipher'),
+                labelWidth: 150,
+                content: Text(settings.cipher, textAlign: TextAlign.end),
+                onPressed: () {
+                  Utils.openPage(context, (context) {
+                    return CipherScreen(
+                      cipher: settings.cipher,
+                      onSave: (cipher) {
+                        setState(() {
+                          settings.cipher = cipher;
+                          changed = true;
+                        });
+                      },
+                    );
+                  });
+                },
+              ),
               ConfigPageItem(
-                  disabled: widget.site.managed,
-                  label: Text('Log verbosity'),
-                  labelWidth: 150,
-                  content: Text(settings.verbosity, textAlign: TextAlign.end),
-                  onPressed: () {
-                    Utils.openPage(context, (context) {
-                      return LogVerbosityScreen(
-                          verbosity: settings.verbosity,
-                          onSave: (verbosity) {
-                            setState(() {
-                              settings.verbosity = verbosity;
-                              changed = true;
-                            });
-                          });
-                    });
-                  }),
+                disabled: widget.site.managed,
+                label: Text('Log verbosity'),
+                labelWidth: 150,
+                content: Text(settings.verbosity, textAlign: TextAlign.end),
+                onPressed: () {
+                  Utils.openPage(context, (context) {
+                    return LogVerbosityScreen(
+                      verbosity: settings.verbosity,
+                      onSave: (verbosity) {
+                        setState(() {
+                          settings.verbosity = verbosity;
+                          changed = true;
+                        });
+                      },
+                    );
+                  });
+                },
+              ),
               ConfigPageItem(
                 label: Text('Unsafe routes'),
                 labelWidth: 150,
@@ -183,18 +190,20 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                 onPressed: () {
                   Utils.openPage(context, (context) {
                     return UnsafeRoutesScreen(
-                        unsafeRoutes: settings.unsafeRoutes,
-                        onSave: widget.site.managed
-                            ? null
-                            : (routes) {
+                      unsafeRoutes: settings.unsafeRoutes,
+                      onSave:
+                          widget.site.managed
+                              ? null
+                              : (routes) {
                                 setState(() {
                                   settings.unsafeRoutes = routes;
                                   changed = true;
                                 });
-                              });
+                              },
+                    );
                   });
                 },
-              )
+              ),
             ],
           ),
           ConfigSection(
@@ -211,9 +220,11 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                     Utils.popError(context, 'Failed to render the site config', err.toString());
                   }
                 },
-              )
+              ),
             ],
-          )
-        ]));
+          ),
+        ],
+      ),
+    );
   }
 }

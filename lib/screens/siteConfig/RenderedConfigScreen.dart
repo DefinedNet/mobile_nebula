@@ -7,11 +7,7 @@ class RenderedConfigScreen extends StatelessWidget {
   final String config;
   final String name;
 
-  RenderedConfigScreen({
-    Key? key,
-    required this.config,
-    required this.name,
-  }) : super(key: key);
+  const RenderedConfigScreen({super.key, required this.config, required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -19,18 +15,21 @@ class RenderedConfigScreen extends StatelessWidget {
       title: Text('Rendered Site Config'),
       scrollable: SimpleScrollable.both,
       trailingActions: <Widget>[
-        Builder(builder: (BuildContext context) {
-          return PlatformIconButton(
-            padding: EdgeInsets.zero,
-            icon: Icon(context.platformIcons.share, size: 28.0),
-            onPressed: () => Share.share(context, title: '$name.yaml', text: config, filename: '$name.yaml'),
-          );
-        }),
+        Builder(
+          builder: (BuildContext context) {
+            return PlatformIconButton(
+              padding: EdgeInsets.zero,
+              icon: Icon(context.platformIcons.share, size: 28.0),
+              onPressed: () => Share.share(context, title: '$name.yaml', text: config, filename: '$name.yaml'),
+            );
+          },
+        ),
       ],
       child: Container(
-          padding: EdgeInsets.all(5),
-          constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-          child: SelectableText(config, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14))),
+        padding: EdgeInsets.all(5),
+        constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+        child: SelectableText(config, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
+      ),
     );
   }
 }

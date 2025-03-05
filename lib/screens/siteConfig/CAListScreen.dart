@@ -18,12 +18,7 @@ import 'package:mobile_nebula/services/utils.dart';
 //TODO: In addition you will want to think about re-generation while the site is still active (This means storing multiple keys in secure storage)
 
 class CAListScreen extends StatefulWidget {
-  const CAListScreen({
-    Key? key,
-    required this.cas,
-    this.onSave,
-    required this.supportsQRScanning,
-  }) : super(key: key);
+  const CAListScreen({super.key, required this.cas, this.onSave, required this.supportsQRScanning});
 
   final List<CertificateInfo> cas;
   final ValueChanged<List<CertificateInfo>>? onSave;
@@ -44,9 +39,9 @@ class _CAListScreenState extends State<CAListScreen> {
 
   @override
   void initState() {
-    widget.cas.forEach((ca) {
+    for (var ca in widget.cas) {
       cas[ca.cert.fingerprint] = ca;
-    });
+    }
 
     super.initState();
   }
@@ -56,7 +51,7 @@ class _CAListScreenState extends State<CAListScreen> {
     List<Widget> items = [];
     final caItems = _buildCAs();
 
-    if (caItems.length > 0) {
+    if (caItems.isNotEmpty) {
       items.add(ConfigSection(children: caItems));
     }
 
@@ -65,41 +60,47 @@ class _CAListScreenState extends State<CAListScreen> {
     }
 
     return FormPage(
-        title: 'Certificate Authorities',
-        changed: changed,
-        onSave: () {
-          if (widget.onSave != null) {
-            Navigator.pop(context);
-            widget.onSave!(cas.values.map((ca) {
+      title: 'Certificate Authorities',
+      changed: changed,
+      onSave: () {
+        if (widget.onSave != null) {
+          Navigator.pop(context);
+          widget.onSave!(
+            cas.values.map((ca) {
               return ca;
-            }).toList());
-          }
-        },
-        child: Column(children: items));
+            }).toList(),
+          );
+        }
+      },
+      child: Column(children: items),
+    );
   }
 
   List<Widget> _buildCAs() {
     List<Widget> items = [];
     cas.forEach((key, ca) {
-      items.add(ConfigPageItem(
-        content: Text(ca.cert.details.name),
-        onPressed: () {
-          Utils.openPage(context, (context) {
-            return CertificateDetailsScreen(
-              certInfo: ca,
-              onDelete: widget.onSave == null
-                  ? null
-                  : () {
-                      setState(() {
-                        changed = true;
-                        cas.remove(key);
-                      });
-                    },
-              supportsQRScanning: widget.supportsQRScanning,
-            );
-          });
-        },
-      ));
+      items.add(
+        ConfigPageItem(
+          content: Text(ca.cert.details.name),
+          onPressed: () {
+            Utils.openPage(context, (context) {
+              return CertificateDetailsScreen(
+                certInfo: ca,
+                onDelete:
+                    widget.onSave == null
+                        ? null
+                        : () {
+                          setState(() {
+                            changed = true;
+                            cas.remove(key);
+                          });
+                        },
+                supportsQRScanning: widget.supportsQRScanning,
+              );
+            });
+          },
+        ),
+      );
     });
 
     return items;
@@ -114,14 +115,14 @@ class _CAListScreenState extends State<CAListScreen> {
       var ignored = 0;
 
       List<dynamic> certs = jsonDecode(rawCerts);
-      certs.forEach((rawCert) {
+      for (var rawCert in certs) {
         final info = CertificateInfo.fromJson(rawCert);
         if (!info.cert.details.isCa) {
           ignored++;
-          return;
+          continue;
         }
         cas[info.cert.fingerprint] = info;
-      });
+      }
 
       if (ignored > 0) {
         error = 'One or more certificates were ignored because they were not certificate authorities.';
@@ -137,10 +138,7 @@ class _CAListScreenState extends State<CAListScreen> {
   }
 
   List<Widget> _addCA() {
-    Map<String, Widget> children = {
-      'paste': Text('Copy/Paste'),
-      'file': Text('File'),
-    };
+    Map<String, Widget> children = {'paste': Text('Copy/Paste'), 'file': Text('File')};
 
     // not all devices have a camera for QR codes
     if (widget.supportsQRScanning) {
@@ -149,18 +147,19 @@ class _CAListScreenState extends State<CAListScreen> {
 
     List<Widget> items = [
       Padding(
-          padding: EdgeInsets.fromLTRB(10, 25, 10, 0),
-          child: CupertinoSlidingSegmentedControl(
-            groupValue: inputType,
-            onValueChanged: (v) {
-              if (v != null) {
-                setState(() {
-                  inputType = v;
-                });
-              }
-            },
-            children: children,
-          ))
+        padding: EdgeInsets.fromLTRB(10, 25, 10, 0),
+        child: CupertinoSlidingSegmentedControl(
+          groupValue: inputType,
+          onValueChanged: (v) {
+            if (v != null) {
+              setState(() {
+                inputType = v;
+              });
+            }
+          },
+          children: children,
+        ),
+      ),
     ];
 
     if (inputType == 'paste') {
@@ -178,25 +177,23 @@ class _CAListScreenState extends State<CAListScreen> {
     return [
       ConfigSection(
         children: [
-          ConfigTextItem(
-            placeholder: 'CA PEM contents',
-            controller: pasteController,
-          ),
+          ConfigTextItem(placeholder: 'CA PEM contents', controller: pasteController),
           ConfigButtonItem(
-              content: Text('Load CA'),
-              onPressed: () {
-                _addCAEntry(pasteController.text, (err) {
-                  print(err);
-                  if (err != null) {
-                    return Utils.popError(context, 'Failed to parse CA content', err);
-                  }
+            content: Text('Load CA'),
+            onPressed: () {
+              _addCAEntry(pasteController.text, (err) {
+                print(err);
+                if (err != null) {
+                  return Utils.popError(context, 'Failed to parse CA content', err);
+                }
 
-                  pasteController.text = '';
-                  setState(() {});
-                });
-              }),
+                pasteController.text = '';
+                setState(() {});
+              });
+            },
+          ),
         ],
-      )
+      ),
     ];
   }
 
@@ -205,27 +202,28 @@ class _CAListScreenState extends State<CAListScreen> {
       ConfigSection(
         children: [
           ConfigButtonItem(
-              content: Text('Choose a file'),
-              onPressed: () async {
-                try {
-                  final content = await Utils.pickFile(context);
-                  if (content == null) {
-                    return;
-                  }
-
-                  _addCAEntry(content, (err) {
-                    if (err != null) {
-                      Utils.popError(context, 'Error loading CA file', err);
-                    } else {
-                      setState(() {});
-                    }
-                  });
-                } catch (err) {
-                  return Utils.popError(context, 'Failed to load CA file', err.toString());
+            content: Text('Choose a file'),
+            onPressed: () async {
+              try {
+                final content = await Utils.pickFile(context);
+                if (content == null) {
+                  return;
                 }
-              })
+
+                _addCAEntry(content, (err) {
+                  if (err != null) {
+                    Utils.popError(context, 'Error loading CA file', err);
+                  } else {
+                    setState(() {});
+                  }
+                });
+              } catch (err) {
+                return Utils.popError(context, 'Failed to load CA file', err.toString());
+              }
+            },
+          ),
         ],
-      )
+      ),
     ];
   }
 
@@ -238,10 +236,7 @@ class _CAListScreenState extends State<CAListScreen> {
             onPressed: () async {
               var result = await Navigator.push(
                 context,
-                platformPageRoute(
-                  context: context,
-                  builder: (context) => new ScanQRScreen(),
-                ),
+                platformPageRoute(context: context, builder: (context) => ScanQRScreen()),
               );
               if (result != null) {
                 _addCAEntry(result, (err) {
@@ -253,9 +248,9 @@ class _CAListScreenState extends State<CAListScreen> {
                 });
               }
             },
-          )
+          ),
         ],
-      )
+      ),
     ];
   }
 }

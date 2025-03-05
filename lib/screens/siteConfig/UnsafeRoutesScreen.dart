@@ -8,11 +8,7 @@ import 'package:mobile_nebula/screens/siteConfig/UnsafeRouteScreen.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 class UnsafeRoutesScreen extends StatefulWidget {
-  const UnsafeRoutesScreen({
-    Key? key,
-    required this.unsafeRoutes,
-    required this.onSave,
-  }) : super(key: key);
+  const UnsafeRoutesScreen({super.key, required this.unsafeRoutes, required this.onSave});
 
   final List<UnsafeRoute> unsafeRoutes;
   final ValueChanged<List<UnsafeRoute>>? onSave;
@@ -28,9 +24,9 @@ class _UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
   @override
   void initState() {
     unsafeRoutes = {};
-    widget.unsafeRoutes.forEach((route) {
+    for (var route in widget.unsafeRoutes) {
       unsafeRoutes[UniqueKey()] = route;
-    });
+    }
 
     super.initState();
   }
@@ -38,12 +34,11 @@ class _UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
   @override
   Widget build(BuildContext context) {
     return FormPage(
-        title: 'Unsafe Routes',
-        changed: changed,
-        onSave: _onSave,
-        child: ConfigSection(
-          children: _buildRoutes(),
-        ));
+      title: 'Unsafe Routes',
+      changed: changed,
+      onSave: _onSave,
+      child: ConfigSection(children: _buildRoutes()),
+    );
   }
 
   _onSave() {
@@ -57,14 +52,15 @@ class _UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
     final double ipWidth = Utils.textSize("000.000.000.000/00", CupertinoTheme.of(context).textTheme.textStyle).width;
     List<Widget> items = [];
     unsafeRoutes.forEach((key, route) {
-      items.add(ConfigPageItem(
-        disabled: widget.onSave == null,
-        label: Text(route.route ?? ''),
-        labelWidth: ipWidth,
-        content: Text('via ${route.via}', textAlign: TextAlign.end),
-        onPressed: () {
-          Utils.openPage(context, (context) {
-            return UnsafeRouteScreen(
+      items.add(
+        ConfigPageItem(
+          disabled: widget.onSave == null,
+          label: Text(route.route ?? ''),
+          labelWidth: ipWidth,
+          content: Text('via ${route.via}', textAlign: TextAlign.end),
+          onPressed: () {
+            Utils.openPage(context, (context) {
+              return UnsafeRouteScreen(
                 route: route,
                 onSave: (route) {
                   setState(() {
@@ -77,28 +73,33 @@ class _UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
                     changed = true;
                     unsafeRoutes.remove(key);
                   });
-                });
-          });
-        },
-      ));
+                },
+              );
+            });
+          },
+        ),
+      );
     });
 
     if (widget.onSave != null) {
-      items.add(ConfigButtonItem(
-        content: Text('Add a new route'),
-        onPressed: () {
-          Utils.openPage(context, (context) {
-            return UnsafeRouteScreen(
+      items.add(
+        ConfigButtonItem(
+          content: Text('Add a new route'),
+          onPressed: () {
+            Utils.openPage(context, (context) {
+              return UnsafeRouteScreen(
                 route: UnsafeRoute(),
                 onSave: (route) {
                   setState(() {
                     changed = true;
                     unsafeRoutes[UniqueKey()] = route;
                   });
-                });
-          });
-        },
-      ));
+                },
+              );
+            });
+          },
+        ),
+      );
     }
 
     return items;

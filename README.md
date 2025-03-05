@@ -8,7 +8,7 @@ Install all of the following things:
 
 - [`xcode`](https://apps.apple.com/us/app/xcode/)
 - [`android-studio`](https://developer.android.com/studio)
-- [`flutter` 3.27.0](https://docs.flutter.dev/get-started/install)
+- [`flutter` 3.29.0](https://docs.flutter.dev/get-started/install)
 - [`gomobile`](https://pkg.go.dev/golang.org/x/mobile/cmd/gomobile)
 - [Flutter Android Studio Extension](https://docs.flutter.dev/get-started/editor?tab=androidstudio)
 
@@ -41,6 +41,9 @@ dart format lib/ test/ -l 120
 
 In Android Studio, set the line length using Preferences -> Editor -> Code Style -> Dart -> Line length, set it to 120.  Enable auto-format with Preferences -> Languages & Frameworks -> Flutter -> Format code on save.
 
+`./swift-format.sh` can be used to format Swift code in the repo.
+
+Once `swift-format` supports ignoring directories (<https://github.com/swiftlang/swift-format/issues/870>), we can move to a method of running it more like what <https://calebhearth.com/swift-format-github-action> describes.
 
 # Release
 
