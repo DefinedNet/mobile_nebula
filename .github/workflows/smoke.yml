@@ -13,23 +13,23 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #4.2.2
         with:
           show-progress: false
 
       - name: Set up Go 1.22
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 #5.3.0
         with:
           go-version: '1.22'
           cache-dependency-path: nebula/go.sum
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 #v4.7.0
         with:
           distribution: 'zulu'
           java-version: '17'
 
       - name: Install flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff #v2.18.0
         with:
           flutter-version: '3.29.0'
 
@@ -77,7 +77,7 @@ jobs:
           unzip -p build/app/outputs/apk/debug/app-debug.apks universal.apk > build/app/outputs/apk/debug/app-debug.apk
       - name: Collect debug apk
         if: github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 #4.6.1
         with:
           name: MobileNebulaDebug.apk
           path: build/app/outputs/apk/debug/app-debug.apk
@@ -89,18 +89,18 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #4.2.2
         with:
           show-progress: false
 
       - name: Set up Go 1.22
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 #5.3.0
         with:
           go-version: '1.22'
           cache-dependency-path: nebula/go.sum
 
       - name: Install flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff #v2.18.0
         with:
           flutter-version: '3.29.0'
 
