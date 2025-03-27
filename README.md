@@ -7,5 +7,3 @@ Nebula is an overlay networking tool designed to be fast, secure, and scalable. 
 Mobile Nebula brings this functionality to devices running Android and iOS.
 
 This code is **source-available** meaning that the source is provided for viewing, but we are **not accepting contributions** and provide no license past what the [GitHub Terms of Service](https://docs.github.com/en/site-policy/github-terms/github-terms-of-service#5-license-grant-to-other-users) permit.
-
-See [contributing](CONTRIBUTING.md) for dev-related instructions if you are a Defined Networking employee.
