@@ -39,7 +39,6 @@ require (
 	github.com/vishvananda/netlink v1.3.0 // indirect
 	github.com/vishvananda/netns v0.0.4 // indirect
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c // indirect
-	golang.org/x/mobile v0.0.0-20250106192035-c31d5b91ecc3 // indirect
 	golang.org/x/mod v0.22.0 // indirect
 	golang.org/x/net v0.34.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
@@ -51,3 +50,5 @@ require (
 	golang.zx2c4.com/wireguard/windows v0.5.3 // indirect
 	google.golang.org/protobuf v1.35.2 // indirect
 )
+
+replace github.com/slackhq/nebula => github.com/DefinedNet/nebula v1.7.0-pre5.0.20250506231235-2113fd547601
