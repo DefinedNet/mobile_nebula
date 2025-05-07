@@ -10,7 +10,7 @@ on:
 jobs:
   build-android:
     name: Android
-    runs-on: macos-latest
+    runs-on: macos-15
     steps:
       - name: Check out code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #4.2.2
@@ -85,7 +85,7 @@ jobs:
 
   build-ios:
     name: iOS
-    runs-on: macos-latest
+    runs-on: macos-15
 
     steps:
       - name: Check out code
