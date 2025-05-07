@@ -6,7 +6,7 @@
 
 Install all of the following things:
 
-- [`xcode`](https://apps.apple.com/us/app/xcode/)
+- [`xcode`](https://apps.apple.com/us/app/xcode/) - use the version specified by `xcode_select` in `/ios/fastlane/Fastfile`
 - [`android-studio`](https://developer.android.com/studio)
 - [`flutter` 3.29.2](https://docs.flutter.dev/get-started/install)
 - [`gomobile`](https://pkg.go.dev/golang.org/x/mobile/cmd/gomobile)
