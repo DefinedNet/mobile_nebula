@@ -19,9 +19,9 @@ platform :ios do
   desc "Push a new beta build to TestFlight"
 
   before_all do
-    xcode_select("/Applications/Xcode_16.3.0.app")
+    xcode_select("/Applications/Xcode_16.2.0.app")
   end
-  
+
 
   lane :build do
     # Do some things like setting up a temporary keystore to host secrets in CI
