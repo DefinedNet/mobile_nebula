@@ -51,4 +51,4 @@ require (
 	google.golang.org/protobuf v1.35.2 // indirect
 )
 
-replace github.com/slackhq/nebula => github.com/DefinedNet/nebula v1.7.0-pre5.0.20250506231235-2113fd547601
+replace github.com/slackhq/nebula => github.com/DefinedNet/nebula v1.7.0-pre5.0.20250507182031-48fbd1290b23
