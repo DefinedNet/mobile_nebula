@@ -60,6 +60,11 @@ func RenderConfig(configData string, key string) (string, error) {
 		if err != nil {
 			return "", err
 		}
+		yamlCfg = append(yamlCfg, []byte(`
+# Hard coded defaults created within mobile nebula
+tunnels:
+  drop_inactive: true
+`)...)
 		return "# Managed Nebula Config (defined.net)\n" + string(yamlCfg), nil
 	}
 

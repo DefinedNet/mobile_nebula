@@ -15,6 +15,7 @@ type config struct {
 	Handshakes    configHandshakes    `yaml:"handshakes"`
 	Firewall      configFirewall      `yaml:"firewall"`
 	Relay         configRelay         `yaml:"relay"`
+	Tunnels       configTunnels       `yaml:"tunnels"`
 }
 
 func newConfig() *config {
@@ -79,6 +80,9 @@ func newConfig() *config {
 				},
 			},
 			Inbound: []configFirewallRule{},
+		},
+		Tunnels: configTunnels{
+			DropInactive: true,
 		},
 	}
 }
@@ -209,4 +213,8 @@ type configRelay struct {
 	AmRelay   bool     `yaml:"am_relay,omitempty"`
 	UseRelays bool     `yaml:"use_relays"`
 	relays    []string `yaml:"relays,omitempty"`
+}
+
+type configTunnels struct {
+	DropInactive bool `yaml:"drop_inactive"`
 }
