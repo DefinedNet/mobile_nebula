@@ -9,7 +9,7 @@ toolchain go1.22.4
 require (
 	github.com/DefinedNet/dnapi v0.0.0-20241212205635-1d1f0084d118
 	github.com/sirupsen/logrus v1.9.3
-	github.com/slackhq/nebula v1.9.5
+	github.com/slackhq/nebula v1.9.6
 	golang.org/x/crypto v0.32.0
 	gopkg.in/yaml.v2 v2.4.0
 )
