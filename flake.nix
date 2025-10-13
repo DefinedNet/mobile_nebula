@@ -72,11 +72,12 @@
 
           # fix starting vpn sometimes failing
           # "bulkBarrierPreWrite: unaligned arguments"
+          # https://github.com/golang/go/issues/46893
           go = pkgs.go.overrideAttrs (old: {
             patches = old.patches ++ [
               (pkgs.fetchpatch2 {
-                url = "https://github.com/golang/go/pull/53064.patch";
-                hash = "sha256-MB/8sSssGNJALHk7Xp+5IfQdsjqB3gz/Crj+MxbzVz0=";
+                url = "https://github.com/golang/go/commit/d5b950399de01a0e28eeb48d2c8474db4aad0e8a.patch";
+                hash = "sha256-OyADBdp32vGjajkcyN2Uu6TiFTnuJUwOMcewXrybmso=";
               })
             ];
           });
@@ -203,7 +204,7 @@
             dontDartInstall = true;
             dontDartInstallCache = true;
 
-            outputHash = "sha256-B+gLch0yRv1q7eILr8vGBwoTsM2Gqvmlzgb4m6XPSdg=";
+            outputHash = "sha256-3wx4TtilPt/9112S3TeusYuV0lcw/0WWeWT6jD1qGZE=";
             outputHashAlgo = "sha256";
             outputHashMode = "flat";
           }).overrideAttrs (prev: {
@@ -259,6 +260,7 @@
               gradle
 
               clang
+              cmake
               dart
               gcc
               go
@@ -383,9 +385,25 @@
             config = {
               android_sdk.accept_license = true;
               allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+                "android-sdk-build-tools"
                 "android-sdk-cmdline-tools"
+                "android-sdk-emulator"
+                "android-sdk-ndk"
+                "android-sdk-platform-tools"
+                "android-sdk-platforms"
+                "android-sdk-system-image-34-google_apis-arm64-v8a-system-image-34-google_apis-x86_64"
                 "android-sdk-tools"
                 "android-studio-stable"
+                "build-tools"
+                "cmake"
+                "cmdline-tools"
+                "emulator"
+                "ndk"
+                "platform-tools"
+                "platforms"
+                "system-image-34-google_apis-arm64-v8a"
+                "system-image-34-google_apis-x86_64"
+                "tools"
               ];
             };
           };

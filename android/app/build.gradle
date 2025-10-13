@@ -51,6 +51,12 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
+    externalNativeBuild {
+        cmake {
+            version "4.1.1"
+        }
+    }
+
     defaultConfig {
         applicationId "net.defined.mobile_nebula"
         minSdkVersion 26 //flutter.minSdkVersion
