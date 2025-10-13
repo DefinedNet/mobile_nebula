@@ -17,7 +17,7 @@ class PackageInfo(private val context: Context) {
     private val appInfo: ApplicationInfo = context.applicationInfo
 
     fun getVersion(): String {
-        val version: String = pInfo.versionName
+        val version: String? = pInfo.versionName
         val build: Long = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
             pInfo.longVersionCode
         else

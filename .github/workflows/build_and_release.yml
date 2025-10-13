@@ -14,9 +14,40 @@ concurrency:
 
 jobs:
   build:
-    uses: SpiralP/github-reusable-workflows/.github/workflows/build.yml@main
-    with:
-      upload-build-result: true
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          df -h .
+          sudo rm -rf /usr/share/dotnet
+          df -h .
+          sudo rm -rf /opt/ghc
+          df -h .
+          sudo rm -rf "/usr/local/share/boost"
+          df -h .
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          df -h .
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          submodules: recursive
+
+      - uses: cachix/install-nix-action@9280e7aca88deada44c930f1e2c78e21c3ae3edd # v31.7.0
+
+      - run: sudo chown -R $(id -u):$(id -g) /nix
+      - uses: nix-community/cache-nix-action@135667ec418502fa5a3598af6fb9eb733888ce6a # v6.1.3
+        with:
+          primary-key: nix-${{ github.workflow }}-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/*.nix', '**/flake.lock') }}
+          restore-prefixes-first-match: nix-${{ github.workflow }}-${{ runner.os }}-${{ runner.arch }}-
+          gc-max-store-size: 5G
+      - run: sudo chown -R 0:0 /nix
+
+      - run: |
+          nix build '.?submodules=1#default' \
+            --print-build-logs --no-update-lock-file
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: build-result
+          path: result
 
   release:
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')) }}

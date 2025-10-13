@@ -27,11 +27,11 @@ android {
     namespace "net.defined.mobile_nebula"
 
     // needs to match version in flake.nix
-    compileSdkVersion 34
+    compileSdkVersion 35
 
     // needs to match version in flake.nix
     // default ndk version for AGP 8.7: https://developer.android.com/build/releases/past-releases/agp-8-7-0-release-notes
-    ndkVersion "27.0.12077973"
+    ndkVersion "28.2.13676358"
 
     // needs to match version in flake.nix
     buildToolsVersion "35.0.0"
@@ -60,7 +60,7 @@ android {
     defaultConfig {
         applicationId "net.defined.mobile_nebula"
         minSdkVersion 26 //flutter.minSdkVersion
-        targetSdkVersion 34 //flutter.targetSdkVersion
+        targetSdkVersion 35 //flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         ndk {

@@ -14,10 +14,10 @@
         let
           makeAndroidSdkArgs = (emulator: {
             # needs to match compileSdkVersion AND targetSdkVersion in android/app/build.gradle
-            platformVersions = [ "34" ];
+            platformVersions = [ "34" "35" ];
             includeNDK = true;
             # needs to match ndkVersion in android/app/build.gradle
-            ndkVersion = "27.0.12077973";
+            ndkVersion = "28.2.13676358";
             # needs to match buildToolsVersion in android/app/build.gradle
             # latest https://developer.android.com/tools/releases/build-tools
             buildToolsVersions = [ "35.0.0" ];
@@ -126,7 +126,7 @@
                   cat $out
                 ''
             );
-            hash = "sha256-KriNbeLCPmra5zY65uKcvdKnCemSkptItlMP0McTO9Y=";
+            hash = "sha256-+6hGRGWDXnT3Jwu/Q9bYqNdwmrCkPOGqMyP3PpqgxhI=";
           };
 
           setup = ''
@@ -137,7 +137,12 @@
             # or else gradle exit 1's silently
             rm -rf "$TMPDIR/flutter-sdk"
             cp -r ${pkgs.flutter.sdk} "$TMPDIR/flutter-sdk"
+            chmod -c u+w "$TMPDIR/flutter-sdk/packages/flutter_tools/gradle"
+            mkdir -vp "$TMPDIR/flutter-sdk/packages/flutter_tools/gradle/.gradle"
             chmod -c u+w "$TMPDIR/flutter-sdk/packages/flutter_tools/gradle/.gradle"
+            mkdir -vp "$TMPDIR/flutter-sdk/packages/flutter_tools/gradle/.kotlin"
+            chmod -c u+w "$TMPDIR/flutter-sdk/packages/flutter_tools/gradle/.kotlin"
+            chmod -c u-w "$TMPDIR/flutter-sdk/packages/flutter_tools/gradle"
             # update FLUTTER_ROOT or else nix store flutter rewrites its own sdk path in local.properties
             export FLUTTER_ROOT="$TMPDIR/flutter-sdk"
 
@@ -174,7 +179,7 @@
 
             src = ./nebula;
 
-            vendorHash = "sha256-x1pK1JGAc2URXVUI2ApuP6KaX0t8qHtpqzaYsCKTDCY=";
+            vendorHash = "sha256-ElJPBivlfAqMzI9esZQuiQDWtFOt05n0ChmTsTArnmU=";
 
             proxyVendor = true;
             overrideModAttrs = (final: prev: {
@@ -204,7 +209,7 @@
             dontDartInstall = true;
             dontDartInstallCache = true;
 
-            outputHash = "sha256-3wx4TtilPt/9112S3TeusYuV0lcw/0WWeWT6jD1qGZE=";
+            outputHash = "sha256-f9jW2z4lw5MfchPY08+2S8HJZBwaGXbQjCypX+myK9I=";
             outputHashAlgo = "sha256";
             outputHashMode = "flat";
           }).overrideAttrs (prev: {
@@ -392,6 +397,7 @@
                 "android-sdk-platform-tools"
                 "android-sdk-platforms"
                 "android-sdk-system-image-34-google_apis-arm64-v8a-system-image-34-google_apis-x86_64"
+                "android-sdk-system-image-35-google_apis-arm64-v8a-system-image-35-google_apis-x86_64"
                 "android-sdk-tools"
                 "android-studio-stable"
                 "build-tools"
@@ -403,6 +409,8 @@
                 "platforms"
                 "system-image-34-google_apis-arm64-v8a"
                 "system-image-34-google_apis-x86_64"
+                "system-image-35-google_apis-arm64-v8a"
+                "system-image-35-google_apis-x86_64"
                 "tools"
               ];
             };
