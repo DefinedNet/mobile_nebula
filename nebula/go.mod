@@ -7,7 +7,7 @@ replace github.com/slackhq/nebula v1.9.5 => github.com/spiralp/nebula v1.9.5-cus
 require (
 	github.com/DefinedNet/dnapi v0.0.0-20241212205635-1d1f0084d118
 	github.com/sirupsen/logrus v1.9.3
-	github.com/slackhq/nebula v1.9.5
+	github.com/slackhq/nebula v1.9.6
 	golang.org/x/crypto v0.32.0
 	golang.org/x/mobile v0.0.0-20250106192035-c31d5b91ecc3
 	gopkg.in/yaml.v2 v2.4.0

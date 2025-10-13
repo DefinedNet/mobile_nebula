@@ -11,6 +11,7 @@ type config struct {
 	Tun           configTun           `yaml:"tun"`
 	Logging       configLogging       `yaml:"logging"`
 	Handshakes    configHandshakes    `yaml:"handshakes"`
+	Tunnels       configTunnels       `yaml:"tunnels"`
 	Firewall      configFirewall      `yaml:"firewall"`
 	Relay         configRelay         `yaml:"relay"`
 }
@@ -62,6 +63,10 @@ func newConfig() *config {
 			TryInterval:  "100ms",
 			Retries:      20,
 			WaitRotation: 5,
+		},
+		Tunnels: configTunnels{
+			DropInactive:      true,
+			InactivityTimeout: "10m",
 		},
 		Firewall: configFirewall{
 			Conntrack: configConntrack{
@@ -156,6 +161,11 @@ type configHandshakes struct {
 	TryInterval  string `yaml:"try_interval"`
 	Retries      int    `yaml:"retries"`
 	WaitRotation int    `yaml:"wait_rotation"`
+}
+
+type configTunnels struct {
+	DropInactive      bool   `yaml:"drop_inactive"`
+	InactivityTimeout string `yaml:"inactivity_timeout"`
 }
 
 type configFirewall struct {
