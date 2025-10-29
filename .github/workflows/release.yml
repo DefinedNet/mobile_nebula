@@ -34,7 +34,8 @@ jobs:
           flutter-version: "3.29.2"
 
       - name: Setup bundletool for APK generation
-        uses: amyu/setup-bundletool@f7a6fdd8e04bb23d2fdf3c2f60c9257a6298a40a
+        run: |
+          curl -Lo bundletool.jar https://github.com/google/bundletool/releases/download/1.18.1/bundletool-all-1.18.1.jar
 
       - name: Install the appstore connect key material
         env:
@@ -129,7 +130,7 @@ jobs:
           TOKEN: ${{ secrets.MACHINE_USER_PAT }}
           GOOGLE_PLAY_KEYSTORE_PASSWORD: ${{ secrets.GOOGLE_PLAY_KEYSTORE_PASSWORD }}
         run: |
-          bundletool build-apks \
+          java -jar bundletool.jar build-apks \
             --bundle=build/app/outputs/bundle/release/app-release.aab \
             --output=build/app/outputs/apk/release/MobileNebula.apks \
             --mode=universal \

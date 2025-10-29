@@ -6,6 +6,7 @@ on:
     branches:
       - main
   pull_request:
+    types: [opened, synchronize, labeled, reopened]
 
 jobs:
   build-android:
@@ -45,11 +46,13 @@ jobs:
       - name: Build Android debug
         run: flutter build appbundle --debug
 
-      - name: Setup bundletool
-        if: github.ref == 'refs/heads/main'
-        uses: amyu/setup-bundletool@f7a6fdd8e04bb23d2fdf3c2f60c9257a6298a40a
+      - name: Setup bundletool for APK generation
+        if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'release-check')
+        run: |
+          curl -Lo bundletool.jar https://github.com/google/bundletool/releases/download/1.18.1/bundletool-all-1.18.1.jar
+
       - name: Install the google play key material
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'release-check')
         env:
           GOOGLE_PLAY_API_JWT_BASE64: ${{ secrets.GOOGLE_PLAY_API_JWT_BASE64 }}
           GOOGLE_PLAY_KEYSTORE_BASE64: ${{ secrets.GOOGLE_PLAY_KEYSTORE_BASE64 }}
@@ -61,13 +64,14 @@ jobs:
           GOOGLE_PLAY_KEYSTORE_PATH="$RUNNER_TEMP/gp_signing.jks"
           echo "GOOGLE_PLAY_KEYSTORE_PATH=$GOOGLE_PLAY_KEYSTORE_PATH" >> $GITHUB_ENV
           echo -n "$GOOGLE_PLAY_KEYSTORE_BASE64" | base64 --decode --output "$GOOGLE_PLAY_KEYSTORE_PATH"
+
       - name: Generate debug apk
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'release-check')
         env:
           TOKEN: ${{ secrets.MACHINE_USER_PAT }}
           GOOGLE_PLAY_KEYSTORE_PASSWORD: ${{ secrets.GOOGLE_PLAY_KEYSTORE_PASSWORD }}
         run: |
-          bundletool build-apks \
+          java -jar bundletool.jar build-apks \
             --bundle=build/app/outputs/bundle/debug/app-debug.aab \
             --output=build/app/outputs/apk/debug/app-debug.apks \
             --mode=universal \
@@ -75,13 +79,14 @@ jobs:
             --ks-key-alias=key \
             --ks-pass=pass:$GOOGLE_PLAY_KEYSTORE_PASSWORD
           unzip -p build/app/outputs/apk/debug/app-debug.apks universal.apk > build/app/outputs/apk/debug/app-debug.apk
+
       - name: Collect debug apk
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'release-check')
         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 #4.6.1
         with:
           name: MobileNebulaDebug.apk
           path: build/app/outputs/apk/debug/app-debug.apk
-          retention-days: 60
+          retention-days: 5
 
   build-ios:
     name: iOS
@@ -116,3 +121,11 @@ jobs:
           cd ios
           pod install
           xcodebuild -workspace Runner.xcworkspace -scheme Runner -configuration Release clean archive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO -archivePath "build/MobileNebula.xcarchive"
+
+      - name: Collect iOS artifacts
+        if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'release-check')
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 #4.6.1
+        with:
+          name: MobileNebula.xcarchive
+          path: ios/build/MobileNebula.xcarchive
+          retention-days: 5
