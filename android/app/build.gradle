@@ -26,7 +26,7 @@ if (flutterVersionName == null) {
 android {
     namespace "net.defined.mobile_nebula"
 
-    compileSdkVersion 35
+    compileSdkVersion 36
 
     // default ndk version for AGP 8.7: https://developer.android.com/build/releases/past-releases/agp-8-7-0-release-notes
     ndkVersion "28.2.13676358"
@@ -38,7 +38,7 @@ android {
     defaultConfig {
         applicationId "net.defined.mobile_nebula"
         minSdkVersion 26 //flutter.minSdkVersion
-        targetSdkVersion 34 //flutter.targetSdkVersion
+        targetSdkVersion 36 //flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

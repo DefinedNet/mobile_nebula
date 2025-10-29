@@ -36,7 +36,6 @@ jobs:
       - name: Setup bundletool for APK generation
         run: |
           curl -Lo bundletool.jar https://github.com/google/bundletool/releases/download/1.18.1/bundletool-all-1.18.1.jar
-          chmod +x bundletool.jar
 
       - name: Install the appstore connect key material
         env:
