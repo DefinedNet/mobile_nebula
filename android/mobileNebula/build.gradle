@@ -1,7 +1,18 @@
 configurations.maybeCreate("default")
+
+def sdkDir
+def ndkPath
+
+rootProject.project(':app') { p ->
+    sdkDir = p.android.sdkDirectory
+    ndkPath = p.android.ndkDirectory
+}
+
 exec {
     workingDir '../../'
     commandLine './gen-artifacts.sh', 'android'
+    environment("ANDROID_HOME", sdkDir)
+    environment("ANDROID_NDK_HOME", ndkPath)
 }
 
 artifacts.add("default", file('mobileNebula.aar'))
