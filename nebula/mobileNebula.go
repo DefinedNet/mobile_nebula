@@ -21,7 +21,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type m map[string]interface{}
+type m map[string]any
 
 type CIDR struct {
 	Ip       string
@@ -37,7 +37,7 @@ type Validity struct {
 
 type RawCert struct {
 	RawCert  string
-	Cert     cert.Certificate
+	Cert     m
 	Validity Validity
 }
 
@@ -183,7 +183,7 @@ func ParseCIDR(cidr string) (*CIDR, error) {
 	}, nil
 }
 
-// Returns a JSON representation of 1 or more certificates
+// ParseCerts Returns a JSON representation of 1 or more certificates
 func ParseCerts(rawStringCerts string) (string, error) {
 	var certs []RawCert
 	var c cert.Certificate
@@ -203,7 +203,7 @@ func ParseCerts(rawStringCerts string) (string, error) {
 
 		rc := RawCert{
 			RawCert: string(rawCert),
-			Cert:    c,
+			Cert:    certToFlatJson(c),
 			Validity: Validity{
 				Valid: true,
 			},
@@ -232,6 +232,27 @@ func ParseCerts(rawStringCerts string) (string, error) {
 	}
 
 	return string(rawJson), nil
+}
+
+// certToFlatJson creates a flat version agnostic representation of a certificate
+func certToFlatJson(c cert.Certificate) m {
+	cm := m{}
+
+	cm["version"] = c.Version()
+	cm["name"] = c.Name()
+	cm["networks"] = c.Networks()
+	cm["unsafeNetworks"] = c.UnsafeNetworks()
+	cm["groups"] = c.Groups()
+	cm["isCa"] = c.IsCA()
+	cm["notBefore"] = c.NotBefore()
+	cm["notAfter"] = c.NotAfter()
+	cm["issuer"] = c.Issuer()
+	cm["publicKey"] = c.PublicKey()
+	cm["curve"] = c.Curve().String()
+	cm["fingerprint"], _ = c.Fingerprint()
+	cm["signature"] = c.Signature()
+
+	return cm
 }
 
 func GenerateKeyPair() (string, error) {

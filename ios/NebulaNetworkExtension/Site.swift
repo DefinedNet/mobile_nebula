@@ -84,40 +84,35 @@ struct CertificateInfo: Codable {
 }
 
 struct Certificate: Codable {
-  var fingerprint: String
-  var signature: String
-  var details: CertificateDetails
-
-  /// An empty initializer to make error reporting easier
-  init() {
-    fingerprint = ""
-    signature = ""
-    details = CertificateDetails()
-  }
-}
-
-struct CertificateDetails: Codable {
+  var version: Int
   var name: String
-  var notBefore: String
-  var notAfter: String
-  var publicKey: String
-  var groups: [String]
   var networks: [String]
   var unsafeNetworks: [String]
+  var groups: [String]
   var isCa: Bool
+  var notBefore: String
+  var notAfter: String
   var issuer: String
+  var publicKey: String
+  var curve: String
+  var fingerprint: String
+  var signature: String
 
   /// An empty initializer to make error reporting easier
   init() {
+    version = 0
     name = ""
-    notBefore = ""
-    notAfter = ""
-    publicKey = ""
-    groups = []
     networks = ["ERROR"]
     unsafeNetworks = []
-    isCa = false
+    groups = []
+    notBefore = ""
+    notAfter = ""
     issuer = ""
+    publicKey = ""
+    curve = ""
+    isCa = false
+    fingerprint = ""
+    signature = ""
   }
 }
 
