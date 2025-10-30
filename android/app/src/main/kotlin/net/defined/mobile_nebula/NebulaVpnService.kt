@@ -100,7 +100,7 @@ class NebulaVpnService : VpnService() {
         val ipNet: CIDR
 
         try {
-            ipNet = mobileNebula.MobileNebula.parseCIDR(site!!.cert!!.cert.details.ips[0])
+            ipNet = mobileNebula.MobileNebula.parseCIDR(site!!.cert!!.cert.details.networks[0])
         } catch (err: Exception) {
             return announceExit(site!!.id, err.message ?: "$err")
         }
@@ -214,7 +214,7 @@ class NebulaVpnService : VpnService() {
     }
 
     private fun registerReloadReceiver() {
-        ContextCompat.registerReceiver(this, reloadReceiver, IntentFilter(ACTION_RELOAD), RECEIVER_NOT_EXPORTED)
+        ContextCompat.registerReceiver(this, reloadReceiver, IntentFilter(ACTION_RELOAD), ContextCompat.RECEIVER_NOT_EXPORTED)
     }
 
     private fun unregisterReloadReceiver() {

@@ -2,6 +2,9 @@ package mobileNebula
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"crypto/ed25519"
+	"crypto/elliptic"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -144,12 +147,25 @@ func unmarshalHostPrivateKey(b []byte) (keys.PrivateKey, []byte, error) {
 	k, r, err := keys.UnmarshalHostPrivateKey(b)
 	if err != nil {
 		// We used to use a Nebula PEM header for these keys, so try that as a fallback
-		k, r, err := cert.UnmarshalEd25519PrivateKey(b)
+		k, r, c, err := cert.UnmarshalSigningPrivateKeyFromPEM(b)
 		if err != nil {
 			return nil, r, fmt.Errorf("failed fallback unmarshal: %w", err)
 		}
 
-		pk, err := keys.NewPrivateKey(k)
+		var rk any
+		switch c {
+		case cert.Curve_CURVE25519:
+			rk = ed25519.PrivateKey(k)
+		case cert.Curve_P256:
+			rk, err = ecdsa.ParseRawPrivateKey(elliptic.P256(), k)
+			if err != nil {
+				return nil, r, fmt.Errorf("failed to parse P256 private key: %s", err)
+			}
+		default:
+			return nil, r, fmt.Errorf("unsupported private key type: %s", c.String())
+		}
+
+		pk, err := keys.NewPrivateKey(rk)
 		if err != nil {
 			return nil, r, err
 		}
