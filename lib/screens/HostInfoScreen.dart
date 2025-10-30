@@ -73,7 +73,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
             ? ConfigPageItem(
               label: Text('Certificate'),
               labelWidth: 150,
-              content: Text(hostInfo.cert!.details.name),
+              content: Text(hostInfo.cert!.name),
               onPressed:
                   () => Utils.openPage(
                     context,

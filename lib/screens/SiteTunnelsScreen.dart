@@ -80,7 +80,7 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
               children: <Widget>[Padding(padding: EdgeInsets.only(right: 10), child: icon), Text(hostInfo.vpnIp)],
             ),
             labelWidth: ipWidth,
-            content: Container(alignment: Alignment.centerRight, child: Text(hostInfo.cert?.details.name ?? "")),
+            content: Container(alignment: Alignment.centerRight, child: Text(hostInfo.cert?.name ?? "")),
           ));
         }).toList();
 

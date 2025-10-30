@@ -247,7 +247,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
       List<dynamic> certs = jsonDecode(rawCerts);
       if (certs.isNotEmpty) {
         var tryCertInfo = CertificateInfo.fromJson(certs.first);
-        if (tryCertInfo.cert.details.isCa) {
+        if (tryCertInfo.cert.isCa) {
           return Utils.popError(
             context,
             'Error loading certificate content',

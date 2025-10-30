@@ -18,50 +18,46 @@ class CertificateInfo {
 }
 
 class Certificate {
-  CertificateDetails details;
+  int version;
+  String name;
+  List<String> networks;
+  List<String> unsafeNetworks;
+  List<String> groups;
+  bool isCa;
+  DateTime notBefore;
+  DateTime notAfter;
+  String issuer;
+  String publicKey;
   String fingerprint;
   String signature;
 
-  Certificate.debug() : details = CertificateDetails.debug(), fingerprint = "DEBUG", signature = "DEBUG";
-
-  Certificate.fromJson(Map<String, dynamic> json)
-    : details = CertificateDetails.fromJson(json['details']),
-      fingerprint = json['fingerprint'],
-      signature = json['signature'];
-}
-
-class CertificateDetails {
-  String name;
-  DateTime notBefore;
-  DateTime notAfter;
-  String publicKey;
-  List<String> groups;
-  List<String> networks;
-  List<String> unsafeNetworks;
-  bool isCa;
-  String issuer;
-
-  CertificateDetails.debug()
-    : name = "DEBUG",
-      notBefore = DateTime.now(),
-      notAfter = DateTime.now(),
-      publicKey = "",
-      groups = [],
+  Certificate.debug()
+    : version = 2,
+      name = "DEBUG",
       networks = [],
       unsafeNetworks = [],
+      groups = [],
       isCa = false,
-      issuer = "DEBUG";
+      notBefore = DateTime.now(),
+      notAfter = DateTime.now(),
+      issuer = "DEBUG",
+      publicKey = "",
+      fingerprint = "DEBUG",
+      signature = "DEBUG";
 
-  CertificateDetails.fromJson(Map<String, dynamic> json)
-    : name = json['name'],
-      notBefore = DateTime.parse(json['notBefore']),
-      notAfter = DateTime.parse(json['notAfter']),
-      publicKey = json['publicKey'],
-      groups = List<String>.from(json['groups']),
+  Certificate.fromJson(Map<String, dynamic> json)
+    : version = json["version"],
+      name = json['name'],
       networks = List<String>.from(json['networks']),
       unsafeNetworks = List<String>.from(json['unsafeNetworks']),
+      groups = List<String>.from(json['groups']),
       isCa = json['isCa'],
-      issuer = json['issuer'];
+      notBefore = DateTime.parse(json['notBefore']),
+      notAfter = DateTime.parse(json['notAfter']),
+      issuer = json['issuer'],
+      publicKey = json['publicKey'],
+      fingerprint = json['fingerprint'],
+      signature = json['signature'];
 }
 
 class CertificateValidity {
