@@ -37,7 +37,7 @@ type Validity struct {
 
 type RawCert struct {
 	RawCert  string
-	Cert     *cert.NebulaCertificate
+	Cert     cert.Certificate
 	Validity Validity
 }
 
@@ -186,17 +186,17 @@ func ParseCIDR(cidr string) (*CIDR, error) {
 // Returns a JSON representation of 1 or more certificates
 func ParseCerts(rawStringCerts string) (string, error) {
 	var certs []RawCert
-	var c *cert.NebulaCertificate
+	var c cert.Certificate
 	var err error
 	rawCerts := []byte(rawStringCerts)
 
 	for {
-		c, rawCerts, err = cert.UnmarshalNebulaCertificateFromPEM(rawCerts)
+		c, rawCerts, err = cert.UnmarshalCertificateFromPEM(rawCerts)
 		if err != nil {
 			return "", err
 		}
 
-		rawCert, err := c.MarshalToPEM()
+		rawCert, err := c.MarshalPEM()
 		if err != nil {
 			return "", err
 		}
@@ -214,7 +214,7 @@ func ParseCerts(rawStringCerts string) (string, error) {
 			rc.Validity.Reason = "Certificate is expired"
 		}
 
-		if rc.Validity.Valid && c.Details.IsCA && !c.CheckSignature(c.Details.PublicKey) {
+		if rc.Validity.Valid && c.IsCA() && !c.CheckSignature(c.PublicKey()) {
 			rc.Validity.Valid = false
 			rc.Validity.Reason = "Certificate signature did not match"
 		}
@@ -241,8 +241,8 @@ func GenerateKeyPair() (string, error) {
 	}
 
 	kp := KeyPair{}
-	kp.PublicKey = string(cert.MarshalX25519PublicKey(pub))
-	kp.PrivateKey = string(cert.MarshalX25519PrivateKey(priv))
+	kp.PublicKey = string(cert.MarshalPublicKeyToPEM(cert.Curve_CURVE25519, pub))
+	kp.PrivateKey = string(cert.MarshalPrivateKeyToPEM(cert.Curve_CURVE25519, priv))
 
 	rawJson, err := json.Marshal(kp)
 	if err != nil {
@@ -262,17 +262,17 @@ func x25519Keypair() ([]byte, []byte, error) {
 }
 
 func VerifyCertAndKey(rawCert string, pemPrivateKey string) (bool, error) {
-	rawKey, _, err := cert.UnmarshalX25519PrivateKey([]byte(pemPrivateKey))
+	rawKey, _, c, err := cert.UnmarshalPrivateKeyFromPEM([]byte(pemPrivateKey))
 	if err != nil {
 		return false, fmt.Errorf("error while unmarshaling private key: %s", err)
 	}
 
-	nebulaCert, _, err := cert.UnmarshalNebulaCertificateFromPEM([]byte(rawCert))
+	nebulaCert, _, err := cert.UnmarshalCertificateFromPEM([]byte(rawCert))
 	if err != nil {
 		return false, fmt.Errorf("error while unmarshaling cert: %s", err)
 	}
 
-	if err = nebulaCert.VerifyPrivateKey(nebulaCert.Details.Curve, rawKey); err != nil {
+	if err = nebulaCert.VerifyPrivateKey(c, rawKey); err != nil {
 		return false, err
 	}
 

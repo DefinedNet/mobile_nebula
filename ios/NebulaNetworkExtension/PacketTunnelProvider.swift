@@ -87,7 +87,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     // Make sure our ip is routed to the tun device
     var err: NSError?
-    let ipNet = MobileNebulaParseCIDR(_site.cert!.cert.details.ips[0], &err)
+    let ipNet = MobileNebulaParseCIDR(_site.cert!.cert.details.networks[0], &err)
     if err != nil {
       throw err!
     }

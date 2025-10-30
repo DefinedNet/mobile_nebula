@@ -36,8 +36,8 @@ class CertificateDetails {
   DateTime notAfter;
   String publicKey;
   List<String> groups;
-  List<String> ips;
-  List<String> subnets;
+  List<String> networks;
+  List<String> unsafeNetworks;
   bool isCa;
   String issuer;
 
@@ -47,8 +47,8 @@ class CertificateDetails {
       notAfter = DateTime.now(),
       publicKey = "",
       groups = [],
-      ips = [],
-      subnets = [],
+      networks = [],
+      unsafeNetworks = [],
       isCa = false,
       issuer = "DEBUG";
 
@@ -58,8 +58,8 @@ class CertificateDetails {
       notAfter = DateTime.parse(json['notAfter']),
       publicKey = json['publicKey'],
       groups = List<String>.from(json['groups']),
-      ips = List<String>.from(json['ips']),
-      subnets = List<String>.from(json['subnets']),
+      networks = List<String>.from(json['networks']),
+      unsafeNetworks = List<String>.from(json['unsafeNetworks']),
       isCa = json['isCa'],
       issuer = json['issuer'];
 }

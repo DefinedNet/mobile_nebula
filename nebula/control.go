@@ -112,7 +112,7 @@ func (n *Nebula) GetHostInfoByVpnIp(vpnIp string, pending bool) (string, error) 
 		return "", err
 	}
 
-	b, err := json.Marshal(n.c.GetHostInfoByVpnIp(netVpnIp, pending))
+	b, err := json.Marshal(n.c.GetHostInfoByVpnAddr(netVpnIp, pending))
 	if err != nil {
 		return "", err
 	}

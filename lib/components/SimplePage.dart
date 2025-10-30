@@ -79,7 +79,7 @@ class SimplePage extends StatelessWidget {
     }
 
     if (addScrollbar) {
-      realChild = Scrollbar(child: realChild);
+      realChild = Scrollbar(controller: scrollController, child: realChild);
     }
 
     if (alignment != null) {

@@ -165,8 +165,8 @@ data class CertificateDetails(
     val notAfter: String,
     val publicKey: String,
     val groups: List<String>,
-    val ips: List<String>,
-    val subnets: List<String>,
+    val networks: List<String>,
+    val unsafeNetworks: List<String>,
     val isCa: Boolean,
     val issuer: String
 )

@@ -124,12 +124,19 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
       items.add(ConfigItem(label: Text('Groups'), content: SelectableText(certInfo.cert.details.groups.join(', '))));
     }
 
-    if (certInfo.cert.details.ips.isNotEmpty) {
-      items.add(ConfigItem(label: Text('IPs'), content: SelectableText(certInfo.cert.details.ips.join(', '))));
+    if (certInfo.cert.details.networks.isNotEmpty) {
+      items.add(
+        ConfigItem(label: Text('Networks'), content: SelectableText(certInfo.cert.details.networks.join(', '))),
+      );
     }
 
-    if (certInfo.cert.details.subnets.isNotEmpty) {
-      items.add(ConfigItem(label: Text('Subnets'), content: SelectableText(certInfo.cert.details.subnets.join(', '))));
+    if (certInfo.cert.details.unsafeNetworks.isNotEmpty) {
+      items.add(
+        ConfigItem(
+          label: Text('Unsafe Networks'),
+          content: SelectableText(certInfo.cert.details.unsafeNetworks.join(', ')),
+        ),
+      );
     }
 
     return items.isNotEmpty

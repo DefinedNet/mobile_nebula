@@ -102,8 +102,8 @@ struct CertificateDetails: Codable {
   var notAfter: String
   var publicKey: String
   var groups: [String]
-  var ips: [String]
-  var subnets: [String]
+  var networks: [String]
+  var unsafeNetworks: [String]
   var isCa: Bool
   var issuer: String
 
@@ -114,8 +114,8 @@ struct CertificateDetails: Codable {
     notAfter = ""
     publicKey = ""
     groups = []
-    ips = ["ERROR"]
-    subnets = []
+    networks = ["ERROR"]
+    unsafeNetworks = []
     isCa = false
     issuer = ""
   }
