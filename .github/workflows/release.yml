@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     name: Build ios and android package
-    runs-on: macos-15
+    runs-on: macos-26
 
     steps:
       - name: Check out code

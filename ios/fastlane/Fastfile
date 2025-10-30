@@ -19,7 +19,7 @@ platform :ios do
   desc "Push a new beta build to TestFlight"
 
   before_all do
-    xcode_select("/Applications/Xcode_16.2.0.app")
+    xcode_select("/Applications/Xcode_26.0.1.app")
   end
 
 
