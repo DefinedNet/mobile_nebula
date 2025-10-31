@@ -1,10 +1,10 @@
-import MobileNebula
+@preconcurrency import MobileNebula
 
 enum APIClientError: Error {
   case invalidCredentials
 }
 
-class APIClient {
+struct APIClient: Sendable {
   let apiClient: MobileNebulaAPIClient
   let json = JSONDecoder()
 
