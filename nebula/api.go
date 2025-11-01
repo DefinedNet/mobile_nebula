@@ -109,7 +109,7 @@ func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string,
 	defer cancel()
 	updateAvailable, err := c.c.CheckForUpdate(ctx, creds)
 	switch {
-	case errors.As(err, &dnapi.ErrInvalidCredentials):
+	case errors.Is(err, dnapi.ErrInvalidCredentials):
 		return nil, InvalidCredentialsError{}
 	case err != nil:
 		return nil, fmt.Errorf("CheckForUpdate error: %s", err)
@@ -124,7 +124,7 @@ func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string,
 	defer updateCancel()
 	cfg, pkey, newCreds, _, err := c.c.DoUpdate(updateCtx, creds)
 	switch {
-	case errors.As(err, &dnapi.ErrInvalidCredentials):
+	case errors.Is(err, dnapi.ErrInvalidCredentials):
 		return nil, InvalidCredentialsError{}
 	case err != nil:
 		return nil, fmt.Errorf("DoUpdate error: %s", err)

@@ -28,6 +28,7 @@ class Certificate {
   DateTime notAfter;
   String issuer;
   String publicKey;
+  String curve;
   String fingerprint;
   String signature;
 
@@ -42,22 +43,66 @@ class Certificate {
       notAfter = DateTime.now(),
       issuer = "DEBUG",
       publicKey = "",
+      curve = "",
       fingerprint = "DEBUG",
       signature = "DEBUG";
 
-  Certificate.fromJson(Map<String, dynamic> json)
-    : version = json["version"],
-      name = json['name'],
-      networks = List<String>.from(json['networks']),
-      unsafeNetworks = List<String>.from(json['unsafeNetworks']),
-      groups = List<String>.from(json['groups']),
-      isCa = json['isCa'],
-      notBefore = DateTime.parse(json['notBefore']),
-      notAfter = DateTime.parse(json['notAfter']),
-      issuer = json['issuer'],
-      publicKey = json['publicKey'],
-      fingerprint = json['fingerprint'],
-      signature = json['signature'];
+  factory Certificate.fromJson(Map<String, dynamic> json) {
+    Map<String, dynamic> details = json;
+    String publicKey;
+    if (json.containsKey("details")) {
+      details = json["details"];
+      //TODO: currently swift and kotlin flatten the certificate structure but
+      // nebula outputs cert json in the nested format
+      switch (json["version"]) {
+        case 1:
+          // In V1 the public key was under details
+          publicKey = details["publicKey"];
+          break;
+        case 2:
+          // In V2 the public key moved to the top level
+          publicKey = json["publicKey"];
+          break;
+        default:
+          throw Exception('Unknown certificate version');
+      }
+    } else {
+      // This is a flattened certificate format, publicKey is at the top
+      publicKey = json["publicKey"];
+    }
+
+    return Certificate(
+      json["version"],
+      details["name"],
+      List<String>.from(details['networks'] ?? []),
+      List<String>.from(details['unsafeNetworks'] ?? []),
+      List<String>.from(details['groups']),
+      details['isCa'],
+      DateTime.parse(details['notBefore']),
+      DateTime.parse(details['notAfter']),
+      details['issuer'],
+      publicKey,
+      json['curve'],
+      json['fingerprint'],
+      json['signature'],
+    );
+  }
+
+  Certificate(
+    this.version,
+    this.name,
+    this.networks,
+    this.unsafeNetworks,
+    this.groups,
+    this.isCa,
+    this.notBefore,
+    this.notAfter,
+    this.issuer,
+    this.publicKey,
+    this.curve,
+    this.fingerprint,
+    this.signature,
+  );
 }
 
 class CertificateValidity {

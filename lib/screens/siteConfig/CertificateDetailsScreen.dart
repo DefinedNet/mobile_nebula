@@ -86,6 +86,7 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
     return ConfigSection(
       children: <Widget>[
         ConfigItem(label: Text('Name'), content: SelectableText(certInfo.cert.name)),
+        ConfigItem(label: Text('Version'), content: Text(certInfo.cert.version.toString())),
         ConfigItem(label: Text('Type'), content: Text(certInfo.cert.isCa ? 'CA certificate' : 'Client certificate')),
       ],
     );
@@ -112,16 +113,32 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
   Widget _buildFilters() {
     List<Widget> items = [];
     if (certInfo.cert.groups.isNotEmpty) {
-      items.add(ConfigItem(label: Text('Groups'), content: SelectableText(certInfo.cert.groups.join(', '))));
+      items.add(
+        ConfigItem(
+          label: Text('Groups'),
+          content: SelectableText(certInfo.cert.groups.join('\n')),
+          crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+      );
     }
 
     if (certInfo.cert.networks.isNotEmpty) {
-      items.add(ConfigItem(label: Text('Networks'), content: SelectableText(certInfo.cert.networks.join(', '))));
+      items.add(
+        ConfigItem(
+          label: Text('Networks'),
+          content: SelectableText(certInfo.cert.networks.join('\n')),
+          crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+      );
     }
 
     if (certInfo.cert.unsafeNetworks.isNotEmpty) {
       items.add(
-        ConfigItem(label: Text('Unsafe Networks'), content: SelectableText(certInfo.cert.unsafeNetworks.join(', '))),
+        ConfigItem(
+          label: Text('Unsafe Networks'),
+          content: SelectableText(certInfo.cert.unsafeNetworks.join('\n')),
+          crossAxisAlignment: CrossAxisAlignment.start,
+        ),
       );
     }
 
@@ -133,6 +150,11 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
   Widget _buildAdvanced() {
     return ConfigSection(
       children: <Widget>[
+        ConfigItem(
+          label: Text('Curve'),
+          content: SelectableText(certInfo.cert.curve),
+          crossAxisAlignment: CrossAxisAlignment.start,
+        ),
         ConfigItem(
           label: Text('Fingerprint'),
           content: SelectableText(certInfo.cert.fingerprint, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),

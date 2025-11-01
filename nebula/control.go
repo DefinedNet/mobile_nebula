@@ -106,6 +106,16 @@ func (n *Nebula) ListHostmap(pending bool) (string, error) {
 	return string(b), nil
 }
 
+func (n *Nebula) ListIndexes(pending bool) (string, error) {
+	indexes := n.c.ListHostmapIndexes(pending)
+	b, err := json.Marshal(indexes)
+	if err != nil {
+		return "", err
+	}
+
+	return string(b), nil
+}
+
 func (n *Nebula) GetHostInfoByVpnIp(vpnIp string, pending bool) (string, error) {
 	netVpnIp, err := netip.ParseAddr(vpnIp)
 	if err != nil {

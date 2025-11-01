@@ -84,29 +84,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     // This is set to 127.0.0.1 because it has to be something..
     let tunnelNetworkSettings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: "127.0.0.1")
-
-    // Make sure our ip is routed to the tun device
-    var err: NSError?
-    let ipNet = MobileNebulaParseCIDR(_site.cert!.cert.networks[0], &err)
-    if err != nil {
-      throw err!
-    }
-    tunnelNetworkSettings.ipv4Settings = NEIPv4Settings(
-      addresses: [ipNet!.ip], subnetMasks: [ipNet!.maskCIDR])
-    var routes: [NEIPv4Route] = [
-      NEIPv4Route(destinationAddress: ipNet!.network, subnetMask: ipNet!.maskCIDR)
-    ]
-
-    // Add our unsafe routes
-    try _site.unsafeRoutes.forEach { unsafeRoute in
-      let ipNet = MobileNebulaParseCIDR(unsafeRoute.route, &err)
-      if err != nil {
-        throw err!
-      }
-      routes.append(NEIPv4Route(destinationAddress: ipNet!.network, subnetMask: ipNet!.maskCIDR))
-    }
-
-    tunnelNetworkSettings.ipv4Settings!.includedRoutes = routes
+    
+    // Set up all ipv4/6 networks and unsafe routes
+    var (v4Settings, v6Settings) = try getNetworkAddressesAndRoutes(
+      networks: _site.cert!.cert.networks,
+      unsafeRoutes: _site.unsafeRoutes
+    );
+    
+    tunnelNetworkSettings.ipv4Settings = v4Settings
+    tunnelNetworkSettings.ipv6Settings = v6Settings
     tunnelNetworkSettings.mtu = _site.mtu as NSNumber
 
     try await self.setTunnelNetworkSettings(tunnelNetworkSettings)
@@ -122,6 +108,59 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     self.nebula!.start()
     self.dnUpdater.updateSingleLoop(site: self.site!, onUpdate: self.handleDNUpdate)
+  }
+  
+  private func getNetworkAddressesAndRoutes(networks: [String], unsafeRoutes: [UnsafeRoute]) throws -> (NEIPv4Settings, NEIPv6Settings) {
+    var err: NSError?
+    var v4Addresses: [String] = []
+    var v4Netmasks: [String] = []
+    var v4Routes: [NEIPv4Route] = []
+    
+    var v6Addresses: [String] = []
+    var v6PrefixLengths: [NSNumber] = []
+    var v6Routes: [NEIPv6Route] = []
+    
+    for rawNetwork in networks {
+      let network = MobileNebulaParseCIDR(rawNetwork, &err)
+      if err != nil {
+        throw err!
+      }
+      
+      if network!.ipLen == 4 {
+        v4Addresses.append(network!.address)
+        v4Netmasks.append(network!.subnetMask)
+        v4Routes.append(NEIPv4Route(destinationAddress: network!.maskedAddress, subnetMask: network!.subnetMask))
+      } else {
+        v6Addresses.append(network!.address)
+        v6PrefixLengths.append(network!.prefixLength as NSNumber)
+        v6Routes.append(NEIPv6Route(destinationAddress: network!.maskedAddress, networkPrefixLength: network!.prefixLength as NSNumber))
+      }
+    }
+    
+    for unsafeRoute in unsafeRoutes {
+      let network = MobileNebulaParseCIDR(unsafeRoute.route, &err)
+      if err != nil {
+        throw err!
+      }
+      
+      if network!.ipLen == 4 {
+        v4Addresses.append(network!.address)
+        v4Netmasks.append(network!.subnetMask)
+        v4Routes.append(NEIPv4Route(destinationAddress: network!.maskedAddress, subnetMask: network!.subnetMask))
+      } else {
+        v6Addresses.append(network!.address)
+        v6PrefixLengths.append(network!.prefixLength as NSNumber)
+        v6Routes.append(NEIPv6Route(destinationAddress: network!.maskedAddress, networkPrefixLength: network!.prefixLength as NSNumber))
+      }
+    }
+  
+    let v4Settings = NEIPv4Settings(addresses: v4Addresses, subnetMasks: v4Netmasks)
+    v4Settings.includedRoutes = v4Routes
+    
+    let v6Settings = NEIPv6Settings(addresses: v6Addresses, networkPrefixLengths: v6PrefixLengths)
+    v6Settings.includedRoutes = v6Routes
+    
+    return (v4Settings, v6Settings)
   }
 
   private func handleDNUpdate(newSite: Site) {
@@ -246,6 +285,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     //TODO: try catch over all this
     switch call.command {
     case "listHostmap": (data, error) = listHostmap(pending: false)
+    case "listIndexes": (data, error) = listIndexes(pending: false)
     case "listPendingHostmap": (data, error) = listHostmap(pending: true)
     case "getHostInfo": (data, error) = getHostInfo(args: call.arguments!)
     case "setRemoteForTunnel": (data, error) = setRemoteForTunnel(args: call.arguments!)
@@ -267,6 +307,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
   private func listHostmap(pending: Bool) -> (JSON?, (any Error)?) {
     var err: NSError?
     let res = nebula!.listHostmap(pending, error: &err)
+    return (JSON(res), err)
+  }
+  
+  private func listIndexes(pending: Bool) -> (JSON?, (any Error)?) {
+    var err: NSError?
+    let res = nebula!.listIndexes(pending, error: &err)
     return (JSON(res), err)
   }
 
