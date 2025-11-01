@@ -18,50 +18,91 @@ class CertificateInfo {
 }
 
 class Certificate {
-  CertificateDetails details;
+  int version;
+  String name;
+  List<String> networks;
+  List<String> unsafeNetworks;
+  List<String> groups;
+  bool isCa;
+  DateTime notBefore;
+  DateTime notAfter;
+  String issuer;
+  String publicKey;
+  String curve;
   String fingerprint;
   String signature;
 
-  Certificate.debug() : details = CertificateDetails.debug(), fingerprint = "DEBUG", signature = "DEBUG";
-
-  Certificate.fromJson(Map<String, dynamic> json)
-    : details = CertificateDetails.fromJson(json['details']),
-      fingerprint = json['fingerprint'],
-      signature = json['signature'];
-}
-
-class CertificateDetails {
-  String name;
-  DateTime notBefore;
-  DateTime notAfter;
-  String publicKey;
-  List<String> groups;
-  List<String> ips;
-  List<String> subnets;
-  bool isCa;
-  String issuer;
-
-  CertificateDetails.debug()
-    : name = "DEBUG",
+  Certificate.debug()
+    : version = 2,
+      name = "DEBUG",
+      networks = [],
+      unsafeNetworks = [],
+      groups = [],
+      isCa = false,
       notBefore = DateTime.now(),
       notAfter = DateTime.now(),
+      issuer = "DEBUG",
       publicKey = "",
-      groups = [],
-      ips = [],
-      subnets = [],
-      isCa = false,
-      issuer = "DEBUG";
+      curve = "",
+      fingerprint = "DEBUG",
+      signature = "DEBUG";
 
-  CertificateDetails.fromJson(Map<String, dynamic> json)
-    : name = json['name'],
-      notBefore = DateTime.parse(json['notBefore']),
-      notAfter = DateTime.parse(json['notAfter']),
-      publicKey = json['publicKey'],
-      groups = List<String>.from(json['groups']),
-      ips = List<String>.from(json['ips']),
-      subnets = List<String>.from(json['subnets']),
-      isCa = json['isCa'],
-      issuer = json['issuer'];
+  factory Certificate.fromJson(Map<String, dynamic> json) {
+    Map<String, dynamic> details = json;
+    String publicKey;
+    if (json.containsKey("details")) {
+      details = json["details"];
+      //TODO: currently swift and kotlin flatten the certificate structure but
+      // nebula outputs cert json in the nested format
+      switch (json["version"]) {
+        case 1:
+          // In V1 the public key was under details
+          publicKey = details["publicKey"];
+          break;
+        case 2:
+          // In V2 the public key moved to the top level
+          publicKey = json["publicKey"];
+          break;
+        default:
+          throw Exception('Unknown certificate version');
+      }
+    } else {
+      // This is a flattened certificate format, publicKey is at the top
+      publicKey = json["publicKey"];
+    }
+
+    return Certificate(
+      json["version"],
+      details["name"],
+      List<String>.from(details['networks'] ?? []),
+      List<String>.from(details['unsafeNetworks'] ?? []),
+      List<String>.from(details['groups']),
+      details['isCa'],
+      DateTime.parse(details['notBefore']),
+      DateTime.parse(details['notAfter']),
+      details['issuer'],
+      publicKey,
+      json['curve'],
+      json['fingerprint'],
+      json['signature'],
+    );
+  }
+
+  Certificate(
+    this.version,
+    this.name,
+    this.networks,
+    this.unsafeNetworks,
+    this.groups,
+    this.isCa,
+    this.notBefore,
+    this.notAfter,
+    this.issuer,
+    this.publicKey,
+    this.curve,
+    this.fingerprint,
+    this.signature,
+  );
 }
 
 class CertificateValidity {

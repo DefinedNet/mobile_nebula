@@ -28,6 +28,7 @@ class NebulaVpnService : VpnService() {
         const val MSG_UNREGISTER_CLIENT = 2
         const val MSG_IS_RUNNING = 3
         const val MSG_LIST_HOSTMAP = 4
+        const val MSG_LIST_INDEXES = 10
         const val MSG_LIST_PENDING_HOSTMAP = 5
         const val MSG_GET_HOSTINFO = 6
         const val MSG_SET_REMOTE_FOR_TUNNEL = 7
@@ -92,26 +93,39 @@ class NebulaVpnService : VpnService() {
         workManager!!.enqueue(workRequest)
 
         // We don't actually start here. In order to properly capture boot errors we wait until an IPC connection is made
-
         return super.onStartCommand(intent, flags, startId)
     }
 
     private fun startVpn() {
-        val ipNet: CIDR
-
-        try {
-            ipNet = mobileNebula.MobileNebula.parseCIDR(site!!.cert!!.cert.details.ips[0])
-        } catch (err: Exception) {
-            return announceExit(site!!.id, err.message ?: "$err")
-        }
-
         val builder = Builder()
-                .addAddress(ipNet.ip, ipNet.maskSize.toInt())
-                .addRoute(ipNet.network, ipNet.maskSize.toInt())
                 .setMtu(site!!.mtu)
                 .setSession(TAG)
                 .allowFamily(OsConstants.AF_INET)
                 .allowFamily(OsConstants.AF_INET6)
+
+        try {
+            site!!.cert!!.cert.networks.forEach { network ->
+                val cidr = mobileNebula.MobileNebula.parseCIDR(network)
+                builder.addAddress(cidr.address, cidr.prefixLength.toInt())
+                builder.addRoute(cidr.maskedAddress, cidr.prefixLength.toInt())
+            }
+        } catch (err: Exception) {
+            Log.e(TAG, "Got an error setting up vpn networks $err")
+            announceExit(site!!.id, err.message)
+            return stopSelf()
+        }
+
+        // Add our unsafe routes
+        try {
+            site!!.unsafeRoutes.forEach { unsafeRoute ->
+                val unsafeCidr = mobileNebula.MobileNebula.parseCIDR(unsafeRoute.route)
+                builder.addRoute(unsafeCidr.maskedAddress, unsafeCidr.prefixLength.toInt())
+            }
+        } catch (err: Exception) {
+            Log.e(TAG, "Got an error setting up unsafe routes $err")
+            announceExit(site!!.id, err.message)
+            return stopSelf()
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             builder.setMetered(false)
@@ -128,12 +142,6 @@ class NebulaVpnService : VpnService() {
         disallowApp(builder, "com.google.android.apps.chromecast.app")
         // RCS / Jibe
         disallowApp(builder, "com.google.android.apps.messaging")
-
-        // Add our unsafe routes
-        site!!.unsafeRoutes.forEach { unsafeRoute ->
-            val unsafeIPNet = mobileNebula.MobileNebula.parseCIDR(unsafeRoute.route)
-            builder.addRoute(unsafeIPNet.network, unsafeIPNet.maskSize.toInt())
-        }
 
         try {
             vpnInterface = builder.establish()
@@ -214,7 +222,7 @@ class NebulaVpnService : VpnService() {
     }
 
     private fun registerReloadReceiver() {
-        ContextCompat.registerReceiver(this, reloadReceiver, IntentFilter(ACTION_RELOAD), RECEIVER_NOT_EXPORTED)
+        ContextCompat.registerReceiver(this, reloadReceiver, IntentFilter(ACTION_RELOAD), ContextCompat.RECEIVER_NOT_EXPORTED)
     }
 
     private fun unregisterReloadReceiver() {
@@ -285,6 +293,7 @@ class NebulaVpnService : VpnService() {
                 MSG_UNREGISTER_CLIENT -> mClients.remove(msg.replyTo)
                 MSG_IS_RUNNING -> isRunning()
                 MSG_LIST_HOSTMAP -> listHostmap(msg)
+                MSG_LIST_INDEXES -> listIndexes(msg)
                 MSG_LIST_PENDING_HOSTMAP -> listHostmap(msg)
                 MSG_GET_HOSTINFO -> getHostInfo(msg)
                 MSG_CLOSE_TUNNEL -> closeTunnel(msg)
@@ -317,6 +326,15 @@ class NebulaVpnService : VpnService() {
             if (protect(msg)) { return }
 
             val res = nebula!!.listHostmap(msg.what == MSG_LIST_PENDING_HOSTMAP)
+            val m = Message.obtain(null, msg.what)
+            m.data.putString("data", res)
+            msg.replyTo.send(m)
+        }
+
+        private fun listIndexes(msg: Message) {
+            if (protect(msg)) { return }
+
+            val res = nebula!!.listIndexes(false)
             val m = Message.obtain(null, msg.what)
             m.data.putString("data", res)
             msg.replyTo.send(m)

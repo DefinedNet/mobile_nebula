@@ -68,12 +68,17 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
   Widget _buildMain() {
     return ConfigSection(
       children: [
-        ConfigItem(label: Text('VPN IP'), labelWidth: 150, content: SelectableText(hostInfo.vpnIp)),
+        ConfigItem(
+          label: Text('VPN Addresses'),
+          labelWidth: 150,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          content: SelectableText(hostInfo.vpnAddrs.join('\n')),
+        ),
         hostInfo.cert != null
             ? ConfigPageItem(
               label: Text('Certificate'),
               labelWidth: 150,
-              content: Text(hostInfo.cert!.details.name),
+              content: Text(hostInfo.cert!.name),
               onPressed:
                   () => Utils.openPage(
                     context,
@@ -138,7 +143,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
             }
 
             try {
-              final h = await widget.site.setRemoteForTunnel(hostInfo.vpnIp, remote);
+              final h = await widget.site.setRemoteForTunnel(hostInfo.vpnAddrs[0], remote);
               if (h != null) {
                 _setHostInfo(h);
               }
@@ -184,7 +189,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
           onPressed:
               () => Utils.confirmDelete(context, 'Close Tunnel?', () async {
                 try {
-                  await widget.site.closeTunnel(hostInfo.vpnIp);
+                  await widget.site.closeTunnel(hostInfo.vpnAddrs[0]);
                   if (widget.onChanged != null) {
                     widget.onChanged!();
                   }
@@ -200,7 +205,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
 
   _getHostInfo() async {
     try {
-      final h = await widget.site.getHostInfo(hostInfo.vpnIp, widget.pending);
+      final h = await widget.site.getHostInfo(hostInfo.vpnAddrs[0], widget.pending);
       if (h == null) {
         return Utils.popError(context, '', 'The tunnel for this host no longer exists');
       }

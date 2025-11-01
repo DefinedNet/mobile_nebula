@@ -1,7 +1,7 @@
 import 'package:mobile_nebula/models/Certificate.dart';
 
 class HostInfo {
-  String vpnIp;
+  List<String> vpnAddrs;
   int localIndex;
   int remoteIndex;
   List<UDPAddress> remoteAddresses;
@@ -10,7 +10,7 @@ class HostInfo {
   int messageCounter;
 
   HostInfo({
-    required this.vpnIp,
+    required this.vpnAddrs,
     required this.localIndex,
     required this.remoteIndex,
     required this.remoteAddresses,
@@ -36,8 +36,16 @@ class HostInfo {
       remoteAddresses.add(UDPAddress.fromJson(val));
     });
 
+    addrs = json['vpnAddrs'];
+    List<String> vpnAddrs = [];
+    addrs?.forEach((val) {
+      if (val is String) {
+        vpnAddrs.add(val);
+      }
+    });
+
     return HostInfo(
-      vpnIp: json['vpnIp'],
+      vpnAddrs: vpnAddrs,
       localIndex: json['localIndex'],
       remoteIndex: json['remoteIndex'],
       remoteAddresses: remoteAddresses,
