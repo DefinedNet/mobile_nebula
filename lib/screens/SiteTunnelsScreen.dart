@@ -51,11 +51,9 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double ipWidth = Utils.textSize("000.000.000.000", CupertinoTheme.of(context).textTheme.textStyle).width + 32;
-
     final List<ConfigPageItem> children =
         tunnels.map((hostInfo) {
-          final isLh = site.staticHostmap[hostInfo.vpnIp]?.lighthouse ?? false;
+          final isLh = _isLighthouse(hostInfo.vpnAddrs);
           final icon = switch (isLh) {
             true => Icon(Icons.lightbulb_outline, color: CupertinoColors.placeholderText.resolveFrom(context)),
             false => Icon(Icons.computer, color: CupertinoColors.placeholderText.resolveFrom(context)),
@@ -76,11 +74,15 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
                     supportsQRScanning: widget.supportsQRScanning,
                   ),
                 ),
-            label: Row(
-              children: <Widget>[Padding(padding: EdgeInsets.only(right: 10), child: icon), Text(hostInfo.vpnIp)],
+            content: Container(
+              alignment: Alignment.centerLeft,
+              child: Row(
+                children: <Widget>[
+                  Padding(padding: EdgeInsets.only(right: 10), child: icon),
+                  Text(hostInfo.cert?.name ?? hostInfo.vpnAddrs[0]),
+                ],
+              ),
             ),
-            labelWidth: ipWidth,
-            content: Container(alignment: Alignment.centerRight, child: Text(hostInfo.cert?.name ?? "")),
           ));
         }).toList();
 
@@ -104,7 +106,7 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
 
   _sortTunnels() {
     tunnels.sort((a, b) {
-      final aLh = _isLighthouse(a.vpnIp), bLh = _isLighthouse(b.vpnIp);
+      final aLh = _isLighthouse(a.vpnAddrs), bLh = _isLighthouse(b.vpnAddrs);
 
       if (aLh && !bLh) {
         return -1;
@@ -112,12 +114,26 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
         return 1;
       }
 
-      return Utils.ip2int(a.vpnIp) - Utils.ip2int(b.vpnIp);
+      final aName = a.cert?.name ?? "";
+      final bName = b.cert?.name ?? "";
+      final name = aName.compareTo(bName);
+      if (name != 0) {
+        return name;
+      }
+
+      return a.vpnAddrs[0].compareTo(b.vpnAddrs[0]);
     });
   }
 
-  bool _isLighthouse(String vpnIp) {
-    return site.staticHostmap[vpnIp]?.lighthouse ?? false;
+  bool _isLighthouse(List<String> vpnAddrs) {
+    var isLh = false;
+    for (var vpnAddr in vpnAddrs) {
+      if (site.staticHostmap[vpnAddr]?.lighthouse ?? false) {
+        isLh = true;
+        break;
+      }
+    }
+    return isLh;
   }
 
   _listHostmap() async {

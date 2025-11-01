@@ -21,7 +21,7 @@ import 'package:mobile_nebula/services/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:uuid/uuid.dart';
 
-/// Contains an expired CA and certificate
+/// Contains an expired v1 CA and certificate
 const badDebugSave = {
   'name': 'Bad Site',
   'cert': '''-----BEGIN NEBULA CERTIFICATE-----
@@ -40,7 +40,7 @@ mUOcsdFcCZiXrj7ryQIG1+WfqA46w71A/lV4nAc=
 -----END NEBULA CERTIFICATE-----''',
 };
 
-/// Contains an expired CA and certificate
+/// Contains a non-expired v1 CA and certificate
 const goodDebugSave = {
   'name': 'Good Site',
   'cert': '''-----BEGIN NEBULA CERTIFICATE-----
@@ -57,6 +57,29 @@ CjcKBWRlYnVnKOTQlpoGMOSM9/kROiCWNJUs7c4ZRzUn2LbeAEQrz2PVswnu9dcL
 Sn/2VNNu30ABEkCQtWxmCJqBr5Yd9vtDWCPo/T1JQmD3stBozcM6aUl1hP3zjURv
 MAIH7gzreMGgrH/yR6rZpIHR3DxJ3E0aHtEI
 -----END NEBULA CERTIFICATE-----''',
+};
+
+/// Contains a non-expired v2 CA and certificate
+const goodDebugSaveV2 = {
+  'name': 'Good Site V2',
+  'cert': '''-----BEGIN NEBULA CERTIFICATE V2-----
+MIIBHKCBtYAMVjIgVGVzdCBIb3N0oTQEBQoBAAIQBAXAqAECGAQR/ZgAAAAAAAAA
+AAAAAAAAAkAEEf2Z7u7u7u7uqqq7u8zM//JAohoEBQAAAAAABBEAAAAAAAAAAAAA
+AAAAAAAAAKMlDAt0ZXN0LWdyb3VwMQwLdGVzdC1ncm91cDIMCWZvb2JhcmJheoUE
+aQUSxIYEauZGOYcganAHTUvQcytewZBsfkiAhruIuQgoJ0vSpRK180ipgQuCIG06
+ZRKG32WKsCKEls5eENf5QkUO6pzaGGgCdLl3rbRJg0Db4EhAHpvtNbumzMs2lamb
+zkFjSWHl6qTvhA/3ZaKuD09wp9NEHhkL8l9uwz9KfSB6wHsZDC55i/HBo9YKCPIB
+-----END NEBULA CERTIFICATE V2-----''',
+  'key': '''-----BEGIN NEBULA X25519 PRIVATE KEY-----
+QyQYT2IxfdtDGUirKjhUMIT5O6W8CE/JzJquqQRZhFU=
+-----END NEBULA X25519 PRIVATE KEY-----''',
+  'ca': '''-----BEGIN NEBULA CERTIFICATE V2-----
+MIHeoHiAClYyIFRlc3QgQ0GhNAQFCgEAABAEBcCoAQAYBBH9mAAAAAAAAAAAAAAA
+AAABQAQR/Znu7u7u7u4AAAAAAAAAAECjJQwLdGVzdC1ncm91cDEMC3Rlc3QtZ3Jv
+dXAyDAlmb29iYXJiYXqEAf+FBGkFErqGBGrmRjqCIB1M/UJegMPjdpCkNV4spaH6
+48Zrc6EF6PgB0dmTjsGug0DHOiCTMm/fRkD1R3E+gtI53eTJk/gaRyphMvSJUuyJ
+Yd6DdoCpAMXb7cpgDfW8PGkU/77HWjLhu5HM28YHlioC
+-----END NEBULA CERTIFICATE V2-----''',
 };
 
 class MainScreen extends StatefulWidget {
@@ -114,9 +137,9 @@ class _MainScreenState extends State<MainScreen> {
     Widget? debugSite;
 
     if (kDebugMode) {
-      debugSite = Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [_debugSave(badDebugSave), _debugSave(goodDebugSave), _debugClearKeys()],
+      debugSite = Wrap(
+        alignment: WrapAlignment.center,
+        children: [_debugSave(badDebugSave), _debugSave(goodDebugSave), _debugSave(goodDebugSaveV2), _debugClearKeys()],
       );
     }
 

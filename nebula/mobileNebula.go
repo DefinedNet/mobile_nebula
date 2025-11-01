@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net"
+	"net/netip"
 	"strings"
 	"time"
 
@@ -24,10 +25,11 @@ import (
 type m map[string]any
 
 type CIDR struct {
-	Ip       string
-	MaskCIDR string
-	MaskSize int
-	Network  string
+	IPLen         int    // The number of bytes in the address family, 4 for ipv4, 16 for ipv6
+	Address       string // Apple and Android wants the string of the ip address
+	MaskedAddress string // Apple wants the address masked by SubnetMask for routes
+	SubnetMask    string // Apple wants the old style subnet mask for ipv4 (255.255.255.0), this will be empty for ipv6 CIDRs
+	PrefixLength  int    // Apple wants the prefix length from the cidr notation when dealing with ipv6 and Android always wants it
 }
 
 type Validity struct {
@@ -169,17 +171,26 @@ func GetConfigSetting(configData string, setting string) string {
 }
 
 func ParseCIDR(cidr string) (*CIDR, error) {
-	ip, ipNet, err := net.ParseCIDR(cidr)
+	p, err := netip.ParsePrefix(cidr)
 	if err != nil {
 		return nil, err
 	}
-	size, _ := ipNet.Mask.Size()
+
+	if p.Addr().Is4() {
+		return &CIDR{
+			IPLen:         net.IPv6len,
+			Address:       p.Addr().String(),
+			SubnetMask:    net.IP(net.CIDRMask(p.Bits(), net.IPv4len)).String(),
+			PrefixLength:  p.Bits(),
+			MaskedAddress: p.Masked().Addr().String(),
+		}, nil
+	}
 
 	return &CIDR{
-		Ip:       ip.String(),
-		MaskCIDR: fmt.Sprintf("%d.%d.%d.%d", ipNet.Mask[0], ipNet.Mask[1], ipNet.Mask[2], ipNet.Mask[3]),
-		MaskSize: size,
-		Network:  ipNet.IP.String(),
+		IPLen:         net.IPv6len,
+		Address:       p.Addr().String(),
+		PrefixLength:  p.Bits(),
+		MaskedAddress: p.Masked().Addr().String(),
 	}, nil
 }
 
@@ -240,9 +251,29 @@ func certToFlatJson(c cert.Certificate) m {
 
 	cm["version"] = c.Version()
 	cm["name"] = c.Name()
-	cm["networks"] = c.Networks()
-	cm["unsafeNetworks"] = c.UnsafeNetworks()
-	cm["groups"] = c.Groups()
+
+	// Force list types to not print null
+	networks := c.Networks()
+	if len(networks) == 0 {
+		cm["networks"] = []netip.Prefix{}
+	} else {
+		cm["networks"] = networks
+	}
+
+	unsafeNetworks := c.UnsafeNetworks()
+	if len(unsafeNetworks) == 0 {
+		cm["unsafeNetworks"] = []netip.Prefix{}
+	} else {
+		cm["unsafeNetworks"] = unsafeNetworks
+	}
+
+	groups := c.Groups()
+	if len(groups) == 0 {
+		cm["groups"] = []string{}
+	} else {
+		cm["groups"] = groups
+	}
+
 	cm["isCa"] = c.IsCA()
 	cm["notBefore"] = c.NotBefore()
 	cm["notAfter"] = c.NotAfter()
