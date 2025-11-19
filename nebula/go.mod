@@ -1,16 +1,14 @@
 module github.com/DefinedNet/mobile_nebula/nebula
 
-go 1.22.0
-
-toolchain go1.22.4
+go 1.25
 
 // replace github.com/slackhq/nebula => /Volumes/T7/nate/src/github.com/slackhq/nebula
 
 require (
-	github.com/DefinedNet/dnapi v0.0.0-20241212205635-1d1f0084d118
+	github.com/DefinedNet/dnapi v0.0.0-20251117181834-1112b1c2813b
 	github.com/sirupsen/logrus v1.9.3
 	github.com/slackhq/nebula v1.9.7
-	golang.org/x/crypto v0.43.0
+	golang.org/x/crypto v0.44.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -39,13 +37,12 @@ require (
 	github.com/vishvananda/netlink v1.3.0 // indirect
 	github.com/vishvananda/netns v0.0.4 // indirect
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c // indirect
-	golang.org/x/mobile v0.0.0-20251021151156-188f512ec823 // indirect
-	golang.org/x/mod v0.29.0 // indirect
-	golang.org/x/net v0.46.0 // indirect
-	golang.org/x/sync v0.17.0 // indirect
-	golang.org/x/sys v0.37.0 // indirect
-	golang.org/x/term v0.36.0 // indirect
-	golang.org/x/tools v0.38.0 // indirect
+	golang.org/x/mod v0.30.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/term v0.37.0 // indirect
+	golang.org/x/tools v0.39.0 // indirect
 	golang.zx2c4.com/wintun v0.0.0-20230126152724-0fa3db229ce2 // indirect
 	golang.zx2c4.com/wireguard v0.0.0-20231211153847-12269c276173 // indirect
 	golang.zx2c4.com/wireguard/windows v0.5.3 // indirect
