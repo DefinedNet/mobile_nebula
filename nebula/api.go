@@ -107,18 +107,27 @@ func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string,
 	// Check for update
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	updateAvailable, err := c.c.CheckForUpdate(ctx, creds)
+	msg, err := c.c.LongPollWait(ctx, creds, []string{"DoUpdate"})
 	switch {
 	case errors.Is(err, dnapi.ErrInvalidCredentials):
 		return nil, InvalidCredentialsError{}
 	case err != nil:
 		return nil, fmt.Errorf("CheckForUpdate error: %s", err)
 	}
-
-	if !updateAvailable {
+	var msgType struct{ Command string }
+	err = json.Unmarshal(msg.Action, &msgType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse LongPollWait response: %s", err)
+	}
+	switch msgType.Command {
+	case "DoUpdate":
+		return c.doUpdate(siteName, creds)
+	default:
 		return &TryUpdateResult{FetchedUpdate: false}, nil
 	}
+}
 
+func (c *APIClient) doUpdate(siteName string, creds keys.Credentials) (*TryUpdateResult, error) {
 	// Perform the update and return the new site object
 	updateCtx, updateCancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer updateCancel()
