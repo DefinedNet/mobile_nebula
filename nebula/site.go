@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/DefinedNet/dnapi"
 	"github.com/DefinedNet/dnapi/keys"
 	"gopkg.in/yaml.v2"
 )
@@ -25,6 +26,8 @@ type site struct {
 	Key               *string               `json:"key"`
 	Managed           jsonTrue              `json:"managed"`
 	LastManagedUpdate *time.Time            `json:"lastManagedUpdate"`
+	ManagedOIDCEmail  *string               `json:"managedOIDCEmail"`
+	ManagedOIDCExpiry *time.Time            `json:"managedOIDCExpiry"`
 	RawConfig         *string               `json:"rawConfig"`
 	DNCredentials     *dnCredentials        `json:"dnCredentials"`
 }
@@ -54,7 +57,7 @@ func (f jsonTrue) MarshalJSON() ([]byte, error) {
 	return json.Marshal(true)
 }
 
-func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials) (*site, error) {
+func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials, configMeta *dnapi.ConfigMeta) (*site, error) {
 	// Convert YAML Nebula config to a JSON Site
 	var cfg config
 	if err := yaml.Unmarshal(rawCfg, &cfg); err != nil {
@@ -113,7 +116,7 @@ func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials) (
 		return nil, err
 	}
 
-	return &site{
+	s := &site{
 		Name:              name,
 		ID:                creds.HostID,
 		StaticHostmap:     shm,
@@ -136,5 +139,12 @@ func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials) (
 			Counter:     int(creds.Counter),
 			TrustedKeys: string(tkm),
 		},
-	}, nil
+	}
+
+	if configMeta != nil && configMeta.EndpointOIDC != nil {
+		s.ManagedOIDCEmail = &configMeta.EndpointOIDC.Email
+		s.ManagedOIDCExpiry = configMeta.EndpointOIDC.ExpiresAt
+	}
+
+	return s, nil
 }

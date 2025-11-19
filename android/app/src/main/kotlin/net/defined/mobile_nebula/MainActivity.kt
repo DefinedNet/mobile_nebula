@@ -11,26 +11,31 @@ import android.content.pm.PackageManager
 import android.net.VpnService
 import android.os.*
 import android.util.Log
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.work.*
 import com.google.gson.Gson
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugins.GeneratedPluginRegistrant
+import io.flutter.plugin.common.StandardMethodCodec
 import java.io.File
 import java.util.concurrent.TimeUnit
+
 
 const val TAG = "nebula"
 const val VPN_START_CODE = 0x10
 const val CHANNEL = "net.defined.mobileNebula/NebulaVpnService"
+const val BGCHANNEL = "net.defined.mobileNebula/NebulaVpnService/background"
 const val UPDATE_WORKER = "dnUpdater"
 
 class MainActivity: FlutterActivity() {
     private var ui: MethodChannel? = null
+    private var bg: MethodChannel? = null
 
-    private var inMessenger: Messenger? = Messenger(IncomingHandler())
+    private var inMessenger: Messenger = Messenger(IncomingHandler())
     private var outMessenger: Messenger? = null
 
     private var apiClient: APIClient? = null
@@ -48,7 +53,7 @@ class MainActivity: FlutterActivity() {
     private var activeSiteId: String? = null
 
     private val workManager = WorkManager.getInstance(application)
-    private val refreshReceiver: BroadcastReceiver = RefreshReceiver()
+    private var refreshReceiver: BroadcastReceiver? = null
 
     companion object {
         const val ACTION_REFRESH_SITES = "net.defined.mobileNebula.REFRESH_SITES"
@@ -75,6 +80,11 @@ class MainActivity: FlutterActivity() {
                 "nebula.verifyCertAndKey" -> nebulaVerifyCertAndKey(call, result)
 
                 "dn.enroll" -> dnEnroll(call, result)
+                "dn.getPollToken" -> dnGetPollToken(call, result)
+                "dn.usePollToken" -> dnUsePollToken(call, result)
+                "dn.popBrowser" -> dnPopBrowser(call, result)
+                "dn.reauthenticate" -> dnReauthenticate(call, result)
+                "dn.doUpdate" -> dnDoUpdate(result)
 
                 "listSites" -> listSites(result)
                 "deleteSite" -> deleteSite(call, result)
@@ -96,21 +106,36 @@ class MainActivity: FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+
+        val taskQueue = flutterEngine.dartExecutor.binaryMessenger.makeBackgroundTaskQueue()
+        bg = MethodChannel(flutterEngine.dartExecutor.binaryMessenger,
+            BGCHANNEL,
+            StandardMethodCodec.INSTANCE,
+            taskQueue)
+
+        bg!!.setMethodCallHandler { call, result ->
+            when(call.method) {
+                "dn.enroll" -> dnEnroll(call, result)
+                "dn.reauthenticate" -> dnReauthenticate(call, result)
+                "dn.getPollToken" -> dnGetPollToken(call, result)
+                "dn.usePollToken" -> dnUsePollToken(call, result)
+
+                else -> result.notImplemented()
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         apiClient = APIClient(context)
-
+        refreshReceiver = RefreshReceiver()
         ContextCompat.registerReceiver(context, refreshReceiver, IntentFilter(ACTION_REFRESH_SITES), ContextCompat.RECEIVER_NOT_EXPORTED)
-
         enqueueDNUpdater()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-
         unregisterReceiver(refreshReceiver)
     }
 
@@ -179,26 +204,137 @@ class MainActivity: FlutterActivity() {
         }
     }
 
+    private fun doEnroll(enrollCode: String): Result<Boolean> {
+        val site: IncomingSite
+        val siteDir: File
+        try {
+            site = apiClient!!.enroll(enrollCode)
+            siteDir = site.save(context)
+        } catch (err: Exception) {
+            return Result.failure(err)
+        }
+
+        val ok = validateOrDeleteSite(siteDir)
+        Log.w(TAG,"got site: OK? $ok")
+        if (!ok) {
+            return Result.failure(Exception("Enrollment failed due to invalid config"))
+        }
+        Handler(Looper.getMainLooper()).post {
+            doRefresh()
+        }
+        return Result.success(true)
+    }
+
     private fun dnEnroll(call: MethodCall, result: MethodChannel.Result) {
         val code = call.arguments as String
         if (code == "") {
             return result.error("required_argument", "code is a required argument", null)
         }
+        val out = doEnroll(code)
+        return when {
+            out.isSuccess-> result.success(null)
+            out.isFailure-> result.error("enroll_failed", out.exceptionOrNull()?.message, null)
+            else-> result.error("enroll_failed", "unknown", null)
+        }
+    }
 
-        val site: IncomingSite
-        val siteDir: File
+    private fun dnPopBrowser(call: MethodCall, result: MethodChannel.Result) {
+        val urlToPop = call.arguments as String
+        if (urlToPop == "") {
+            return result.error("required_argument", "url is a required argument", null)
+        }
+        val customTabsIntent = CustomTabsIntent.Builder()
+            .setShowTitle(true)
+            .build()
         try {
-            site = apiClient!!.enroll(code)
-            siteDir = site.save(context)
+            customTabsIntent.launchUrl(this, urlToPop.toUri())
         } catch (err: Exception) {
             return result.error("unhandled_error", err.message, null)
         }
+        return result.success(null)
+    }
 
-        if (!validateOrDeleteSite(siteDir)) {
-            return result.error("failure", "Enrollment failed due to invalid config", null)
+    private fun dnGetPollToken(call: MethodCall, result: MethodChannel.Result) {
+        try {
+            val resp = apiClient!!.preauth()
+            val out = mapOf<String, String>("pollToken" to resp.pollToken, "url" to resp.loginURL)
+            return result.success(out)
+        } catch (err: Exception) {
+            return result.error("unhandled_error", err.message, null)
+        }
+    }
+
+    private fun dnReauthenticate(call: MethodCall, result: MethodChannel.Result) {
+        val id = call.argument<String>("id")
+        if (id == "") {
+            return result.error("required_argument", "id is a required argument", null)
         }
 
-        result.success(null)
+        val site = sites!!.getSite(id!!) ?: return result.error("unknown_site", "No site with that id exists", null)
+        val creds = site.site.getDNCredentials(context)
+        try {
+            val resp = apiClient!!.reauthenticate(creds)
+            return result.success(resp)
+        } catch (err: Exception) {
+            return result.error("unhandled_error", err.message, null)
+        }
+    }
+
+    private fun dnDoUpdate(result: MethodChannel.Result) {
+        val workRequest = OneTimeWorkRequestBuilder<DNUpdateWorker>().build()
+        workManager.enqueue(workRequest)
+        return result.success(null)
+    }
+
+    private fun usePollToken(pt: String): Result<Boolean> {
+        if (pt == "") {
+            return Result.failure(Exception("invalid sequence: pollToken is blank"))
+        }
+        return try {
+            val response = apiClient!!.authPoll(pt)
+            when (response.status) {
+                "COMPLETED" -> {
+                    if (response.enrollmentCode == "") {
+                        Result.failure(Exception("auth complete, enroll code empty!"))
+                    } else {
+                        doEnroll(response.enrollmentCode)
+                    }
+                }
+                "STARTED" -> Result.failure(Exception( "auth incomplete"))
+                "WAITING" -> Result.failure(Exception( "auth incomplete"))
+                else -> {
+                    Result.failure(Exception( "auth incomplete, invalid status"))
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "usePollToken threw an exception $e")
+            return Result.failure(e)
+        }
+    }
+
+    private fun dnUsePollToken(call: MethodCall, result: MethodChannel.Result) {
+        val pollToken = call.arguments as String
+        if (pollToken == "") {
+            return result.error("required_argument", "pollToken is a required argument", null)
+        }
+        val out = usePollToken(pollToken)
+        return when {
+            out.isSuccess-> result.success(null)
+            out.isFailure-> {
+                val msg = out.exceptionOrNull()?.message
+                if(msg != null) {
+                    if (msg.contains("resource not found")) {
+                        result.error("oidc_enroll_failed", msg, null)
+                    } else {
+                        result.error("oidc_enroll_incomplete", msg, null)
+                    }
+                } else {
+                    result.error("oidc_enroll_failed", "unknown", null)
+                }
+            }
+
+            else-> result.error("oidc_enroll_failed", "unknown", null)
+        }
     }
 
     private fun listSites(result: MethodChannel.Result) {
@@ -453,6 +589,10 @@ class MainActivity: FlutterActivity() {
                 bindService(intent, connection, 0)
             }
 
+            //trigger a doupdate
+            val workRequest = OneTimeWorkRequestBuilder<DNUpdateWorker>().build()
+            workManager.enqueue(workRequest)
+
             return result.success(null)
         }
 
@@ -549,15 +689,19 @@ class MainActivity: FlutterActivity() {
         outMessenger = null
     }
 
+    private fun doRefresh() {
+        if (sites == null) return
+
+        Log.d(TAG, "Refreshing sites in MainActivity")
+
+        sites?.refreshSites(activeSiteId)
+        ui?.invokeMethod("refreshSites", null)
+    }
+
     inner class RefreshReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
             if (intent?.action != ACTION_REFRESH_SITES) return
-            if (sites == null) return
-
-            Log.d(TAG, "Refreshing sites in MainActivity")
-
-            sites?.refreshSites(activeSiteId)
-            ui?.invokeMethod("refreshSites", null)
+            doRefresh()
         }
     }
 

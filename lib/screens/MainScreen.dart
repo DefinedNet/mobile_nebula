@@ -17,6 +17,8 @@ import 'package:mobile_nebula/models/UnsafeRoute.dart';
 import 'package:mobile_nebula/screens/SettingsScreen.dart';
 import 'package:mobile_nebula/screens/SiteDetailScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/SiteConfigScreen.dart';
+import 'package:mobile_nebula/services/oidc.dart';
+import 'package:mobile_nebula/services/settings.dart';
 import 'package:mobile_nebula/services/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:uuid/uuid.dart';
@@ -92,6 +94,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  final settings = Settings();
   List<Site>? sites;
   // A set of widgets to display in a column that represents an error blocking us from moving forward entirely
   List<Widget>? error;
@@ -99,6 +102,8 @@ class _MainScreenState extends State<MainScreen> {
   bool supportsQRScanning = false;
 
   static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
+  static const bgplatform = MethodChannel('net.defined.mobileNebula/NebulaVpnService/background');
+  late final OIDCPoller _authService = OIDCPoller(settings, platform, bgplatform);
   RefreshController refreshController = RefreshController();
   ScrollController scrollController = ScrollController();
 
@@ -111,6 +116,12 @@ class _MainScreenState extends State<MainScreen> {
     });
 
     platform.setMethodCallHandler(handleMethodCall);
+
+    if (settings.pollCode != "") {
+      _keepPolling();
+    } else {
+      print("no enroll token I guess");
+    }
 
     super.initState();
   }
@@ -331,34 +342,73 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  _keepPolling() async {
+    try {
+      print("wow we still need to poll");
+      final status = await _authService.pollLoop();
+      if (!mounted) return;
+      if (status) {
+        _loadSites();
+      } else {
+        print("login failed");
+      }
+    } catch (e) {
+      print("login failed with exception: $e");
+    }
+  }
+
   _loadSites() async {
     //TODO: This can throw, we need to show an error dialog
     Map<String, dynamic> rawSites = jsonDecode(await platform.invokeMethod('listSites'));
 
+    Map<String, bool> foundSites = {};
+    Map<String, Site> oldSitesById = {};
+    sites?.forEach((s) {
+      oldSitesById[s.id] = s;
+      foundSites[s.id] = false;
+    });
+
     sites = [];
     rawSites.forEach((id, rawSite) {
-      try {
-        var site = Site.fromJson(rawSite);
+      final s = oldSitesById[id];
+      if (s != null) {
+        if (s.id == id) {
+          foundSites[s.id] = true;
+          try {
+            s.updateFromMap(rawSite);
+            sites!.add(s);
+          } catch (err) {
+            print("$err site config: $rawSite"); //TODO: handle error
+          }
+        }
+      } else {
+        try {
+          var site = Site.fromJson(rawSite);
+          site.onChange().listen(
+            (_) {
+              setState(() {});
+            },
+            onError: (err) {
+              setState(() {});
+              if (ModalRoute.of(context)!.isCurrent) {
+                Utils.popError(context, "${site.name} Error", err);
+              }
+            },
+          );
 
-        //TODO: we need to cancel change listeners when we rebuild
-        site.onChange().listen(
-          (_) {
-            setState(() {});
-          },
-          onError: (err) {
-            setState(() {});
-            if (ModalRoute.of(context)!.isCurrent) {
-              Utils.popError(context, "${site.name} Error", err);
-            }
-          },
-        );
+          sites!.add(site);
+        } catch (err) {
+          print("$err site config: $rawSite"); //TODO: handle error
+          // Sometimes it is helpful to just nuke these is dev
+          // platform.invokeMethod('deleteSite', id);
+        }
+      }
+    });
 
-        sites!.add(site);
-      } catch (err) {
-        //TODO: handle error
-        print("$err site config: $rawSite");
-        // Sometimes it is helpful to just nuke these is dev
-        // platform.invokeMethod('deleteSite', id);
+    //tear down old sites
+    oldSitesById.forEach((id, oldSite) {
+      if (foundSites[id] == false) {
+        oldSite.dispose();
       }
     });
 

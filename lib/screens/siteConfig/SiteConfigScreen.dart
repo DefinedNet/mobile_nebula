@@ -134,27 +134,47 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
   }
 
   Widget _managed() {
+    if (!site.managed) {
+      return Container();
+    }
     final formatter = DateFormat.yMMMMd('en_US').add_jm();
     var lastUpdate = "Unknown";
+    var oidcExpiry = "Unknown";
     if (site.lastManagedUpdate != null) {
       lastUpdate = formatter.format(site.lastManagedUpdate!.toLocal());
     }
 
-    return site.managed
-        ? ConfigSection(
-          label: "MANAGED CONFIG",
-          children: <Widget>[
-            ConfigItem(
-              label: Text("Last Update"),
-              content: Wrap(
-                alignment: WrapAlignment.end,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: <Widget>[Text(lastUpdate)],
-              ),
-            ),
-          ],
-        )
-        : Container();
+    var out = ConfigSection(
+      label: "MANAGED CONFIG",
+      children: <Widget>[
+        ConfigItem(
+          label: Text("Last Updated"),
+          content: Wrap(
+            alignment: WrapAlignment.end,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: <Widget>[Text(lastUpdate)],
+          ),
+        ),
+      ],
+    );
+
+    if (site.managedOIDCEmail != null) {
+      if (site.managedOIDCExpiry != null) {
+        oidcExpiry = formatter.format(site.managedOIDCExpiry!.toLocal());
+      } else {
+        oidcExpiry = "Never";
+      }
+
+      out.children.add(ConfigItem(
+          label: Text("Username"),
+          content: Wrap(
+            alignment: WrapAlignment.end,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: <Widget>[Text(site.managedOIDCEmail!)],
+          )));
+    }
+
+    return out;
   }
 
   Widget _keys() {

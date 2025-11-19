@@ -19,6 +19,14 @@ class APIClient(context: Context) {
         return decodeIncomingSite(res.site)
     }
 
+    fun preauth(): mobileNebula.PreAuthResult {
+        return client.endpointPreAuth()
+    }
+
+    fun authPoll(pollToken: String): mobileNebula.PollDataResult {
+        return client.endpointAuthPoll(pollToken)
+    }
+
     fun longPollWait(siteName: String, hostID: String, privateKey: String, counter: Long, trustedKeys: String): IncomingSite? {
         val res: mobileNebula.LongPollWaitResult
         try {
@@ -41,5 +49,18 @@ class APIClient(context: Context) {
 
     private fun decodeIncomingSite(jsonSite: String): IncomingSite {
         return gson.fromJson(jsonSite, IncomingSite::class.java)
+    }
+
+    fun reauthenticate(creds: DNCredentials): String {
+        try {
+            return client.reauthenticate(creds.hostID, creds.privateKey, creds.counter.toLong(), creds.trustedKeys);
+        } catch (e: Exception) {
+            // type information from Go is not available, use string matching instead
+            if (e.message == "invalid credentials") {
+                throw InvalidCredentialsException()
+            }
+
+            throw e
+        }
     }
 }

@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.work.*
 import mobileNebula.CIDR
 import java.io.File
+import java.lang.ref.WeakReference
 
 
 class NebulaVpnService : VpnService() {
@@ -42,7 +43,7 @@ class NebulaVpnService : VpnService() {
     private lateinit var messenger: Messenger
     private val mClients = ArrayList<Messenger>()
 
-    private val reloadReceiver: BroadcastReceiver = ReloadReceiver()
+    private var reloadReceiver: BroadcastReceiver? = null
     private var workManager: WorkManager? = null
 
     private var path: String? = null
@@ -51,14 +52,17 @@ class NebulaVpnService : VpnService() {
     private var nebula: mobileNebula.Nebula? = null
     private var vpnInterface: ParcelFileDescriptor? = null
     private var didSleep = false
-    private var networkCallback: NetworkCallback = NetworkCallback()
+    private lateinit var networkCallback: NetworkCallback
 
     override fun onCreate() {
         workManager = WorkManager.getInstance(this)
+        reloadReceiver = ReloadReceiver()
+        networkCallback = NetworkCallback()
         super.onCreate()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d(TAG, "onStartCommand")
         if (intent?.action == ACTION_STOP) {
             stopVpn()
             return Service.START_NOT_STICKY
@@ -284,33 +288,36 @@ class NebulaVpnService : VpnService() {
     /**
      * Handler of incoming messages from clients.
      */
-    inner class IncomingHandler : Handler(Looper.getMainLooper()) {
+    private class IncomingHandler(service: NebulaVpnService) : Handler(Looper.getMainLooper()) {
+        private val serviceRef: WeakReference<NebulaVpnService> = WeakReference(service)
+
         override fun handleMessage(msg: Message) {
+            val m = serviceRef.get() ?: return //bail if the service is dead
             //TODO: how do we limit what can talk to us?
             //TODO: Make sure replyTo is actually a messenger
             when (msg.what) {
-                MSG_REGISTER_CLIENT -> register(msg)
-                MSG_UNREGISTER_CLIENT -> mClients.remove(msg.replyTo)
-                MSG_IS_RUNNING -> isRunning()
-                MSG_LIST_HOSTMAP -> listHostmap(msg)
-                MSG_LIST_INDEXES -> listIndexes(msg)
-                MSG_LIST_PENDING_HOSTMAP -> listHostmap(msg)
-                MSG_GET_HOSTINFO -> getHostInfo(msg)
-                MSG_CLOSE_TUNNEL -> closeTunnel(msg)
-                MSG_SET_REMOTE_FOR_TUNNEL -> setRemoteForTunnel(msg)
+                MSG_REGISTER_CLIENT -> register(m, msg)
+                MSG_UNREGISTER_CLIENT -> m.mClients.remove(msg.replyTo)
+                MSG_IS_RUNNING -> isRunning(m)
+                MSG_LIST_HOSTMAP -> listHostmap(m, msg)
+                MSG_LIST_INDEXES -> listIndexes(m, msg)
+                MSG_LIST_PENDING_HOSTMAP -> listHostmap(m, msg)
+                MSG_GET_HOSTINFO -> getHostInfo(m, msg)
+                MSG_CLOSE_TUNNEL -> closeTunnel(m, msg)
+                MSG_SET_REMOTE_FOR_TUNNEL -> setRemoteForTunnel(m, msg)
                 else -> super.handleMessage(msg)
             }
         }
 
-        private fun register(msg: Message) {
-            mClients.add(msg.replyTo)
-            if (!running) {
-                startVpn()
+        private fun register(m: NebulaVpnService, msg: Message) {
+            m.mClients.add(msg.replyTo)
+            if (!m.running) {
+                m.startVpn()
             }
         }
 
-        private fun protect(msg: Message): Boolean {
-            if (nebula != null) {
+        private fun protect(m: NebulaVpnService, msg: Message): Boolean {
+            if (m.nebula != null) {
                 return false
             }
 
@@ -318,20 +325,20 @@ class NebulaVpnService : VpnService() {
             return true
         }
 
-        private fun isRunning() {
-            sendSimple(MSG_IS_RUNNING, if (running) 1 else 0)
+        private fun isRunning(m: NebulaVpnService) {
+            m.sendSimple(MSG_IS_RUNNING, if (m.running) 1 else 0)
         }
 
-        private fun listHostmap(msg: Message) {
-            if (protect(msg)) { return }
+        private fun listHostmap(m: NebulaVpnService, msg: Message) {
+            if (protect(m, msg)) { return }
 
-            val res = nebula!!.listHostmap(msg.what == MSG_LIST_PENDING_HOSTMAP)
+            val res = m.nebula!!.listHostmap(msg.what == MSG_LIST_PENDING_HOSTMAP)
             val m = Message.obtain(null, msg.what)
             m.data.putString("data", res)
             msg.replyTo.send(m)
         }
 
-        private fun listIndexes(msg: Message) {
+        private fun listIndexes(m: NebulaVpnService, msg: Message) {
             if (protect(msg)) { return }
 
             val res = nebula!!.listIndexes(false)
@@ -340,28 +347,28 @@ class NebulaVpnService : VpnService() {
             msg.replyTo.send(m)
         }
 
-        private fun getHostInfo(msg: Message) {
-            if (protect(msg)) { return }
+        private fun getHostInfo(m: NebulaVpnService, msg: Message) {
+            if (protect(m, msg)) { return }
 
-            val res = nebula!!.getHostInfoByVpnIp(msg.data.getString("vpnIp"), msg.data.getBoolean("pending"))
+            val res = m.nebula!!.getHostInfoByVpnIp(msg.data.getString("vpnIp"), msg.data.getBoolean("pending"))
             val m = Message.obtain(null, msg.what)
             m.data.putString("data", res)
             msg.replyTo.send(m)
         }
 
-        private fun setRemoteForTunnel(msg: Message) {
-            if (protect(msg)) { return }
+        private fun setRemoteForTunnel(m: NebulaVpnService, msg: Message) {
+            if (protect(m, msg)) { return }
 
-            val res = nebula!!.setRemoteForTunnel(msg.data.getString("vpnIp"), msg.data.getString("addr"))
+            val res = m.nebula!!.setRemoteForTunnel(msg.data.getString("vpnIp"), msg.data.getString("addr"))
             val m = Message.obtain(null, msg.what)
             m.data.putString("data", res)
             msg.replyTo.send(m)
         }
 
-        private fun closeTunnel(msg: Message) {
-            if (protect(msg)) { return }
+        private fun closeTunnel(m: NebulaVpnService, msg: Message) {
+            if (protect(m, msg)) { return }
 
-            val res = nebula!!.closeTunnel(msg.data.getString("vpnIp"))
+            val res = m.nebula!!.closeTunnel(msg.data.getString("vpnIp"))
             val m = Message.obtain(null, msg.what)
             m.data.putBoolean("data", res)
             msg.replyTo.send(m)
@@ -396,7 +403,7 @@ class NebulaVpnService : VpnService() {
             return super.onBind(intent)
         }
 
-        messenger = Messenger(IncomingHandler())
+        messenger = Messenger(IncomingHandler(this))
         return messenger.binder
     }
 }

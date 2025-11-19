@@ -15,6 +15,7 @@ import 'package:mobile_nebula/screens/SiteTunnelsScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/SiteConfigScreen.dart';
 import 'package:mobile_nebula/services/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:duration/duration.dart';
 
 import '../components/DangerButton.dart';
 import '../components/SiteTitle.dart';
@@ -38,8 +39,10 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
   late StreamSubscription onChange;
   static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
   bool changed = false;
+  bool reauthSpin = false;
   List<HostInfo>? activeHosts;
   List<HostInfo>? pendingHosts;
+  String expiresIn = "Unknown";
   RefreshController refreshController = RefreshController(initialRefresh: false);
 
   @override
@@ -60,7 +63,9 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
           pendingHosts = null;
         }
 
-        setState(() {});
+        setState(() {
+          expiresIn = calcExpiresIn(site.managedOIDCExpiry);
+        });
       },
       onError: (err) {
         setState(() {});
@@ -79,7 +84,7 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final title = SiteTitle(site: widget.site);
+    final title = SiteTitle(site: site);
 
     return SimplePage(
       title: title,
@@ -94,15 +99,20 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
       ),
       refreshController: refreshController,
       onRefresh: () async {
+        //await Site.platform.invokeMethod('dn.doUpdate'); //todo?
         if (site.connected && site.status == "Connected") {
           await _listHostmap();
         }
+        setState(() {
+          expiresIn = calcExpiresIn(site.managedOIDCExpiry);
+        });
         refreshController.refreshCompleted();
       },
       child: Column(
         children: [
           _buildErrors(),
           _buildConfig(),
+          site.managed ? _buildManaged() : Container(),
           site.connected ? _buildHosts() : Container(),
           _buildSiteDetails(),
           _buildDelete(),
@@ -125,7 +135,7 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
         ),
       );
     }
-
+    //todo if expired, add reauth button
     return ConfigSection(
       label: 'ERRORS',
       borderColor: CupertinoColors.systemRed.resolveFrom(context),
@@ -138,9 +148,9 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
     void handleChange(v) async {
       try {
         if (v) {
-          await widget.site.start();
+          await site.start();
         } else {
-          await widget.site.stop();
+          await site.stop();
         }
       } catch (error) {
         var action = v ? 'start' : 'stop';
@@ -158,28 +168,87 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
               Padding(
                 padding: EdgeInsets.only(right: 5),
                 child: Text(
-                  widget.site.status,
+                  site.status,
                   style: TextStyle(color: CupertinoColors.secondaryLabel.resolveFrom(context)),
                 ),
               ),
               Switch.adaptive(
-                value: widget.site.connected,
+                value: site.connected,
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                onChanged: widget.site.errors.isNotEmpty && !widget.site.connected ? null : handleChange,
+                onChanged: site.isSwitchOnAllowed() ? handleChange: null,
               ),
             ],
           ),
         ),
-        ConfigPageItem(
-          label: Text('Logs'),
-          onPressed: () {
-            Utils.openPage(context, (context) {
-              return SiteLogsScreen(site: widget.site);
-            });
-          },
-        ),
       ],
     );
+  }
+
+  String calcExpiresIn(DateTime? expiresAt) {
+    if (expiresAt == null) {
+      return "Never";
+    }
+
+    final exp = expiresAt.toLocal();
+    if (exp.isBefore(DateTime.now())) {
+      return "NOW";
+    } else {
+      final expAt = exp.difference(DateTime.now());
+      return "in ${expAt.pretty(tersity: DurationTersity.second)}"; //todo minute?
+    }
+  }
+
+  Widget _buildManaged() {
+    if (site.managedOIDCEmail == null) {
+      return Container();
+    }
+
+    var out = ConfigSection(
+      label: "MANAGED CONFIG",
+      children: <Widget>[],
+    );
+
+    expiresIn = calcExpiresIn(site.managedOIDCExpiry);
+
+    Widget? reauthText = null;
+    if (reauthSpin) {
+      reauthText = SizedBox(height: 20, width: 20, child: PlatformCircularProgressIndicator());
+    } else {
+      reauthText = Text(expiresIn);
+    }
+
+    out.children.add(ConfigItem(
+        label: Text("Username"),
+        content: Wrap(
+          alignment: WrapAlignment.end,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: <Widget>[Text(site.managedOIDCEmail!)],
+        )));
+    out.children.add(ConfigPageItem(
+        label: Text("Reauthenticate"),
+        onPressed: _reauth,
+        content: Wrap(
+          alignment: WrapAlignment.end,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: <Widget>[reauthText],
+        )));
+
+    return out;
+  }
+
+  Future<void> _reauth() async {
+    setState(() {
+      reauthSpin = true;
+    });
+    try {
+      final loginUrl = await site.reauthenticate();
+      await platform.invokeMethod("dn.popBrowser", loginUrl);
+    } on PlatformException catch (err) {
+      print(err);
+    }
+    setState(() {
+      reauthSpin = false;
+    });
   }
 
   Widget _buildHosts() {
@@ -257,13 +326,21 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
           onPressed: () {
             Utils.openPage(context, (context) {
               return SiteConfigScreen(
-                site: widget.site,
+                site: site,
                 onSave: (site) async {
                   changed = true;
                   setState(() {});
                 },
                 supportsQRScanning: widget.supportsQRScanning,
               );
+            });
+          },
+        ),
+        ConfigPageItem(
+          label: Text('Logs'),
+          onPressed: () {
+            Utils.openPage(context, (context) {
+              return SiteLogsScreen(site: site);
             });
           },
         ),
@@ -302,7 +379,7 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
 
   Future<bool> _deleteSite() async {
     try {
-      var err = await platform.invokeMethod("deleteSite", widget.site.id);
+      var err = await platform.invokeMethod("deleteSite", site.id);
       if (err != null) {
         Utils.popError(context, 'Failed to delete the site', err);
         return false;
