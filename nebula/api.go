@@ -62,7 +62,7 @@ func (c *APIClient) Enroll(code string) (*EnrollResult, error) {
 		return nil, fmt.Errorf("unexpected failure: %s", err)
 	}
 
-	site, err := newDNSite(meta.OrganizationName, cfg, string(pkey), *creds)
+	site, err := newDNSite(meta.Org.Name, cfg, string(pkey), *creds)
 	if err != nil {
 		return nil, fmt.Errorf("failure generating site: %s", err)
 	}
@@ -106,7 +106,7 @@ func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string,
 	defer cancel()
 	updateAvailable, err := c.c.CheckForUpdate(ctx, creds)
 	switch {
-	case errors.As(err, &dnapi.InvalidCredentialsError{}):
+	case errors.As(err, &dnapi.ErrInvalidCredentials):
 		return nil, InvalidCredentialsError{}
 	case err != nil:
 		return nil, fmt.Errorf("CheckForUpdate error: %s", err)
@@ -119,9 +119,9 @@ func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string,
 	// Perform the update and return the new site object
 	updateCtx, updateCancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer updateCancel()
-	cfg, pkey, newCreds, err := c.c.DoUpdate(updateCtx, creds)
+	cfg, pkey, newCreds, _, err := c.c.DoUpdate(updateCtx, creds)
 	switch {
-	case errors.As(err, &dnapi.InvalidCredentialsError{}):
+	case errors.As(err, &dnapi.ErrInvalidCredentials):
 		return nil, InvalidCredentialsError{}
 	case err != nil:
 		return nil, fmt.Errorf("DoUpdate error: %s", err)
