@@ -136,6 +136,29 @@ jobs:
           # "patched-go-${{ inputs.patch-ref }}-${{ runner.os }}-${{ runner.arch }}"
           key: patched-go-296be05a97eb526dc0e438b7387670d4cae4a935-${{ runner.os }}-${{ runner.arch }}
 
+      - name: Set up Go environment
+        run: |
+          # Verify the patched Go exists
+          if [ ! -f "$HOME/patched-go/bin/go" ]; then
+            echo "Error: Patched Go not found at $HOME/patched-go/bin/go"
+            echo "Cache may not have been restored properly"
+            ls -la $HOME/ || true
+            exit 1
+          fi
+
+          # Add to PATH and set GOROOT
+          echo "$HOME/patched-go/bin" >> $GITHUB_PATH
+          echo "GOROOT=$HOME/patched-go" >> $GITHUB_ENV
+          # Add GOPATH/bin to PATH (where go install puts binaries)
+          echo "$HOME/go/bin" >> $GITHUB_PATH
+          echo "GOPATH=$HOME/go" >> $GITHUB_ENV
+
+      - name: Verify Go is available
+        run: |
+          which go
+          go version
+          go env
+
       - name: Install flutter
         uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff #v2.18.0
         with:
