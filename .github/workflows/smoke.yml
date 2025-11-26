@@ -45,6 +45,9 @@ jobs:
           # Add to PATH and set GOROOT
           echo "$HOME/patched-go/bin" >> $GITHUB_PATH
           echo "GOROOT=$HOME/patched-go" >> $GITHUB_ENV
+          # Add GOPATH/bin to PATH (where go install puts binaries)
+          echo "$HOME/go/bin" >> $GITHUB_PATH
+          echo "GOPATH=$HOME/go" >> $GITHUB_ENV
 
       - name: Verify Go is available
         run: |
