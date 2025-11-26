@@ -20,7 +20,7 @@ jobs:
 
       # TODO: remove when https://go-review.googlesource.com/c/go/+/692935 lands in mainline go
       - name: Patch Go
-        uses: DefinedNet/patch-go@7f3a6e27a3f49684e3ef61bb26461e99dfe6bb37
+        uses: DefinedNet/patch-go@c8e4a17c75eb242d34c212419d7d3d25e8d58949
         with:
           patch-ref: '296be05a97eb526dc0e438b7387670d4cae4a935'
 
@@ -100,7 +100,7 @@ jobs:
 
       # TODO: remove when https://go-review.googlesource.com/c/go/+/692935 lands in mainline go
       - name: Patch Go
-        uses: DefinedNet/patch-go@7f3a6e27a3f49684e3ef61bb26461e99dfe6bb37
+        uses: DefinedNet/patch-go@c8e4a17c75eb242d34c212419d7d3d25e8d58949
         with:
           patch-ref: '296be05a97eb526dc0e438b7387670d4cae4a935'
 
