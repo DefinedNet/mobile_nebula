@@ -9,13 +9,6 @@ on:
     types: [opened, synchronize, labeled, reopened]
 
 jobs:
-
-  install-go:
-    uses: ./.github/workflows/patch-go-mac.yml
-    with:
-      patch-ref: '296be05a97eb526dc0e438b7387670d4cae4a935'
-      runner: 'macos-15'
-
   build-android:
     name: Android
     runs-on: macos-26
