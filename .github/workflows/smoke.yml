@@ -11,7 +11,7 @@ on:
 jobs:
 
   install-go:
-    uses: ./.github/workflows/patch-go-macos.yml
+    uses: ./.github/workflows/patch-go-mac.yml
     with:
       patch-ref: '296be05a97eb526dc0e438b7387670d4cae4a935'
       runner: 'macos-15'
