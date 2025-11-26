@@ -1,0 +1,91 @@
+name: Install Patched Go (macOS)
+
+on:
+  workflow_call:
+    inputs:
+      patch-repo:
+        description: 'Repository containing the patched Go source (e.g., username/go)'
+        required: true
+        type: string
+        default: 'DefinedNet/go'
+      patch-ref:
+        description: 'Branch, tag, or commit SHA of the patched version'
+        required: true
+        type: string
+      cache-key-suffix:
+        description: 'Optional suffix for cache key'
+        required: false
+        type: string
+        default: ''
+      runner:
+        description: 'Runner to use (e.g., macos-14, macos-latest)'
+        required: false
+        type: string
+        default: 'macos-26'
+
+jobs:
+  install-patched-go:
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - name: Set up cache key
+        id: cache-key
+        run: |
+          CACHE_KEY="patched-go-${{ inputs.patch-ref }}-${{ runner.os }}-${{ runner.arch }}"
+          if [ -n "${{ inputs.cache-key-suffix }}" ]; then
+            CACHE_KEY="${CACHE_KEY}-${{ inputs.cache-key-suffix }}"
+          fi
+          echo "key=${CACHE_KEY}" >> $GITHUB_OUTPUT
+
+      - name: Cache patched Go installation
+        id: cache-go
+        uses: actions/cache@v4
+        with:
+          path: ~/patched-go
+          key: ${{ steps.cache-key.outputs.key }}
+
+      - name: Verify build tools
+        if: steps.cache-go.outputs.cache-hit != 'true'
+        run: |
+          if ! command -v clang &> /dev/null; then
+            echo "Error: clang not found. Xcode Command Line Tools may not be installed."
+            exit 1
+          fi
+          echo "Build tools verified"
+
+      - name: Install bootstrap Go compiler
+        if: steps.cache-go.outputs.cache-hit != 'true'
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Clone patched Go source
+        if: steps.cache-go.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/${{ inputs.patch-repo }}.git ~/go-source
+          cd ~/go-source
+          git checkout ${{ inputs.patch-ref }}
+
+      - name: Build patched Go
+        if: steps.cache-go.outputs.cache-hit != 'true'
+        run: |
+          cd ~/go-source/src
+          ./make.bash
+          mkdir -p ~/patched-go
+          cp -r ~/go-source/* ~/patched-go/
+
+      - name: Add patched Go to PATH
+        run: |
+          echo "$HOME/patched-go/bin" >> $GITHUB_PATH
+          echo "GOROOT=$HOME/patched-go" >> $GITHUB_ENV
+
+      - name: Verify installation
+        run: |
+          go version
+          go env GOROOT
+          go env GOARCH
+          go env GOOS
+
+      - name: Clean up
+        if: steps.cache-go.outputs.cache-hit != 'true'
+        run: |
+          rm -rf ~/go-source

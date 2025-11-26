@@ -1,0 +1,81 @@
+name: Install Patched Go
+
+on:
+  workflow_call:
+    inputs:
+      patch-repo:
+        description: 'Repository containing the patched Go source (e.g., username/go)'
+        required: true
+        type: string
+        default: 'DefinedNet/go'
+      patch-ref:
+        description: 'Branch, tag, or commit SHA of the patched version'
+        required: true
+        type: string
+      cache-key-suffix:
+        description: 'Optional suffix for cache key'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  install-patched-go:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up cache key
+        id: cache-key
+        run: |
+          CACHE_KEY="patched-go-${{ inputs.patch-ref }}"
+          if [ -n "${{ inputs.cache-key-suffix }}" ]; then
+            CACHE_KEY="${CACHE_KEY}-${{ inputs.cache-key-suffix }}"
+          fi
+          echo "key=${CACHE_KEY}" >> $GITHUB_OUTPUT
+
+      - name: Cache patched Go installation
+        id: cache-go
+        uses: actions/cache@v4
+        with:
+          path: /opt/patched-go
+          key: ${{ steps.cache-key.outputs.key }}
+
+      - name: Install build dependencies
+        if: steps.cache-go.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+
+      - name: Install bootstrap Go compiler
+        if: steps.cache-go.outputs.cache-hit != 'true'
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'  # Bootstrap compiler version
+
+      - name: Clone patched Go source
+        if: steps.cache-go.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/${{ inputs.patch-repo }}.git /tmp/go-source
+          cd /tmp/go-source
+          git checkout ${{ inputs.patch-ref }}
+
+      - name: Build patched Go
+        if: steps.cache-go.outputs.cache-hit != 'true'
+        run: |
+          cd /tmp/go-source/src
+          ./make.bash
+          sudo mkdir -p /opt/patched-go
+          sudo cp -r /tmp/go-source/* /opt/patched-go/
+
+      - name: Add patched Go to PATH
+        run: |
+          echo "/opt/patched-go/bin" >> $GITHUB_PATH
+          echo "GOROOT=/opt/patched-go" >> $GITHUB_ENV
+
+      - name: Verify installation
+        run: |
+          go version
+          go env GOROOT
+
+      - name: Clean up
+        if: steps.cache-go.outputs.cache-hit != 'true'
+        run: |
+          rm -rf /tmp/go-source
