@@ -32,6 +32,26 @@ jobs:
           # "patched-go-${{ inputs.patch-ref }}-${{ runner.os }}-${{ runner.arch }}"
           key: patched-go-296be05a97eb526dc0e438b7387670d4cae4a935-${{ runner.os }}-${{ runner.arch }}
 
+      - name: Set up Go environment
+        run: |
+          # Verify the patched Go exists
+          if [ ! -f "$HOME/patched-go/bin/go" ]; then
+            echo "Error: Patched Go not found at $HOME/patched-go/bin/go"
+            echo "Cache may not have been restored properly"
+            ls -la $HOME/ || true
+            exit 1
+          fi
+
+          # Add to PATH and set GOROOT
+          echo "$HOME/patched-go/bin" >> $GITHUB_PATH
+          echo "GOROOT=$HOME/patched-go" >> $GITHUB_ENV
+
+      - name: Verify Go is available
+        run: |
+          which go
+          go version
+          go env
+
       - uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 #v4.7.0
         with:
           distribution: 'zulu'
