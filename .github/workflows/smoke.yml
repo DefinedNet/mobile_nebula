@@ -18,6 +18,7 @@ jobs:
         with:
           show-progress: false
 
+      # TODO: remove when https://go-review.googlesource.com/c/go/+/692935 lands in mainline go
       - name: Patch Go
         uses: DefinedNet/patch-go@7f3a6e27a3f49684e3ef61bb26461e99dfe6bb37
         with:
@@ -97,6 +98,7 @@ jobs:
         with:
           show-progress: false
 
+      # TODO: remove when https://go-review.googlesource.com/c/go/+/692935 lands in mainline go
       - name: Patch Go
         uses: DefinedNet/patch-go@7f3a6e27a3f49684e3ef61bb26461e99dfe6bb37
         with:
