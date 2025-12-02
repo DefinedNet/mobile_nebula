@@ -14,7 +14,7 @@
         let
           makeAndroidSdkArgs = (emulator: {
             # needs to match compileSdkVersion AND targetSdkVersion in android/app/build.gradle
-            platformVersions = [ "34" "35" ];
+            platformVersions = [ "34" "35" "36" ];
             includeNDK = true;
             # needs to match ndkVersion in android/app/build.gradle
             ndkVersion = "28.2.13676358";
@@ -156,6 +156,7 @@
         in
         rec {
           inherit self gomobile androidComposition platformTools androidStudio jdk flutter emulator;
+          inherit (pkgs) cmake;
 
           sign = pkgs.writeShellApplication {
             name = "sign";
@@ -179,7 +180,7 @@
 
             src = ./nebula;
 
-            vendorHash = "sha256-ElJPBivlfAqMzI9esZQuiQDWtFOt05n0ChmTsTArnmU=";
+            vendorHash = "sha256-rSwSQv737WTzMOq6OSzJYHP9pg/nwRBLZdCCVCnoSk4=";
 
             proxyVendor = true;
             overrideModAttrs = (final: prev: {
@@ -209,7 +210,7 @@
             dontDartInstall = true;
             dontDartInstallCache = true;
 
-            outputHash = "sha256-f9jW2z4lw5MfchPY08+2S8HJZBwaGXbQjCypX+myK9I=";
+            outputHash = "sha256-9tl7UZ4twffxqqbca1rbZAgup3BRXUdoxKR8IJ1mUrQ=";
             outputHashAlgo = "sha256";
             outputHashMode = "flat";
           }).overrideAttrs (prev: {
@@ -265,7 +266,11 @@
               gradle
 
               clang
-              cmake
+              (
+                # needs to match cmake version in android/app/build.gradle
+                assert cmake.version == "4.1.2";
+                cmake
+              )
               dart
               gcc
               go
