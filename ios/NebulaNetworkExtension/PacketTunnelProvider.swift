@@ -201,9 +201,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     var str: [String] = []
     endpoints.forEach { endpoint in
       switch endpoint {
-      case let .hostPort(.ipv6(host), port):
+      case .hostPort(.ipv6(let host), let port):
         str.append("[\(host)]:\(port)")
-      case let .hostPort(.ipv4(host), port):
+      case .hostPort(.ipv4(let host), let port):
         str.append("\(host):\(port)")
       default:
         return

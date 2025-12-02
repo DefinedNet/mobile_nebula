@@ -22,7 +22,7 @@ Run `flutter doctor` and fix everything it complains before proceeding
 
 - Copy `env.sh.example` and set it up for your machine
 - Ensure you have run `gomobile init`
-- In Android Studio, make sure you have the current ndk installed by going to Tools -> SDK Manager, go to the SDK Tools tab, check the `Show package details` box, expand the NDK section and select `27.0.12077973` version.
+- In Android Studio, make sure you have the current ndk installed by going to Tools -> SDK Manager, go to the SDK Tools tab, check the `Show package details` box, expand the NDK section and select `28.2.13676358` version.
 - Ensure you have downloaded an ndk via android studio, this is likely not the default one and you need to check the
   `Show package details` box to select the correct version. The correct version comes from the error when you try and compile
 - Make sure you have `gem` installed with `sudo gem install`
