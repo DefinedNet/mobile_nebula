@@ -13,6 +13,7 @@ import (
 
 	"github.com/DefinedNet/dnapi"
 	"github.com/DefinedNet/dnapi/keys"
+	"github.com/DefinedNet/dnapi/message"
 	"github.com/sirupsen/logrus"
 	"github.com/slackhq/nebula/cert"
 )
@@ -26,7 +27,7 @@ type EnrollResult struct {
 	Site string
 }
 
-type TryUpdateResult struct {
+type LongPollWaitResult struct {
 	FetchedUpdate bool
 	Site          string
 }
@@ -78,7 +79,7 @@ func (c *APIClient) Enroll(code string) (*EnrollResult, error) {
 	return &EnrollResult{Site: string(jsonSite)}, nil
 }
 
-func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string, counter int, trustedKeys string) (*TryUpdateResult, error) {
+func (c *APIClient) LongPollWait(siteName string, hostID string, privateKey string, counter int, trustedKeys string) (*LongPollWaitResult, error) {
 	// Build dnapi.Credentials struct from inputs
 	if counter < 0 {
 		return nil, fmt.Errorf("invalid counter value: must be unsigned")
@@ -105,14 +106,14 @@ func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string,
 	}
 
 	// Check for update
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute) //todo should this have a small retry loop to deal with mobile-related pain?
 	defer cancel()
-	msg, err := c.c.LongPollWait(ctx, creds, []string{"DoUpdate"})
+	msg, err := c.c.LongPollWait(ctx, creds, []string{message.DoUpdate})
 	switch {
 	case errors.Is(err, dnapi.ErrInvalidCredentials):
 		return nil, InvalidCredentialsError{}
 	case err != nil:
-		return nil, fmt.Errorf("CheckForUpdate error: %s", err)
+		return nil, fmt.Errorf("LongPollWait error: %s", err)
 	}
 	var msgType struct{ Command string }
 	err = json.Unmarshal(msg.Action, &msgType)
@@ -120,14 +121,14 @@ func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string,
 		return nil, fmt.Errorf("failed to parse LongPollWait response: %s", err)
 	}
 	switch msgType.Command {
-	case "DoUpdate":
+	case message.DoUpdate:
 		return c.doUpdate(siteName, creds)
 	default:
-		return &TryUpdateResult{FetchedUpdate: false}, nil
+		return &LongPollWaitResult{FetchedUpdate: false}, nil
 	}
 }
 
-func (c *APIClient) doUpdate(siteName string, creds keys.Credentials) (*TryUpdateResult, error) {
+func (c *APIClient) doUpdate(siteName string, creds keys.Credentials) (*LongPollWaitResult, error) {
 	// Perform the update and return the new site object
 	updateCtx, updateCancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer updateCancel()
@@ -149,7 +150,7 @@ func (c *APIClient) doUpdate(siteName string, creds keys.Credentials) (*TryUpdat
 		return nil, fmt.Errorf("failed to marshal site: %s", err)
 	}
 
-	return &TryUpdateResult{Site: string(jsonSite), FetchedUpdate: true}, nil
+	return &LongPollWaitResult{Site: string(jsonSite), FetchedUpdate: true}, nil
 }
 
 func unmarshalHostPrivateKey(b []byte) (keys.PrivateKey, []byte, error) {

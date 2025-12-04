@@ -19,12 +19,12 @@ class APIClient {
     return try decodeIncomingSite(jsonSite: res.site)
   }
 
-  func tryUpdate(
+  func longPollWait(
     siteName: String, hostID: String, privateKey: String, counter: Int, trustedKeys: String
   ) throws -> IncomingSite? {
-    let res: MobileNebulaTryUpdateResult
+    let res: MobileNebulaLongPollWaitResult
     do {
-      res = try apiClient.tryUpdate(
+      res = try apiClient.longPollWait(
         siteName,
         hostID: hostID,
         privateKey: privateKey,
