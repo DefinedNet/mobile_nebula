@@ -53,7 +53,6 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   void initState() {
     code = widget.code;
     super.initState();
-    _enroll();
   }
 
   @override
