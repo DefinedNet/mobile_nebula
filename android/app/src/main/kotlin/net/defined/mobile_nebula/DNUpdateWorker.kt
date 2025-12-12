@@ -39,6 +39,7 @@ class DNUpdateWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, param
 
     private fun updateSite(site: Site) {
         try {
+            Log.i(TAG, "updateSite for ${site.name}")
             DNUpdateLock(site).use {
                 val res = updater.updateSite(site)
 
@@ -98,7 +99,7 @@ class DNSiteUpdater(
 
         val newSite: IncomingSite?
         try {
-            newSite = apiClient.tryUpdate(
+            newSite = apiClient.longPollWait(
                     site.name,
                     credentials.hostID,
                     credentials.privateKey,
@@ -108,11 +109,12 @@ class DNSiteUpdater(
         } catch (e: InvalidCredentialsException) {
             if (!credentials.invalid) {
                 site.invalidateDNCredentials(context)
-                Log.d(TAG, "Invalidated credentials in site ${site.name}")
+                Log.e(TAG, "Invalidated credentials in site ${site.name}")
                 return Result.CREDENTIALS_UPDATED
             }
             return Result.NOOP
         }
+        Log.d(TAG, "Updated site ${site.id}: ${site.name}. Update? ${newSite != null}")
 
         if (newSite != null) {
             newSite.save(context)

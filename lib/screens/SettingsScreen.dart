@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
 import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
 import 'package:mobile_nebula/components/config/ConfigSection.dart';
 import 'package:mobile_nebula/screens/EnrollmentScreen.dart';
+import 'package:mobile_nebula/services/oidc.dart';
 import 'package:mobile_nebula/services/settings.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
@@ -22,6 +25,9 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   var settings = Settings();
+  static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
+  static const bgplatform = MethodChannel('net.defined.mobileNebula/NebulaVpnService/background');
+  late final OIDCPoller _authService = OIDCPoller(settings, platform, bgplatform);
 
   @override
   void initState() {
@@ -127,6 +133,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 () =>
                     Utils.openPage(context, (context) => EnrollmentScreen(stream: widget.stream, allowCodeEntry: true)),
           ),
+          ConfigPageItem(
+            label: Text('Enroll with Managed Nebula (SSO)'),
+            labelWidth: 250,
+            onPressed: () => onEnrollSSO(),
+          ),
         ],
       ),
     );
@@ -140,5 +151,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     return SimplePage(title: Text('Settings'), child: Column(children: items));
+  }
+
+  Future<void> onEnrollSSO() async {
+    try {
+      final success = await _authService.beginLogin();
+
+      if (!success) {
+        print("Failed to open login page");
+        return;
+      }
+
+      print("Waiting for login...");
+      final status = await _authService.pollLoop();
+      if (!mounted) return;
+      if (status == true) {
+        // Login successful, go home
+        Navigator.of(context).pop();
+      } else {
+        print("login failed");
+      }
+    } catch (e) {
+      print("login failed with exception: $e");
+    }
   }
 }

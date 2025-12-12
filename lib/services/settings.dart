@@ -54,6 +54,16 @@ class Settings {
     }
   }
 
+  set pollCode(String code) {
+    //todo set an expiration time?
+    _set('pollCode', code);
+  }
+
+  String get pollCode {
+    //todo expire
+    return _getString('pollCode', '');
+  }
+
   String _getString(String key, String defaultValue) {
     final val = _settings[key];
     if (val is String) {

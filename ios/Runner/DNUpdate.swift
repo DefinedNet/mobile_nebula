@@ -47,7 +47,7 @@ class DNUpdater {
 
       let newSite: IncomingSite?
       do {
-        newSite = try apiClient.tryUpdate(
+        newSite = try apiClient.longPollWait(
           siteName: site.name,
           hostID: credentials.hostID,
           privateKey: credentials.privateKey,

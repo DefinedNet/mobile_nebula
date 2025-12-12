@@ -17,10 +17,6 @@ data class SiteContainer(
 class Sites(private var engine: FlutterEngine) {
     private var containers: HashMap<String, SiteContainer> = HashMap()
 
-    init {
-        refreshSites()
-    }
-
     fun refreshSites(activeSite: String? = null) {
         val context = MainActivity.getContext()!!
 
@@ -37,6 +33,9 @@ class Sites(private var engine: FlutterEngine) {
 
             if (site.id == activeSite) {
                 updater.setState(true, "Connected")
+            } else if (site.managed) {
+                // still show new info for managed sites, since the backend may have changed stuff!
+                updater.setState(null, null)
             }
 
             containers[site.id] = SiteContainer(site, updater)
@@ -122,9 +121,14 @@ class SiteUpdater(private var site: Site, engine: FlutterEngine): EventChannel.S
         this.site = site
     }
 
-    fun setState(connected: Boolean, status: String, err: String? = null) {
-        site.connected = connected
-        site.status = status
+    fun setState(connected: Boolean?, status: String?, err: String? = null) {
+        if (connected != null) {
+            site.connected = connected
+        }
+        if (status != null) {
+            site.status = status
+        }
+
         if (err != null) {
             eventSink?.error("", err, gson.toJson(site))
         } else {
@@ -212,6 +216,8 @@ class Site(context: Context, siteDir: File) {
     // The following fields are present when managed = true
     val rawConfig: String?
     val lastManagedUpdate: String?
+    val managedOIDCEmail: String?
+    val managedOIDCExpiry: String?
 
     // Path to this site on disk
     @Transient
@@ -241,6 +247,8 @@ class Site(context: Context, siteDir: File) {
         rawConfig = incomingSite.rawConfig
         managed = incomingSite.managed ?: false
         lastManagedUpdate = incomingSite.lastManagedUpdate
+        managedOIDCEmail = incomingSite.managedOIDCEmail
+        managedOIDCExpiry = incomingSite.managedOIDCExpiry
 
         connected = false
         status = "Disconnected"
@@ -347,6 +355,8 @@ class IncomingSite(
     val managed: Boolean?,
     // The following fields are present when managed = true
     val lastManagedUpdate: String?,
+    val managedOIDCEmail: String?,
+    val managedOIDCExpiry: String?,
     val rawConfig: String?,
     var dnCredentials: DNCredentials?,
 ) {

@@ -13,6 +13,7 @@ var uuid = Uuid();
 
 class Site {
   static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
+  static const bgplatform = MethodChannel('net.defined.mobileNebula/NebulaVpnService/background');
   late EventChannel _updates;
 
   /// Signals that something about this site has changed. onError is called with an error string if there was an error
@@ -49,6 +50,8 @@ class Site {
   // The following fields are present when managed = true
   late String? rawConfig;
   late DateTime? lastManagedUpdate;
+  late String? managedOIDCEmail;
+  late DateTime? managedOIDCExpiry;
 
   // A list of errors encountered while loading the site
   late List<String> errors;
@@ -73,6 +76,8 @@ class Site {
     this.managed = false,
     this.rawConfig,
     this.lastManagedUpdate,
+    this.managedOIDCEmail,
+    this.managedOIDCExpiry,
   }) {
     this.id = id ?? uuid.v4();
     this.staticHostmap = staticHostmap ?? {};
@@ -84,7 +89,7 @@ class Site {
     _updates.receiveBroadcastStream().listen(
       (d) {
         try {
-          _updateFromJson(d);
+          updateFromJson(d);
           _change.add(null);
         } catch (err) {
           //TODO: handle the error
@@ -92,7 +97,7 @@ class Site {
         }
       },
       onError: (err) {
-        _updateFromJson(err.details);
+        updateFromJson(err.details);
         var error = err as PlatformException;
         _change.addError(error.message ?? 'An unexpected error occurred');
       },
@@ -121,13 +126,15 @@ class Site {
       managed: decoded['managed'],
       rawConfig: decoded['rawConfig'],
       lastManagedUpdate: decoded['lastManagedUpdate'],
+      managedOIDCEmail: decoded['managedOIDCEmail'],
+      managedOIDCExpiry: decoded['managedOIDCExpiry'],
     );
   }
 
-  _updateFromJson(String json) {
-    var decoded = Site._fromJson(jsonDecode(json));
+  updateFromMap(Map<String, dynamic> j) {
+    final decoded = Site._fromJson(j);
     name = decoded["name"];
-    id = decoded['id']; // TODO update EventChannel
+    id = decoded['id']; // TODO update EventChannel, or consider this an error
     staticHostmap = decoded['staticHostmap'];
     ca = decoded['ca'];
     certInfo = decoded['certInfo'];
@@ -136,8 +143,12 @@ class Site {
     cipher = decoded['cipher'];
     sortKey = decoded['sortKey'];
     mtu = decoded['mtu'];
-    connected = decoded['connected'];
-    status = decoded['status'];
+    if (decoded['connected'] != null) {
+      connected = decoded['connected'];
+    }
+    if (decoded['status'] != null) {
+      status = decoded['status'];
+    }
     logFile = decoded['logFile'];
     logVerbosity = decoded['logVerbosity'];
     errors = decoded['errors'];
@@ -145,6 +156,13 @@ class Site {
     managed = decoded['managed'];
     rawConfig = decoded['rawConfig'];
     lastManagedUpdate = decoded['lastManagedUpdate'];
+    managedOIDCEmail = decoded['managedOIDCEmail'];
+    managedOIDCExpiry = decoded['managedOIDCExpiry'];
+  }
+
+  updateFromJson(String json) {
+    var decoded = jsonDecode(json);
+    updateFromMap(decoded);
   }
 
   static _fromJson(Map<String, dynamic> json) {
@@ -188,8 +206,8 @@ class Site {
       "cipher": json['cipher'],
       "sortKey": json['sortKey'],
       "mtu": json['mtu'],
-      "connected": json['connected'] ?? false,
-      "status": json['status'] ?? "",
+      "connected": json['connected'],
+      "status": json['status'],
       "logFile": json['logFile'],
       "logVerbosity": json['logVerbosity'],
       "errors": errors,
@@ -197,6 +215,8 @@ class Site {
       "managed": json['managed'] ?? false,
       "rawConfig": json['rawConfig'],
       "lastManagedUpdate": json["lastManagedUpdate"] == null ? null : DateTime.parse(json["lastManagedUpdate"]),
+      "managedOIDCEmail": json["managedOIDCEmail"],
+      "managedOIDCExpiry": json["managedOIDCExpiry"] == null ? null : DateTime.parse(json["managedOIDCExpiry"]),
     };
   }
 
@@ -351,6 +371,13 @@ class Site {
     }
   }
 
+  bool isSwitchOnAllowed() {
+    if (managed) {
+      return true;
+    }
+    return errors.isNotEmpty && !connected;
+  }
+
   Future<HostInfo?> setRemoteForTunnel(String vpnIp, String addr) async {
     try {
       var ret = await platform.invokeMethod("active.setRemoteForTunnel", <String, dynamic>{
@@ -374,6 +401,17 @@ class Site {
   Future<bool> closeTunnel(String vpnIp) async {
     try {
       return await platform.invokeMethod("active.closeTunnel", <String, dynamic>{"id": id, "vpnIp": vpnIp});
+    } on PlatformException catch (err) {
+      throw err.details ?? err.message ?? err.toString();
+    } catch (err) {
+      throw err.toString();
+    }
+  }
+
+  // returns loginurl
+  Future<String> reauthenticate() async {
+    try {
+      return await bgplatform.invokeMethod("dn.reauthenticate", <String, dynamic>{"id": id});
     } on PlatformException catch (err) {
       throw err.details ?? err.message ?? err.toString();
     } catch (err) {

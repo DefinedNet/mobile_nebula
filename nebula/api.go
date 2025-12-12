@@ -13,6 +13,7 @@ import (
 
 	"github.com/DefinedNet/dnapi"
 	"github.com/DefinedNet/dnapi/keys"
+	"github.com/DefinedNet/dnapi/message"
 	"github.com/sirupsen/logrus"
 	"github.com/slackhq/nebula/cert"
 )
@@ -26,7 +27,17 @@ type EnrollResult struct {
 	Site string
 }
 
-type TryUpdateResult struct {
+type PreAuthResult struct {
+	PollToken string
+	LoginURL  string
+}
+
+type PollDataResult struct {
+	Status         string `json:"state"`
+	EnrollmentCode string `json:"enrollmentCode"`
+}
+
+type LongPollWaitResult struct {
 	FetchedUpdate bool
 	Site          string
 }
@@ -65,7 +76,7 @@ func (c *APIClient) Enroll(code string) (*EnrollResult, error) {
 		return nil, fmt.Errorf("unexpected failure: %s", err)
 	}
 
-	site, err := newDNSite(meta.Org.Name, cfg, string(pkey), *creds)
+	site, err := newDNSite(meta.Org.Name, cfg, string(pkey), *creds, meta)
 	if err != nil {
 		return nil, fmt.Errorf("failure generating site: %s", err)
 	}
@@ -78,7 +89,47 @@ func (c *APIClient) Enroll(code string) (*EnrollResult, error) {
 	return &EnrollResult{Site: string(jsonSite)}, nil
 }
 
-func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string, counter int, trustedKeys string) (*TryUpdateResult, error) {
+func (c *APIClient) EndpointPreAuth() (*PreAuthResult, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	msg, err := c.c.EndpointPreAuth(ctx)
+	var apiError *dnapi.APIError
+	switch {
+	case errors.As(err, &apiError):
+		return nil, fmt.Errorf("%s (request ID: %s)", apiError, apiError.ReqID)
+	case errors.Is(err, context.DeadlineExceeded):
+		return nil, fmt.Errorf("request timed out - try again")
+	case err != nil:
+		return nil, fmt.Errorf("unexpected failure: %s", err)
+	}
+
+	return &PreAuthResult{
+		PollToken: msg.PollToken,
+		LoginURL:  msg.LoginURL,
+	}, nil
+}
+
+func (c *APIClient) EndpointAuthPoll(pollCode string) (*PollDataResult, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	msg, err := c.c.EndpointAuthPoll(ctx, pollCode)
+	var apiError *dnapi.APIError
+	switch {
+	case errors.As(err, &apiError):
+		return nil, fmt.Errorf("%s (request ID: %s)", apiError, apiError.ReqID)
+	case errors.Is(err, context.DeadlineExceeded):
+		return nil, fmt.Errorf("request timed out - try again")
+	case err != nil:
+		return nil, fmt.Errorf("unexpected failure: %s", err)
+	}
+
+	return &PollDataResult{
+		Status:         string(msg.Status),
+		EnrollmentCode: msg.EnrollmentCode,
+	}, nil
+}
+
+func (c *APIClient) keysToCreds(hostID string, privateKey string, counter int, trustedKeys string) (*keys.Credentials, error) {
 	// Build dnapi.Credentials struct from inputs
 	if counter < 0 {
 		return nil, fmt.Errorf("invalid counter value: must be unsigned")
@@ -103,26 +154,44 @@ func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string,
 		Counter:     uint(counter),
 		TrustedKeys: tk,
 	}
+	return &creds, nil
+}
 
+func (c *APIClient) LongPollWait(siteName string, hostID string, privateKey string, counter int, trustedKeys string) (*LongPollWaitResult, error) {
+	creds, err := c.keysToCreds(hostID, privateKey, counter, trustedKeys)
+	if err != nil {
+		return nil, err
+	}
 	// Check for update
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute) //todo should this have a small retry loop to deal with mobile-related pain?
 	defer cancel()
-	updateAvailable, err := c.c.CheckForUpdate(ctx, creds)
+	msg, err := c.c.LongPollWait(ctx, *creds, []string{message.DoUpdate})
 	switch {
+	case errors.Is(ctx.Err(), context.DeadlineExceeded):
+		return &LongPollWaitResult{FetchedUpdate: false}, nil
 	case errors.Is(err, dnapi.ErrInvalidCredentials):
 		return nil, InvalidCredentialsError{}
 	case err != nil:
-		return nil, fmt.Errorf("CheckForUpdate error: %s", err)
+		return nil, fmt.Errorf("LongPollWait error: %s", err)
 	}
-
-	if !updateAvailable {
-		return &TryUpdateResult{FetchedUpdate: false}, nil
+	var msgType struct{ Command string }
+	err = json.Unmarshal(msg.Action, &msgType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse LongPollWait response: %s", err)
 	}
+	switch msgType.Command {
+	case message.DoUpdate:
+		return c.doUpdate(siteName, *creds)
+	default:
+		return &LongPollWaitResult{FetchedUpdate: false}, nil
+	}
+}
 
+func (c *APIClient) doUpdate(siteName string, creds keys.Credentials) (*LongPollWaitResult, error) {
 	// Perform the update and return the new site object
 	updateCtx, updateCancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer updateCancel()
-	cfg, pkey, newCreds, _, err := c.c.DoUpdate(updateCtx, creds)
+	cfg, pkey, newCreds, configMeta, err := c.c.DoUpdate(updateCtx, creds)
 	switch {
 	case errors.Is(err, dnapi.ErrInvalidCredentials):
 		return nil, InvalidCredentialsError{}
@@ -130,7 +199,7 @@ func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string,
 		return nil, fmt.Errorf("DoUpdate error: %s", err)
 	}
 
-	site, err := newDNSite(siteName, cfg, string(pkey), *newCreds)
+	site, err := newDNSite(siteName, cfg, string(pkey), *newCreds, configMeta)
 	if err != nil {
 		return nil, fmt.Errorf("failure generating site: %s", err)
 	}
@@ -140,7 +209,25 @@ func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string,
 		return nil, fmt.Errorf("failed to marshal site: %s", err)
 	}
 
-	return &TryUpdateResult{Site: string(jsonSite), FetchedUpdate: true}, nil
+	return &LongPollWaitResult{Site: string(jsonSite), FetchedUpdate: true}, nil
+}
+
+func (c *APIClient) Reauthenticate(hostID string, privateKey string, counter int, trustedKeys string) (string, error) {
+	creds, err := c.keysToCreds(hostID, privateKey, counter, trustedKeys)
+	if err != nil {
+		return "", err
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	resp, err := c.c.Reauthenticate(ctx, *creds)
+	switch {
+	case errors.As(err, &dnapi.ErrInvalidCredentials):
+		return "", InvalidCredentialsError{}
+	case err != nil:
+		return "", fmt.Errorf("reauthenticate error: %s", err)
+	}
+
+	return resp.LoginURL, nil
 }
 
 func unmarshalHostPrivateKey(b []byte) (keys.PrivateKey, []byte, error) {
