@@ -62,6 +62,8 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
 
       case "active.listHostmap":
         self.vpnRequest(command: "listHostmap", arguments: call.arguments, result: result)
+      case "active.listIndexes":
+        self.vpnRequest(command: "listIndexes", arguments: call.arguments, result: result)
       case "active.listPendingHostmap":
         self.vpnRequest(command: "listPendingHostmap", arguments: call.arguments, result: result)
       case "active.getHostInfo":

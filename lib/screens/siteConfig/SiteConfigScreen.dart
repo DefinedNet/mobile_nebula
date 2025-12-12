@@ -186,7 +186,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
                     child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
                   )
                   : Container(),
-              certError ? Text('Needs attention') : Text(site.certInfo?.cert.details.name ?? 'Unknown certificate'),
+              certError ? Text('Needs attention') : Text(site.certInfo?.cert.name ?? 'Unknown certificate'),
             ],
           ),
           onPressed: () {

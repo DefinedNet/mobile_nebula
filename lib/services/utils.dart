@@ -170,11 +170,6 @@ class Utils {
     }
   }
 
-  static int ip2int(String ip) {
-    final parts = ip.split('.');
-    return int.parse(parts[3]) | int.parse(parts[2]) << 8 | int.parse(parts[1]) << 16 | int.parse(parts[0]) << 24;
-  }
-
   static Future<String?> pickFile(BuildContext context) async {
     await FilePicker.platform.clearTemporaryFiles();
     final result = await FilePicker.platform.pickFiles(allowMultiple: false);
