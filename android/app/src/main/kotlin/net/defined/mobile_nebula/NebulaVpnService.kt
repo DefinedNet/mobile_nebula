@@ -339,9 +339,9 @@ class NebulaVpnService : VpnService() {
         }
 
         private fun listIndexes(m: NebulaVpnService, msg: Message) {
-            if (protect(msg)) { return }
+            if (protect(m, msg)) { return }
 
-            val res = nebula!!.listIndexes(false)
+            val res = m.nebula!!.listIndexes(false)
             val m = Message.obtain(null, msg.what)
             m.data.putString("data", res)
             msg.replyTo.send(m)
