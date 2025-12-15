@@ -178,9 +178,9 @@ func ParseCIDR(cidr string) (*CIDR, error) {
 
 	if p.Addr().Is4() {
 		return &CIDR{
-			IPLen:         net.IPv6len,
+			IPLen:         net.IPv4len,
 			Address:       p.Addr().String(),
-			SubnetMask:    net.IP(net.CIDRMask(p.Bits(), net.IPv4len)).String(),
+			SubnetMask:    net.IP(net.CIDRMask(p.Bits(), net.IPv4len*8)).String(),
 			PrefixLength:  p.Bits(),
 			MaskedAddress: p.Masked().Addr().String(),
 		}, nil
