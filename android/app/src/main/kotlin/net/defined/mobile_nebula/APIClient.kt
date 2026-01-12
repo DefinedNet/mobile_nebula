@@ -19,10 +19,10 @@ class APIClient(context: Context) {
         return decodeIncomingSite(res.site)
     }
 
-    fun longPollWait(siteName: String, hostID: String, privateKey: String, counter: Long, trustedKeys: String): IncomingSite? {
-        val res: mobileNebula.LongPollWaitResult
+    fun tryUpdate(siteName: String, hostID: String, privateKey: String, counter: Long, trustedKeys: String): IncomingSite? {
+        val res: mobileNebula.TryUpdateResult
         try {
-            res = client.longPollWait(siteName, hostID, privateKey, counter, trustedKeys)
+            res = client.tryUpdate(siteName, hostID, privateKey, counter, trustedKeys)
         } catch (e: Exception) {
             // type information from Go is not available, use string matching instead
             if (e.message == "invalid credentials") {

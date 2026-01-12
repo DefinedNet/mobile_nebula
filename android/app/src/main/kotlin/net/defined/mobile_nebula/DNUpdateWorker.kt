@@ -98,7 +98,7 @@ class DNSiteUpdater(
 
         val newSite: IncomingSite?
         try {
-            newSite = apiClient.longPollWait(
+            newSite = apiClient.tryUpdate(
                     site.name,
                     credentials.hostID,
                     credentials.privateKey,

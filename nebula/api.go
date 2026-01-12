@@ -27,7 +27,7 @@ type EnrollResult struct {
 	Site string
 }
 
-type LongPollWaitResult struct {
+type TryUpdateResult struct {
 	FetchedUpdate bool
 	Site          string
 }
@@ -79,7 +79,7 @@ func (c *APIClient) Enroll(code string) (*EnrollResult, error) {
 	return &EnrollResult{Site: string(jsonSite)}, nil
 }
 
-func (c *APIClient) LongPollWait(siteName string, hostID string, privateKey string, counter int, trustedKeys string) (*LongPollWaitResult, error) {
+func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string, counter int, trustedKeys string) (*TryUpdateResult, error) {
 	// Build dnapi.Credentials struct from inputs
 	if counter < 0 {
 		return nil, fmt.Errorf("invalid counter value: must be unsigned")
@@ -124,11 +124,11 @@ func (c *APIClient) LongPollWait(siteName string, hostID string, privateKey stri
 	case message.DoUpdate:
 		return c.doUpdate(siteName, creds)
 	default:
-		return &LongPollWaitResult{FetchedUpdate: false}, nil
+		return &TryUpdateResult{FetchedUpdate: false}, nil
 	}
 }
 
-func (c *APIClient) doUpdate(siteName string, creds keys.Credentials) (*LongPollWaitResult, error) {
+func (c *APIClient) doUpdate(siteName string, creds keys.Credentials) (*TryUpdateResult, error) {
 	// Perform the update and return the new site object
 	updateCtx, updateCancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer updateCancel()
@@ -150,7 +150,7 @@ func (c *APIClient) doUpdate(siteName string, creds keys.Credentials) (*LongPoll
 		return nil, fmt.Errorf("failed to marshal site: %s", err)
 	}
 
-	return &LongPollWaitResult{Site: string(jsonSite), FetchedUpdate: true}, nil
+	return &TryUpdateResult{Site: string(jsonSite), FetchedUpdate: true}, nil
 }
 
 func unmarshalHostPrivateKey(b []byte) (keys.PrivateKey, []byte, error) {
