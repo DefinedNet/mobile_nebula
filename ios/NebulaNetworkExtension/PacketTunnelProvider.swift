@@ -88,12 +88,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     // Set up all ipv4/6 networks and unsafe routes
     let (v4Settings, v6Settings) = try getNetworkAddressesAndRoutes(
       networks: _site.cert!.cert.networks,
-      unsafeRoutes: _site.unsafeRoutes
+      unsafeRoutes: _site.unsafeRoutes,
+      staticHosts: _site.staticHostmap
     )
 
     tunnelNetworkSettings.ipv4Settings = v4Settings
     tunnelNetworkSettings.ipv6Settings = v6Settings
     tunnelNetworkSettings.mtu = _site.mtu as NSNumber
+    //TODO: We need this configuration from the site
+    tunnelNetworkSettings.dnsSettings = NEDNSSettings(servers: ["8.8.8.8"])
 
     try await self.setTunnelNetworkSettings(tunnelNetworkSettings)
     var nebulaErr: NSError?
@@ -110,17 +113,19 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     self.dnUpdater.updateSingleLoop(site: self.site!, onUpdate: self.handleDNUpdate)
   }
 
-  private func getNetworkAddressesAndRoutes(networks: [String], unsafeRoutes: [UnsafeRoute]) throws
+  private func getNetworkAddressesAndRoutes(networks: [String], unsafeRoutes: [UnsafeRoute], staticHosts: [String: StaticHosts]) throws
     -> (NEIPv4Settings, NEIPv6Settings)
   {
     var err: NSError?
     var v4Addresses: [String] = []
     var v4Netmasks: [String] = []
     var v4Routes: [NEIPv4Route] = []
+    var v4ExcludedRoutes: [NEIPv4Route] = []
 
     var v6Addresses: [String] = []
     var v6PrefixLengths: [NSNumber] = []
     var v6Routes: [NEIPv6Route] = []
+    var v6ExcludedRoutes: [NEIPv6Route] = []
 
     for rawNetwork in networks {
       let network = MobileNebulaParseCIDR(rawNetwork, &err)
@@ -175,12 +180,38 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         )
       }
     }
+    
+    //TODO: should we only do this when doing a full tunnel? Doesn't seem like a bad idea to always have this exclusion for static hosts
+    for (_, staticHost) in staticHosts {
+      for dest in staticHost.destinations {
+        let addr = MobileNebulaParseAddrPort(dest, &err)
+        if err != nil {
+          throw err!
+        }
+        
+        if addr!.ipLen == 4 {
+          v4ExcludedRoutes.append(NEIPv4Route(
+            destinationAddress: addr!.address,
+            subnetMask: addr!.subnetMask
+          ))
+        } else {
+          v6ExcludedRoutes.append(
+            NEIPv6Route(
+              destinationAddress: addr!.address,
+              networkPrefixLength: addr!.prefixLength as NSNumber
+            )
+          )
+        }
+      }
+    }
 
     let v4Settings = NEIPv4Settings(addresses: v4Addresses, subnetMasks: v4Netmasks)
     v4Settings.includedRoutes = v4Routes
+    v4Settings.excludedRoutes = v4ExcludedRoutes
 
     let v6Settings = NEIPv6Settings(addresses: v6Addresses, networkPrefixLengths: v6PrefixLengths)
     v6Settings.includedRoutes = v6Routes
+    v6Settings.excludedRoutes = v6ExcludedRoutes
 
     return (v4Settings, v6Settings)
   }

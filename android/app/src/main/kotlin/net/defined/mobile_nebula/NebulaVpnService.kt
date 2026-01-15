@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.work.*
 import mobileNebula.CIDR
 import java.io.File
+import java.net.InetAddress
 
 
 class NebulaVpnService : VpnService() {
@@ -98,10 +99,10 @@ class NebulaVpnService : VpnService() {
 
     private fun startVpn() {
         val builder = Builder()
-                .setMtu(site!!.mtu)
-                .setSession(TAG)
-                .allowFamily(OsConstants.AF_INET)
-                .allowFamily(OsConstants.AF_INET6)
+            .setMtu(site!!.mtu)
+            .setSession(TAG)
+            .allowFamily(OsConstants.AF_INET)
+            .allowFamily(OsConstants.AF_INET6)
 
         try {
             site!!.cert!!.cert.networks.forEach { network ->
@@ -127,6 +128,24 @@ class NebulaVpnService : VpnService() {
             return stopSelf()
         }
 
+        // Exclude static host underlay address from being routed through nebula
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            try {
+                site!!.staticHostmap.forEach { (_, staticHost) ->
+                    staticHost.destinations.forEach { host ->
+                        val hostCidr = mobileNebula.MobileNebula.parseAddrPort(host)
+                        val prefix = IpPrefix(InetAddress.getByName(hostCidr.address), hostCidr.prefixLength.toInt())
+                        Log.e(TAG, "Excluding ${prefix}")
+                        builder.excludeRoute(prefix)
+                    }
+                }
+            } catch (err: Exception) {
+                Log.e(TAG, "Got an error setting up unsafe routes $err")
+                announceExit(site!!.id, err.message)
+                return stopSelf()
+            }
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             builder.setMetered(false)
         }
@@ -134,8 +153,8 @@ class NebulaVpnService : VpnService() {
         // Disallow some common, known-problematic apps
         // TODO Make this user configurable
         // Ensure that a misconfigured unsafe_route doesn't block access to the DN API
-        disallowApp(builder, "net.defined.mobile_nebula")
-        disallowApp(builder, "net.defined.mobile_nebula.debug")
+//        disallowApp(builder, "net.defined.mobile_nebula")
+//        disallowApp(builder, "net.defined.mobile_nebula.debug")
         // Android Auto Wireless (https://github.com/DefinedNet/mobile_nebula/issues/102)
         disallowApp(builder, "com.google.android.projection.gearhead")
         // Chromecast (https://github.com/DefinedNet/mobile_nebula/issues/102)

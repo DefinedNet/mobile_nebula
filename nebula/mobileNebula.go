@@ -194,6 +194,33 @@ func ParseCIDR(cidr string) (*CIDR, error) {
 	}, nil
 }
 
+// ParseAddrPort breaks apart an address:port and provides the details back using the CIDR struct
+// This is primarily used for getting the underlay ip address for a static host configuration where we don't care about
+// the port
+func ParseAddrPort(addrPort string) (*CIDR, error) {
+	p, err := netip.ParseAddrPort(addrPort)
+	if err != nil {
+		return nil, err
+	}
+
+	if p.Addr().Is4() {
+		return &CIDR{
+			IPLen:         net.IPv4len,
+			Address:       p.Addr().String(),
+			SubnetMask:    net.IP(net.CIDRMask(p.Addr().BitLen(), net.IPv4len*8)).String(),
+			PrefixLength:  p.Addr().BitLen(),
+			MaskedAddress: p.Addr().String(),
+		}, nil
+	}
+
+	return &CIDR{
+		IPLen:         net.IPv6len,
+		Address:       p.Addr().String(),
+		PrefixLength:  p.Addr().BitLen(),
+		MaskedAddress: p.Addr().String(),
+	}, nil
+}
+
 // ParseCerts Returns a JSON representation of 1 or more certificates
 func ParseCerts(rawStringCerts string) (string, error) {
 	var certs []RawCert
