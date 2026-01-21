@@ -44,64 +44,12 @@ class IPField extends StatelessWidget {
         nextFocusNode: nextFocusNode,
         controller: controller,
         onChanged: onChanged,
-        maxLength: ipOnly ? 39 : null,
+        maxLength: ipOnly ? 45 : null,
         maxLengthEnforcement: ipOnly ? MaxLengthEnforcement.enforced : MaxLengthEnforcement.none,
-        inputFormatters: ipOnly ? [IPTextInputFormatter()] : [FilteringTextInputFormatter.allow(RegExp(r'[^\s]+'))],
+        inputFormatters: ipOnly ? [FilteringTextInputFormatter.allow(RegExp(r'[\d\.,:a-fA-F]+'))] : [FilteringTextInputFormatter.allow(RegExp(r'[^\s]+'))],
         textInputAction: textInputAction,
         placeholder: help,
       ),
     );
   }
-}
-
-//TODO: if we are not using the numeric keypad then we do not require this
-// formatter since users can choose `.` instead of being forced to use `,`
-// in some locales.
-class IPTextInputFormatter extends TextInputFormatter {
-  final Pattern whitelistedPattern = RegExp(r'[\d\.,:a-fA-F]+');
-
-  @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    return _selectionAwareTextManipulation(newValue, (String substring) {
-      return whitelistedPattern
-          .allMatches(substring)
-          .map<String>((Match match) => match.group(0)!)
-          .join()
-          .replaceAll(RegExp(r','), '.');
-    });
-  }
-}
-
-TextEditingValue _selectionAwareTextManipulation(
-  TextEditingValue value,
-  String Function(String substring) substringManipulation,
-) {
-  final int selectionStartIndex = value.selection.start;
-  final int selectionEndIndex = value.selection.end;
-  String manipulatedText;
-  TextSelection? manipulatedSelection;
-  if (selectionStartIndex < 0 || selectionEndIndex < 0) {
-    manipulatedText = substringManipulation(value.text);
-  } else {
-    final String beforeSelection = substringManipulation(value.text.substring(0, selectionStartIndex));
-    final String inSelection = substringManipulation(value.text.substring(selectionStartIndex, selectionEndIndex));
-    final String afterSelection = substringManipulation(value.text.substring(selectionEndIndex));
-    manipulatedText = beforeSelection + inSelection + afterSelection;
-    if (value.selection.baseOffset > value.selection.extentOffset) {
-      manipulatedSelection = value.selection.copyWith(
-        baseOffset: beforeSelection.length + inSelection.length,
-        extentOffset: beforeSelection.length,
-      );
-    } else {
-      manipulatedSelection = value.selection.copyWith(
-        baseOffset: beforeSelection.length,
-        extentOffset: beforeSelection.length + inSelection.length,
-      );
-    }
-  }
-  return TextEditingValue(
-    text: manipulatedText,
-    selection: manipulatedSelection ?? const TextSelection.collapsed(offset: -1),
-    composing: manipulatedText == value.text ? value.composing : TextRange.empty,
-  );
 }

@@ -11,7 +11,6 @@ class IPFormField extends FormField<String> {
   IPFormField({
     super.key,
     ipOnly = false,
-    enableIPV6 = false,
     help = "ip address",
     autoFocus = false,
     focusNode,
@@ -31,7 +30,7 @@ class IPFormField extends FormField<String> {
              return "Please fill out this field";
            }
 
-           var (valid, _) = ipValidator(ip, enableIPV6);
+           var (valid, _) = ipValidator(ip);
            if (!valid || (!ipOnly && !dnsValidator(ip))) {
              print(ip);
              return ipOnly ? 'Please enter a valid ip address' : 'Please enter a valid ip address or dns name';

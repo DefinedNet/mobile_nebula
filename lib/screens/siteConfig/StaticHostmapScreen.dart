@@ -89,7 +89,6 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
                           help: "Required",
                           initialValue: _nebulaIp,
                           ipOnly: true,
-                          enableIPV6: true,
                           textAlign: TextAlign.end,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           textInputAction: TextInputAction.next,
@@ -189,7 +188,6 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
                         : IPAndPortFormField(
                           ipHelp: 'public ip or name',
                           ipTextAlign: TextAlign.end,
-                          enableIPV6: true,
                           noBorder: true,
                           initialValue: dest.destination,
                           onSaved: (v) {

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-(bool, InternetAddressType) ipValidator(String? str, bool enableIPV6) {
+(bool, InternetAddressType) ipValidator(String? str) {
   if (str == null) {
     return (false, InternetAddressType.any);
   }
@@ -10,19 +10,11 @@ import 'dart:io';
     return (false, InternetAddressType.any);
   }
 
-  switch (ia.type) {
-    case InternetAddressType.IPv6:
-      {
-        if (enableIPV6) {
-          return (true, InternetAddressType.IPv6);
-        }
-      }
-      break;
 
+  switch (ia.type) {
     case InternetAddressType.IPv4:
-      {
-        return (true, InternetAddressType.IPv4);
-      }
+    case InternetAddressType.IPv6:
+      return (true, ia.type);
   }
 
   return (false, InternetAddressType.any);
