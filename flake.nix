@@ -22,7 +22,7 @@
             # latest https://developer.android.com/tools/releases/build-tools
             buildToolsVersions = [ "35.0.0" ];
             # latest https://developer.android.com/tools/releases/platform-tools
-            platformToolsVersion = "35.0.2";
+            platformToolsVersion = "36.0.2";
             # latest https://developer.android.com/tools/releases/sdk-tools
             toolsVersion = "26.1.1";
             extraLicenses = [
@@ -180,7 +180,7 @@
 
             src = ./nebula;
 
-            vendorHash = "sha256-rSwSQv737WTzMOq6OSzJYHP9pg/nwRBLZdCCVCnoSk4=";
+            vendorHash = "sha256-Ww6KBICmv4Zkf1GfxHYS0KHFDpmiZhhWIkPY9+DfCSM=";
 
             proxyVendor = true;
             overrideModAttrs = (final: prev: {
@@ -210,7 +210,7 @@
             dontDartInstall = true;
             dontDartInstallCache = true;
 
-            outputHash = "sha256-9tl7UZ4twffxqqbca1rbZAgup3BRXUdoxKR8IJ1mUrQ=";
+            outputHash = "sha256-eqjUAkZR6XWAC20O+U8w4JoEhsaXgxVPpAP0XCA9Lkc=";
             outputHashAlgo = "sha256";
             outputHashMode = "flat";
           }).overrideAttrs (prev: {
@@ -403,6 +403,7 @@
                 "android-sdk-platforms"
                 "android-sdk-system-image-34-google_apis-arm64-v8a-system-image-34-google_apis-x86_64"
                 "android-sdk-system-image-35-google_apis-arm64-v8a-system-image-35-google_apis-x86_64"
+                "android-sdk-system-image-36-google_apis-arm64-v8a-system-image-36-google_apis-x86_64"
                 "android-sdk-tools"
                 "android-studio-stable"
                 "build-tools"
@@ -416,6 +417,8 @@
                 "system-image-34-google_apis-x86_64"
                 "system-image-35-google_apis-arm64-v8a"
                 "system-image-35-google_apis-x86_64"
+                "system-image-36-google_apis-arm64-v8a"
+                "system-image-36-google_apis-x86_64"
                 "tools"
               ];
             };
