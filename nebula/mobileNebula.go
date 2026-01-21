@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net"
+	"net/netip"
 	"os"
 	"strings"
 	"time"
@@ -22,13 +23,14 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type m map[string]interface{}
+type m map[string]any
 
 type CIDR struct {
-	Ip       string
-	MaskCIDR string
-	MaskSize int
-	Network  string
+	IPLen         int    // The number of bytes in the address family, 4 for ipv4, 16 for ipv6
+	Address       string // Apple and Android wants the string of the ip address
+	MaskedAddress string // Apple wants the address masked by SubnetMask for routes
+	SubnetMask    string // Apple wants the old style subnet mask for ipv4 (255.255.255.0), this will be empty for ipv6 CIDRs
+	PrefixLength  int    // Apple wants the prefix length from the cidr notation when dealing with ipv6 and Android always wants it
 }
 
 type Validity struct {
@@ -38,7 +40,7 @@ type Validity struct {
 
 type RawCert struct {
 	RawCert  string
-	Cert     *cert.NebulaCertificate
+	Cert     m
 	Validity Validity
 }
 
@@ -171,41 +173,50 @@ func GetConfigSetting(configData string, setting string) string {
 }
 
 func ParseCIDR(cidr string) (*CIDR, error) {
-	ip, ipNet, err := net.ParseCIDR(cidr)
+	p, err := netip.ParsePrefix(cidr)
 	if err != nil {
 		return nil, err
 	}
-	size, _ := ipNet.Mask.Size()
+
+	if p.Addr().Is4() {
+		return &CIDR{
+			IPLen:         net.IPv4len,
+			Address:       p.Addr().String(),
+			SubnetMask:    net.IP(net.CIDRMask(p.Bits(), net.IPv4len*8)).String(),
+			PrefixLength:  p.Bits(),
+			MaskedAddress: p.Masked().Addr().String(),
+		}, nil
+	}
 
 	return &CIDR{
-		Ip:       ip.String(),
-		MaskCIDR: fmt.Sprintf("%d.%d.%d.%d", ipNet.Mask[0], ipNet.Mask[1], ipNet.Mask[2], ipNet.Mask[3]),
-		MaskSize: size,
-		Network:  ipNet.IP.String(),
+		IPLen:         net.IPv6len,
+		Address:       p.Addr().String(),
+		PrefixLength:  p.Bits(),
+		MaskedAddress: p.Masked().Addr().String(),
 	}, nil
 }
 
-// Returns a JSON representation of 1 or more certificates
+// ParseCerts Returns a JSON representation of 1 or more certificates
 func ParseCerts(rawStringCerts string) (string, error) {
 	var certs []RawCert
-	var c *cert.NebulaCertificate
+	var c cert.Certificate
 	var err error
 	rawCerts := []byte(rawStringCerts)
 
 	for {
-		c, rawCerts, err = cert.UnmarshalNebulaCertificateFromPEM(rawCerts)
+		c, rawCerts, err = cert.UnmarshalCertificateFromPEM(rawCerts)
 		if err != nil {
 			return "", err
 		}
 
-		rawCert, err := c.MarshalToPEM()
+		rawCert, err := c.MarshalPEM()
 		if err != nil {
 			return "", err
 		}
 
 		rc := RawCert{
 			RawCert: string(rawCert),
-			Cert:    c,
+			Cert:    certToFlatJson(c),
 			Validity: Validity{
 				Valid: true,
 			},
@@ -216,7 +227,7 @@ func ParseCerts(rawStringCerts string) (string, error) {
 			rc.Validity.Reason = "Certificate is expired"
 		}
 
-		if rc.Validity.Valid && c.Details.IsCA && !c.CheckSignature(c.Details.PublicKey) {
+		if rc.Validity.Valid && c.IsCA() && !c.CheckSignature(c.PublicKey()) {
 			rc.Validity.Valid = false
 			rc.Validity.Reason = "Certificate signature did not match"
 		}
@@ -236,6 +247,47 @@ func ParseCerts(rawStringCerts string) (string, error) {
 	return string(rawJson), nil
 }
 
+// certToFlatJson creates a flat version agnostic representation of a certificate
+func certToFlatJson(c cert.Certificate) m {
+	cm := m{}
+
+	cm["version"] = c.Version()
+	cm["name"] = c.Name()
+
+	// Force list types to not print null
+	networks := c.Networks()
+	if len(networks) == 0 {
+		cm["networks"] = []netip.Prefix{}
+	} else {
+		cm["networks"] = networks
+	}
+
+	unsafeNetworks := c.UnsafeNetworks()
+	if len(unsafeNetworks) == 0 {
+		cm["unsafeNetworks"] = []netip.Prefix{}
+	} else {
+		cm["unsafeNetworks"] = unsafeNetworks
+	}
+
+	groups := c.Groups()
+	if len(groups) == 0 {
+		cm["groups"] = []string{}
+	} else {
+		cm["groups"] = groups
+	}
+
+	cm["isCa"] = c.IsCA()
+	cm["notBefore"] = c.NotBefore()
+	cm["notAfter"] = c.NotAfter()
+	cm["issuer"] = c.Issuer()
+	cm["publicKey"] = c.PublicKey()
+	cm["curve"] = c.Curve().String()
+	cm["fingerprint"], _ = c.Fingerprint()
+	cm["signature"] = c.Signature()
+
+	return cm
+}
+
 func GenerateKeyPair() (string, error) {
 	pub, priv, err := x25519Keypair()
 	if err != nil {
@@ -243,8 +295,8 @@ func GenerateKeyPair() (string, error) {
 	}
 
 	kp := KeyPair{}
-	kp.PublicKey = string(cert.MarshalX25519PublicKey(pub))
-	kp.PrivateKey = string(cert.MarshalX25519PrivateKey(priv))
+	kp.PublicKey = string(cert.MarshalPublicKeyToPEM(cert.Curve_CURVE25519, pub))
+	kp.PrivateKey = string(cert.MarshalPrivateKeyToPEM(cert.Curve_CURVE25519, priv))
 
 	rawJson, err := json.Marshal(kp)
 	if err != nil {
@@ -264,17 +316,17 @@ func x25519Keypair() ([]byte, []byte, error) {
 }
 
 func VerifyCertAndKey(rawCert string, pemPrivateKey string) (bool, error) {
-	rawKey, _, err := cert.UnmarshalX25519PrivateKey([]byte(pemPrivateKey))
+	rawKey, _, c, err := cert.UnmarshalPrivateKeyFromPEM([]byte(pemPrivateKey))
 	if err != nil {
 		return false, fmt.Errorf("error while unmarshaling private key: %s", err)
 	}
 
-	nebulaCert, _, err := cert.UnmarshalNebulaCertificateFromPEM([]byte(rawCert))
+	nebulaCert, _, err := cert.UnmarshalCertificateFromPEM([]byte(rawCert))
 	if err != nil {
 		return false, fmt.Errorf("error while unmarshaling cert: %s", err)
 	}
 
-	if err = nebulaCert.VerifyPrivateKey(nebulaCert.Details.Curve, rawKey); err != nil {
+	if err = nebulaCert.VerifyPrivateKey(c, rawKey); err != nil {
 		return false, err
 	}
 

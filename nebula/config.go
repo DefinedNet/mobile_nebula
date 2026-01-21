@@ -28,16 +28,16 @@ func newConfig() *config {
 			Hosts:    []string{},
 		},
 		Listen: configListen{
-			Host:  "::",
-			Port:  0,
+			Host: "::",
+			Port: 0,
 		},
 		Punchy: configPunchy{
-			Punch: true,
+			Punch:   true,
 			Respond: true,
-			Delay: "1s",
+			Delay:   "1s",
 		},
 		Relay: configRelay{
-			AmRelay: false,
+			AmRelay:   false,
 			UseRelays: true,
 			relays: []string{
 				"100.100.0.10",
@@ -112,16 +112,16 @@ type configPKI struct {
 }
 
 type configLighthouse struct {
-	AmLighthouse bool      `yaml:"am_lighthouse"`
-	Interval     int       `yaml:"interval"`
-	Hosts        []string  `yaml:"hosts"`
+	AmLighthouse bool     `yaml:"am_lighthouse"`
+	Interval     int      `yaml:"interval"`
+	Hosts        []string `yaml:"hosts"`
 	//RemoteAllowList map[string]bool        `yaml:"remote_allow_list"`
 	//LocalAllowList  map[string]interface{} `yaml:"local_allow_list"` // This can be a special "interfaces" object or a bool
 }
 
 type configListen struct {
-	Host        string `yaml:"host"`
-	Port        int    `yaml:"port"`
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
 }
 
 type configPunchy struct {

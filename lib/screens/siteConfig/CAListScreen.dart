@@ -81,7 +81,7 @@ class _CAListScreenState extends State<CAListScreen> {
     cas.forEach((key, ca) {
       items.add(
         ConfigPageItem(
-          content: Text(ca.cert.details.name),
+          content: Text(ca.cert.name),
           onPressed: () {
             Utils.openPage(context, (context) {
               return CertificateDetailsScreen(
@@ -117,7 +117,7 @@ class _CAListScreenState extends State<CAListScreen> {
       List<dynamic> certs = jsonDecode(rawCerts);
       for (var rawCert in certs) {
         final info = CertificateInfo.fromJson(rawCert);
-        if (!info.cert.details.isCa) {
+        if (!info.cert.isCa) {
           ignored++;
           continue;
         }

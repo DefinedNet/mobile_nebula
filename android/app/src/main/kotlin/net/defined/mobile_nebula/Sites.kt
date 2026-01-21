@@ -154,21 +154,19 @@ data class CertificateInfo(
 )
 
 data class Certificate(
-    val fingerprint: String,
-    val signature: String,
-    val details: CertificateDetails
-)
-
-data class CertificateDetails(
+    val version: Int,
     val name: String,
+    val networks: List<String>,
+    val unsafeNetworks: List<String>,
+    val groups: List<String>,
+    val isCa: Boolean,
     val notBefore: String,
     val notAfter: String,
+    val issuer: String,
     val publicKey: String,
-    val groups: List<String>,
-    val ips: List<String>,
-    val subnets: List<String>,
-    val isCa: Boolean,
-    val issuer: String
+    val curve: String,
+    val fingerprint: String,
+    val signature: String,
 )
 
 data class CertificateValidity(

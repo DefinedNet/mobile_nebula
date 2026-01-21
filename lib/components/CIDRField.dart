@@ -95,7 +95,7 @@ class _CIDRFieldState extends State<CIDRField> {
               cidr.bits = int.tryParse(val) ?? 0;
               widget.onChanged!(cidr);
             },
-            maxLength: 2,
+            maxLength: 3,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             textInputAction: widget.textInputAction ?? TextInputAction.done,
             placeholder: 'bits',

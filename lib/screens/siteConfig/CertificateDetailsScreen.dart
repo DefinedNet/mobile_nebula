@@ -85,11 +85,9 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
   Widget _buildID() {
     return ConfigSection(
       children: <Widget>[
-        ConfigItem(label: Text('Name'), content: SelectableText(certInfo.cert.details.name)),
-        ConfigItem(
-          label: Text('Type'),
-          content: Text(certInfo.cert.details.isCa ? 'CA certificate' : 'Client certificate'),
-        ),
+        ConfigItem(label: Text('Name'), content: SelectableText(certInfo.cert.name)),
+        ConfigItem(label: Text('Version'), content: Text(certInfo.cert.version.toString())),
+        ConfigItem(label: Text('Type'), content: Text(certInfo.cert.isCa ? 'CA certificate' : 'Client certificate')),
       ],
     );
   }
@@ -106,34 +104,46 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
       label: 'VALIDITY',
       children: <Widget>[
         ConfigItem(label: Text('Valid?'), content: valid),
-        ConfigItem(
-          label: Text('Created'),
-          content: SelectableText(certInfo.cert.details.notBefore.toLocal().toString()),
-        ),
-        ConfigItem(
-          label: Text('Expires'),
-          content: SelectableText(certInfo.cert.details.notAfter.toLocal().toString()),
-        ),
+        ConfigItem(label: Text('Created'), content: SelectableText(certInfo.cert.notBefore.toLocal().toString())),
+        ConfigItem(label: Text('Expires'), content: SelectableText(certInfo.cert.notAfter.toLocal().toString())),
       ],
     );
   }
 
   Widget _buildFilters() {
     List<Widget> items = [];
-    if (certInfo.cert.details.groups.isNotEmpty) {
-      items.add(ConfigItem(label: Text('Groups'), content: SelectableText(certInfo.cert.details.groups.join(', '))));
+    if (certInfo.cert.groups.isNotEmpty) {
+      items.add(
+        ConfigItem(
+          label: Text('Groups'),
+          content: SelectableText(certInfo.cert.groups.join('\n')),
+          crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+      );
     }
 
-    if (certInfo.cert.details.ips.isNotEmpty) {
-      items.add(ConfigItem(label: Text('IPs'), content: SelectableText(certInfo.cert.details.ips.join(', '))));
+    if (certInfo.cert.networks.isNotEmpty) {
+      items.add(
+        ConfigItem(
+          label: Text('Networks'),
+          content: SelectableText(certInfo.cert.networks.join('\n')),
+          crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+      );
     }
 
-    if (certInfo.cert.details.subnets.isNotEmpty) {
-      items.add(ConfigItem(label: Text('Subnets'), content: SelectableText(certInfo.cert.details.subnets.join(', '))));
+    if (certInfo.cert.unsafeNetworks.isNotEmpty) {
+      items.add(
+        ConfigItem(
+          label: Text('Unsafe Networks'),
+          content: SelectableText(certInfo.cert.unsafeNetworks.join('\n')),
+          crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+      );
     }
 
     return items.isNotEmpty
-        ? ConfigSection(label: certInfo.cert.details.isCa ? 'FILTERS' : 'DETAILS', children: items)
+        ? ConfigSection(label: certInfo.cert.isCa ? 'FILTERS' : 'DETAILS', children: items)
         : Container();
   }
 
@@ -141,16 +151,18 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
     return ConfigSection(
       children: <Widget>[
         ConfigItem(
+          label: Text('Curve'),
+          content: SelectableText(certInfo.cert.curve),
+          crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+        ConfigItem(
           label: Text('Fingerprint'),
           content: SelectableText(certInfo.cert.fingerprint, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
           crossAxisAlignment: CrossAxisAlignment.start,
         ),
         ConfigItem(
           label: Text('Public Key'),
-          content: SelectableText(
-            certInfo.cert.details.publicKey,
-            style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14),
-          ),
+          content: SelectableText(certInfo.cert.publicKey, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
           crossAxisAlignment: CrossAxisAlignment.start,
         ),
         certInfo.rawCert != null
@@ -203,7 +215,7 @@ class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
       return Container();
     }
 
-    var title = certInfo.cert.details.isCa ? 'Delete CA?' : 'Delete cert?';
+    var title = certInfo.cert.isCa ? 'Delete CA?' : 'Delete cert?';
 
     return Padding(
       padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),

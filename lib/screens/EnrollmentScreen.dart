@@ -63,6 +63,9 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   }
 
   _enroll() async {
+    if (code == null) {
+      return; //nothing to do
+    }
     try {
       await platform.invokeMethod("dn.enroll", code);
       setState(() {

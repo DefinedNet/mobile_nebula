@@ -86,7 +86,7 @@ class _StaticHostsScreenState extends State<StaticHostsScreen> {
                   color: CupertinoColors.placeholderText.resolveFrom(context),
                 ),
               ),
-              Text(host.nebulaIp),
+              Expanded(child: Text(host.nebulaIp)),
             ],
           ),
           labelWidth: ipWidth,

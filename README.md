@@ -44,19 +44,3 @@ In Android Studio, set the line length using Preferences -> Editor -> Code Style
 `./swift-format.sh` can be used to format Swift code in the repo.
 
 Once `swift-format` supports ignoring directories (<https://github.com/swiftlang/swift-format/issues/870>), we can move to a method of running it more like what <https://calebhearth.com/swift-format-github-action> describes.
-
-# Release
-
-Update `version` in `pubspec.yaml` to reflect this release, then
-
-## Android
-
-`flutter build appbundle`
-
-This will create an android app bundle at `build/app/outputs/bundle/release/`
-
-Upload the android bundle to the google play store https://play.google.com/apps/publish
-
-## iOS
-
-In xcode, Release -> Archive then follow the directions to upload to the app store. If you have issues, https://flutter.dev/docs/deployment/ios#create-a-build-archive

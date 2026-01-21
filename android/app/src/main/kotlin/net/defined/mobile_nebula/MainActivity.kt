@@ -82,6 +82,7 @@ class MainActivity: FlutterActivity() {
                 "stopSite" -> stopSite()
 
                 "active.listHostmap" -> activeListHostmap(call, result)
+                "active.listIndexes" -> activeListIndexes(call, result)
                 "active.listPendingHostmap" -> activeListPendingHostmap(call, result)
                 "active.getHostInfo" -> activeGetHostInfo(call, result)
                 "active.setRemoteForTunnel" -> activeSetRemoteForTunnel(call, result)
@@ -294,6 +295,26 @@ class MainActivity: FlutterActivity() {
 
         val msg = Message.obtain()
         msg.what = NebulaVpnService.MSG_LIST_HOSTMAP
+        msg.replyTo = Messenger(object: Handler(Looper.getMainLooper()) {
+            override fun handleMessage(msg: Message) {
+                result.success(msg.data.getString("data"))
+            }
+        })
+        outMessenger?.send(msg)
+    }
+
+    private fun activeListIndexes(call: MethodCall, result: MethodChannel.Result) {
+        val id = call.argument<String>("id")
+        if (id == "") {
+            return result.error("required_argument", "id is a required argument", null)
+        }
+
+        if (outMessenger == null || activeSiteId == null || activeSiteId != id) {
+            return result.success(null)
+        }
+
+        val msg = Message.obtain()
+        msg.what = NebulaVpnService.MSG_LIST_INDEXES
         msg.replyTo = Messenger(object: Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
                 result.success(msg.data.getString("data"))

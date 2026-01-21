@@ -188,7 +188,6 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
                         : IPAndPortFormField(
                           ipHelp: 'public ip or name',
                           ipTextAlign: TextAlign.end,
-                          enableIPV6: true,
                           noBorder: true,
                           initialValue: dest.destination,
                           onSaved: (v) {
