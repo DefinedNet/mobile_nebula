@@ -6,8 +6,8 @@ go 1.25
 
 require (
 	github.com/DefinedNet/dnapi v0.0.0-20251210211559-8ae1e6743199
-	github.com/sirupsen/logrus v1.9.3
-	github.com/slackhq/nebula v1.10.1
+	github.com/sirupsen/logrus v1.9.4
+	github.com/slackhq/nebula v1.10.2
 	golang.org/x/crypto v0.47.0
 	gopkg.in/yaml.v2 v2.4.0
 )
