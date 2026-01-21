@@ -89,6 +89,7 @@ class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
                           help: "Required",
                           initialValue: _nebulaIp,
                           ipOnly: true,
+                          enableIPV6: true,
                           textAlign: TextAlign.end,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           textInputAction: TextInputAction.next,

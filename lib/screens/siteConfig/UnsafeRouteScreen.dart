@@ -51,6 +51,7 @@ class _UnsafeRouteScreenState extends State<UnsafeRouteScreen> {
                 content: CIDRFormField(
                   initialValue: routeCIDR,
                   textInputAction: TextInputAction.next,
+                  enableIPV6: true,
                   focusNode: routeFocus,
                   nextFocusNode: viaFocus,
                   onSaved: (v) {
@@ -63,6 +64,7 @@ class _UnsafeRouteScreenState extends State<UnsafeRouteScreen> {
                 content: IPFormField(
                   initialValue: route.via ?? '',
                   ipOnly: true,
+                  enableIPV6: true,
                   help: 'nebula ip',
                   textAlign: TextAlign.end,
                   crossAxisAlignment: CrossAxisAlignment.end,

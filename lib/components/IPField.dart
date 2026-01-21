@@ -38,14 +38,13 @@ class IPField extends StatelessWidget {
     return SizedBox(
       width: ipWidth,
       child: SpecialTextField(
-        keyboardType: ipOnly ? TextInputType.numberWithOptions(decimal: true, signed: true) : null,
         textAlign: textAlign,
         autofocus: autoFocus,
         focusNode: focusNode,
         nextFocusNode: nextFocusNode,
         controller: controller,
         onChanged: onChanged,
-        maxLength: ipOnly ? 15 : null,
+        maxLength: ipOnly ? 39 : null,
         maxLengthEnforcement: ipOnly ? MaxLengthEnforcement.enforced : MaxLengthEnforcement.none,
         inputFormatters: ipOnly ? [IPTextInputFormatter()] : [FilteringTextInputFormatter.allow(RegExp(r'[^\s]+'))],
         textInputAction: textInputAction,
@@ -55,8 +54,11 @@ class IPField extends StatelessWidget {
   }
 }
 
+//TODO: if we are not using the numeric keypad then we do not require this
+// formatter since users can choose `.` instead of being forced to use `,`
+// in some locales.
 class IPTextInputFormatter extends TextInputFormatter {
-  final Pattern whitelistedPattern = RegExp(r'[\d\.,]+');
+  final Pattern whitelistedPattern = RegExp(r'[\d\.,:a-fA-F]+');
 
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
