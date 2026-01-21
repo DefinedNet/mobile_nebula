@@ -10,7 +10,6 @@ import 'dart:io';
     return (false, InternetAddressType.any);
   }
 
-
   switch (ia.type) {
     case InternetAddressType.IPv4:
     case InternetAddressType.IPv6:

@@ -46,7 +46,10 @@ class IPField extends StatelessWidget {
         onChanged: onChanged,
         maxLength: ipOnly ? 45 : null,
         maxLengthEnforcement: ipOnly ? MaxLengthEnforcement.enforced : MaxLengthEnforcement.none,
-        inputFormatters: ipOnly ? [FilteringTextInputFormatter.allow(RegExp(r'[\d\.:a-fA-F]+'))] : [FilteringTextInputFormatter.allow(RegExp(r'[^\s]+'))],
+        inputFormatters:
+            ipOnly
+                ? [FilteringTextInputFormatter.allow(RegExp(r'[\d\.:a-fA-F]+'))]
+                : [FilteringTextInputFormatter.allow(RegExp(r'[^\s]+'))],
         textInputAction: textInputAction,
         placeholder: help,
       ),
