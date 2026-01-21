@@ -136,12 +136,16 @@ github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6Mwd
 github.com/sirupsen/logrus v1.6.0/go.mod h1:7uNnSEd1DgxDLC74fIahvMZmmYsHGZGEOFrfsX/uA88=
 github.com/sirupsen/logrus v1.9.3 h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ=
 github.com/sirupsen/logrus v1.9.3/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
+github.com/sirupsen/logrus v1.9.4 h1:TsZE7l11zFCLZnZ+teH4Umoq5BhEIfIzfRDZ1Uzql2w=
+github.com/sirupsen/logrus v1.9.4/go.mod h1:ftWc9WdOfJ0a92nsE2jF5u5ZwH8Bv2zdeOC42RjbV2g=
 github.com/slackhq/nebula v1.10.0 h1:uhu4Cpzw3pXyDJ8G1fMSppsvG7aE9XCt4UaauggHax0=
 github.com/slackhq/nebula v1.10.0/go.mod h1:PmYcyoGhAX4X8lCzJjGv7aLTBbFbPy7QeWbpwWvJf+Y=
 github.com/slackhq/nebula v1.10.1-0.20251210163936-3ec527e42cec h1:F251X4hgG3Fen49ouS7yUVcwYkvvCjb5bmRFAbMnm+c=
 github.com/slackhq/nebula v1.10.1-0.20251210163936-3ec527e42cec/go.mod h1:mqXWEQjg+I1r5KeCqji83gA0rZPCY9yvP25USUBFGxc=
 github.com/slackhq/nebula v1.10.1 h1:91EzIXluY2idloI5a+NaTcgbO8+6fgIcH6AwZWYJEsc=
 github.com/slackhq/nebula v1.10.1/go.mod h1:7udUpGSCM5cWmShk6gmRo9ppv9pD3WSx+WLBPjOMz8M=
+github.com/slackhq/nebula v1.10.2 h1:gaeEEcJ7thW0Yirp59H1wND246YYj3S9RXV059loJnw=
+github.com/slackhq/nebula v1.10.2/go.mod h1:UloLC5/KuYkNyxD4qki4Zl3t/Wh78aTA5cE8xyyZR4c=
 github.com/stefanberger/go-pkcs11uri v0.0.0-20230803200340-78284954bff6 h1:pnnLyeX7o/5aX8qUQ69P/mLojDqwda8hFOCBTmP/6hw=
 github.com/stefanberger/go-pkcs11uri v0.0.0-20230803200340-78284954bff6/go.mod h1:39R/xuhNgVhi+K0/zst4TLrJrVmbm6LVgl4A0+ZFS5M=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
