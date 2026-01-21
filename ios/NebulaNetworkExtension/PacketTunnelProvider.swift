@@ -156,8 +156,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
       }
 
       if network!.ipLen == 4 {
-        v4Addresses.append(network!.address)
-        v4Netmasks.append(network!.subnetMask)
         v4Routes.append(
           NEIPv4Route(
             destinationAddress: network!.maskedAddress,
@@ -165,8 +163,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
           )
         )
       } else {
-        v6Addresses.append(network!.address)
-        v6PrefixLengths.append(network!.prefixLength as NSNumber)
         v6Routes.append(
           NEIPv6Route(
             destinationAddress: network!.maskedAddress,
