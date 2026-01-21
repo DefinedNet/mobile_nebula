@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:mobile_nebula/components/CIDRField.dart';
 import 'package:mobile_nebula/models/CIDR.dart';
@@ -8,7 +10,6 @@ class CIDRFormField extends FormField<CIDR> {
   CIDRFormField({
     super.key,
     autoFocus = false,
-    enableIPV6 = false,
     focusNode,
     nextFocusNode,
     ValueChanged<CIDR>? onChanged,
@@ -23,11 +24,16 @@ class CIDRFormField extends FormField<CIDR> {
              return "Please fill out this field";
            }
 
-           if (!ipValidator(cidr.ip, enableIPV6)) {
+           var (valid, type) = ipValidator(cidr.ip);
+           if (!valid) {
              return 'Please enter a valid ip address';
            }
 
-           if (cidr.bits > 32 || cidr.bits < 0) {
+           if (type == InternetAddressType.IPv6 && cidr.bits > 128) {
+             return "Please enter a valid number of bits";
+           } else if (type == InternetAddressType.IPv4 && cidr.bits > 32) {
+             return "Please enter a valid number of bits";
+           } else if (cidr.bits < 0) {
              return "Please enter a valid number of bits";
            }
 
