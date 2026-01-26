@@ -106,9 +106,7 @@ func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string,
 	}
 
 	// Check for update
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute) //todo should this have a small retry loop to deal with mobile-related pain?
-	defer cancel()
-	msg, err := c.c.LongPollWait(ctx, creds, []string{message.DoUpdate})
+	msg, err := c.c.LongPollWait(context.Background(), creds, []string{message.DoUpdate})
 	switch {
 	case errors.Is(err, dnapi.ErrInvalidCredentials):
 		return nil, InvalidCredentialsError{}
