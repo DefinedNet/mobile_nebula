@@ -406,6 +406,7 @@
                 "android-sdk-system-image-36-google_apis-arm64-v8a-system-image-36-google_apis-x86_64"
                 "android-sdk-tools"
                 "android-studio-stable"
+                "android-studio"
                 "build-tools"
                 "cmake"
                 "cmdline-tools"
