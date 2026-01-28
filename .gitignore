@@ -9,7 +9,7 @@
 .history
 .svn/
 android/app/.cxx
-
+/ios/build/
 # IntelliJ related
 *.iml
 *.ipr
