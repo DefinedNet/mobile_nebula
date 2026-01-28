@@ -72,8 +72,12 @@ class NebulaVpnService : VpnService() {
             if (site!!.id != id) {
                 announceExit(id, "Trying to run nebula but it is already running")
             }
+            return super.onStartCommand(intent, flags, startId)
+        }
 
-            //TODO: can we signal failure?
+        // Make sure we don't accept commands for a different site id
+        if (site != null && site!!.id != id) {
+            announceExit(id, "Command received for a site id that is different from the current active site")
             return super.onStartCommand(intent, flags, startId)
         }
 
@@ -84,7 +88,6 @@ class NebulaVpnService : VpnService() {
 
         if (site!!.cert == null) {
             announceExit(id, "Site is missing a certificate")
-            //TODO: can we signal failure?
             return super.onStartCommand(intent, flags, startId)
         }
 
