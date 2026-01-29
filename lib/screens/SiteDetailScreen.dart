@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/SimplePage.dart';
-import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
+import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
 import 'package:mobile_nebula/components/config/ConfigSection.dart';
 import 'package:mobile_nebula/models/HostInfo.dart';
 import 'package:mobile_nebula/models/Site.dart';
@@ -64,7 +64,7 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
       },
       onError: (err) {
         setState(() {});
-        Utils.popError(context, "Error", err);
+        Utils.popError("Error", err);
       },
     );
 
@@ -144,7 +144,7 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
         }
       } catch (error) {
         var action = v ? 'start' : 'stop';
-        Utils.popError(context, 'Failed to $action the site', error.toString());
+        Utils.popError('Failed to $action the site', error.toString());
       }
     }
 
@@ -296,7 +296,7 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
       pendingHosts = maps["pending"];
       setState(() {});
     } catch (err) {
-      Utils.popError(context, 'Error while fetching hostmaps', err.toString());
+      Utils.popError('Error while fetching hostmaps', err.toString());
     }
   }
 
@@ -304,11 +304,11 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
     try {
       var err = await platform.invokeMethod("deleteSite", widget.site.id);
       if (err != null) {
-        Utils.popError(context, 'Failed to delete the site', err);
+        Utils.popError('Failed to delete the site', err);
         return false;
       }
     } catch (err) {
-      Utils.popError(context, 'Failed to delete the site', err.toString());
+      Utils.popError('Failed to delete the site', err.toString());
       return false;
     }
 

@@ -205,7 +205,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
 
                 _addCertEntry(content);
               } catch (err) {
-                return Utils.popError(context, 'Failed to load certificate file', err.toString());
+                return Utils.popError('Failed to load certificate file', err.toString());
               }
             },
           ),
@@ -249,12 +249,11 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
         var tryCertInfo = CertificateInfo.fromJson(certs.first);
         if (tryCertInfo.cert.isCa) {
           return Utils.popError(
-            context,
             'Error loading certificate content',
             'A certificate authority is not appropriate for a client certificate.',
           );
         } else if (!tryCertInfo.validity!.valid) {
-          return Utils.popError(context, 'Certificate was invalid', tryCertInfo.validity!.reason);
+          return Utils.popError('Certificate was invalid', tryCertInfo.validity!.reason);
         }
 
         var certMatch = await platform.invokeMethod("nebula.verifyCertAndKey", <String, String>{
@@ -264,7 +263,6 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
         if (!certMatch) {
           // The method above will throw if there is a mismatch, this is just here in case we introduce a bug in the future
           return Utils.popError(
-            context,
             'Error loading certificate content',
             'The provided certificates public key is not compatible with the private key.',
           );
@@ -290,7 +288,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
         }
       }
     } on PlatformException catch (err) {
-      return Utils.popError(context, 'Error loading certificate content', err.details ?? err.message);
+      return Utils.popError('Error loading certificate content', err.details ?? err.message);
     }
   }
 }

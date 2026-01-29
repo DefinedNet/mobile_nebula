@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile_nebula/components/SpecialButton.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
+const defaultPadding = EdgeInsets.symmetric(vertical: 6, horizontal: 15);
+
 class ConfigPageItem extends StatelessWidget {
   const ConfigPageItem({
     super.key,
@@ -14,6 +16,7 @@ class ConfigPageItem extends StatelessWidget {
     this.onPressed,
     this.disabled = false,
     this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.padding = defaultPadding,
   });
 
   final Widget? label;
@@ -22,6 +25,7 @@ class ConfigPageItem extends StatelessWidget {
   final CrossAxisAlignment crossAxisAlignment;
   final void Function()? onPressed;
   final bool disabled;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +51,7 @@ class ConfigPageItem extends StatelessWidget {
       onPressed: disabled ? null : onPressed,
       color: Utils.configItemBackground(context),
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 6, horizontal: 15),
+        padding: padding,
         constraints: BoxConstraints(minHeight: Utils.minInteractiveSize, minWidth: double.infinity),
         child: Row(
           crossAxisAlignment: crossAxisAlignment,
@@ -56,7 +60,7 @@ class ConfigPageItem extends StatelessWidget {
             Expanded(child: Container(padding: EdgeInsets.only(right: 10), child: content)),
             disabled
                 ? Container()
-                : Icon(CupertinoIcons.forward, color: CupertinoColors.placeholderText.resolveFrom(context), size: 18),
+                : Icon(Icons.arrow_forward_ios, color: CupertinoColors.placeholderText.resolveFrom(context), size: 18),
           ],
         ),
       ),

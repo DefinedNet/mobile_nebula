@@ -60,7 +60,7 @@ class MaterialTheme {
   }
 
   ThemeData light() {
-    return theme(lightScheme());
+    return theme(lightScheme(), BadgeThemeData(backgroundColor: Color(0xfff0eafc), textColor: Color(0xff4b1bb1)));
   }
 
   static ColorScheme lightMediumContrastScheme() {
@@ -115,7 +115,10 @@ class MaterialTheme {
   }
 
   ThemeData lightMediumContrast() {
-    return theme(lightMediumContrastScheme());
+    return theme(
+      lightMediumContrastScheme(),
+      BadgeThemeData(backgroundColor: Color(0xfff0eafc), textColor: Color(0xff4b1bb1)),
+    );
   }
 
   static ColorScheme lightHighContrastScheme() {
@@ -170,7 +173,10 @@ class MaterialTheme {
   }
 
   ThemeData lightHighContrast() {
-    return theme(lightHighContrastScheme());
+    return theme(
+      lightHighContrastScheme(),
+      BadgeThemeData(backgroundColor: Color(0xfff0eafc), textColor: Color(0xff4b1bb1)),
+    );
   }
 
   static ColorScheme darkScheme() {
@@ -225,7 +231,10 @@ class MaterialTheme {
   }
 
   ThemeData dark() {
-    return theme(darkScheme());
+    return theme(
+      darkScheme(),
+      BadgeThemeData(backgroundColor: Color.fromARGB(255, 93, 34, 221), textColor: Color.fromARGB(255, 223, 211, 248)),
+    );
   }
 
   static ColorScheme darkMediumContrastScheme() {
@@ -280,7 +289,10 @@ class MaterialTheme {
   }
 
   ThemeData darkMediumContrast() {
-    return theme(darkMediumContrastScheme());
+    return theme(
+      darkScheme(),
+      BadgeThemeData(backgroundColor: Color.fromARGB(255, 93, 34, 221), textColor: Color.fromARGB(255, 223, 211, 248)),
+    );
   }
 
   static ColorScheme darkHighContrastScheme() {
@@ -335,11 +347,17 @@ class MaterialTheme {
   }
 
   ThemeData darkHighContrast() {
-    return theme(darkHighContrastScheme());
+    return theme(
+      darkScheme(),
+      BadgeThemeData(backgroundColor: Color.fromARGB(255, 93, 34, 221), textColor: Color.fromARGB(255, 223, 211, 248)),
+    );
   }
 
-  ThemeData theme(ColorScheme colorScheme) => ThemeData(
+  ThemeData theme(ColorScheme colorScheme, BadgeThemeData badgeThemeData) => ThemeData(
     useMaterial3: true,
+    badgeTheme: badgeThemeData.copyWith(
+      textStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 12, height: 1.6, color: badgeThemeData.textColor),
+    ),
     brightness: colorScheme.brightness,
     colorScheme: colorScheme,
     textTheme: textTheme.apply(bodyColor: colorScheme.onSurface, displayColor: colorScheme.onSurface),

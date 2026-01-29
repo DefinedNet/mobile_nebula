@@ -1,23 +1,25 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart' show CupertinoThemeData, DefaultCupertinoLocalizations;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show DefaultMaterialLocalizations, TextTheme, ThemeMode;
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:mobile_nebula/screens/MainScreen.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:mobile_nebula/screens/EnrollmentScreen.dart';
+import 'package:mobile_nebula/screens/MainScreen.dart';
 import 'package:mobile_nebula/services/settings.dart';
 import 'package:mobile_nebula/services/theme.dart';
 import 'package:mobile_nebula/services/utils.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:flutter_web_plugins/url_strategy.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   usePathUrlStrategy();
   var settings = Settings();
-  if (settings.trackErrors) {
+  if (settings.trackErrors && !kDebugMode) {
     await SentryFlutter.init((options) {
       options.dsn = 'https://96106df405ade3f013187dfc8e4200e7@o920269.ingest.us.sentry.io/4508132321001472';
       // Capture all traces.  May need to adjust if overwhelming
@@ -86,13 +88,14 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    TextTheme textTheme = Utils.createTextTheme(context, "Public Sans", "Public Sans");
+    TextTheme textTheme = Utils.createTextTheme(context, "Inter", "Inter");
     MaterialTheme theme = MaterialTheme(textTheme);
 
     return PlatformProvider(
       settings: PlatformSettingsData(iosUsesMaterialWidgets: true),
       builder:
           (context) => PlatformApp(
+            navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
             localizationsDelegates: <LocalizationsDelegate<dynamic>>[
               DefaultMaterialLocalizations.delegate,
@@ -108,7 +111,6 @@ class _AppState extends State<App> {
             },
             cupertino: (_, __) => CupertinoAppData(theme: CupertinoThemeData(brightness: brightness)),
             onGenerateRoute: (settings) {
-              print(settings);
               if (settings.name == '/') {
                 return platformPageRoute(context: context, builder: (context) => MainScreen(dnEnrolled));
               }

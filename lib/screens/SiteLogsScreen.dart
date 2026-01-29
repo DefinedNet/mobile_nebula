@@ -71,7 +71,7 @@ class _SiteLogsScreenState extends State<SiteLogsScreen> {
                 Error<String>(:var error) =>
                   error is LogsNotFoundException
                       ? error.error()
-                      : Utils.popError(context, "Error while reading logs.", error.toString()),
+                      : Utils.popError("Error while reading logs.", error.toString()),
                 null => "",
               }, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
         ),

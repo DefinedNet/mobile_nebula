@@ -184,7 +184,7 @@ class _CAListScreenState extends State<CAListScreen> {
               _addCAEntry(pasteController.text, (err) {
                 print(err);
                 if (err != null) {
-                  return Utils.popError(context, 'Failed to parse CA content', err);
+                  return Utils.popError('Failed to parse CA content', err);
                 }
 
                 pasteController.text = '';
@@ -212,13 +212,13 @@ class _CAListScreenState extends State<CAListScreen> {
 
                 _addCAEntry(content, (err) {
                   if (err != null) {
-                    Utils.popError(context, 'Error loading CA file', err);
+                    Utils.popError('Error loading CA file', err);
                   } else {
                     setState(() {});
                   }
                 });
               } catch (err) {
-                return Utils.popError(context, 'Failed to load CA file', err.toString());
+                return Utils.popError('Failed to load CA file', err.toString());
               }
             },
           ),
@@ -241,7 +241,7 @@ class _CAListScreenState extends State<CAListScreen> {
               if (result != null) {
                 _addCAEntry(result, (err) {
                   if (err != null) {
-                    Utils.popError(context, 'Error loading CA content', err);
+                    Utils.popError('Error loading CA content', err);
                   } else {
                     setState(() {});
                   }

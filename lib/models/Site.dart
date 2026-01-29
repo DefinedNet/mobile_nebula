@@ -14,6 +14,7 @@ var uuid = Uuid();
 class Site {
   static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
   late EventChannel _updates;
+  late StreamSubscription<dynamic> _updateSubscription;
 
   /// Signals that something about this site has changed. onError is called with an error string if there was an error
   final StreamController _change = StreamController.broadcast();
@@ -81,7 +82,7 @@ class Site {
     this.unsafeRoutes = unsafeRoutes ?? [];
 
     _updates = EventChannel('net.defined.nebula/${this.id}');
-    _updates.receiveBroadcastStream().listen(
+    _updateSubscription = _updates.receiveBroadcastStream().listen(
       (d) {
         try {
           _updateFromJson(d);
@@ -328,6 +329,7 @@ class Site {
   }
 
   void dispose() {
+    _updateSubscription.cancel();
     _change.close();
   }
 

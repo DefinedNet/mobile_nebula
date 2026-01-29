@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
+const defaultPadding = EdgeInsets.symmetric(vertical: 6, horizontal: 15);
+
 class ConfigItem extends StatelessWidget {
   const ConfigItem({
     super.key,
@@ -11,12 +13,14 @@ class ConfigItem extends StatelessWidget {
     required this.content,
     this.labelWidth = 100,
     this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.padding = defaultPadding,
   });
 
   final Widget? label;
   final Widget content;
   final double labelWidth;
   final CrossAxisAlignment crossAxisAlignment;
+  final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +33,7 @@ class ConfigItem extends StatelessWidget {
 
     return Container(
       color: Utils.configItemBackground(context),
-      padding: EdgeInsets.symmetric(vertical: 6, horizontal: 15),
+      padding: padding,
       constraints: BoxConstraints(minHeight: Utils.minInteractiveSize),
       child: Row(
         crossAxisAlignment: crossAxisAlignment,

@@ -4,8 +4,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mobile_nebula/main.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class Utils {
   /// Minimum size (width or height) of a interactive component
@@ -122,13 +123,13 @@ class Utils {
     );
   }
 
-  static popError(BuildContext context, String title, String error, {StackTrace? stack}) {
+  static popError(String title, String error, {StackTrace? stack}) {
     if (stack != null) {
       error += '\n${stack.toString()}';
     }
 
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       barrierDismissible: false,
       builder: (context) {
         if (Platform.isAndroid) {
@@ -162,11 +163,11 @@ class Utils {
     );
   }
 
-  static launchUrl(String url, BuildContext context) async {
+  static launchUrl(String url) async {
     if (await canLaunchUrlString(url)) {
       await launchUrlString(url);
     } else {
-      Utils.popError(context, 'Error', 'Could not launch web view');
+      Utils.popError('Error', 'Could not launch web view');
     }
   }
 

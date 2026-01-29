@@ -92,7 +92,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  List<Site>? sites;
+  List<Site> sites = [];
   // A set of widgets to display in a column that represents an error blocking us from moving forward entirely
   List<Widget>? error;
 
@@ -225,12 +225,12 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildSites() {
-    if (sites == null || sites!.isEmpty) {
+    if (sites.isEmpty) {
       return _buildNoSites();
     }
 
     List<Widget> items = [];
-    for (var site in sites!) {
+    for (var site in sites) {
       items.add(
         SiteItem(
           key: Key(site.id),
@@ -260,21 +260,21 @@ class _MainScreenState extends State<MainScreen> {
         }
 
         setState(() {
-          final Site moved = sites!.removeAt(oldI);
-          sites!.insert(newI, moved);
+          final Site moved = sites.removeAt(oldI);
+          sites.insert(newI, moved);
         });
 
-        for (var i = 0; i < sites!.length; i++) {
-          if (sites![i].sortKey == i) {
+        for (var i = 0; i < sites.length; i++) {
+          if (sites[i].sortKey == i) {
             continue;
           }
 
-          sites![i].sortKey = i;
+          sites[i].sortKey = i;
           try {
-            await sites![i].save();
+            await sites[i].save();
           } catch (err) {
             //TODO: display error at the end
-            print('ERR ${sites![i].name} - $err');
+            print('ERR ${sites[i].name} - $err');
           }
         }
 
@@ -314,7 +314,7 @@ class _MainScreenState extends State<MainScreen> {
 
         var err = await s.save();
         if (err != null) {
-          Utils.popError(context, "Failed to save the site", err);
+          Utils.popError("Failed to save the site", err);
         } else {
           _loadSites();
         }
@@ -334,26 +334,27 @@ class _MainScreenState extends State<MainScreen> {
   _loadSites() async {
     //TODO: This can throw, we need to show an error dialog
     Map<String, dynamic> rawSites = jsonDecode(await platform.invokeMethod('listSites'));
+    for (var site in sites) {
+      print("Destroying ${site.name}");
+      site.dispose();
+    }
 
-    sites = [];
+    sites.clear();
     rawSites.forEach((id, rawSite) {
       try {
         var site = Site.fromJson(rawSite);
 
-        //TODO: we need to cancel change listeners when we rebuild
         site.onChange().listen(
           (_) {
             setState(() {});
           },
           onError: (err) {
             setState(() {});
-            if (ModalRoute.of(context)!.isCurrent) {
-              Utils.popError(context, "${site.name} Error", err);
-            }
+            Utils.popError("${site.name} Error", err);
           },
         );
 
-        sites!.add(site);
+        sites.add(site);
       } catch (err) {
         //TODO: handle error
         print("$err site config: $rawSite");
@@ -367,7 +368,7 @@ class _MainScreenState extends State<MainScreen> {
       platform.invokeMethod("android.registerActiveSite");
     }
 
-    sites!.sort((a, b) {
+    sites.sort((a, b) {
       if (a.sortKey == b.sortKey) {
         return a.name.compareTo(b.name);
       }

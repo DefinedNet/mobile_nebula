@@ -4,8 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_nebula/components/FormPage.dart';
 import 'package:mobile_nebula/components/PlatformTextFormField.dart';
-import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
+import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
 import 'package:mobile_nebula/components/config/ConfigSection.dart';
 import 'package:mobile_nebula/models/Site.dart';
 import 'package:mobile_nebula/models/UnsafeRoute.dart';
@@ -217,7 +217,7 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                       return RenderedConfigScreen(config: config, name: widget.site.name);
                     });
                   } catch (err) {
-                    Utils.popError(context, 'Failed to render the site config', err.toString());
+                    Utils.popError('Failed to render the site config', err.toString());
                   }
                 },
               ),

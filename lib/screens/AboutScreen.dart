@@ -80,7 +80,7 @@ class _AboutScreenState extends State<AboutScreen> {
               ConfigPageItem(
                 label: Text('Privacy policy'),
                 labelWidth: 300,
-                onPressed: () => Utils.launchUrl('https://www.defined.net/privacy/', context),
+                onPressed: () => Utils.launchUrl('https://www.defined.net/privacy/'),
               ),
               ConfigPageItem(
                 label: Text('Licenses'),
