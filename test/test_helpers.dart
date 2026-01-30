@@ -106,6 +106,7 @@ class MockSite extends Site {
   @override
   void dispose() {
     _mockChangeController.close();
+    super.dispose();
   }
 
   /// Simulate a site change event
