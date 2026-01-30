@@ -47,6 +47,11 @@ Generate coverage report:
 flutter test --coverage
 ```
 
+Run golden tests (update with `--update-goldens` flag):
+```sh
+flutter test test/screens/*_golden_test.dart
+```
+
 # Formatting
 
 `dart format` can be used to format the code in `lib` and `test`.  We use a line-length of 120 characters.
