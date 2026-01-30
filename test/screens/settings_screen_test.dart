@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_nebula/screens/SettingsScreen.dart';
+import 'package:mobile_nebula/screens/SettingsScreen.dart'
+    show badDebugSave, goodDebugSave, goodDebugSaveV2;
 
 void main() {
   group('SettingsScreen Tests', () {
@@ -81,9 +83,9 @@ void main() {
         (WidgetTester tester) async {
       // This would only work in release mode, skipping as we're in debug
       // In a real CI/CD pipeline, this would be tested in release builds
-    });
+    }, skip: kDebugMode);
 
-    testWidgets('calls onDebugChanged callback when debug site is created',
+    testWidgets('renders debug site button and accepts callback',
         (WidgetTester tester) async {
       if (!kDebugMode) {
         return;
