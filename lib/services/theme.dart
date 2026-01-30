@@ -356,7 +356,7 @@ class MaterialTheme {
   ThemeData theme(ColorScheme colorScheme, BadgeThemeData badgeThemeData) => ThemeData(
     useMaterial3: true,
     badgeTheme: badgeThemeData.copyWith(
-      textStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 12, height: 1.6, color: badgeThemeData.textColor),
+      textStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 12, color: badgeThemeData.textColor),
     ),
     brightness: colorScheme.brightness,
     colorScheme: colorScheme,

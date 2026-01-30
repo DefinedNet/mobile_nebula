@@ -19,16 +19,19 @@ class SiteItem extends StatelessWidget {
 
   Widget _siteNameWidget(context) {
     var badgeTheme = Theme.of(context).badgeTheme;
+    Widget nameWidget = Text(site.name, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16));
+
     Widget managedBadge;
     if (site.managed) {
       managedBadge = Container(
-        margin: EdgeInsets.only(left: 10),
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: badgeTheme.backgroundColor),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           child: Text('Managed', style: badgeTheme.textStyle),
         ),
       );
+
+      nameWidget = Container(margin: EdgeInsets.only(right: 10), child: nameWidget);
     } else {
       managedBadge = Text('');
     }
@@ -36,7 +39,7 @@ class SiteItem extends StatelessWidget {
     return Text.rich(
       TextSpan(
         children: [
-          TextSpan(text: site.name, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16, height: 1.6)),
+          WidgetSpan(alignment: PlaceholderAlignment.middle, child: nameWidget),
           WidgetSpan(alignment: PlaceholderAlignment.middle, child: managedBadge),
         ],
       ),
@@ -45,7 +48,7 @@ class SiteItem extends StatelessWidget {
 
   Widget _siteStatusWidget(context) {
     final grayTextColor = Theme.of(context).colorScheme.onSecondaryContainer;
-    var fontStyle = TextStyle(color: grayTextColor, fontSize: 14, fontWeight: FontWeight.w500, height: 1.6);
+    var fontStyle = TextStyle(color: grayTextColor, fontSize: 14, fontWeight: FontWeight.w500);
     if (site.errors.isNotEmpty) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -87,7 +90,7 @@ class SiteItem extends StatelessWidget {
               Flexible(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [_siteNameWidget(context), Container(height: 2), _siteStatusWidget(context)],
+                  children: [_siteNameWidget(context), Container(height: 4), _siteStatusWidget(context)],
                 ),
               ),
               Switch.adaptive(
@@ -100,10 +103,7 @@ class SiteItem extends StatelessWidget {
         ),
         ConfigPageItem(
           padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
-          label: Text(
-            'Details',
-            style: TextStyle(color: grayTextColor, fontSize: 14, fontWeight: FontWeight.w500, height: 1.6),
-          ),
+          label: Text('Details', style: TextStyle(color: grayTextColor, fontSize: 14, fontWeight: FontWeight.w500)),
           onPressed: onPressed,
         ),
       ],
