@@ -3,9 +3,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile_nebula/screens/SettingsScreen.dart';
 import 'package:mobile_nebula/screens/SettingsScreen.dart'
-    show badDebugSave, goodDebugSave, goodDebugSaveV2;
+    show badDebugSave, goodDebugSave, goodDebugSaveV2, SettingsScreen;
 
 void main() {
   group('SettingsScreen Widget Tests', () {
@@ -21,9 +20,7 @@ void main() {
 
     group('useSystemColors behavior', () {
       testWidgets('dark mode toggle visibility depends on useSystemColors', (WidgetTester tester) async {
-        await tester.pumpWidget(
-          MaterialApp(home: SettingsScreen(testStream, null)),
-        );
+        await tester.pumpWidget(MaterialApp(home: SettingsScreen(testStream, null)));
         await tester.pumpAndSettle();
 
         // Verify useSystemColors switch exists
@@ -38,8 +35,7 @@ void main() {
         // Verify the logical relationship: if using system colors, dark mode should be hidden
         // This verifies the conditional rendering in SettingsScreen lines 138-154
         if (switchWidget.value == true) {
-          expect(isDarkModeVisible, isFalse,
-              reason: 'Dark mode toggle should be hidden when using system colors');
+          expect(isDarkModeVisible, isFalse, reason: 'Dark mode toggle should be hidden when using system colors');
         }
         // If not using system colors, dark mode can be visible (but not guaranteed due to async loading)
       });
@@ -47,9 +43,7 @@ void main() {
 
     group('Switch interactions', () {
       testWidgets('useSystemColors switch is tappable', (WidgetTester tester) async {
-        await tester.pumpWidget(
-          MaterialApp(home: SettingsScreen(testStream, null)),
-        );
+        await tester.pumpWidget(MaterialApp(home: SettingsScreen(testStream, null)));
         await tester.pumpAndSettle();
 
         // Verify switch exists and is tappable
@@ -66,17 +60,18 @@ void main() {
       });
 
       testWidgets('logWrap switch is tappable', (WidgetTester tester) async {
-        await tester.pumpWidget(
-          MaterialApp(home: SettingsScreen(testStream, null)),
-        );
+        await tester.pumpWidget(MaterialApp(home: SettingsScreen(testStream, null)));
         await tester.pumpAndSettle();
 
         expect(find.text('Wrap log output'), findsOneWidget);
 
         // Find all switches
         final switches = find.byType(Switch);
-        expect(switches.evaluate().length, greaterThanOrEqualTo(2),
-            reason: 'Should have at least useSystemColors and logWrap switches');
+        expect(
+          switches.evaluate().length,
+          greaterThanOrEqualTo(2),
+          reason: 'Should have at least useSystemColors and logWrap switches',
+        );
 
         // Verify tapping doesn't crash
         final logWrapSwitch = switches.at(1);
@@ -85,17 +80,18 @@ void main() {
       });
 
       testWidgets('trackErrors switch is tappable', (WidgetTester tester) async {
-        await tester.pumpWidget(
-          MaterialApp(home: SettingsScreen(testStream, null)),
-        );
+        await tester.pumpWidget(MaterialApp(home: SettingsScreen(testStream, null)));
         await tester.pumpAndSettle();
 
         expect(find.text('Report errors automatically'), findsOneWidget);
 
         // Find all switches
         final switches = find.byType(Switch);
-        expect(switches.evaluate().length, greaterThanOrEqualTo(3),
-            reason: 'Should have at least useSystemColors, logWrap, and trackErrors switches');
+        expect(
+          switches.evaluate().length,
+          greaterThanOrEqualTo(3),
+          reason: 'Should have at least useSystemColors, logWrap, and trackErrors switches',
+        );
 
         // Verify tapping doesn't crash (trackErrors is typically index 2)
         final trackErrorsSwitch = switches.at(2);
@@ -106,9 +102,7 @@ void main() {
 
     group('UI elements present', () {
       testWidgets('displays all expected settings options', (WidgetTester tester) async {
-        await tester.pumpWidget(
-          MaterialApp(home: SettingsScreen(testStream, null)),
-        );
+        await tester.pumpWidget(MaterialApp(home: SettingsScreen(testStream, null)));
         await tester.pumpAndSettle();
 
         // Verify core settings are present
@@ -120,9 +114,7 @@ void main() {
       });
 
       testWidgets('all switches are interactive', (WidgetTester tester) async {
-        await tester.pumpWidget(
-          MaterialApp(home: SettingsScreen(testStream, null)),
-        );
+        await tester.pumpWidget(MaterialApp(home: SettingsScreen(testStream, null)));
         await tester.pumpAndSettle();
 
         // Verify we have interactive switches
@@ -141,9 +133,7 @@ void main() {
       testWidgets('displays debug buttons in debug mode', (WidgetTester tester) async {
         if (!kDebugMode) return;
 
-        await tester.pumpWidget(
-          MaterialApp(home: SettingsScreen(testStream, null)),
-        );
+        await tester.pumpWidget(MaterialApp(home: SettingsScreen(testStream, null)));
         await tester.pumpAndSettle();
 
         expect(find.text('Bad Site'), findsOneWidget);
@@ -159,12 +149,7 @@ void main() {
       testWidgets('accepts debug callback parameter', (WidgetTester tester) async {
         if (!kDebugMode) return;
 
-        bool callbackProvided = false;
-        void callback() => callbackProvided = true;
-
-        await tester.pumpWidget(
-          MaterialApp(home: SettingsScreen(testStream, callback)),
-        );
+        await tester.pumpWidget(MaterialApp(home: SettingsScreen(testStream, () => null)));
         await tester.pumpAndSettle();
 
         // Verify debug buttons render with callback provided
