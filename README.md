@@ -30,6 +30,23 @@ Run `flutter doctor` and fix everything it complains before proceeding
 
 If you are having issues with iOS pods, try blowing it all away! `cd ios && rm -rf Pods/ Podfile.lock && pod install --repo-update`
 
+## Testing
+
+Run all tests:
+```sh
+flutter test
+```
+
+Run specific test file:
+```sh
+flutter test test/screens/settings_screen_test.dart
+```
+
+Generate coverage report:
+```sh
+flutter test --coverage
+```
+
 # Formatting
 
 `dart format` can be used to format the code in `lib` and `test`.  We use a line-length of 120 characters.
