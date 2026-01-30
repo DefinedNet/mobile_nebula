@@ -12,17 +12,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - name: Check out code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #4.2.2
         with:
-          flutter-version: "3.29.0"
-          channel: "stable"
+          show-progress: false
 
-      - name: Get dependencies
-        run: flutter pub get
+      # TODO: remove when https://go-review.googlesource.com/c/go/+/692935 lands in mainline go
+      - name: Patch Go
+        uses: DefinedNet/patch-go@c8e4a17c75eb242d34c212419d7d3d25e8d58949
+        with:
+          patch-ref: "296be05a97eb526dc0e438b7387670d4cae4a935"
+
+      - uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 #v4.7.0
+        with:
+          distribution: "zulu"
+          java-version: "17"
+
+      - name: Install flutter
+        uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff #v2.18.0
+        with:
+          flutter-version: "3.29.2"
+
+      - name: install dependencies
+        env:
+          TOKEN: ${{ secrets.MACHINE_USER_PAT }}
+        run: |
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          gomobile init
+          flutter pub get
+          touch env.sh
 
       # Disable until we've configured the analysis options
       # - name: Analyze code
