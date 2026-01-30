@@ -142,10 +142,6 @@ void main() {
         expect(find.text('Clear Keys'), findsOneWidget);
       });
 
-      testWidgets('does not display debug buttons in release mode', (WidgetTester tester) async {
-        // Skipped in debug mode - would verify in release builds
-      }, skip: kDebugMode);
-
       testWidgets('accepts debug callback parameter', (WidgetTester tester) async {
         if (!kDebugMode) return;
 
