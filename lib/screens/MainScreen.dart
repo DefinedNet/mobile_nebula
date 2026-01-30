@@ -80,7 +80,6 @@ class _MainScreenState extends State<MainScreen> {
     return SimplePage(
       title: Text('Nebula'),
       scrollable: SimpleScrollable.vertical,
-      scrollController: scrollController,
       leadingAction: PlatformIconButton(
         padding: EdgeInsets.zero,
         icon: Icon(Icons.add, size: 28.0),

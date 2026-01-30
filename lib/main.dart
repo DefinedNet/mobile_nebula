@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart' show DefaultCupertinoLocalizations;
+import 'package:flutter/cupertino.dart' show CupertinoThemeData, DefaultCupertinoLocalizations;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart'
     show DefaultMaterialLocalizations, MaterialBasedCupertinoThemeData, TextTheme, ThemeMode;
@@ -111,6 +111,13 @@ class _AppState extends State<App> {
                     DefaultCupertinoLocalizations.delegate,
                   ],
                   title: 'Nebula',
+                  material: (_, __) {
+                    return MaterialAppData(
+                      themeMode: brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
+                      theme: brightness == Brightness.light ? theme.light() : theme.dark(),
+                    );
+                  },
+                  cupertino: (_, __) => CupertinoAppData(theme: CupertinoThemeData(brightness: brightness)),
                   onGenerateRoute: (settings) {
                     if (settings.name == '/') {
                       return platformPageRoute(context: context, builder: (context) => MainScreen(dnEnrolled));
