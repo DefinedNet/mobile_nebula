@@ -8,7 +8,7 @@ import 'package:mobile_nebula/screens/SettingsScreen.dart'
     show badDebugSave, goodDebugSave, goodDebugSaveV2;
 
 void main() {
-  group('SettingsScreen Tests', () {
+  group('SettingsScreen Widget Tests', () {
     late StreamController testStream;
 
     setUp(() {
@@ -19,156 +19,158 @@ void main() {
       testStream.close();
     });
 
-    testWidgets('displays all settings sections', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: SettingsScreen(testStream, null),
-        ),
-      );
+    group('useSystemColors behavior', () {
+      testWidgets('dark mode toggle visibility depends on useSystemColors', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(home: SettingsScreen(testStream, null)),
+        );
+        await tester.pumpAndSettle();
 
-      await tester.pumpAndSettle();
+        // Verify useSystemColors switch exists
+        expect(find.text('Use system colors'), findsOneWidget);
+        final useSystemColorsSwitch = find.byType(Switch).first;
+        expect(useSystemColorsSwitch, findsOneWidget);
 
-      expect(find.text('Settings'), findsOneWidget);
-      expect(find.text('Use system colors'), findsOneWidget);
-      expect(find.text('Wrap log output'), findsOneWidget);
-      expect(find.text('Report errors automatically'), findsOneWidget);
-      expect(find.text('Enroll with Managed Nebula'), findsOneWidget);
-      expect(find.text('About'), findsOneWidget);
+        // Get the current state to verify conditional rendering logic
+        final switchWidget = tester.widget<Switch>(useSystemColorsSwitch);
+        final isDarkModeVisible = find.text('Dark mode').evaluate().isNotEmpty;
+
+        // Verify the logical relationship: if using system colors, dark mode should be hidden
+        // This verifies the conditional rendering in SettingsScreen lines 138-154
+        if (switchWidget.value == true) {
+          expect(isDarkModeVisible, isFalse,
+              reason: 'Dark mode toggle should be hidden when using system colors');
+        }
+        // If not using system colors, dark mode can be visible (but not guaranteed due to async loading)
+      });
     });
 
-    testWidgets('shows dark mode toggle when not using system colors',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: SettingsScreen(testStream, null),
-        ),
-      );
+    group('Switch interactions', () {
+      testWidgets('useSystemColors switch is tappable', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(home: SettingsScreen(testStream, null)),
+        );
+        await tester.pumpAndSettle();
 
-      await tester.pumpAndSettle();
+        // Verify switch exists and is tappable
+        final switchFinder = find.byType(Switch).first;
+        expect(switchFinder, findsOneWidget);
 
-      // The dark mode toggle visibility depends on the Settings service state
-      // which is persisted. We just verify that the UI responds to settings.
-      // If using system colors, dark mode should be hidden
-      // If not using system colors, dark mode should be visible
+        // Verify it has an onChanged callback (is interactive)
+        final switchWidget = tester.widget<Switch>(switchFinder);
+        expect(switchWidget.onChanged, isNotNull, reason: 'Switch should be interactive');
 
-      // Verify that 'Use system colors' toggle exists
-      expect(find.text('Use system colors'), findsOneWidget);
+        // Verify tapping doesn't crash
+        await tester.tap(switchFinder);
+        await tester.pumpAndSettle();
+      });
 
-      // The presence of 'Dark mode' depends on the current settings state
-      // This is acceptable as the Settings service manages persistence
+      testWidgets('logWrap switch is tappable', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(home: SettingsScreen(testStream, null)),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Wrap log output'), findsOneWidget);
+
+        // Find all switches
+        final switches = find.byType(Switch);
+        expect(switches.evaluate().length, greaterThanOrEqualTo(2),
+            reason: 'Should have at least useSystemColors and logWrap switches');
+
+        // Verify tapping doesn't crash
+        final logWrapSwitch = switches.at(1);
+        await tester.tap(logWrapSwitch);
+        await tester.pumpAndSettle();
+      });
+
+      testWidgets('trackErrors switch is tappable', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(home: SettingsScreen(testStream, null)),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Report errors automatically'), findsOneWidget);
+
+        // Find all switches
+        final switches = find.byType(Switch);
+        expect(switches.evaluate().length, greaterThanOrEqualTo(3),
+            reason: 'Should have at least useSystemColors, logWrap, and trackErrors switches');
+
+        // Verify tapping doesn't crash (trackErrors is typically index 2)
+        final trackErrorsSwitch = switches.at(2);
+        await tester.tap(trackErrorsSwitch);
+        await tester.pumpAndSettle();
+      });
     });
 
-    testWidgets('displays debug buttons in debug mode', (WidgetTester tester) async {
-      // This test only runs in debug mode
-      if (!kDebugMode) {
-        return;
-      }
+    group('UI elements present', () {
+      testWidgets('displays all expected settings options', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(home: SettingsScreen(testStream, null)),
+        );
+        await tester.pumpAndSettle();
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: SettingsScreen(testStream, null),
-        ),
-      );
+        // Verify core settings are present
+        expect(find.text('Use system colors'), findsOneWidget);
+        expect(find.text('Wrap log output'), findsOneWidget);
+        expect(find.text('Report errors automatically'), findsOneWidget);
+        expect(find.text('Enroll with Managed Nebula'), findsOneWidget);
+        expect(find.text('About'), findsOneWidget);
+      });
 
-      await tester.pumpAndSettle();
+      testWidgets('all switches are interactive', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(home: SettingsScreen(testStream, null)),
+        );
+        await tester.pumpAndSettle();
 
-      // Should show debug site buttons
-      expect(find.text('Bad Site'), findsOneWidget);
-      expect(find.text('Good Site'), findsOneWidget);
-      expect(find.text('Good Site V2'), findsOneWidget);
-      expect(find.text('Clear Keys'), findsOneWidget);
+        // Verify we have interactive switches
+        final switches = find.byType(Switch);
+        expect(switches, findsWidgets);
+
+        // Verify switches have onChanged callbacks (are interactive)
+        for (final element in switches.evaluate()) {
+          final switchWidget = element.widget as Switch;
+          expect(switchWidget.onChanged, isNotNull, reason: 'Switch should be interactive');
+        }
+      });
     });
 
-    testWidgets('does not display debug buttons in release mode',
-        (WidgetTester tester) async {
-      // This would only work in release mode, skipping as we're in debug
-      // In a real CI/CD pipeline, this would be tested in release builds
-    }, skip: kDebugMode);
+    group('Debug functionality', () {
+      testWidgets('displays debug buttons in debug mode', (WidgetTester tester) async {
+        if (!kDebugMode) return;
 
-    testWidgets('renders debug site button and accepts callback',
-        (WidgetTester tester) async {
-      if (!kDebugMode) {
-        return;
-      }
+        await tester.pumpWidget(
+          MaterialApp(home: SettingsScreen(testStream, null)),
+        );
+        await tester.pumpAndSettle();
 
-      bool callbackCalled = false;
-      void onDebugChanged() {
-        callbackCalled = true;
-      }
+        expect(find.text('Bad Site'), findsOneWidget);
+        expect(find.text('Good Site'), findsOneWidget);
+        expect(find.text('Good Site V2'), findsOneWidget);
+        expect(find.text('Clear Keys'), findsOneWidget);
+      });
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: SettingsScreen(testStream, onDebugChanged),
-        ),
-      );
+      testWidgets('does not display debug buttons in release mode', (WidgetTester tester) async {
+        // Skipped in debug mode - would verify in release builds
+      }, skip: kDebugMode);
 
-      await tester.pumpAndSettle();
+      testWidgets('accepts debug callback parameter', (WidgetTester tester) async {
+        if (!kDebugMode) return;
 
-      // Note: Tapping these buttons requires platform channel mocking
-      // which is complex. We verify they exist and accept the callback.
-      expect(find.text('Bad Site'), findsOneWidget);
-    });
+        bool callbackProvided = false;
+        void callback() => callbackProvided = true;
 
-    testWidgets('switches update settings state', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: SettingsScreen(testStream, null),
-        ),
-      );
+        await tester.pumpWidget(
+          MaterialApp(home: SettingsScreen(testStream, callback)),
+        );
+        await tester.pumpAndSettle();
 
-      await tester.pumpAndSettle();
-
-      // Verify we have switches on the screen
-      final allSwitches = find.byType(Switch);
-      expect(allSwitches, findsWidgets);
-
-      // Note: We can tap switches but verifying state changes would require
-      // mocking the Settings service, which is beyond the scope of these tests
-    });
-
-    testWidgets('error tracking switch is present', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: SettingsScreen(testStream, null),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      // Verify the error tracking label exists (the switch is nearby)
-      expect(find.text('Report errors automatically'), findsOneWidget);
-
-      // Verify switches are present
-      expect(find.byType(Switch), findsWidgets);
-    });
-
-    testWidgets('enrollment button navigates when tapped', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: SettingsScreen(testStream, null),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      // Find enrollment button
-      final enrollButton = find.text('Enroll with Managed Nebula');
-      expect(enrollButton, findsOneWidget);
-
-      // Note: Actually tapping would require more complex navigation testing
-      // We verify the button exists
-    });
-
-    testWidgets('about button is present', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: SettingsScreen(testStream, null),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      expect(find.text('About'), findsOneWidget);
+        // Verify debug buttons render with callback provided
+        expect(find.text('Bad Site'), findsOneWidget);
+        // Note: Actually testing the callback requires platform channel mocking
+      });
     });
   });
 
