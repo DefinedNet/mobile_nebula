@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:mobile_nebula/components/SpecialButton.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
@@ -37,7 +38,7 @@ class ConfigCheckboxItem extends StatelessWidget {
 
     if (onChanged != null) {
       return SpecialButton(
-        color: Utils.configItemBackground(context),
+        color: Theme.of(context).colorScheme.primaryContainer,
         child: item,
         onPressed: () {
           if (onChanged != null) {

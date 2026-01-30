@@ -49,7 +49,7 @@ class ConfigPageItem extends StatelessWidget {
   Widget _buildContent(BuildContext context) {
     return SpecialButton(
       onPressed: disabled ? null : onPressed,
-      color: Utils.configItemBackground(context),
+      color: Theme.of(context).colorScheme.primaryContainer,
       child: Container(
         padding: padding,
         constraints: BoxConstraints(minHeight: Utils.minInteractiveSize, minWidth: double.infinity),

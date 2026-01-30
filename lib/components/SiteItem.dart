@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_nebula/models/Site.dart';
 import 'package:mobile_nebula/services/utils.dart';
@@ -21,8 +20,7 @@ class SiteItem extends StatelessWidget {
   Widget _siteNameWidget(context) {
     var badgeTheme = Theme.of(context).badgeTheme;
     Widget managedBadge;
-    //TODO: flip managed here
-    if (!site.managed) {
+    if (site.managed) {
       managedBadge = Container(
         margin: EdgeInsets.only(left: 10),
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: badgeTheme.backgroundColor),
@@ -32,7 +30,7 @@ class SiteItem extends StatelessWidget {
         ),
       );
     } else {
-      managedBadge = Container();
+      managedBadge = Text('');
     }
 
     return Text.rich(
@@ -46,13 +44,13 @@ class SiteItem extends StatelessWidget {
   }
 
   Widget _siteStatusWidget(context) {
-    var grayColor = CupertinoColors.systemGrey.resolveFrom(context);
-    var fontStyle = TextStyle(color: grayColor, fontSize: 14, fontWeight: FontWeight.w500, height: 1.6);
+    final grayTextColor = Theme.of(context).colorScheme.onSecondaryContainer;
+    var fontStyle = TextStyle(color: grayTextColor, fontSize: 14, fontWeight: FontWeight.w500, height: 1.6);
     if (site.errors.isNotEmpty) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(Icons.warning_rounded, size: 16, color: grayColor),
+          Icon(Icons.warning_rounded, size: 16, color: grayTextColor),
           Text(' '),
           Text('Resolve errors', style: fontStyle),
         ],
@@ -76,8 +74,7 @@ class SiteItem extends StatelessWidget {
       }
     }
 
-    final grayTextColor = CupertinoColors.systemGrey.resolveFrom(context);
-    final statusTextColor = site.errors.isNotEmpty ? CupertinoColors.systemRed.resolveFrom(context) : grayTextColor;
+    final grayTextColor = Theme.of(context).colorScheme.onSecondaryContainer;
 
     return ConfigSection(
       children: <Widget>[

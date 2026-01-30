@@ -335,7 +335,6 @@ class _MainScreenState extends State<MainScreen> {
     //TODO: This can throw, we need to show an error dialog
     Map<String, dynamic> rawSites = jsonDecode(await platform.invokeMethod('listSites'));
     for (var site in sites) {
-      print("Destroying ${site.name}");
       site.dispose();
     }
 

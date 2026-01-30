@@ -32,7 +32,7 @@ class ConfigItem extends StatelessWidget {
     }
 
     return Container(
-      color: Utils.configItemBackground(context),
+      color: Theme.of(context).colorScheme.primaryContainer,
       padding: padding,
       constraints: BoxConstraints(minHeight: Utils.minInteractiveSize),
       child: Row(

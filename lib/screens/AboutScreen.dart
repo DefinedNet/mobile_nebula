@@ -94,7 +94,7 @@ class _AboutScreenState extends State<AboutScreen> {
           ),
           Padding(
             padding: EdgeInsets.only(top: 20),
-            child: Text('Copyright © 2024 Defined Networking, Inc', textAlign: TextAlign.center),
+            child: Text('Copyright © 2026 Defined Networking, Inc', textAlign: TextAlign.center),
           ),
         ],
       ),

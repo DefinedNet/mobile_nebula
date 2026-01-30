@@ -235,6 +235,10 @@ class Site: Codable {
     managed = incoming.managed ?? false
     lastManagedUpdate = incoming.lastManagedUpdate
     rawConfig = incoming.rawConfig
+    
+    // Default these to disconnected for the UI
+    status = statusString[.disconnected]
+    connected = false
 
     do {
       let rawCert = incoming.cert

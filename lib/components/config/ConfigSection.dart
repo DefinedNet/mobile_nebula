@@ -43,7 +43,7 @@ class ConfigSection extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             border: Border(top: border, bottom: border),
-            color: Utils.configItemBackground(context),
+            color: Theme.of(context).colorScheme.primaryContainer,
           ),
           padding: padding,
           child: Column(children: mappedChildren),

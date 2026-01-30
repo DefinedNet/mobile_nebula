@@ -12,16 +12,6 @@ class Utils {
   /// Minimum size (width or height) of a interactive component
   static const double minInteractiveSize = 44;
 
-  /// The background color for a page, this is the furthest back color
-  static Color pageBackground(BuildContext context) {
-    return CupertinoColors.systemGroupedBackground.resolveFrom(context);
-  }
-
-  /// The background color for a config item
-  static Color configItemBackground(BuildContext context) {
-    return CupertinoColors.secondarySystemGroupedBackground.resolveFrom(context);
-  }
-
   /// The top and bottom border color of a config section
   static Color configSectionBorder(BuildContext context) {
     return CupertinoColors.secondarySystemFill.resolveFrom(context);
@@ -195,5 +185,11 @@ class Utils {
       labelSmall: bodyTextTheme.labelSmall,
     );
     return textTheme;
+  }
+
+  static CupertinoThemeData fromTheme(Theme theme) {
+    var cupertinoTheme = CupertinoThemeData();
+    cupertinoTheme;
+    return cupertinoTheme;
   }
 }
