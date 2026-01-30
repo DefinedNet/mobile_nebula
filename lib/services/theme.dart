@@ -14,12 +14,12 @@ class MaterialTheme {
       primary: Color(4284700303),
       surfaceTint: Color(4284700303),
       onPrimary: Color(4294967295),
-      primaryContainer: Color(4293451519),
+      primaryContainer: Color.fromRGBO(255, 255, 255, 1),
       onPrimaryContainer: Color(4283121270),
       secondary: Color(4284570481),
       onSecondary: Color(4294967295),
       secondaryContainer: Color(4293385976),
-      onSecondaryContainer: Color(4282991704),
+      onSecondaryContainer: Color.fromRGBO(138, 151, 168, 1),
       tertiary: Color(4286403169),
       onTertiary: Color(4294967295),
       tertiaryContainer: Color(4294957540),
@@ -28,7 +28,7 @@ class MaterialTheme {
       onError: Color(4294967295),
       errorContainer: Color(4294957782),
       onErrorContainer: Color(4287823882),
-      surface: Color(4294834175),
+      surface: Color.fromARGB(255, 226, 229, 233),
       onSurface: Color(4280032032),
       onSurfaceVariant: Color(4282926414),
       outline: Color(4286150015),
@@ -60,7 +60,7 @@ class MaterialTheme {
   }
 
   ThemeData light() {
-    return theme(lightScheme());
+    return theme(lightScheme(), BadgeThemeData(backgroundColor: Color(0xfff0eafc), textColor: Color(0xff4b1bb1)));
   }
 
   static ColorScheme lightMediumContrastScheme() {
@@ -69,12 +69,12 @@ class MaterialTheme {
       primary: Color(4282002788),
       surfaceTint: Color(4284700303),
       onPrimary: Color(4294967295),
-      primaryContainer: Color(4285686943),
+      primaryContainer: Color.fromRGBO(255, 255, 255, 1),
       onPrimaryContainer: Color(4294967295),
       secondary: Color(4281873223),
       onSecondary: Color(4294967295),
       secondaryContainer: Color(4285557376),
-      onSecondaryContainer: Color(4294967295),
+      onSecondaryContainer: Color.fromRGBO(138, 151, 168, 1),
       tertiary: Color(4283444025),
       onTertiary: Color(4294967295),
       tertiaryContainer: Color(4287455344),
@@ -83,7 +83,7 @@ class MaterialTheme {
       onError: Color(4294967295),
       errorContainer: Color(4291767335),
       onErrorContainer: Color(4294967295),
-      surface: Color(4294834175),
+      surface: Color.fromARGB(255, 226, 229, 233),
       onSurface: Color(4279373846),
       onSurfaceVariant: Color(4281873725),
       outline: Color(4283715930),
@@ -115,7 +115,10 @@ class MaterialTheme {
   }
 
   ThemeData lightMediumContrast() {
-    return theme(lightMediumContrastScheme());
+    return theme(
+      lightMediumContrastScheme(),
+      BadgeThemeData(backgroundColor: Color(0xfff0eafc), textColor: Color(0xff4b1bb1)),
+    );
   }
 
   static ColorScheme lightHighContrastScheme() {
@@ -124,12 +127,12 @@ class MaterialTheme {
       primary: Color(4281344857),
       surfaceTint: Color(4284700303),
       onPrimary: Color(4294967295),
-      primaryContainer: Color(4283252856),
+      primaryContainer: Color.fromRGBO(255, 255, 255, 1),
       onPrimaryContainer: Color(4294967295),
       secondary: Color(4281215292),
       onSecondary: Color(4294967295),
       secondaryContainer: Color(4283123291),
-      onSecondaryContainer: Color(4294967295),
+      onSecondaryContainer: Color.fromRGBO(138, 151, 168, 1),
       tertiary: Color(4282655023),
       onTertiary: Color(4294967295),
       tertiaryContainer: Color(4284824908),
@@ -138,7 +141,7 @@ class MaterialTheme {
       onError: Color(4294967295),
       errorContainer: Color(4288151562),
       onErrorContainer: Color(4294967295),
-      surface: Color(4294834175),
+      surface: Color.fromARGB(255, 226, 229, 233),
       onSurface: Color(4278190080),
       onSurfaceVariant: Color(4278190080),
       outline: Color(4281150259),
@@ -170,7 +173,10 @@ class MaterialTheme {
   }
 
   ThemeData lightHighContrast() {
-    return theme(lightHighContrastScheme());
+    return theme(
+      lightHighContrastScheme(),
+      BadgeThemeData(backgroundColor: Color(0xfff0eafc), textColor: Color(0xff4b1bb1)),
+    );
   }
 
   static ColorScheme darkScheme() {
@@ -179,12 +185,12 @@ class MaterialTheme {
       primary: Color(4291673599),
       surfaceTint: Color(4291673599),
       onPrimary: Color(4281608030),
-      primaryContainer: Color(4283121270),
+      primaryContainer: Color.fromRGBO(43, 50, 59, 1),
       onPrimaryContainer: Color(4293451519),
       secondary: Color(4291544028),
       onSecondary: Color(4281478721),
       secondaryContainer: Color(4282991704),
-      onSecondaryContainer: Color(4293385976),
+      onSecondaryContainer: Color.fromRGBO(138, 151, 168, 1),
       tertiary: Color(4293834953),
       onTertiary: Color(4282983731),
       tertiaryContainer: Color(4284693322),
@@ -193,7 +199,7 @@ class MaterialTheme {
       onError: Color(4285071365),
       errorContainer: Color(4287823882),
       onErrorContainer: Color(4294957782),
-      surface: Color(4279505688),
+      surface: Color.fromARGB(255, 22, 25, 29),
       onSurface: Color(4293321193),
       onSurfaceVariant: Color(4291478735),
       outline: Color(4287860633),
@@ -225,7 +231,10 @@ class MaterialTheme {
   }
 
   ThemeData dark() {
-    return theme(darkScheme());
+    return theme(
+      darkScheme(),
+      BadgeThemeData(backgroundColor: Color.fromARGB(255, 93, 34, 221), textColor: Color.fromARGB(255, 223, 211, 248)),
+    );
   }
 
   static ColorScheme darkMediumContrastScheme() {
@@ -234,12 +243,12 @@ class MaterialTheme {
       primary: Color(4293056255),
       surfaceTint: Color(4291673599),
       onPrimary: Color(4280884306),
-      primaryContainer: Color(4288055493),
+      primaryContainer: Color.fromRGBO(43, 50, 59, 1),
       onPrimaryContainer: Color(4278190080),
       secondary: Color(4292991218),
       onSecondary: Color(4280754998),
       secondaryContainer: Color(4287925669),
-      onSecondaryContainer: Color(4278190080),
+      onSecondaryContainer: Color.fromRGBO(138, 151, 168, 1),
       tertiary: Color(4294955230),
       onTertiary: Color(4282194472),
       tertiaryContainer: Color(4290020244),
@@ -280,7 +289,10 @@ class MaterialTheme {
   }
 
   ThemeData darkMediumContrast() {
-    return theme(darkMediumContrastScheme());
+    return theme(
+      darkScheme(),
+      BadgeThemeData(backgroundColor: Color.fromARGB(255, 93, 34, 221), textColor: Color.fromARGB(255, 223, 211, 248)),
+    );
   }
 
   static ColorScheme darkHighContrastScheme() {
@@ -289,12 +301,12 @@ class MaterialTheme {
       primary: Color(4294241791),
       surfaceTint: Color(4291673599),
       onPrimary: Color(4278190080),
-      primaryContainer: Color(4291410427),
+      primaryContainer: Color.fromRGBO(43, 50, 59, 1),
       onPrimaryContainer: Color(4279107636),
       secondary: Color(4294241791),
       onSecondary: Color(4278190080),
       secondaryContainer: Color(4291280856),
-      onSecondaryContainer: Color(4279044122),
+      onSecondaryContainer: Color.fromRGBO(138, 151, 168, 1),
       tertiary: Color(4294962160),
       onTertiary: Color(4278190080),
       tertiaryContainer: Color(4293571782),
@@ -335,11 +347,17 @@ class MaterialTheme {
   }
 
   ThemeData darkHighContrast() {
-    return theme(darkHighContrastScheme());
+    return theme(
+      darkScheme(),
+      BadgeThemeData(backgroundColor: Color.fromARGB(255, 93, 34, 221), textColor: Color.fromARGB(255, 223, 211, 248)),
+    );
   }
 
-  ThemeData theme(ColorScheme colorScheme) => ThemeData(
+  ThemeData theme(ColorScheme colorScheme, BadgeThemeData badgeThemeData) => ThemeData(
     useMaterial3: true,
+    badgeTheme: badgeThemeData.copyWith(
+      textStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 12, color: badgeThemeData.textColor),
+    ),
     brightness: colorScheme.brightness,
     colorScheme: colorScheme,
     textTheme: textTheme.apply(bodyColor: colorScheme.onSurface, displayColor: colorScheme.onSurface),

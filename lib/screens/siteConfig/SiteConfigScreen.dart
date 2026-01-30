@@ -8,13 +8,13 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart' as fpw;
 import 'package:intl/intl.dart';
 import 'package:mobile_nebula/components/FormPage.dart';
 import 'package:mobile_nebula/components/PlatformTextFormField.dart';
-import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
 import 'package:mobile_nebula/components/config/ConfigItem.dart';
+import 'package:mobile_nebula/components/config/ConfigPageItem.dart';
 import 'package:mobile_nebula/components/config/ConfigSection.dart';
 import 'package:mobile_nebula/models/Site.dart';
+import 'package:mobile_nebula/screens/siteConfig/AddCertificateScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/AdvancedScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/CAListScreen.dart';
-import 'package:mobile_nebula/screens/siteConfig/AddCertificateScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/CertificateDetailsScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/StaticHostsScreen.dart';
 import 'package:mobile_nebula/services/utils.dart';
@@ -82,7 +82,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
         try {
           await site.save();
         } catch (error) {
-          return Utils.popError(context, 'Failed to save the site configuration', error.toString());
+          return Utils.popError('Failed to save the site configuration', error.toString());
         }
 
         Navigator.pop(context);
@@ -343,7 +343,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
         privKey = keyPair['PrivateKey'];
       });
     } on PlatformException catch (err) {
-      Utils.popError(context, 'Failed to generate key pair', err.details ?? err.message);
+      Utils.popError('Failed to generate key pair', err.details ?? err.message);
     }
   }
 }

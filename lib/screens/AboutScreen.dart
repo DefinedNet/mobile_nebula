@@ -80,7 +80,7 @@ class _AboutScreenState extends State<AboutScreen> {
               ConfigPageItem(
                 label: Text('Privacy policy'),
                 labelWidth: 300,
-                onPressed: () => Utils.launchUrl('https://www.defined.net/privacy/', context),
+                onPressed: () => Utils.launchUrl('https://www.defined.net/privacy/'),
               ),
               ConfigPageItem(
                 label: Text('Licenses'),
@@ -94,7 +94,7 @@ class _AboutScreenState extends State<AboutScreen> {
           ),
           Padding(
             padding: EdgeInsets.only(top: 20),
-            child: Text('Copyright © 2024 Defined Networking, Inc', textAlign: TextAlign.center),
+            child: Text('Copyright © 2026 Defined Networking, Inc', textAlign: TextAlign.center),
           ),
         ],
       ),

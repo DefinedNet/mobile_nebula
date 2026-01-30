@@ -236,6 +236,10 @@ class Site: Codable {
     lastManagedUpdate = incoming.lastManagedUpdate
     rawConfig = incoming.rawConfig
 
+    // Default these to disconnected for the UI
+    status = statusString[.disconnected]
+    connected = false
+
     do {
       let rawCert = incoming.cert
       let rawDetails = MobileNebulaParseCerts(rawCert, &err)

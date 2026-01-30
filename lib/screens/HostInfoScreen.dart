@@ -148,7 +148,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
                 _setHostInfo(h);
               }
             } catch (err) {
-              Utils.popError(context, 'Error while changing the remote', err.toString());
+              Utils.popError('Error while changing the remote', err.toString());
             }
           },
         ),
@@ -195,7 +195,7 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
                   }
                   Navigator.pop(context);
                 } catch (err) {
-                  Utils.popError(context, 'Error while trying to close the tunnel', err.toString());
+                  Utils.popError('Error while trying to close the tunnel', err.toString());
                 }
               }, deleteLabel: 'Close'),
         ),
@@ -207,12 +207,12 @@ class _HostInfoScreenState extends State<HostInfoScreen> {
     try {
       final h = await widget.site.getHostInfo(hostInfo.vpnAddrs[0], widget.pending);
       if (h == null) {
-        return Utils.popError(context, '', 'The tunnel for this host no longer exists');
+        return Utils.popError('', 'The tunnel for this host no longer exists');
       }
 
       _setHostInfo(h);
     } catch (err) {
-      Utils.popError(context, 'Failed to refresh host info', err.toString());
+      Utils.popError('Failed to refresh host info', err.toString());
     }
   }
 

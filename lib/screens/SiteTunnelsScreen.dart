@@ -150,7 +150,7 @@ class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
       }
       setState(() {});
     } catch (err) {
-      Utils.popError(context, 'Error while fetching hostmap', err.toString());
+      Utils.popError('Error while fetching hostmap', err.toString());
     }
   }
 }
