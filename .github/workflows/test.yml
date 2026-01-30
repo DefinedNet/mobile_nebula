@@ -1,4 +1,4 @@
-name: Tests
+name: Flutter test
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: Run Flutter Tests
+    name: Run flutter test
     runs-on: ubuntu-latest
 
     steps:
