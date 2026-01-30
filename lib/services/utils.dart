@@ -186,10 +186,4 @@ class Utils {
     );
     return textTheme;
   }
-
-  static CupertinoThemeData fromTheme(Theme theme) {
-    var cupertinoTheme = CupertinoThemeData();
-    cupertinoTheme;
-    return cupertinoTheme;
-  }
 }
