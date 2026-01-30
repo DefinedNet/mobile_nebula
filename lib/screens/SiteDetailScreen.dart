@@ -155,11 +155,14 @@ class _SiteDetailScreenState extends State<SiteDetailScreen> {
           content: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(right: 5),
-                child: Text(
-                  widget.site.status,
-                  style: TextStyle(color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+              Flexible(
+                child: Padding(
+                  padding: EdgeInsets.only(right: 5),
+                  child: Text(
+                    widget.site.status,
+                    style: TextStyle(color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
               Switch.adaptive(
