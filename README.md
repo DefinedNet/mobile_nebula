@@ -16,7 +16,7 @@ Ensure your path is set up correctly to execute flutter
 
 Run `flutter doctor` and fix everything it complains before proceeding
 
-*NOTE* on iOS, always open `Runner.xcworkspace` and NOT the `Runner.xccodeproj`
+_NOTE_ on iOS, always open `Runner.xcworkspace` and NOT the `Runner.xccodeproj`
 
 ### Before first compile
 
@@ -33,35 +33,46 @@ If you are having issues with iOS pods, try blowing it all away! `cd ios && rm -
 ## Testing
 
 Run all tests:
+
 ```sh
 flutter test
 ```
 
 Run specific test file:
+
 ```sh
 flutter test test/screens/settings_screen_test.dart
 ```
 
 Generate coverage report:
+
 ```sh
 flutter test --coverage
 ```
 
 Run golden tests (update with `--update-goldens` flag):
+
 ```sh
 flutter test test/screens/*_golden_test.dart
 ```
 
+## Linting
+
+```sh
+flutter analyze --no-fatal-infos --no-fatal-warnings
+```
+
 # Formatting
 
-`dart format` can be used to format the code in `lib` and `test`.  We use a line-length of 120 characters.
+`dart format` can be used to format the code in `lib` and `test`. We use a line-length of 120 characters.
 
 Use:
+
 ```sh
 dart format lib/ test/ -l 120
 ```
 
-In Android Studio, set the line length using Preferences -> Editor -> Code Style -> Dart -> Line length, set it to 120.  Enable auto-format with Preferences -> Languages & Frameworks -> Flutter -> Format code on save.
+In Android Studio, set the line length using Preferences -> Editor -> Code Style -> Dart -> Line length, set it to 120. Enable auto-format with Preferences -> Languages & Frameworks -> Flutter -> Format code on save.
 
 `./swift-format.sh` can be used to format Swift code in the repo.
 
