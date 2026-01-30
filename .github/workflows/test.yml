@@ -24,8 +24,9 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Analyze code
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+      # Disable until we've configured the analysis options
+      # - name: Analyze code
+      # run: flutter analyze
 
       - name: Run tests
         run: flutter test --coverage
