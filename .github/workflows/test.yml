@@ -42,6 +42,9 @@ jobs:
           flutter pub get
           touch env.sh
 
+      - name: generate artifacts
+        run: ./gen-artifacts.sh
+
       # Disable until we've configured the analysis options
       # - name: Analyze code
       # run: flutter analyze
