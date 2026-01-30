@@ -42,8 +42,9 @@ jobs:
           flutter pub get
           touch env.sh
 
+      # TODO: test android flutter ui in a support matrix
       - name: generate artifacts
-        run: ./gen-artifacts.sh
+        run: ./gen-artifacts.sh ios
 
       # Disable until we've configured the analysis options
       # - name: Analyze code
