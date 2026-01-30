@@ -7,7 +7,6 @@ import 'package:mobile_nebula/models/Site.dart';
 import 'package:mobile_nebula/models/StaticHosts.dart';
 import 'package:mobile_nebula/models/UnsafeRoute.dart';
 import 'package:mobile_nebula/services/theme.dart';
-import 'package:mobile_nebula/services/utils.dart';
 
 /// Creates a MaterialApp wrapper for testing widgets
 Widget createTestApp({required Widget child}) {
