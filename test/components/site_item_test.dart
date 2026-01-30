@@ -19,7 +19,7 @@ void main() {
     });
 
     testWidgets('displays managed badge for managed sites', (WidgetTester tester) async {
-      final site = createMockSite(name: 'Managed Site', managed: true);
+      final site = createMockSite(name: 'Test Managed Site', managed: true);
 
       await tester.pumpWidget(
         createTestApp(
@@ -27,12 +27,12 @@ void main() {
         ),
       );
 
-      expect(find.text('Managed Site'), findsOneWidget);
+      expect(find.text('Test Managed Site'), findsOneWidget);
       expect(find.text('Managed'), findsOneWidget);
     });
 
     testWidgets('does not display managed badge for unmanaged sites', (WidgetTester tester) async {
-      final site = createMockSite(name: 'Unmanaged Site', managed: false);
+      final site = createMockSite(name: 'Test Unmanaged Site', managed: false);
 
       await tester.pumpWidget(
         createTestApp(
@@ -40,13 +40,13 @@ void main() {
         ),
       );
 
-      expect(find.text('Unmanaged Site'), findsOneWidget);
+      expect(find.text('Test Unmanaged Site'), findsOneWidget);
       expect(find.text('Managed'), findsNothing);
     });
 
     testWidgets('displays site status when connected', (WidgetTester tester) async {
       final site = createMockSite(
-        name: 'Connected Site',
+        name: 'Test Connected Site',
         connected: true,
         status: 'Connected',
       );
@@ -57,6 +57,7 @@ void main() {
         ),
       );
 
+      expect(find.text('Test Connected Site'), findsOneWidget);
       expect(find.text('Connected'), findsOneWidget);
     });
 
