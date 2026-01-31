@@ -18,32 +18,33 @@ class SiteItem extends StatelessWidget {
   }
 
   Widget _siteNameWidget(context) {
-    var badgeTheme = Theme.of(context).badgeTheme;
-    Widget nameWidget = Text(site.name, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16));
+    final badgeTheme = Theme.of(context).badgeTheme;
+    final nameStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 16);
+    List<InlineSpan> children = [];
 
-    Widget managedBadge;
+    // Add the name
+    children.add(TextSpan(text: site.name, style: nameStyle));
+
     if (site.managed) {
-      managedBadge = Container(
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: badgeTheme.backgroundColor),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          child: Text('Managed', style: badgeTheme.textStyle),
+      // Toss some space in
+      children.add(TextSpan(text: '  ', style: nameStyle));
+
+      // Add the managed badge
+      children.add(
+        WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: Container(
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: badgeTheme.backgroundColor),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              child: Text('Managed', style: badgeTheme.textStyle),
+            ),
+          ),
         ),
       );
-
-      nameWidget = Container(margin: EdgeInsets.only(right: 10), child: nameWidget);
-    } else {
-      managedBadge = Text('');
     }
 
-    return Text.rich(
-      TextSpan(
-        children: [
-          WidgetSpan(alignment: PlaceholderAlignment.middle, child: nameWidget),
-          WidgetSpan(alignment: PlaceholderAlignment.middle, child: managedBadge),
-        ],
-      ),
-    );
+    return Text.rich(TextSpan(children: children));
   }
 
   Widget _siteStatusWidget(context) {
