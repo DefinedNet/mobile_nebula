@@ -1,0 +1,61 @@
+name: Flutter test
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: Run flutter test (iOS)
+    runs-on: macos-26
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #4.2.2
+        with:
+          show-progress: false
+
+      # TODO: remove when https://go-review.googlesource.com/c/go/+/692935 lands in mainline go
+      - name: Patch Go
+        uses: DefinedNet/patch-go@c8e4a17c75eb242d34c212419d7d3d25e8d58949
+        with:
+          patch-ref: "296be05a97eb526dc0e438b7387670d4cae4a935"
+
+      - uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 #v4.7.0
+        with:
+          distribution: "zulu"
+          java-version: "17"
+
+      - name: Install flutter
+        uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff #v2.18.0
+        with:
+          flutter-version: "3.29.2"
+
+      - name: install dependencies
+        env:
+          TOKEN: ${{ secrets.MACHINE_USER_PAT }}
+        run: |
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          gomobile init
+          flutter pub get
+          touch env.sh
+
+      # TODO: test android flutter ui in a support matrix
+      - name: generate artifacts
+        run: ./gen-artifacts.sh ios
+
+      # Disable until we've configured the analysis options
+      # - name: Analyze code
+      # run: flutter analyze
+
+      - name: Run tests
+        run: flutter test --coverage
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/lcov.info
+        if: always()
