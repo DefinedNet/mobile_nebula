@@ -22,6 +22,8 @@ void main() {
     });
 
     testWidgets('empty state - no sites', (WidgetTester tester) async {
+      tester.view.devicePixelRatio = 1.0;
+
       // Mock platform channel to return empty sites list
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
         const MethodChannel('net.defined.mobileNebula/NebulaVpnService'),
@@ -42,6 +44,8 @@ void main() {
     });
 
     testWidgets('with multiple sites - mixed states', (WidgetTester tester) async {
+      tester.view.devicePixelRatio = 1.0;
+
       // Mock EventChannels for each site
       for (var siteId in ['site-1', 'site-2', 'site-3']) {
         tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(MethodChannel('net.defined.nebula/$siteId'), (
@@ -127,6 +131,8 @@ void main() {
     });
 
     testWidgets('single connected site', (WidgetTester tester) async {
+      tester.view.devicePixelRatio = 1.0;
+
       // Mock EventChannel for the site
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(const MethodChannel('net.defined.nebula/site-1'), (
         MethodCall methodCall,
@@ -173,6 +179,8 @@ void main() {
     });
 
     testWidgets('site with errors', (WidgetTester tester) async {
+      tester.view.devicePixelRatio = 1.0;
+
       // Mock EventChannel for the site
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(const MethodChannel('net.defined.nebula/site-1'), (
         MethodCall methodCall,
@@ -219,6 +227,8 @@ void main() {
     });
 
     testWidgets('managed sites', (WidgetTester tester) async {
+      tester.view.devicePixelRatio = 1.0;
+
       // Mock EventChannels for each site
       for (var siteId in ['site-1', 'site-2']) {
         tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(MethodChannel('net.defined.nebula/$siteId'), (
