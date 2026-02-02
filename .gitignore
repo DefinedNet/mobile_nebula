@@ -30,6 +30,7 @@ android/app/.cxx
 .pub-cache/
 .pub/
 /build/
+test/screens/failures
 
 # Web related
 lib/generated_plugin_registrant.dart
