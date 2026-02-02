@@ -19,6 +19,7 @@ void main() {
     });
 
     testWidgets('disconnected site without errors', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
 
       // Mock EventChannel for the site
@@ -38,6 +39,7 @@ void main() {
     });
 
     testWidgets('connected site with tunnels', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
 
       // Mock EventChannel for the site
@@ -57,6 +59,7 @@ void main() {
     });
 
     testWidgets('site with errors', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
 
       // Mock EventChannel for the site
@@ -81,6 +84,7 @@ void main() {
     });
 
     testWidgets('managed site', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
 
       // Mock EventChannel for the site
@@ -106,6 +110,7 @@ void main() {
     });
 
     testWidgets('site connecting state', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
 
       // Mock EventChannel for the site
@@ -125,6 +130,7 @@ void main() {
     });
 
     testWidgets('site with error and connected', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
 
       // Mock EventChannel for the site
@@ -152,6 +158,7 @@ void main() {
     });
 
     testWidgets('long site name', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
 
       // Mock EventChannel for the site

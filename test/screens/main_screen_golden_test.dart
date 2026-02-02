@@ -22,6 +22,7 @@ void main() {
     });
 
     testWidgets('empty state - no sites', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
 
       // Mock platform channel to return empty sites list
@@ -44,6 +45,7 @@ void main() {
     });
 
     testWidgets('with multiple sites - mixed states', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
 
       // Mock EventChannels for each site
@@ -131,6 +133,7 @@ void main() {
     });
 
     testWidgets('single connected site', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
 
       // Mock EventChannel for the site
@@ -179,6 +182,7 @@ void main() {
     });
 
     testWidgets('site with errors', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
 
       // Mock EventChannel for the site
@@ -227,6 +231,7 @@ void main() {
     });
 
     testWidgets('managed sites', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
 
       // Mock EventChannels for each site
