@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.work.*
 import mobileNebula.CIDR
 import java.io.File
+import java.net.InetAddress
 
 
 class NebulaVpnService : VpnService() {
@@ -145,6 +146,9 @@ class NebulaVpnService : VpnService() {
         disallowApp(builder, "com.google.android.apps.chromecast.app")
         // RCS / Jibe
         disallowApp(builder, "com.google.android.apps.messaging")
+
+        val testIp = IpPrefix(InetAddress.getByName("8.8.8.8"), 32)
+        builder.excludeRoute(testIp)
 
         try {
             vpnInterface = builder.establish()
