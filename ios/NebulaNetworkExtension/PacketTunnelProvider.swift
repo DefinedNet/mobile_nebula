@@ -90,6 +90,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
       networks: _site.cert!.cert.networks,
       unsafeRoutes: _site.unsafeRoutes
     )
+    
+    if !_site.dnsResolvers.isEmpty {
+      tunnelNetworkSettings.dnsSettings = NEDNSSettings(servers: _site.dnsResolvers)
+    }
 
     tunnelNetworkSettings.ipv4Settings = v4Settings
     tunnelNetworkSettings.ipv6Settings = v6Settings

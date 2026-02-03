@@ -322,6 +322,7 @@ class _SiteConfigScreenState extends State<SiteConfigScreen> {
                     site.port = settings.port;
                     site.logVerbosity = settings.verbosity;
                     site.unsafeRoutes = settings.unsafeRoutes;
+                    site.dnsResolvers = settings.dnsResolvers;
                     site.mtu = settings.mtu;
                   });
                 },

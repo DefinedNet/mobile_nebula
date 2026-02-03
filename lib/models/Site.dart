@@ -45,6 +45,7 @@ class Site {
   late String status;
   late String logFile;
   late String logVerbosity;
+  late List<String> dnsResolvers;
 
   late bool managed;
   // The following fields are present when managed = true
@@ -74,12 +75,14 @@ class Site {
     this.managed = false,
     this.rawConfig,
     this.lastManagedUpdate,
+    List<String>? dnsResolvers,
   }) {
     this.id = id ?? uuid.v4();
     this.staticHostmap = staticHostmap ?? {};
     this.ca = ca ?? [];
     this.errors = errors ?? [];
     this.unsafeRoutes = unsafeRoutes ?? [];
+    this.dnsResolvers = dnsResolvers ?? [];
 
     _updates = EventChannel('net.defined.nebula/${this.id}');
     _updateSubscription = _updates.receiveBroadcastStream().listen(
@@ -122,6 +125,7 @@ class Site {
       managed: decoded['managed'],
       rawConfig: decoded['rawConfig'],
       lastManagedUpdate: decoded['lastManagedUpdate'],
+      dnsResolvers: decoded['dnsResolvers'],
     );
   }
 
@@ -146,6 +150,7 @@ class Site {
     managed = decoded['managed'];
     rawConfig = decoded['rawConfig'];
     lastManagedUpdate = decoded['lastManagedUpdate'];
+    dnsResolvers = decoded['dnsResolvers'];
   }
 
   static _fromJson(Map<String, dynamic> json) {
@@ -159,6 +164,12 @@ class Site {
     List<UnsafeRoute> unsafeRoutes = [];
     for (var val in rawUnsafeRoutes) {
       unsafeRoutes.add(UnsafeRoute.fromJson(val));
+    }
+
+    List<dynamic> rawDnsResolvers = json['dnsResolvers'] ?? [];
+    List<String> dnsResolvers = [];
+    for (var val in rawDnsResolvers) {
+      dnsResolvers.add(val.toString());
     }
 
     List<dynamic> rawCA = json['ca'];
@@ -198,6 +209,7 @@ class Site {
       "managed": json['managed'] ?? false,
       "rawConfig": json['rawConfig'],
       "lastManagedUpdate": json["lastManagedUpdate"] == null ? null : DateTime.parse(json["lastManagedUpdate"]),
+      "dnsResolvers": dnsResolvers,
     };
   }
 
@@ -226,6 +238,7 @@ class Site {
       'logVerbosity': logVerbosity,
       'managed': managed,
       'rawConfig': rawConfig,
+      'dnsResolvers': dnsResolvers,
     };
   }
 

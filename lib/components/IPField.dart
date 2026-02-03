@@ -15,6 +15,7 @@ class IPField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final controller;
   final textAlign;
+  final bool autoSize;
 
   const IPField({
     super.key,
@@ -28,6 +29,7 @@ class IPField extends StatelessWidget {
     this.textInputAction,
     this.controller,
     this.textAlign = TextAlign.center,
+    this.autoSize = true,
   });
 
   @override
@@ -35,24 +37,27 @@ class IPField extends StatelessWidget {
     var textStyle = CupertinoTheme.of(context).textTheme.textStyle;
     final double? ipWidth = ipOnly ? Utils.textSize("000000000000000", textStyle).width + 12 : null;
 
-    return SizedBox(
-      width: ipWidth,
-      child: SpecialTextField(
-        textAlign: textAlign,
-        autofocus: autoFocus,
-        focusNode: focusNode,
-        nextFocusNode: nextFocusNode,
-        controller: controller,
-        onChanged: onChanged,
-        maxLength: ipOnly ? 45 : null,
-        maxLengthEnforcement: ipOnly ? MaxLengthEnforcement.enforced : MaxLengthEnforcement.none,
-        inputFormatters:
-            ipOnly
-                ? [FilteringTextInputFormatter.allow(RegExp(r'[\d\.:a-fA-F]+'))]
-                : [FilteringTextInputFormatter.allow(RegExp(r'[^\s]+'))],
-        textInputAction: textInputAction,
-        placeholder: help,
-      ),
+    final child = SpecialTextField(
+      textAlign: textAlign,
+      autofocus: autoFocus,
+      focusNode: focusNode,
+      nextFocusNode: nextFocusNode,
+      controller: controller,
+      onChanged: onChanged,
+      maxLength: ipOnly ? 45 : null,
+      maxLengthEnforcement: ipOnly ? MaxLengthEnforcement.enforced : MaxLengthEnforcement.none,
+      inputFormatters:
+          ipOnly
+              ? [FilteringTextInputFormatter.allow(RegExp(r'[\d\.:a-fA-F]+'))]
+              : [FilteringTextInputFormatter.allow(RegExp(r'[^\s]+'))],
+      textInputAction: textInputAction,
+      placeholder: help,
     );
+
+    if (autoSize) {
+      return SizedBox(width: ipWidth, child: child);
+    } else {
+      return child;
+    }
   }
 }
