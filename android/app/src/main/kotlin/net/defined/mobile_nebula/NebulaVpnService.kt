@@ -446,23 +446,28 @@ fun InetAddress.isGlobalUnicast(): Boolean {
         return false
     }
 
-    if (this is Inet4Address) {
-        val address = this.hostAddress
+    try {
+        if (this is Inet4Address) {
+            val address = this.hostAddress
 
-        // Exclude Private IPv4 ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
-        return address != null &&
-                address != "0.0.0.0" &&
-                !isIpv4Private(this.address)
-    } else if (this is Inet6Address) {
-        return true
+            // Exclude Private IPv4 ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
+            return address != null &&
+                    address != "0.0.0.0" &&
+                    !isIpv4Private(this.address)
+        } else if (this is Inet6Address) {
+            return true
+        }
+    } catch (err: Exception) {
+        Log.e(TAG, "Caught exception in InetAddress.isGlobalUnicast: $err")
+        return false
     }
 
     return false
 }
 
 fun isIpv4Private(addr: ByteArray): Boolean {
-    if (addr.size < 4) {
-        return true
+    if (addr.size != 4) {
+        throw IllegalArgumentException("addr must be 4 bytes")
     }
 
     val b = addr[0].toInt() and 0xFF
