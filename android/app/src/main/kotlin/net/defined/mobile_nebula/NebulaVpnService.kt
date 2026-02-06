@@ -153,6 +153,7 @@ class NebulaVpnService : VpnService() {
         site!!.dnsResolvers.forEach {
             hasDnsResolvers = true
             builder.addDnsServer(it)
+            Log.i(TAG, "Adding dns resolver: $it")
         }
 
         if (isChromeOs() && !hasDnsResolvers) {

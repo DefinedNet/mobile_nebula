@@ -90,8 +90,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
       networks: _site.cert!.cert.networks,
       unsafeRoutes: _site.unsafeRoutes
     )
-    
+
     if !_site.dnsResolvers.isEmpty {
+      self.log.info("Assigning dns resolvers: \(_site.dnsResolvers, privacy: .public)")
       tunnelNetworkSettings.dnsSettings = NEDNSSettings(servers: _site.dnsResolvers)
     }
 
