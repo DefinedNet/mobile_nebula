@@ -7,13 +7,14 @@ go 1.25
 require (
 	github.com/DefinedNet/dnapi v0.0.0-20251210211559-8ae1e6743199
 	github.com/sirupsen/logrus v1.9.4
-	github.com/slackhq/nebula v1.10.2
+	github.com/slackhq/nebula v1.10.3
 	golang.org/x/crypto v0.47.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
 	dario.cat/mergo v1.0.2 // indirect
+	filippo.io/bigmod v0.1.0 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -37,7 +38,6 @@ require (
 	github.com/vishvananda/netns v0.0.5 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/mobile v0.0.0-20251209145715-2553ed8ce294 // indirect
 	golang.org/x/mod v0.31.0 // indirect
 	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
