@@ -80,7 +80,7 @@ class Certificate {
       details["name"],
       List<String>.from(details['networks'] ?? []),
       List<String>.from(details['unsafeNetworks'] ?? []),
-      List<String>.from(details['groups']),
+      List<String>.from(details['groups'] ?? []),
       details['isCa'],
       DateTime.parse(details['notBefore']),
       DateTime.parse(details['notAfter']),
