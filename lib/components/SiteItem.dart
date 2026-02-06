@@ -19,7 +19,7 @@ class SiteItem extends StatelessWidget {
 
   Widget _siteNameWidget(context) {
     final badgeTheme = Theme.of(context).badgeTheme;
-    final nameStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 16);
+    final nameStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 16, height: 1.6);
     List<InlineSpan> children = [];
 
     // Add the name
