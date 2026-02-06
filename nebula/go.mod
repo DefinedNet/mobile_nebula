@@ -5,7 +5,7 @@ go 1.25
 // replace github.com/slackhq/nebula => /Volumes/T7/nate/src/github.com/slackhq/nebula
 
 require (
-	github.com/DefinedNet/dnapi v0.0.0-20251210211559-8ae1e6743199
+	github.com/DefinedNet/dnapi v0.0.0-20260206204823-7c7bf8f42a01
 	github.com/sirupsen/logrus v1.9.4
 	github.com/slackhq/nebula v1.10.3
 	golang.org/x/crypto v0.47.0
