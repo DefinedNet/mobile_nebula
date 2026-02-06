@@ -30,9 +30,15 @@ android/app/.cxx
 .pub-cache/
 .pub/
 /build/
+test/screens/failures
 
 # Web related
 lib/generated_plugin_registrant.dart
+
+# Test coverage
+coverage/
+test/.test_coverage.dart
+*.coverage
 
 # Exceptions to above rules.
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
