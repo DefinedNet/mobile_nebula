@@ -10,6 +10,7 @@ import 'package:mobile_nebula/components/config/ConfigSection.dart';
 import 'package:mobile_nebula/models/Site.dart';
 import 'package:mobile_nebula/models/UnsafeRoute.dart';
 import 'package:mobile_nebula/screens/siteConfig/CipherScreen.dart';
+import 'package:mobile_nebula/screens/siteConfig/DnsResolversScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/LogVerbosityScreen.dart';
 import 'package:mobile_nebula/screens/siteConfig/RenderedConfigScreen.dart';
 import 'package:mobile_nebula/services/utils.dart';
@@ -28,6 +29,7 @@ class Advanced {
   String verbosity;
   List<UnsafeRoute> unsafeRoutes;
   int mtu;
+  List<String> dnsResolvers;
 
   Advanced({
     required this.lhDuration,
@@ -36,6 +38,7 @@ class Advanced {
     required this.verbosity,
     required this.unsafeRoutes,
     required this.mtu,
+    required this.dnsResolvers,
   });
 }
 
@@ -62,6 +65,7 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
       verbosity: widget.site.logVerbosity,
       unsafeRoutes: widget.site.unsafeRoutes,
       mtu: widget.site.mtu,
+      dnsResolvers: widget.site.dnsResolvers,
     );
     super.initState();
   }
@@ -197,6 +201,27 @@ class _AdvancedScreenState extends State<AdvancedScreen> {
                               : (routes) {
                                 setState(() {
                                   settings.unsafeRoutes = routes;
+                                  changed = true;
+                                });
+                              },
+                    );
+                  });
+                },
+              ),
+              ConfigPageItem(
+                label: Text('DNS resolvers'),
+                labelWidth: 150,
+                content: Text(Utils.itemCountFormat(settings.dnsResolvers.length), textAlign: TextAlign.end),
+                onPressed: () {
+                  Utils.openPage(context, (context) {
+                    return DnsResolversScreen(
+                      dnsResolvers: settings.dnsResolvers,
+                      onSave:
+                          widget.site.managed
+                              ? null
+                              : (resolvers) {
+                                setState(() {
+                                  settings.dnsResolvers = resolvers;
                                   changed = true;
                                 });
                               },

@@ -237,7 +237,8 @@ class _MainScreenState extends State<MainScreen> {
         sites.add(site);
       } catch (err) {
         //TODO: handle error
-        print("$err site config: $rawSite");
+        print(err);
+        print("site config: $rawSite");
         // Sometimes it is helpful to just nuke these is dev
         // platform.invokeMethod('deleteSite', id);
       }

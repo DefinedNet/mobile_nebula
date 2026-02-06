@@ -23,6 +23,7 @@ class IPFormField extends FormField<String> {
     this.controller,
     crossAxisAlignment = CrossAxisAlignment.center,
     textAlign = TextAlign.center,
+    autoSize = true,
   }) : super(
          initialValue: initialValue,
          validator: (ip) {
@@ -62,6 +63,7 @@ class IPFormField extends FormField<String> {
                  textInputAction: textInputAction,
                  controller: state._effectiveController,
                  textAlign: textAlign,
+                 autoSize: autoSize,
                ),
                field.hasError
                    ? Text(

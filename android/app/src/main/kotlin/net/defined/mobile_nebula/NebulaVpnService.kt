@@ -149,13 +149,18 @@ class NebulaVpnService : VpnService() {
         // RCS / Jibe
         disallowApp(builder, "com.google.android.apps.messaging")
 
-        if (isChromeOs()) {
+        var hasDnsResolvers = false
+        site!!.dnsResolvers.forEach {
+            hasDnsResolvers = true
+            builder.addDnsServer(it)
+            Log.i(TAG, "Adding dns resolver: $it")
+        }
+
+        if (isChromeOs() && !hasDnsResolvers) {
             // Newer versions of ChromeOS need a dns server installed for resolution to work at all.
             // Even if the system is configured to use DoH in which case the resolvers here will may be entirely ignored.
             // We are only considering public dns resolvers at the moment to avoid network roaming possibly
             // breaking dns resolution.
-            // A proper setup would be to allow the user to configure the dns resolvers but this would still have use
-            // as a fallback in case none were configured.
             getPublicDnsResolvers().forEach {
                 Log.i(TAG, "Hoisting dns resolver into the vpn: $it")
                 builder.addDnsServer(it)
