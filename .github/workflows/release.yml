@@ -29,9 +29,9 @@ jobs:
           java-version: "17"
 
       - name: Install flutter
-        uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff #v2.18.0
+        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e #v2.21.0
         with:
-          flutter-version: "3.29.2"
+          flutter-version: "3.38.9"
 
       - name: Setup bundletool for APK generation
         run: |

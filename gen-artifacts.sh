@@ -52,4 +52,4 @@ cd ..
 mv lib/.gen.versions.dart lib/gen.versions.dart
 
 # Generate licenses library
-flutter pub run flutter_oss_licenses:generate.dart
+dart run dart_pubspec_licenses:generate
