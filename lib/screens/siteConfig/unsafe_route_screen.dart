@@ -17,10 +17,10 @@ class UnsafeRouteScreen extends StatefulWidget {
   final Function? onDelete;
 
   @override
-  _UnsafeRouteScreenState createState() => _UnsafeRouteScreenState();
+  UnsafeRouteScreenState createState() => UnsafeRouteScreenState();
 }
 
-class _UnsafeRouteScreenState extends State<UnsafeRouteScreen> {
+class UnsafeRouteScreenState extends State<UnsafeRouteScreen> {
   late UnsafeRoute route;
   bool changed = false;
 

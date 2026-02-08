@@ -14,10 +14,10 @@ class UnsafeRoutesScreen extends StatefulWidget {
   final ValueChanged<List<UnsafeRoute>>? onSave;
 
   @override
-  _UnsafeRoutesScreenState createState() => _UnsafeRoutesScreenState();
+  UnsafeRoutesScreenState createState() => UnsafeRoutesScreenState();
 }
 
-class _UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
+class UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
   late Map<Key, UnsafeRoute> unsafeRoutes;
   bool changed = false;
 

@@ -27,10 +27,10 @@ class SiteTunnelsScreen extends StatefulWidget {
   final bool supportsQRScanning;
 
   @override
-  _SiteTunnelsScreenState createState() => _SiteTunnelsScreenState();
+  SiteTunnelsScreenState createState() => SiteTunnelsScreenState();
 }
 
-class _SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
+class SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
   late Site site;
   late List<HostInfo> tunnels;
   RefreshController refreshController = RefreshController(initialRefresh: false);

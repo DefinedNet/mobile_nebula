@@ -33,12 +33,12 @@ class HostInfoScreen extends StatefulWidget {
   final bool supportsQRScanning;
 
   @override
-  _HostInfoScreenState createState() => _HostInfoScreenState();
+  HostInfoScreenState createState() => HostInfoScreenState();
 }
 
 //TODO: have a config option to refresh hostmaps on a cadence (applies to 3 screens so far)
 
-class _HostInfoScreenState extends State<HostInfoScreen> {
+class HostInfoScreenState extends State<HostInfoScreen> {
   late HostInfo hostInfo;
   RefreshController refreshController = RefreshController(initialRefresh: false);
 

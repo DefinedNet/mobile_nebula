@@ -36,10 +36,10 @@ class StaticHostmapScreen extends StatefulWidget {
   final Function? onDelete;
 
   @override
-  _StaticHostmapScreenState createState() => _StaticHostmapScreenState();
+  StaticHostmapScreenState createState() => StaticHostmapScreenState();
 }
 
-class _StaticHostmapScreenState extends State<StaticHostmapScreen> {
+class StaticHostmapScreenState extends State<StaticHostmapScreen> {
   late Map<Key, _IPAndPort> _destinations;
   late String _nebulaIp;
   late bool _lighthouse;

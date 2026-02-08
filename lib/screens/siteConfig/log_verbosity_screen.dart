@@ -12,10 +12,10 @@ class LogVerbosityScreen extends StatefulWidget {
   final ValueChanged<String> onSave;
 
   @override
-  _LogVerbosityScreenState createState() => _LogVerbosityScreenState();
+  LogVerbosityScreenState createState() => LogVerbosityScreenState();
 }
 
-class _LogVerbosityScreenState extends State<LogVerbosityScreen> {
+class LogVerbosityScreenState extends State<LogVerbosityScreen> {
   late String verbosity;
   bool changed = false;
 

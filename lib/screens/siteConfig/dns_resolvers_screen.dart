@@ -21,10 +21,10 @@ class DnsResolversScreen extends StatefulWidget {
   final ValueChanged<List<String>>? onSave;
 
   @override
-  _DnsResolversScreenState createState() => _DnsResolversScreenState();
+  DnsResolversScreenState createState() => DnsResolversScreenState();
 }
 
-class _DnsResolversScreenState extends State<DnsResolversScreen> {
+class DnsResolversScreenState extends State<DnsResolversScreen> {
   late Map<Key, _Resolver> _dnsResolvers;
   bool changed = false;
 

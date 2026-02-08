@@ -13,10 +13,10 @@ class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
 
   @override
-  _AboutScreenState createState() => _AboutScreenState();
+  AboutScreenState createState() => AboutScreenState();
 }
 
-class _AboutScreenState extends State<AboutScreen> {
+class AboutScreenState extends State<AboutScreen> {
   bool ready = false;
   PackageInfo? packageInfo;
 

@@ -30,14 +30,14 @@ class CIDRField extends StatefulWidget {
   final TextEditingController? bitsController;
 
   @override
-  _CIDRFieldState createState() => _CIDRFieldState();
+  CIDRFieldState createState() => CIDRFieldState();
 }
 
 //TODO: if the keyboard is open on the port field and you switch to dark mode, it crashes
 //TODO: maybe add in a next/done step for numeric keyboards
 //TODO: rig up focus node and next node
 //TODO: rig up textInputAction
-class _CIDRFieldState extends State<CIDRField> {
+class CIDRFieldState extends State<CIDRField> {
   final bitsFocus = FocusNode();
   final cidr = CIDR();
 

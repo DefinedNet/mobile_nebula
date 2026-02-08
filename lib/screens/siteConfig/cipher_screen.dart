@@ -12,10 +12,10 @@ class CipherScreen extends StatefulWidget {
   final ValueChanged<String> onSave;
 
   @override
-  _CipherScreenState createState() => _CipherScreenState();
+  CipherScreenState createState() => CipherScreenState();
 }
 
-class _CipherScreenState extends State<CipherScreen> {
+class CipherScreenState extends State<CipherScreen> {
   late String cipher;
   bool changed = false;
 

@@ -37,10 +37,10 @@ class EnrollmentScreen extends StatefulWidget {
   const EnrollmentScreen({super.key, this.code, this.stream, this.allowCodeEntry = false});
 
   @override
-  _EnrollmentScreenState createState() => _EnrollmentScreenState();
+  EnrollmentScreenState createState() => EnrollmentScreenState();
 }
 
-class _EnrollmentScreenState extends State<EnrollmentScreen> {
+class EnrollmentScreenState extends State<EnrollmentScreen> {
   String? error;
   var enrolled = false;
   var enrollInput = TextEditingController();

@@ -47,10 +47,10 @@ class App extends StatefulWidget {
   const App({super.key});
 
   @override
-  _AppState createState() => _AppState();
+  AppState createState() => AppState();
 }
 
-class _AppState extends State<App> {
+class AppState extends State<App> {
   final settings = Settings();
   Brightness brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
   StreamController dnEnrolled = StreamController.broadcast();

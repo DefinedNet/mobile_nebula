@@ -40,7 +40,7 @@ class IPFormField extends FormField<String> {
            return null;
          },
          builder: (FormFieldState<String> field) {
-           final _IPFormField state = field as _IPFormField;
+           final IPFormFieldState state = field as IPFormFieldState;
 
            void onChangedHandler(String value) {
              if (onChanged != null) {
@@ -80,10 +80,10 @@ class IPFormField extends FormField<String> {
   final TextEditingController? controller;
 
   @override
-  _IPFormField createState() => _IPFormField();
+  IPFormFieldState createState() => IPFormFieldState();
 }
 
-class _IPFormField extends FormFieldState<String> {
+class IPFormFieldState extends FormFieldState<String> {
   TextEditingController? _controller;
 
   TextEditingController get _effectiveController => widget.controller ?? _controller!;
