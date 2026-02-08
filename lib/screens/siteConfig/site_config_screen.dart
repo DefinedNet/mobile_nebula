@@ -85,7 +85,9 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
           return Utils.popError('Failed to save the site configuration', error.toString());
         }
 
-        Navigator.pop(context);
+        if (context.mounted) {
+          Navigator.pop(context);
+        }
         widget.onSave(site);
       },
       child: Column(

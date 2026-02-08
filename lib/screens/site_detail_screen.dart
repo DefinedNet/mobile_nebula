@@ -272,6 +272,7 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
   }
 
   Widget _buildDelete() {
+    final outerContext = context;
     return Padding(
       padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
       child: SizedBox(
@@ -281,7 +282,9 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
           onPressed:
               () => Utils.confirmDelete(context, 'Delete Site?', () async {
                 if (await _deleteSite()) {
-                  Navigator.of(context).pop();
+                  if (outerContext.mounted) {
+                    Navigator.of(outerContext).pop();
+                  }
                 }
               }),
         ),

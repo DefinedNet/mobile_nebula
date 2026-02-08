@@ -180,6 +180,7 @@ class HostInfoScreenState extends State<HostInfoScreen> {
   }
 
   Widget _buildClose() {
+    final outerContext = context;
     return Padding(
       padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
       child: SizedBox(
@@ -187,13 +188,15 @@ class HostInfoScreenState extends State<HostInfoScreen> {
         child: DangerButton(
           child: Text('Close Tunnel'),
           onPressed:
-              () => Utils.confirmDelete(context, 'Close Tunnel?', () async {
+              () => Utils.confirmDelete(outerContext, 'Close Tunnel?', () async {
                 try {
                   await widget.site.closeTunnel(hostInfo.vpnAddrs[0]);
                   if (widget.onChanged != null) {
                     widget.onChanged!();
                   }
-                  Navigator.pop(context);
+                  if (outerContext.mounted) {
+                    Navigator.pop(outerContext);
+                  }
                 } catch (err) {
                   Utils.popError('Error while trying to close the tunnel', err.toString());
                 }

@@ -33,7 +33,9 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
                 var barcode = barcodes.barcodes.firstOrNull;
                 if (barcode != null && mounted) {
                   cameraController.stop().then((_) {
-                    Navigator.pop(context, barcode.rawValue);
+                    if (context.mounted) {
+                      Navigator.pop(context, barcode.rawValue);
+                    }
                   });
                 }
               },
