@@ -235,7 +235,7 @@ class AddCertificateScreenState extends State<AddCertificateScreen> {
     ];
   }
 
-  _addCertEntry(String rawCert) async {
+  Future<void> _addCertEntry(String rawCert) async {
     // Allow for app store review testing cert to override the generated key
     if (rawCert.trim() == _testCert) {
       keyController.text = _testKey;

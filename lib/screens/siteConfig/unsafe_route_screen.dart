@@ -114,7 +114,7 @@ class UnsafeRouteScreenState extends State<UnsafeRouteScreen> {
     );
   }
 
-  _onSave() {
+  void _onSave() {
     Navigator.pop(context);
     widget.onSave(route);
   }

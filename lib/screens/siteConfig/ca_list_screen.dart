@@ -106,7 +106,7 @@ class CAListScreenState extends State<CAListScreen> {
     return items;
   }
 
-  _addCAEntry(String ca, ValueChanged<String?> callback) async {
+  Future<void> _addCAEntry(String ca, ValueChanged<String?> callback) async {
     String? error;
 
     //TODO: show an error popup

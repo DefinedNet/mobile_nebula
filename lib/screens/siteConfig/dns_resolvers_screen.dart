@@ -62,7 +62,7 @@ class DnsResolversScreenState extends State<DnsResolversScreen> {
     );
   }
 
-  _onSave() {
+  void _onSave() {
     Navigator.pop(context);
     if (widget.onSave != null) {
       List<String> resolvers = [];
@@ -142,18 +142,18 @@ class DnsResolversScreenState extends State<DnsResolversScreen> {
     return items;
   }
 
-  _addResolver() {
+  void _addResolver() {
     changed = true;
     _dnsResolvers[UniqueKey()] = _Resolver(focusNode: FocusNode(), address: "");
     // We can't onChanged here because it causes rendering issues on first build due to ensuring there is a single destination
   }
 
-  _removeResolver(Key key) {
+  void _removeResolver(Key key) {
     changed = true;
     _dnsResolvers.remove(key);
   }
 
-  _dismissKeyboard() {
+  void _dismissKeyboard() {
     FocusScopeNode currentFocus = FocusScope.of(context);
 
     if (!currentFocus.hasPrimaryFocus) {

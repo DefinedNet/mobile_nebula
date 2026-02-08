@@ -203,7 +203,7 @@ class HostInfoScreenState extends State<HostInfoScreen> {
     );
   }
 
-  _getHostInfo() async {
+  Future<dynamic> _getHostInfo() async {
     try {
       final h = await widget.site.getHostInfo(hostInfo.vpnAddrs[0], widget.pending);
       if (h == null) {
@@ -216,7 +216,7 @@ class HostInfoScreenState extends State<HostInfoScreen> {
     }
   }
 
-  _setHostInfo(HostInfo h) {
+  void _setHostInfo(HostInfo h) {
     h.remoteAddresses.sort((a, b) {
       final diff = a.ip.compareTo(b.ip);
       return diff == 0 ? a.port - b.port : diff;

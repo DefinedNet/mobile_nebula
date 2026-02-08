@@ -104,7 +104,7 @@ class SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
     );
   }
 
-  _sortTunnels() {
+  void _sortTunnels() {
     tunnels.sort((a, b) {
       final aLh = _isLighthouse(a.vpnAddrs), bLh = _isLighthouse(b.vpnAddrs);
 
@@ -136,7 +136,7 @@ class SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
     return isLh;
   }
 
-  _listHostmap() async {
+  Future<void> _listHostmap() async {
     try {
       if (widget.pending) {
         tunnels = await site.listPendingHostmap();

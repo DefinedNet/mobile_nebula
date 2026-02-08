@@ -129,7 +129,7 @@ class Site {
     );
   }
 
-  _updateFromJson(String json) {
+  void _updateFromJson(String json) {
     var decoded = Site._fromJson(jsonDecode(json));
     name = decoded["name"];
     id = decoded['id']; // TODO update EventChannel
@@ -153,7 +153,7 @@ class Site {
     dnsResolvers = decoded['dnsResolvers'];
   }
 
-  static _fromJson(Map<String, dynamic> json) {
+  static Map<String, dynamic> _fromJson(Map<String, dynamic> json) {
     Map<String, dynamic> rawHostmap = json['staticHostmap'];
     Map<String, StaticHost> staticHostmap = {};
     rawHostmap.forEach((key, val) {
@@ -242,7 +242,7 @@ class Site {
     };
   }
 
-  save() async {
+  Future<void> save() async {
     try {
       var raw = jsonEncode(this);
       await platform.invokeMethod("saveSite", raw);
@@ -266,7 +266,7 @@ class Site {
     }
   }
 
-  start() async {
+  Future<void> start() async {
     try {
       await platform.invokeMethod("startSite", <String, String>{"id": id});
     } on PlatformException catch (err) {
@@ -276,7 +276,7 @@ class Site {
     }
   }
 
-  stop() async {
+  Future<void> stop() async {
     try {
       await platform.invokeMethod("stopSite", <String, String>{"id": id});
     } on PlatformException catch (err) {

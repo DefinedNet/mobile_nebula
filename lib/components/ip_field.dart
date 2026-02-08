@@ -13,8 +13,8 @@ class IPField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final EdgeInsetsGeometry textPadding;
   final TextInputAction? textInputAction;
-  final controller;
-  final textAlign;
+  final TextEditingController? controller;
+  final TextAlign textAlign;
   final bool autoSize;
 
   const IPField({

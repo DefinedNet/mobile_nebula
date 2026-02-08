@@ -59,7 +59,7 @@ class StaticHostsScreenState extends State<StaticHostsScreen> {
     );
   }
 
-  _onSave() {
+  void _onSave() {
     Navigator.pop(context);
     if (widget.onSave != null) {
       Map<String, StaticHost> map = {};
@@ -147,7 +147,7 @@ class StaticHostsScreenState extends State<StaticHostsScreen> {
     return items;
   }
 
-  _addHostmap(Hostmap map) {
+  void _addHostmap(Hostmap map) {
     _hostmap[UniqueKey()] = (_Hostmap(
       focusNode: FocusNode(),
       nebulaIp: map.nebulaIp,

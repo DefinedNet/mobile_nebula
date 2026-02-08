@@ -212,7 +212,7 @@ class MainScreenState extends State<MainScreen> {
     return Theme(data: Theme.of(context).copyWith(canvasColor: Colors.transparent), child: child);
   }
 
-  _loadSites() async {
+  Future<void> _loadSites() async {
     //TODO: This can throw, we need to show an error dialog
     Map<String, dynamic> rawSites = jsonDecode(await platform.invokeMethod('listSites'));
     for (var site in sites) {
