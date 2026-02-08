@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:logging/logging.dart';
 import 'package:mobile_nebula/components/config/config_button_item.dart';
 import 'package:mobile_nebula/components/config/config_page_item.dart';
 import 'package:mobile_nebula/components/config/config_section.dart';
@@ -16,6 +17,7 @@ import 'package:mobile_nebula/services/utils.dart';
 //TODO: wire up the focus nodes, add a done/next/prev to the keyboard
 //TODO: you left off at providing the signed cert back. You need to verify it has your public key in it. You likely want to present the cert details before they can save
 //TODO: In addition you will want to think about re-generation while the site is still active (This means storing multiple keys in secure storage)
+final _log = Logger('ca_list_screen');
 
 class CAListScreen extends StatefulWidget {
   const CAListScreen({super.key, required this.cas, this.onSave, required this.supportsQRScanning});
@@ -182,9 +184,10 @@ class CAListScreenState extends State<CAListScreen> {
             content: Text('Load CA'),
             onPressed: () {
               _addCAEntry(pasteController.text, (err) {
-                print(err);
                 if (err != null) {
-                  return Utils.popError('Failed to parse CA content', err);
+                  _log.severe('failed to parse ca content', err, StackTrace.current);
+                  Utils.popError('Failed to parse CA content', err);
+                  return;
                 }
 
                 pasteController.text = '';

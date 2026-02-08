@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:logging/logging.dart';
 import 'package:mobile_nebula/models/hostinfo.dart';
 import 'package:mobile_nebula/models/unsafe_route.dart';
 import 'package:uuid/uuid.dart';
@@ -10,6 +11,7 @@ import 'certificate.dart';
 import 'static_hosts.dart';
 
 var uuid = Uuid();
+final _log = Logger('site');
 
 class Site {
   static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');
@@ -90,9 +92,9 @@ class Site {
         try {
           _updateFromJson(d);
           _change.add(null);
-        } catch (err) {
+        } catch (err, stackTrace) {
           //TODO: handle the error
-          print(err);
+          _log.severe("Got an error on the broadcast stream", err, stackTrace);
         }
       },
       onError: (err) {

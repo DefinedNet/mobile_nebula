@@ -89,8 +89,8 @@ class SpecialButtonState extends State<SpecialButton> with SingleTickerProviderS
   }
 
   @override
-  void didUpdateWidget(SpecialButton old) {
-    super.didUpdateWidget(old);
+  void didUpdateWidget(SpecialButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
     _setTween();
   }
 

@@ -5,11 +5,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:logging/logging.dart';
 import 'package:mobile_nebula/components/buttons/primary_button.dart';
 import 'package:mobile_nebula/components/simple_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../components/config/config_section.dart';
+
+final _log = Logger('enrollment_screen');
 
 class EnrollmentScreen extends StatefulWidget {
   final String? code;
@@ -132,7 +135,7 @@ class EnrollmentScreenState extends State<EnrollmentScreen> {
                           TapGestureRecognizer()
                             ..onTap = () async {
                               if (await canLaunchUrl(contactUri)) {
-                                print(await launchUrl(contactUri));
+                                _log.info(await launchUrl(contactUri));
                               }
                             },
                     ),

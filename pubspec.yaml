@@ -40,6 +40,8 @@ dependencies:
   sentry_dart_plugin: ^2.4.1
   mobile_scanner: ^7.0.1
   path: ^1.9.1
+  logging: ^1.3.0
+  logging_appenders: ^1.3.1
 
 dev_dependencies:
   flutter_test:

@@ -19,13 +19,12 @@ class IPFormField extends FormField<String> {
     super.onSaved,
     textPadding = const EdgeInsets.all(6.0),
     textInputAction,
-    initialValue,
+    super.initialValue,
     this.controller,
     crossAxisAlignment = CrossAxisAlignment.center,
     textAlign = TextAlign.center,
     autoSize = true,
   }) : super(
-         initialValue: initialValue,
          validator: (ip) {
            if (ip == null || ip == "") {
              return "Please fill out this field";
@@ -33,7 +32,6 @@ class IPFormField extends FormField<String> {
 
            var (valid, _) = ipValidator(ip);
            if (!valid || (!ipOnly && !dnsValidator(ip))) {
-             print(ip);
              return ipOnly ? 'Please enter a valid ip address' : 'Please enter a valid ip address or dns name';
            }
 
