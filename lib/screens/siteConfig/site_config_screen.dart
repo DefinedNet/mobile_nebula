@@ -67,7 +67,7 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
     if (pubKey == null || privKey == null) {
       return Center(
         child: fpw.PlatformCircularProgressIndicator(
-          cupertino: (_, __) {
+          cupertino: (_, _) {
             return fpw.CupertinoProgressIndicatorData(radius: 50);
           },
         ),
