@@ -113,7 +113,7 @@ jobs:
           TOKEN: ${{ secrets.MACHINE_USER_PAT }}
           GOOGLE_PLAY_KEYSTORE_PASSWORD: ${{ secrets.GOOGLE_PLAY_KEYSTORE_PASSWORD }}
         run: |
-          flutter build appbundle --build-number="$BUILD_NUMBER" --build-name="$BUILD_NAME"
+          flutter build appbundle --build-number="$BUILD_NUMBER" --build-name="$BUILD_NAME" --verbose
 
           # verify that the github token didn't make it into the output
           mkdir -p build/app/test-android

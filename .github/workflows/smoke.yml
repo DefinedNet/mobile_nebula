@@ -44,7 +44,7 @@ jobs:
           touch env.sh
 
       - name: Build Android debug
-        run: flutter build appbundle --debug
+        run: flutter build appbundle --debug --verbose
 
       - name: Setup bundletool for APK generation
         if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'release-check')
