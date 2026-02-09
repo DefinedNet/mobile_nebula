@@ -240,6 +240,7 @@ class AddCertificateScreenState extends State<AddCertificateScreen> {
     if (rawCert.trim() == _testCert) {
       keyController.text = _testKey;
     }
+    final mainContext = context;
 
     try {
       var rawCerts = await platform.invokeMethod("nebula.parseCerts", <String, String>{"certs": rawCert});
@@ -270,16 +271,18 @@ class AddCertificateScreenState extends State<AddCertificateScreen> {
 
         if (widget.onReplace != null) {
           // If we are replacing we just return the results now
-          Navigator.pop(context);
+          if (mainContext.mounted) {
+            Navigator.pop(mainContext);
+          }
           widget.onReplace!(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
           return;
-        } else if (widget.onSave != null) {
+        } else if (widget.onSave != null && mainContext.mounted) {
           // We have a cert, pop the details screen where they can hit save
-          Utils.openPage(context, (context) {
+          Utils.openPage(mainContext, (context) {
             return CertificateDetailsScreen(
               certInfo: tryCertInfo,
               onSave: () {
-                Navigator.pop(context);
+                Navigator.pop(mainContext);
                 widget.onSave!(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
               },
               supportsQRScanning: widget.supportsQRScanning,

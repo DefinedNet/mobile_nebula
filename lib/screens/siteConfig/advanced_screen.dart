@@ -238,6 +238,9 @@ class AdvancedScreenState extends State<AdvancedScreen> {
                 onPressed: () async {
                   try {
                     var config = await widget.site.renderConfig();
+                    if (!context.mounted) {
+                      return;
+                    }
                     Utils.openPage(context, (context) {
                       return RenderedConfigScreen(config: config, name: widget.site.name);
                     });
