@@ -34,6 +34,7 @@ jobs:
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e #v2.21.0
         with:
           flutter-version: '3.38.9'
+          cache: true
 
       - name: install dependencies
         env:
@@ -45,7 +46,7 @@ jobs:
           touch env.sh
 
       - name: Build Android debug
-        run: flutter build appbundle --debug --verbose
+        run: flutter build appbundle --debug
 
       - name: Setup bundletool for APK generation
         if: github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'release-check')
@@ -109,6 +110,7 @@ jobs:
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e #v2.21.0
         with:
           flutter-version: '3.38.9'
+          cache: true
 
       - name: install dependencies
         run: |
