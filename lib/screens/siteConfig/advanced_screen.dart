@@ -87,67 +87,64 @@ class AdvancedScreenState extends State<AdvancedScreen> {
                 label: Text("Lighthouse interval"),
                 labelWidth: 200,
                 //TODO: Auto select on focus?
-                content:
-                    widget.site.managed
-                        ? Text("${settings.lhDuration} seconds", textAlign: TextAlign.right)
-                        : PlatformTextFormField(
-                          initialValue: settings.lhDuration.toString(),
-                          keyboardType: TextInputType.number,
-                          suffix: Text("seconds"),
-                          textAlign: TextAlign.right,
-                          maxLength: 5,
-                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          onSaved: (val) {
-                            setState(() {
-                              if (val != null) {
-                                settings.lhDuration = int.parse(val);
-                              }
-                            });
-                          },
-                        ),
+                content: widget.site.managed
+                    ? Text("${settings.lhDuration} seconds", textAlign: TextAlign.right)
+                    : PlatformTextFormField(
+                        initialValue: settings.lhDuration.toString(),
+                        keyboardType: TextInputType.number,
+                        suffix: Text("seconds"),
+                        textAlign: TextAlign.right,
+                        maxLength: 5,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        onSaved: (val) {
+                          setState(() {
+                            if (val != null) {
+                              settings.lhDuration = int.parse(val);
+                            }
+                          });
+                        },
+                      ),
               ),
               ConfigItem(
                 label: Text("Listen port"),
                 labelWidth: 150,
                 //TODO: Auto select on focus?
-                content:
-                    widget.site.managed
-                        ? Text(settings.port.toString(), textAlign: TextAlign.right)
-                        : PlatformTextFormField(
-                          initialValue: settings.port.toString(),
-                          keyboardType: TextInputType.number,
-                          textAlign: TextAlign.right,
-                          maxLength: 5,
-                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          onSaved: (val) {
-                            setState(() {
-                              if (val != null) {
-                                settings.port = int.parse(val);
-                              }
-                            });
-                          },
-                        ),
+                content: widget.site.managed
+                    ? Text(settings.port.toString(), textAlign: TextAlign.right)
+                    : PlatformTextFormField(
+                        initialValue: settings.port.toString(),
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.right,
+                        maxLength: 5,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        onSaved: (val) {
+                          setState(() {
+                            if (val != null) {
+                              settings.port = int.parse(val);
+                            }
+                          });
+                        },
+                      ),
               ),
               ConfigItem(
                 label: Text("MTU"),
                 labelWidth: 150,
-                content:
-                    widget.site.managed
-                        ? Text(settings.mtu.toString(), textAlign: TextAlign.right)
-                        : PlatformTextFormField(
-                          initialValue: settings.mtu.toString(),
-                          keyboardType: TextInputType.number,
-                          textAlign: TextAlign.right,
-                          maxLength: 5,
-                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          onSaved: (val) {
-                            setState(() {
-                              if (val != null) {
-                                settings.mtu = int.parse(val);
-                              }
-                            });
-                          },
-                        ),
+                content: widget.site.managed
+                    ? Text(settings.mtu.toString(), textAlign: TextAlign.right)
+                    : PlatformTextFormField(
+                        initialValue: settings.mtu.toString(),
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.right,
+                        maxLength: 5,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        onSaved: (val) {
+                          setState(() {
+                            if (val != null) {
+                              settings.mtu = int.parse(val);
+                            }
+                          });
+                        },
+                      ),
               ),
               ConfigPageItem(
                 disabled: widget.site.managed,
@@ -195,15 +192,14 @@ class AdvancedScreenState extends State<AdvancedScreen> {
                   Utils.openPage(context, (context) {
                     return UnsafeRoutesScreen(
                       unsafeRoutes: settings.unsafeRoutes,
-                      onSave:
-                          widget.site.managed
-                              ? null
-                              : (routes) {
-                                setState(() {
-                                  settings.unsafeRoutes = routes;
-                                  changed = true;
-                                });
-                              },
+                      onSave: widget.site.managed
+                          ? null
+                          : (routes) {
+                              setState(() {
+                                settings.unsafeRoutes = routes;
+                                changed = true;
+                              });
+                            },
                     );
                   });
                 },
@@ -216,15 +212,14 @@ class AdvancedScreenState extends State<AdvancedScreen> {
                   Utils.openPage(context, (context) {
                     return DnsResolversScreen(
                       dnsResolvers: settings.dnsResolvers,
-                      onSave:
-                          widget.site.managed
-                              ? null
-                              : (resolvers) {
-                                setState(() {
-                                  settings.dnsResolvers = resolvers;
-                                  changed = true;
-                                });
-                              },
+                      onSave: widget.site.managed
+                          ? null
+                          : (resolvers) {
+                              setState(() {
+                                settings.dnsResolvers = resolvers;
+                                changed = true;
+                              });
+                            },
                     );
                   });
                 },

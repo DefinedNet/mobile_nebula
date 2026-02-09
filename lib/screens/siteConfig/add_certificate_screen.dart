@@ -81,7 +81,10 @@ class AddCertificateScreenState extends State<AddCertificateScreen> {
     items.add(_buildKey());
     items.addAll(_buildLoadCert());
 
-    return SimplePage(title: Text('Certificate'), child: Column(children: items));
+    return SimplePage(
+      title: Text('Certificate'),
+      child: Column(children: items),
+    );
   }
 
   List<Widget> _buildShare() {
@@ -157,12 +160,11 @@ class AddCertificateScreenState extends State<AddCertificateScreen> {
           width: double.infinity,
           child: PrimaryButton(
             child: Text('Show/Import Private Key'),
-            onPressed:
-                () => Utils.confirmDelete(context, 'Show/Import Private Key?', () {
-                  setState(() {
-                    showKey = true;
-                  });
-                }, deleteLabel: 'Yes'),
+            onPressed: () => Utils.confirmDelete(context, 'Show/Import Private Key?', () {
+              setState(() {
+                showKey = true;
+              });
+            }, deleteLabel: 'Yes'),
           ),
         ),
       );
@@ -170,7 +172,12 @@ class AddCertificateScreenState extends State<AddCertificateScreen> {
 
     return ConfigSection(
       label: 'Import a private key generated on another device',
-      children: [ConfigTextItem(controller: keyController, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14))],
+      children: [
+        ConfigTextItem(
+          controller: keyController,
+          style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14),
+        ),
+      ],
     );
   }
 

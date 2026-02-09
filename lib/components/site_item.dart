@@ -104,7 +104,10 @@ class SiteItem extends StatelessWidget {
         ),
         ConfigPageItem(
           padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
-          label: Text('Details', style: TextStyle(color: grayTextColor, fontSize: 14, fontWeight: FontWeight.w500)),
+          label: Text(
+            'Details',
+            style: TextStyle(color: grayTextColor, fontSize: 14, fontWeight: FontWeight.w500),
+          ),
           onPressed: onPressed,
         ),
       ],

@@ -85,10 +85,9 @@ class AboutScreenState extends State<AboutScreen> {
               ConfigPageItem(
                 label: Text('Licenses'),
                 labelWidth: 300,
-                onPressed:
-                    () => Utils.openPage(context, (context) {
-                      return LicensesScreen();
-                    }),
+                onPressed: () => Utils.openPage(context, (context) {
+                  return LicensesScreen();
+                }),
               ),
             ],
           ),

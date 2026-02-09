@@ -86,15 +86,14 @@ class MainScreenState extends State<MainScreen> {
       leadingAction: PlatformIconButton(
         padding: EdgeInsets.zero,
         icon: Icon(Icons.add, size: 28.0),
-        onPressed:
-            () => Utils.openPage(context, (context) {
-              return SiteConfigScreen(
-                onSave: (_) {
-                  _loadSites();
-                },
-                supportsQRScanning: supportsQRScanning,
-              );
-            }),
+        onPressed: () => Utils.openPage(context, (context) {
+          return SiteConfigScreen(
+            onSave: (_) {
+              _loadSites();
+            },
+            supportsQRScanning: supportsQRScanning,
+          );
+        }),
       ),
       refreshController: refreshController,
       onRefresh: () {
@@ -212,7 +211,10 @@ class MainScreenState extends State<MainScreen> {
     }
 
     // The theme here is to remove the hardcoded canvas border reordering forces on us
-    return Theme(data: Theme.of(context).copyWith(canvasColor: Colors.transparent), child: child);
+    return Theme(
+      data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
+      child: child,
+    );
   }
 
   Future<void> _loadSites() async {

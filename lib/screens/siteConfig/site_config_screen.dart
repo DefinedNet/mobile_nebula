@@ -112,7 +112,10 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
       data = err.toString();
     }
 
-    return ConfigSection(label: 'DEBUG', children: [ConfigItem(labelWidth: 0, content: SelectableText(data))]);
+    return ConfigSection(
+      label: 'DEBUG',
+      children: [ConfigItem(labelWidth: 0, content: SelectableText(data))],
+    );
   }
 
   Widget _main() {
@@ -144,18 +147,18 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
 
     return site.managed
         ? ConfigSection(
-          label: "MANAGED CONFIG",
-          children: <Widget>[
-            ConfigItem(
-              label: Text("Last Update"),
-              content: Wrap(
-                alignment: WrapAlignment.end,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: <Widget>[Text(lastUpdate)],
+            label: "MANAGED CONFIG",
+            children: <Widget>[
+              ConfigItem(
+                label: Text("Last Update"),
+                content: Wrap(
+                  alignment: WrapAlignment.end,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: <Widget>[Text(lastUpdate)],
+                ),
               ),
-            ),
-          ],
-        )
+            ],
+          )
         : Container();
   }
 
@@ -184,9 +187,9 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
             children: <Widget>[
               certError
                   ? Padding(
-                    padding: EdgeInsets.only(right: 5),
-                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
-                  )
+                      padding: EdgeInsets.only(right: 5),
+                      child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
+                    )
                   : Container(),
               certError ? Text('Needs attention') : Text(site.certInfo?.cert.name ?? 'Unknown certificate'),
             ],
@@ -198,16 +201,15 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
                   certInfo: site.certInfo!,
                   pubKey: pubKey,
                   privKey: privKey,
-                  onReplace:
-                      site.managed
-                          ? null
-                          : (result) {
-                            setState(() {
-                              changed = true;
-                              site.certInfo = result.certInfo;
-                              site.key = result.key;
-                            });
-                          },
+                  onReplace: site.managed
+                      ? null
+                      : (result) {
+                          setState(() {
+                            changed = true;
+                            site.certInfo = result.certInfo;
+                            site.key = result.key;
+                          });
+                        },
                   supportsQRScanning: widget.supportsQRScanning,
                 );
               }
@@ -235,9 +237,9 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
             children: <Widget>[
               caError
                   ? Padding(
-                    padding: EdgeInsets.only(right: 5),
-                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
-                  )
+                      padding: EdgeInsets.only(right: 5),
+                      child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
+                    )
                   : Container(),
               caError ? Text('Needs attention') : Text(Utils.itemCountFormat(site.ca.length)),
             ],
@@ -246,15 +248,14 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
             Utils.openPage(context, (context) {
               return CAListScreen(
                 cas: site.ca,
-                onSave:
-                    site.managed
-                        ? null
-                        : (ca) {
-                          setState(() {
-                            changed = true;
-                            site.ca = ca;
-                          });
-                        },
+                onSave: site.managed
+                    ? null
+                    : (ca) {
+                        setState(() {
+                          changed = true;
+                          site.ca = ca;
+                        });
+                      },
                 supportsQRScanning: widget.supportsQRScanning,
               );
             });
@@ -276,9 +277,9 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
             children: <Widget>[
               site.staticHostmap.isEmpty
                   ? Padding(
-                    padding: EdgeInsets.only(right: 5),
-                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
-                  )
+                      padding: EdgeInsets.only(right: 5),
+                      child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
+                    )
                   : Container(),
               site.staticHostmap.isEmpty
                   ? Text('Needs attention')
@@ -289,15 +290,14 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
             Utils.openPage(context, (context) {
               return StaticHostsScreen(
                 hostmap: site.staticHostmap,
-                onSave:
-                    site.managed
-                        ? null
-                        : (map) {
-                          setState(() {
-                            changed = true;
-                            site.staticHostmap = map;
-                          });
-                        },
+                onSave: site.managed
+                    ? null
+                    : (map) {
+                        setState(() {
+                          changed = true;
+                          site.staticHostmap = map;
+                        });
+                      },
               );
             });
           },

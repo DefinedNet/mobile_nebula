@@ -87,7 +87,12 @@ class SimplePage extends StatelessWidget {
     }
 
     if (bottomBar != null) {
-      realChild = Column(children: [Expanded(child: realChild), bottomBar!]);
+      realChild = Column(
+        children: [
+          Expanded(child: realChild),
+          bottomBar!,
+        ],
+      );
     }
 
     return PlatformScaffold(
@@ -96,13 +101,12 @@ class SimplePage extends StatelessWidget {
         title: title,
         leading: leadingAction,
         trailingActions: trailingActions,
-        cupertino:
-            (_, _) => CupertinoNavigationBarData(
-              transitionBetweenRoutes: false,
-              // TODO: set title on route, show here instead of just "Back"
-              previousPageTitle: 'Back',
-              padding: EdgeInsetsDirectional.only(end: 8.0),
-            ),
+        cupertino: (_, _) => CupertinoNavigationBarData(
+          transitionBetweenRoutes: false,
+          // TODO: set title on route, show here instead of just "Back"
+          previousPageTitle: 'Back',
+          padding: EdgeInsetsDirectional.only(end: 8.0),
+        ),
       ),
       body: SafeArea(child: realChild),
     );

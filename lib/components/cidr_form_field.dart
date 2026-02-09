@@ -63,10 +63,10 @@ class CIDRFormField extends FormField<CIDR> {
                ),
                field.hasError
                    ? Text(
-                     field.errorText ?? "Unknown error",
-                     style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
-                     textAlign: TextAlign.end,
-                   )
+                       field.errorText ?? "Unknown error",
+                       style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
+                       textAlign: TextAlign.end,
+                     )
                    : Container(height: 0),
              ],
            );
