@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #4.2.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #6.0.2
         with:
           show-progress: false
           fetch-depth: 75 # For sentry releases
@@ -103,7 +103,7 @@ jobs:
           fi
 
       - name: Collect iOS artifacts
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 #4.6.1
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #6.0.0
         with:
           name: MobileNebula.ipa
           path: ios/MobileNebula.ipa
@@ -141,7 +141,7 @@ jobs:
           unzip -p build/app/outputs/apk/release/MobileNebula.apks universal.apk > build/app/outputs/apk/release/MobileNebula.apk
 
       - name: Collect Android artifacts
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 #4.6.1
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #6.0.0
         with:
           name: MobileNebula.aab
           path: build/app/outputs/bundle/release/app-release.aab
@@ -167,7 +167,7 @@ jobs:
 
       - name: Create GitHub Release
         id: create_release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
         with:
           name: Release ${{ github.ref }}
           draft: true
