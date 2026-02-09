@@ -61,7 +61,7 @@ class EnrollmentScreenState extends State<EnrollmentScreen> {
     super.dispose();
   }
 
-  _enroll() async {
+  Future<void> _enroll() async {
     if (code == null) {
       return; //nothing to do
     }

@@ -143,7 +143,7 @@ class StaticHostmapScreenState extends State<StaticHostmapScreen> {
     );
   }
 
-  _onSave() {
+  void _onSave() {
     Navigator.pop(context);
     if (widget.onSave != null) {
       var map = Hostmap(nebulaIp: _nebulaIp, destinations: [], lighthouse: _lighthouse);
@@ -219,18 +219,18 @@ class StaticHostmapScreenState extends State<StaticHostmapScreen> {
     return items;
   }
 
-  _addDestination() {
+  void _addDestination() {
     changed = true;
     _destinations[UniqueKey()] = _IPAndPort(focusNode: FocusNode(), destination: IPAndPort());
     // We can't onChanged here because it causes rendering issues on first build due to ensuring there is a single destination
   }
 
-  _removeDestination(Key key) {
+  void _removeDestination(Key key) {
     changed = true;
     _destinations.remove(key);
   }
 
-  _dismissKeyboard() {
+  void _dismissKeyboard() {
     FocusScopeNode currentFocus = FocusScope.of(context);
 
     if (!currentFocus.hasPrimaryFocus) {

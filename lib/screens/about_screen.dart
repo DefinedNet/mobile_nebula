@@ -101,7 +101,7 @@ class AboutScreenState extends State<AboutScreen> {
     );
   }
 
-  _buildText(String str) {
+  Align _buildText(String str) {
     return Align(alignment: AlignmentDirectional.centerEnd, child: SelectableText(str));
   }
 }

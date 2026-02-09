@@ -289,7 +289,7 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
     );
   }
 
-  _listHostmap() async {
+  Future<void> _listHostmap() async {
     try {
       var maps = await site.listAllHostmaps();
       activeHosts = maps["active"];

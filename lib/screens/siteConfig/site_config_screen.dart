@@ -334,7 +334,7 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
     );
   }
 
-  _generateKeys() async {
+  Future<void> _generateKeys() async {
     try {
       var kp = await platform.invokeMethod("nebula.generateKeyPair");
       Map<String, dynamic> keyPair = jsonDecode(kp);

@@ -244,11 +244,11 @@ class SettingsScreenState extends State<SettingsScreen> {
 
         s.key = siteConfig['key'];
 
-        var err = await s.save();
-        if (err != null) {
-          Utils.popError("Failed to save the site", err);
-        } else {
+        try {
+          await s.save();
           widget.onDebugChanged?.call();
+        } catch (err) {
+          Utils.popError("Failed to save the site", err.toString());
         }
       },
     );

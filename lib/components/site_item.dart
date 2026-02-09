@@ -17,7 +17,7 @@ class SiteItem extends StatelessWidget {
     return _buildContent(context);
   }
 
-  Widget _siteNameWidget(context) {
+  Widget _siteNameWidget(BuildContext context) {
     final badgeTheme = Theme.of(context).badgeTheme;
     final nameStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 16, height: 1.6);
     List<InlineSpan> children = [];
@@ -47,7 +47,7 @@ class SiteItem extends StatelessWidget {
     return Text.rich(TextSpan(children: children));
   }
 
-  Widget _siteStatusWidget(context) {
+  Widget _siteStatusWidget(BuildContext context) {
     final grayTextColor = Theme.of(context).colorScheme.onSecondaryContainer;
     var fontStyle = TextStyle(color: grayTextColor, fontSize: 14, fontWeight: FontWeight.w500);
     if (site.errors.isNotEmpty) {

@@ -18,7 +18,7 @@ class IPAndPortField extends StatefulWidget {
     required this.onChanged,
     this.textInputAction,
     this.noBorder = false,
-    this.ipTextAlign,
+    required this.ipTextAlign,
     this.ipController,
     this.portController,
   });
@@ -31,7 +31,7 @@ class IPAndPortField extends StatefulWidget {
   final ValueChanged<IPAndPort> onChanged;
   final TextInputAction? textInputAction;
   final bool noBorder;
-  final TextAlign? ipTextAlign;
+  final TextAlign ipTextAlign;
   final TextEditingController? ipController;
   final TextEditingController? portController;
 
