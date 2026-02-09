@@ -2,7 +2,7 @@ module github.com/DefinedNet/mobile_nebula/nebula
 
 go 1.25
 
-replace github.com/slackhq/nebula v1.10.2 => github.com/spiralp/nebula v1.10.2-custom1
+replace github.com/slackhq/nebula v1.10.3 => github.com/spiralp/nebula v1.10.3-custom2
 
 require (
 	github.com/DefinedNet/dnapi v0.0.0-20260206204823-7c7bf8f42a01

@@ -1662,7 +1662,7 @@
    "pom": "sha256-O7RSgN8d0clrmgFySmFFZrfWDTNFP81SwsdB+ZmcOk4="
   },
   "play-sdk/index/snapshot": {
-   "gz": "sha256-ASo4VY+nbLKWlU9ROpymFJSVqeVGvgJAkh176rtfaIo="
+   "gz": "sha256-I2HFNwKJJUeHzIvQMFGM87NNkHBhAGDjBpudP+I8ztI="
   }
  },
  "https://maven.google.com": {
@@ -1673,7 +1673,7 @@
    "xml": "sha256-h7ZOjpdg/jIG9UNhisMqKZe4R6CwV/Zci+A91JPisqY="
   },
   "androidx/camera/group-index": {
-   "xml": "sha256-Yjo+QmCma4wAKEBJQ5v4ObbisNGt2XSIeZR8KVsDKpA="
+   "xml": "sha256-5b61sSptl4LKAZGoUxx5EvwMBe1BZjKAcapdCSQ846g="
   },
   "androidx/core/group-index": {
    "xml": "sha256-F5GT2ktVTjejU1MVKoboBwZ1xpvKOJitXlvnG/dVtJ8="
@@ -1688,16 +1688,16 @@
    "xml": "sha256-VSoy8vLkKQbEvOj2D8qmZ7FKFAbRsGmpEStNhIZkwO0="
   },
   "androidx/work/group-index": {
-   "xml": "sha256-4gjrinkZ83IlUUS4JPXpd/yMXAf9aLSZgmCoGkkG/pw="
+   "xml": "sha256-DcAmR8P7rCDYm4HZKZu8S/Yjub24bORp7SDCBkZsv0Q="
   },
   "com/android/tools/build/group-index": {
-   "xml": "sha256-J+vjze/QqRg4Db+Vafz7bhZulhFkUlU+FBVcC0+NLnk="
+   "xml": "sha256-IXOfyQAMPcu3oMpB1xQbrOivepyOA4bMMr9ROslwuUg="
   },
   "com/google/android/gms/group-index": {
-   "xml": "sha256-Mp7t6gHp8tE7f2m+1mgLPUC0AYmwWyUaW8uoXRq8O00="
+   "xml": "sha256-IuGYktUqeyZJPB79+dwLo6VOJtKogKFpKb+1KNKKVQ8="
   },
   "com/google/mlkit/group-index": {
-   "xml": "sha256-XHLyJ9Mdc0PZBukf83U86n65yUDNApELm5SanZIAENU="
+   "xml": "sha256-Qo9tFZdEqZ3WpNCJPX4iYQmSyVFubn5hrm0VT54a/JI="
   },
   "master-index": {
    "xml": "sha256-1h8ezgk8qcjzwxfdYJ0FUIxTsjizWoP1vIvCzBYGSrk="
