@@ -525,9 +525,13 @@ class MainActivity: FlutterActivity() {
         }
 
         private fun serviceExited(site: SiteContainer, msg: Message) {
-            activeSiteId = null
             site.updater.setState(false, "Disconnected", msg.data.getString("error"))
-            unbindVpnService()
+            if (site.site.id == activeSiteId) {
+                // Only unbind if its the current expected active site since an attempt can be made to start
+                // a site while another is actively running.
+                activeSiteId = null
+                unbindVpnService()
+            }
         }
     }
 

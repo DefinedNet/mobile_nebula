@@ -165,6 +165,7 @@ class Site: Codable {
   var status: String?
   var logFile: String?
   var managed: Bool
+  var dnsResolvers: [String]
   // The following fields are present if managed = true
   var lastManagedUpdate: String?
   var rawConfig: String?
@@ -234,7 +235,12 @@ class Site: Codable {
     mtu = incoming.mtu ?? 1300
     managed = incoming.managed ?? false
     lastManagedUpdate = incoming.lastManagedUpdate
+    dnsResolvers = incoming.dnsResolvers ?? []
     rawConfig = incoming.rawConfig
+
+    // Default these to disconnected for the UI
+    status = statusString[.disconnected]
+    connected = false
 
     do {
       let rawCert = incoming.cert
@@ -377,6 +383,7 @@ class Site: Codable {
     case mtu
     case managed
     case lastManagedUpdate
+    case dnsResolvers
     case rawConfig
   }
 }
@@ -436,6 +443,7 @@ struct IncomingSite: Codable {
   var logVerbosity: String?
   var key: String?
   var managed: Bool?
+  var dnsResolvers: [String]?
   // The following fields are present if managed = true
   var dnCredentials: DNCredentials?
   var lastManagedUpdate: String?

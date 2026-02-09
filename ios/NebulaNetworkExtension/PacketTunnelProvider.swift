@@ -91,6 +91,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
       unsafeRoutes: _site.unsafeRoutes
     )
 
+    if !_site.dnsResolvers.isEmpty {
+      self.log.info("Assigning dns resolvers: \(_site.dnsResolvers, privacy: .public)")
+      tunnelNetworkSettings.dnsSettings = NEDNSSettings(servers: _site.dnsResolvers)
+    }
+
     tunnelNetworkSettings.ipv4Settings = v4Settings
     tunnelNetworkSettings.ipv6Settings = v6Settings
     tunnelNetworkSettings.mtu = _site.mtu as NSNumber

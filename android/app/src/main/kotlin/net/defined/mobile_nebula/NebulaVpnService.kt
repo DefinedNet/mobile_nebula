@@ -14,6 +14,9 @@ import androidx.core.content.ContextCompat
 import androidx.work.*
 import mobileNebula.CIDR
 import java.io.File
+import java.net.Inet4Address
+import java.net.Inet6Address
+import java.net.InetAddress
 
 
 class NebulaVpnService : VpnService() {
@@ -72,8 +75,12 @@ class NebulaVpnService : VpnService() {
             if (site!!.id != id) {
                 announceExit(id, "Trying to run nebula but it is already running")
             }
+            return super.onStartCommand(intent, flags, startId)
+        }
 
-            //TODO: can we signal failure?
+        // Make sure we don't accept commands for a different site id
+        if (site != null && site!!.id != id) {
+            announceExit(id, "Command received for a site id that is different from the current active site")
             return super.onStartCommand(intent, flags, startId)
         }
 
@@ -84,7 +91,6 @@ class NebulaVpnService : VpnService() {
 
         if (site!!.cert == null) {
             announceExit(id, "Site is missing a certificate")
-            //TODO: can we signal failure?
             return super.onStartCommand(intent, flags, startId)
         }
 
@@ -142,6 +148,24 @@ class NebulaVpnService : VpnService() {
         disallowApp(builder, "com.google.android.apps.chromecast.app")
         // RCS / Jibe
         disallowApp(builder, "com.google.android.apps.messaging")
+
+        var hasDnsResolvers = false
+        site!!.dnsResolvers.forEach {
+            hasDnsResolvers = true
+            builder.addDnsServer(it)
+            Log.i(TAG, "Adding dns resolver: $it")
+        }
+
+        if (isChromeOs() && !hasDnsResolvers) {
+            // Newer versions of ChromeOS need a dns server installed for resolution to work at all.
+            // Even if the system is configured to use DoH in which case the resolvers here will may be entirely ignored.
+            // We are only considering public dns resolvers at the moment to avoid network roaming possibly
+            // breaking dns resolution.
+            getPublicDnsResolvers().forEach {
+                Log.i(TAG, "Hoisting dns resolver into the vpn: $it")
+                builder.addDnsServer(it)
+            }
+        }
 
         try {
             vpnInterface = builder.establish()
@@ -267,6 +291,26 @@ class NebulaVpnService : VpnService() {
             Log.e(TAG, "$err")
         }
         send(msg, id)
+    }
+
+    private fun isChromeOs(): Boolean {
+        val pm = packageManager
+        return pm.hasSystemFeature("org.chromium.arc") || pm.hasSystemFeature("org.chromium.arc.device_management")
+    }
+
+    private fun getPublicDnsResolvers(): List<String> {
+        val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork = connectivityManager.activeNetwork ?: return emptyList()
+        val linkProperties = connectivityManager.getLinkProperties(activeNetwork) ?: return emptyList()
+
+        val dnsResolvers = mutableListOf<String>()
+        linkProperties.dnsServers.forEach {
+            val address = it.hostAddress
+            if (address != null && it.isGlobalUnicast()) {
+                dnsResolvers.add(address)
+            }
+        }
+        return dnsResolvers
     }
 
     inner class ReloadReceiver : BroadcastReceiver() {
@@ -399,4 +443,40 @@ class NebulaVpnService : VpnService() {
         messenger = Messenger(IncomingHandler())
         return messenger.binder
     }
+}
+
+fun InetAddress.isGlobalUnicast(): Boolean {
+    // Must not be link-local, loopback, or multicast
+    if (this.isLinkLocalAddress || this.isLoopbackAddress || this.isMulticastAddress || this.isSiteLocalAddress) {
+        return false
+    }
+
+    try {
+        if (this is Inet4Address) {
+            val address = this.hostAddress
+
+            // Exclude Private IPv4 ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
+            return address != null &&
+                    address != "0.0.0.0" &&
+                    !isIpv4Private(this.address)
+        } else if (this is Inet6Address) {
+            return true
+        }
+    } catch (err: Exception) {
+        Log.e(TAG, "Caught exception in InetAddress.isGlobalUnicast: $err")
+        return false
+    }
+
+    return false
+}
+
+fun isIpv4Private(addr: ByteArray): Boolean {
+    if (addr.size != 4) {
+        throw IllegalArgumentException("addr must be 4 bytes")
+    }
+
+    val b = addr[0].toInt() and 0xFF
+    return b == 10 ||
+            (b == 172 && (addr[1].toInt() and 0xFF) in 16..31) ||
+            (b == 192 && (addr[1].toInt() and 0xFF) == 168)
 }

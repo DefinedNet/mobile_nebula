@@ -5,9 +5,9 @@ go 1.25
 replace github.com/slackhq/nebula v1.10.2 => github.com/spiralp/nebula v1.10.2-custom1
 
 require (
-	github.com/DefinedNet/dnapi v0.0.0-20251210211559-8ae1e6743199
+	github.com/DefinedNet/dnapi v0.0.0-20260206204823-7c7bf8f42a01
 	github.com/sirupsen/logrus v1.9.4
-	github.com/slackhq/nebula v1.10.2
+	github.com/slackhq/nebula v1.10.3
 	golang.org/x/crypto v0.47.0
 	golang.org/x/mobile v0.0.0-20251209145715-2553ed8ce294
 	gopkg.in/yaml.v2 v2.4.0
@@ -15,6 +15,7 @@ require (
 
 require (
 	dario.cat/mergo v1.0.2 // indirect
+	filippo.io/bigmod v0.1.0 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
