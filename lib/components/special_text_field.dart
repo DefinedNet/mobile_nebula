@@ -99,7 +99,7 @@ class SpecialTextFieldState extends State<SpecialTextField> {
       expands: widget.expands,
       inputFormatters: formatters,
       material:
-          (_, __) => MaterialTextFieldData(
+          (_, _) => MaterialTextFieldData(
             decoration: InputDecoration(
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
@@ -110,7 +110,7 @@ class SpecialTextFieldState extends State<SpecialTextField> {
             ),
           ),
       cupertino:
-          (_, __) => CupertinoTextFieldData(
+          (_, _) => CupertinoTextFieldData(
             decoration: BoxDecoration(),
             padding: EdgeInsets.zero,
             placeholder: widget.placeholder,

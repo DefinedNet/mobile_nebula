@@ -162,7 +162,7 @@ class EnrollmentScreenState extends State<EnrollmentScreen> {
           children: [
             Padding(padding: EdgeInsets.only(bottom: 25), child: Text('Contacting DN for enrollment')),
             PlatformCircularProgressIndicator(
-              cupertino: (_, __) {
+              cupertino: (_, _) {
                 return CupertinoProgressIndicatorData(radius: 50);
               },
             ),
@@ -203,8 +203,8 @@ class EnrollmentScreenState extends State<EnrollmentScreen> {
         controller: enrollInput,
         validator: validator,
         hintText: 'from admin.defined.net',
-        cupertino: (_, __) => CupertinoTextFormFieldData(prefix: Text("Code or link")),
-        material: (_, __) => MaterialTextFormFieldData(decoration: const InputDecoration(labelText: 'Code or link')),
+        cupertino: (_, _) => CupertinoTextFormFieldData(prefix: Text("Code or link")),
+        material: (_, _) => MaterialTextFormFieldData(decoration: const InputDecoration(labelText: 'Code or link')),
       ),
     );
 

@@ -111,13 +111,13 @@ class AppState extends State<App> {
                     DefaultCupertinoLocalizations.delegate,
                   ],
                   title: 'Nebula',
-                  material: (_, __) {
+                  material: (_, _) {
                     return MaterialAppData(
                       themeMode: brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
                       theme: brightness == Brightness.light ? theme.light() : theme.dark(),
                     );
                   },
-                  cupertino: (_, __) => CupertinoAppData(theme: CupertinoThemeData(brightness: brightness)),
+                  cupertino: (_, _) => CupertinoAppData(theme: CupertinoThemeData(brightness: brightness)),
                   onGenerateRoute: (settings) {
                     if (settings.name == '/') {
                       return platformPageRoute(context: context, builder: (context) => MainScreen(dnEnrolled));

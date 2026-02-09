@@ -97,7 +97,7 @@ class SimplePage extends StatelessWidget {
         leading: leadingAction,
         trailingActions: trailingActions,
         cupertino:
-            (_, __) => CupertinoNavigationBarData(
+            (_, _) => CupertinoNavigationBarData(
               transitionBetweenRoutes: false,
               // TODO: set title on route, show here instead of just "Back"
               previousPageTitle: 'Back',

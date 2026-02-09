@@ -38,7 +38,7 @@ class AboutScreenState extends State<AboutScreen> {
     if (!ready) {
       return Center(
         child: PlatformCircularProgressIndicator(
-          cupertino: (_, __) {
+          cupertino: (_, _) {
             return CupertinoProgressIndicatorData(radius: 50);
           },
         ),
