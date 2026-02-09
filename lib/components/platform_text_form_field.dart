@@ -39,7 +39,7 @@ class PlatformTextFormField extends FormField<String> {
            return null;
          },
          builder: (FormFieldState<String> field) {
-           final _PlatformTextFormFieldState state = field as _PlatformTextFormFieldState;
+           final PlatformTextFormFieldState state = field as PlatformTextFormFieldState;
 
            void onChangedHandler(String value) {
              if (onChanged != null) {
@@ -87,10 +87,10 @@ class PlatformTextFormField extends FormField<String> {
   final TextEditingController? controller;
 
   @override
-  _PlatformTextFormFieldState createState() => _PlatformTextFormFieldState();
+  PlatformTextFormFieldState createState() => PlatformTextFormFieldState();
 }
 
-class _PlatformTextFormFieldState extends FormFieldState<String> {
+class PlatformTextFormFieldState extends FormFieldState<String> {
   TextEditingController? _controller;
 
   TextEditingController get _effectiveController => widget.controller ?? _controller!;

@@ -28,10 +28,10 @@ class StaticHostsScreen extends StatefulWidget {
   final ValueChanged<Map<String, StaticHost>>? onSave;
 
   @override
-  _StaticHostsScreenState createState() => _StaticHostsScreenState();
+  StaticHostsScreenState createState() => StaticHostsScreenState();
 }
 
-class _StaticHostsScreenState extends State<StaticHostsScreen> {
+class StaticHostsScreenState extends State<StaticHostsScreen> {
   final Map<Key, _Hostmap> _hostmap = {};
   bool changed = false;
 

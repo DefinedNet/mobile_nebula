@@ -33,10 +33,10 @@ class SiteConfigScreen extends StatefulWidget {
   final bool supportsQRScanning;
 
   @override
-  _SiteConfigScreenState createState() => _SiteConfigScreenState();
+  SiteConfigScreenState createState() => SiteConfigScreenState();
 }
 
-class _SiteConfigScreenState extends State<SiteConfigScreen> {
+class SiteConfigScreenState extends State<SiteConfigScreen> {
   bool changed = false;
   bool newSite = false;
   bool debug = false;

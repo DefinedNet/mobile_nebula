@@ -49,10 +49,10 @@ class AdvancedScreen extends StatefulWidget {
   final ValueChanged<Advanced> onSave;
 
   @override
-  _AdvancedScreenState createState() => _AdvancedScreenState();
+  AdvancedScreenState createState() => AdvancedScreenState();
 }
 
-class _AdvancedScreenState extends State<AdvancedScreen> {
+class AdvancedScreenState extends State<AdvancedScreen> {
   late Advanced settings;
   var changed = false;
 

@@ -39,10 +39,10 @@ class CertificateDetailsScreen extends StatefulWidget {
   final bool supportsQRScanning;
 
   @override
-  _CertificateDetailsScreenState createState() => _CertificateDetailsScreenState();
+  CertificateDetailsScreenState createState() => CertificateDetailsScreenState();
 }
 
-class _CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
+class CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
   bool changed = false;
   CertificateResult? certResult;
   late CertificateInfo certInfo;

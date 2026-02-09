@@ -26,10 +26,10 @@ class CAListScreen extends StatefulWidget {
   final bool supportsQRScanning;
 
   @override
-  _CAListScreenState createState() => _CAListScreenState();
+  CAListScreenState createState() => CAListScreenState();
 }
 
-class _CAListScreenState extends State<CAListScreen> {
+class CAListScreenState extends State<CAListScreen> {
   Map<String, CertificateInfo> cas = {};
   bool changed = false;
   var inputType = "paste";

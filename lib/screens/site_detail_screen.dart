@@ -30,10 +30,10 @@ class SiteDetailScreen extends StatefulWidget {
   final bool supportsQRScanning;
 
   @override
-  _SiteDetailScreenState createState() => _SiteDetailScreenState();
+  SiteDetailScreenState createState() => SiteDetailScreenState();
 }
 
-class _SiteDetailScreenState extends State<SiteDetailScreen> {
+class SiteDetailScreenState extends State<SiteDetailScreen> {
   late Site site;
   late StreamSubscription onChange;
   static const platform = MethodChannel('net.defined.mobileNebula/NebulaVpnService');

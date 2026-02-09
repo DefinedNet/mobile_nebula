@@ -56,10 +56,10 @@ class SpecialTextField extends StatefulWidget {
   final bool? expands;
 
   @override
-  _SpecialTextFieldState createState() => _SpecialTextFieldState();
+  SpecialTextFieldState createState() => SpecialTextFieldState();
 }
 
-class _SpecialTextFieldState extends State<SpecialTextField> {
+class SpecialTextFieldState extends State<SpecialTextField> {
   List<TextInputFormatter> formatters = [];
 
   @override

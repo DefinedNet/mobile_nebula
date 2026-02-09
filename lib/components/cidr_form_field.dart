@@ -40,7 +40,7 @@ class CIDRFormField extends FormField<CIDR> {
            return null;
          },
          builder: (FormFieldState<CIDR> field) {
-           final _CIDRFormField state = field as _CIDRFormField;
+           final CIDRFormFieldState state = field as CIDRFormFieldState;
 
            void onChangedHandler(CIDR value) {
              if (onChanged != null) {
@@ -77,10 +77,10 @@ class CIDRFormField extends FormField<CIDR> {
   final TextEditingController? bitsController;
 
   @override
-  _CIDRFormField createState() => _CIDRFormField();
+  CIDRFormFieldState createState() => CIDRFormFieldState();
 }
 
-class _CIDRFormField extends FormFieldState<CIDR> {
+class CIDRFormFieldState extends FormFieldState<CIDR> {
   TextEditingController? _ipController = TextEditingController();
   TextEditingController? _bitsController = TextEditingController();
 

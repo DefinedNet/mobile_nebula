@@ -20,10 +20,10 @@ class SiteLogsScreen extends StatefulWidget {
   final Site site;
 
   @override
-  _SiteLogsScreenState createState() => _SiteLogsScreenState();
+  SiteLogsScreenState createState() => SiteLogsScreenState();
 }
 
-class _SiteLogsScreenState extends State<SiteLogsScreen> {
+class SiteLogsScreenState extends State<SiteLogsScreen> {
   final ScrollController controller = ScrollController();
   final RefreshController refreshController = RefreshController(initialRefresh: false);
   final LogsNotifier logsNotifier = LogsNotifier();

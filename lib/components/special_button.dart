@@ -22,10 +22,10 @@ class SpecialButton extends StatefulWidget {
   final GestureTapCallback? onPressed;
 
   @override
-  _SpecialButtonState createState() => _SpecialButtonState();
+  SpecialButtonState createState() => SpecialButtonState();
 }
 
-class _SpecialButtonState extends State<SpecialButton> with SingleTickerProviderStateMixin {
+class SpecialButtonState extends State<SpecialButton> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Platform.isAndroid ? _buildAndroid() : _buildGeneric();

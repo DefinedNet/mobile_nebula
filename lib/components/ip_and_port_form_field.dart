@@ -40,7 +40,7 @@ class IPAndPortFormField extends FormField<IPAndPort> {
            return null;
          },
          builder: (FormFieldState<IPAndPort> field) {
-           final _IPAndPortFormField state = field as _IPAndPortFormField;
+           final IPAndPortFormFieldState state = field as IPAndPortFormFieldState;
 
            void onChangedHandler(IPAndPort value) {
              if (onChanged != null) {
@@ -79,10 +79,10 @@ class IPAndPortFormField extends FormField<IPAndPort> {
   final TextEditingController? portController;
 
   @override
-  _IPAndPortFormField createState() => _IPAndPortFormField();
+  IPAndPortFormFieldState createState() => IPAndPortFormFieldState();
 }
 
-class _IPAndPortFormField extends FormFieldState<IPAndPort> {
+class IPAndPortFormFieldState extends FormFieldState<IPAndPort> {
   TextEditingController? _ipController;
   TextEditingController? _portController;
 

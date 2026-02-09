@@ -21,10 +21,10 @@ class MainScreen extends StatefulWidget {
   final StreamController dnEnrollStream;
 
   @override
-  _MainScreenState createState() => _MainScreenState();
+  MainScreenState createState() => MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class MainScreenState extends State<MainScreen> {
   List<Site> sites = [];
   // A set of widgets to display in a column that represents an error blocking us from moving forward entirely
   List<Widget>? error;

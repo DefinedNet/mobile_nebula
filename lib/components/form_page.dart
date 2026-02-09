@@ -27,10 +27,10 @@ class FormPage extends StatefulWidget {
   final bool changed;
 
   @override
-  _FormPageState createState() => _FormPageState();
+  FormPageState createState() => FormPageState();
 }
 
-class _FormPageState extends State<FormPage> {
+class FormPageState extends State<FormPage> {
   var changed = false;
   final _formKey = GlobalKey<FormState>();
 

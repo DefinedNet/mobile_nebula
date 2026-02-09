@@ -36,14 +36,14 @@ class IPAndPortField extends StatefulWidget {
   final TextEditingController? portController;
 
   @override
-  _IPAndPortFieldState createState() => _IPAndPortFieldState();
+  IPAndPortFieldState createState() => IPAndPortFieldState();
 }
 
 //TODO: if the keyboard is open on the port field and you switch to dark mode, it crashes
 //TODO: maybe add in a next/done step for numeric keyboards
 //TODO: rig up focus node and next node
 //TODO: rig up textInputAction
-class _IPAndPortFieldState extends State<IPAndPortField> {
+class IPAndPortFieldState extends State<IPAndPortField> {
   final _portFocus = FocusNode();
   final _ipAndPort = IPAndPort();
 
