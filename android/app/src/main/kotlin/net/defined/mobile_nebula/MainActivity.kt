@@ -1,6 +1,5 @@
 package net.defined.mobile_nebula
 
-import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -18,7 +17,6 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugins.GeneratedPluginRegistrant
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -47,7 +45,7 @@ class MainActivity: FlutterActivity() {
 
     private var activeSiteId: String? = null
 
-    private val workManager = WorkManager.getInstance(application)
+    private lateinit var workManager: WorkManager
     private val refreshReceiver: BroadcastReceiver = RefreshReceiver()
 
     companion object {
@@ -101,6 +99,7 @@ class MainActivity: FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        workManager = WorkManager.getInstance(application) //TODO: this got moved probably because our AndroidManifest isn't good enough anymore to initialize it for us. Fix initializing
         apiClient = APIClient(context)
 
         ContextCompat.registerReceiver(context, refreshReceiver, IntentFilter(ACTION_REFRESH_SITES), ContextCompat.RECEIVER_NOT_EXPORTED)
@@ -243,7 +242,7 @@ class MainActivity: FlutterActivity() {
         try {
             // Try to render a full site, if this fails the config was bad somehow
             Site(context, siteDir)
-        } catch(err: java.io.FileNotFoundException) {
+        } catch(_: java.io.FileNotFoundException) {
             Log.e(TAG, "Site not found at $siteDir")
             return false
         } catch(err: Exception) {
@@ -268,7 +267,7 @@ class MainActivity: FlutterActivity() {
         if (intent != null) {
             startActivityForResult(intent, VPN_START_CODE)
         } else {
-            onActivityResult(VPN_START_CODE, Activity.RESULT_OK, null)
+            onActivityResult(VPN_START_CODE, RESULT_OK, null)
         }
     }
 
@@ -437,7 +436,7 @@ class MainActivity: FlutterActivity() {
             val siteContainer = startingSiteContainer!!
             startResult = null
             startingSiteContainer = null
-            if (resultCode != Activity.RESULT_OK) {
+            if (resultCode != RESULT_OK) {
                 // The user did not grant permissions
                 siteContainer.updater.setState(false, "Disconnected")
                 return result.error("permissions", "Please grant VPN permissions to the app when requested. (If another VPN is running, please disable it now.)", null)
@@ -473,7 +472,7 @@ class MainActivity: FlutterActivity() {
                 msg.replyTo = inMessenger
                 outMessenger!!.send(msg)
 
-            } catch (e: RemoteException) {
+            } catch (_: RemoteException) {
                 // In this case the service has crashed before we could even
                 // do anything with it; we can count on soon being
                 // disconnected (and then reconnected if it can be restarted)
@@ -490,6 +489,7 @@ class MainActivity: FlutterActivity() {
             isServiceBound = false
             if (activeSiteId != null) {
                 //TODO: this indicates the service died, notify that it is disconnected
+                Log.e(TAG, "Active site appeared to disconnect, we should notify the ui")
             }
             activeSiteId = null
         }

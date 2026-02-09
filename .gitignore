@@ -30,6 +30,7 @@ android/app/.cxx
 .pub-cache/
 .pub/
 /build/
+**/ios/Flutter/ephemeral
 
 # Web related
 lib/generated_plugin_registrant.dart
@@ -53,3 +54,6 @@ lib/generated_plugin_registrant.dart
 *.keystore
 /nebula/MobileNebula.xcframework/
 /ios/MobileNebula.xcframework/
+/android/build/reports/problems/problems-report.html
+/.fvm/
+/.fvmrc

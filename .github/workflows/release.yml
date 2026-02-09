@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #4.2.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #6.0.2
         with:
           show-progress: false
           fetch-depth: 75 # For sentry releases
@@ -23,15 +23,17 @@ jobs:
         with:
           patch-ref: '296be05a97eb526dc0e438b7387670d4cae4a935'
 
-      - uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 #v4.7.0
+      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 #v5.2.0
         with:
-          distribution: "zulu"
-          java-version: "17"
+          distribution: 'zulu'
+          java-version: '17'
+          cache: "gradle"
 
       - name: Install flutter
-        uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff #v2.18.0
+        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e #v2.21.0
         with:
-          flutter-version: "3.29.2"
+          flutter-version: "3.38.9"
+          cache: true
 
       - name: Setup bundletool for APK generation
         run: |
@@ -102,7 +104,7 @@ jobs:
           fi
 
       - name: Collect iOS artifacts
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 #4.6.1
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #6.0.0
         with:
           name: MobileNebula.ipa
           path: ios/MobileNebula.ipa
@@ -140,7 +142,7 @@ jobs:
           unzip -p build/app/outputs/apk/release/MobileNebula.apks universal.apk > build/app/outputs/apk/release/MobileNebula.apk
 
       - name: Collect Android artifacts
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 #4.6.1
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #6.0.0
         with:
           name: MobileNebula.aab
           path: build/app/outputs/bundle/release/app-release.aab
@@ -166,7 +168,7 @@ jobs:
 
       - name: Create GitHub Release
         id: create_release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
         with:
           name: Release ${{ github.ref }}
           draft: true
