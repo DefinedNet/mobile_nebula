@@ -8,6 +8,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:logging_appenders/logging_appenders.dart';
 import 'package:mobile_nebula/screens/enrollment_screen.dart';
 import 'package:mobile_nebula/screens/main_screen.dart';
 import 'package:mobile_nebula/services/settings.dart';
@@ -18,6 +19,8 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
+  PrintAppender.setupLogging();
+
   usePathUrlStrategy();
   var settings = Settings();
   if (settings.trackErrors && !kDebugMode) {

@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:logging/logging.dart';
 import 'package:mobile_nebula/components/simple_page.dart';
 import 'package:mobile_nebula/components/site_item.dart';
 import 'package:mobile_nebula/models/site.dart';
@@ -14,6 +15,8 @@ import 'package:mobile_nebula/screens/siteConfig/site_config_screen.dart';
 import 'package:mobile_nebula/screens/site_detail_screen.dart';
 import 'package:mobile_nebula/services/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+
+final _log = Logger('main_screen');
 
 class MainScreen extends StatefulWidget {
   const MainScreen(this.dnEnrollStream, {super.key});
@@ -61,7 +64,7 @@ class MainScreenState extends State<MainScreen> {
         _loadSites();
         break;
       default:
-        print("ERR: Unexpected method call ${call.method}");
+        _log.severe('unexpected method call ${call.method}', StackTrace.current);
     }
   }
 
@@ -194,9 +197,9 @@ class MainScreenState extends State<MainScreen> {
           sites[i].sortKey = i;
           try {
             await sites[i].save();
-          } catch (err) {
+          } catch (err, stackTrace) {
             //TODO: display error at the end
-            print('ERR ${sites[i].name} - $err');
+            _log.severe('error while saving site: ${sites[i].name} (${sites[i].id})', err, stackTrace);
           }
         }
 
@@ -235,10 +238,9 @@ class MainScreenState extends State<MainScreen> {
         );
 
         sites.add(site);
-      } catch (err) {
+      } catch (err, stackTrace) {
         //TODO: handle error
-        print(err);
-        print("site config: $rawSite");
+        _log.severe('error while hydrating a site from an incoming site', err, stackTrace);
         // Sometimes it is helpful to just nuke these is dev
         // platform.invokeMethod('deleteSite', id);
       }

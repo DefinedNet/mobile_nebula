@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:mobile_nebula/services/storage.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-bool DEFAULT_LOG_WRAP = false;
-bool DEFAULT_TRACK_ERRORS = true;
+bool defaultLogWrap = false;
+bool defaultTrackErrors = true;
 
 class Settings {
   final _storage = Storage();
@@ -34,7 +35,7 @@ class Settings {
   }
 
   bool get logWrap {
-    return _getBool('logWrap', DEFAULT_LOG_WRAP);
+    return _getBool('logWrap', defaultLogWrap);
   }
 
   set logWrap(bool enabled) {
@@ -42,7 +43,7 @@ class Settings {
   }
 
   bool get trackErrors {
-    return _getBool('trackErrors', DEFAULT_TRACK_ERRORS);
+    return _getBool('trackErrors', defaultTrackErrors);
   }
 
   set trackErrors(bool enabled) {
@@ -52,14 +53,6 @@ class Settings {
     if (!enabled) {
       Sentry.close();
     }
-  }
-
-  String _getString(String key, String defaultValue) {
-    final val = _settings[key];
-    if (val is String) {
-      return val;
-    }
-    return defaultValue;
   }
 
   bool _getBool(String key, bool defaultValue) {
