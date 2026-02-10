@@ -59,7 +59,7 @@ flutter test test/screens/*_golden_test.dart
 ## Linting
 
 ```sh
-flutter analyze --no-fatal-infos --no-fatal-warnings
+flutter analyze
 ```
 
 # Formatting
