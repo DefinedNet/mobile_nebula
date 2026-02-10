@@ -5,14 +5,11 @@ import 'package:mobile_nebula/services/utils.dart';
 
 void main() {
   group('Utils.popError Tests', () {
-    testWidgets('popError shows dialog with title and error message',
-        (WidgetTester tester) async {
+    testWidgets('popError shows dialog with title and error message', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           navigatorKey: navigatorKey,
-          home: const Scaffold(
-            body: Center(child: Text('Home')),
-          ),
+          home: const Scaffold(body: Center(child: Text('Home'))),
         ),
       );
 
@@ -26,14 +23,11 @@ void main() {
       expect(find.text('Ok'), findsOneWidget);
     });
 
-    testWidgets('popError includes stack trace when provided',
-        (WidgetTester tester) async {
+    testWidgets('popError includes stack trace when provided', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           navigatorKey: navigatorKey,
-          home: const Scaffold(
-            body: Center(child: Text('Home')),
-          ),
+          home: const Scaffold(body: Center(child: Text('Home'))),
         ),
       );
 
@@ -50,9 +44,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           navigatorKey: navigatorKey,
-          home: const Scaffold(
-            body: Center(child: Text('Home')),
-          ),
+          home: const Scaffold(body: Center(child: Text('Home'))),
         ),
       );
 
@@ -70,8 +62,7 @@ void main() {
       expect(find.text('Dismissible Error'), findsNothing);
     });
 
-    testWidgets('popError handles null navigator context gracefully',
-        (WidgetTester tester) async {
+    testWidgets('popError handles null navigator context gracefully', (WidgetTester tester) async {
       // Note: This test is challenging because we can't easily set navigatorKey.currentContext to null
       // In a real scenario, this would require the error to be called before the app is built
       // We can at least verify it doesn't crash when called with a valid context
@@ -79,9 +70,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           navigatorKey: navigatorKey,
-          home: const Scaffold(
-            body: Center(child: Text('Home')),
-          ),
+          home: const Scaffold(body: Center(child: Text('Home'))),
         ),
       );
 
@@ -98,9 +87,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           navigatorKey: navigatorKey,
-          home: const Scaffold(
-            body: Center(child: Text('Home')),
-          ),
+          home: const Scaffold(body: Center(child: Text('Home'))),
         ),
       );
 
@@ -113,14 +100,11 @@ void main() {
       expect(find.text('Ok'), findsOneWidget);
     });
 
-    testWidgets('multiple popError calls show multiple dialogs',
-        (WidgetTester tester) async {
+    testWidgets('multiple popError calls show multiple dialogs', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           navigatorKey: navigatorKey,
-          home: const Scaffold(
-            body: Center(child: Text('Home')),
-          ),
+          home: const Scaffold(body: Center(child: Text('Home'))),
         ),
       );
 
@@ -145,9 +129,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           navigatorKey: navigatorKey,
-          home: const Scaffold(
-            body: Center(child: Text('Home')),
-          ),
+          home: const Scaffold(body: Center(child: Text('Home'))),
         ),
       );
 
@@ -194,14 +176,8 @@ void main() {
     });
 
     test('uses custom suffixes', () {
-      expect(
-        Utils.itemCountFormat(1, singleSuffix: 'site', multiSuffix: 'sites'),
-        equals('1 site'),
-      );
-      expect(
-        Utils.itemCountFormat(5, singleSuffix: 'site', multiSuffix: 'sites'),
-        equals('5 sites'),
-      );
+      expect(Utils.itemCountFormat(1, singleSuffix: 'site', multiSuffix: 'sites'), equals('1 site'));
+      expect(Utils.itemCountFormat(5, singleSuffix: 'site', multiSuffix: 'sites'), equals('5 sites'));
     });
   });
 

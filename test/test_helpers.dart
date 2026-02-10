@@ -17,9 +17,7 @@ Widget createTestApp({required Widget child}) {
   return MaterialApp(
     theme: theme.light(),
     darkTheme: theme.dark(),
-    home: Scaffold(
-      body: child,
-    ),
+    home: Scaffold(body: child),
   );
 }
 

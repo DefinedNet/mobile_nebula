@@ -42,30 +42,21 @@ void main() {
         final lightTheme = theme.light();
 
         // Verify custom primaryContainer color (white)
-        expect(
-          lightTheme.colorScheme.primaryContainer,
-          equals(const Color.fromRGBO(255, 255, 255, 1)),
-        );
+        expect(lightTheme.colorScheme.primaryContainer, equals(const Color.fromRGBO(255, 255, 255, 1)));
       });
 
       test('light theme has custom secondary container color', () {
         final lightTheme = theme.light();
 
         // Verify custom onSecondaryContainer color
-        expect(
-          lightTheme.colorScheme.onSecondaryContainer,
-          equals(const Color.fromRGBO(138, 151, 168, 1)),
-        );
+        expect(lightTheme.colorScheme.onSecondaryContainer, equals(const Color.fromRGBO(138, 151, 168, 1)));
       });
 
       test('light theme has custom surface color', () {
         final lightTheme = theme.light();
 
         // Verify custom surface color
-        expect(
-          lightTheme.colorScheme.surface,
-          equals(const Color.fromARGB(255, 226, 229, 233)),
-        );
+        expect(lightTheme.colorScheme.surface, equals(const Color.fromARGB(255, 226, 229, 233)));
       });
     });
 
@@ -91,48 +82,33 @@ void main() {
         final lightTheme = theme.light();
         final darkTheme = theme.dark();
 
-        expect(
-          lightTheme.badgeTheme.backgroundColor,
-          isNot(equals(darkTheme.badgeTheme.backgroundColor)),
-        );
+        expect(lightTheme.badgeTheme.backgroundColor, isNot(equals(darkTheme.badgeTheme.backgroundColor)));
       });
 
       test('dark theme has custom primary container color', () {
         final darkTheme = theme.dark();
 
         // Verify custom primaryContainer color for dark mode
-        expect(
-          darkTheme.colorScheme.primaryContainer,
-          equals(const Color.fromRGBO(43, 50, 59, 1)),
-        );
+        expect(darkTheme.colorScheme.primaryContainer, equals(const Color.fromRGBO(43, 50, 59, 1)));
       });
 
       test('dark theme has custom surface color', () {
         final darkTheme = theme.dark();
 
         // Verify custom surface color for dark mode
-        expect(
-          darkTheme.colorScheme.surface,
-          equals(const Color.fromARGB(255, 22, 25, 29)),
-        );
+        expect(darkTheme.colorScheme.surface, equals(const Color.fromARGB(255, 22, 25, 29)));
       });
 
       test('dark theme badge has purple background', () {
         final darkTheme = theme.dark();
 
-        expect(
-          darkTheme.badgeTheme.backgroundColor,
-          equals(const Color.fromARGB(255, 93, 34, 221)),
-        );
+        expect(darkTheme.badgeTheme.backgroundColor, equals(const Color.fromARGB(255, 93, 34, 221)));
       });
 
       test('dark theme badge has light text color', () {
         final darkTheme = theme.dark();
 
-        expect(
-          darkTheme.badgeTheme.textColor,
-          equals(const Color.fromARGB(255, 223, 211, 248)),
-        );
+        expect(darkTheme.badgeTheme.textColor, equals(const Color.fromARGB(255, 223, 211, 248)));
       });
     });
 
