@@ -4,6 +4,27 @@ import 'package:mobile_nebula/components/site_item.dart';
 
 import '../test_helpers.dart';
 
+/// Helper to find text within RichText widgets
+Finder findRichText(String text) {
+  return find.byWidgetPredicate((widget) {
+    if (widget is! RichText) return false;
+
+    String extractText(InlineSpan span) {
+      if (span is TextSpan) {
+        final buffer = StringBuffer();
+        if (span.text != null) buffer.write(span.text);
+        span.children?.forEach((child) {
+          buffer.write(extractText(child));
+        });
+        return buffer.toString();
+      }
+      return '';
+    }
+
+    return extractText(widget.text).contains(text);
+  });
+}
+
 void main() {
   group('SiteItem Widget Tests', () {
     testWidgets('displays site name correctly', (WidgetTester tester) async {
@@ -11,7 +32,7 @@ void main() {
 
       await tester.pumpWidget(createTestApp(child: SiteItem(site: site)));
 
-      expect(find.text('Test Site'), findsOneWidget);
+      expect(findRichText('Test Site'), findsOneWidget);
     });
 
     testWidgets('displays managed badge for managed sites', (WidgetTester tester) async {
@@ -19,7 +40,7 @@ void main() {
 
       await tester.pumpWidget(createTestApp(child: SiteItem(site: site)));
 
-      expect(find.text('Test Managed Site'), findsOneWidget);
+      expect(findRichText('Test Managed Site'), findsOneWidget);
       expect(find.text('Managed'), findsOneWidget);
     });
 
@@ -28,7 +49,7 @@ void main() {
 
       await tester.pumpWidget(createTestApp(child: SiteItem(site: site)));
 
-      expect(find.text('Test Unmanaged Site'), findsOneWidget);
+      expect(findRichText('Test Unmanaged Site'), findsOneWidget);
       expect(find.text('Managed'), findsNothing);
     });
 
@@ -37,7 +58,7 @@ void main() {
 
       await tester.pumpWidget(createTestApp(child: SiteItem(site: site)));
 
-      expect(find.text('Test Connected Site'), findsOneWidget);
+      expect(findRichText('Test Connected Site'), findsOneWidget);
       expect(find.text('Connected'), findsOneWidget);
     });
 
@@ -150,9 +171,31 @@ void main() {
 
       await tester.pumpWidget(createTestApp(child: SiteItem(site: site)));
 
-      final nameText = tester.widget<Text>(find.text('Styled Site'));
-      expect(nameText.style?.fontSize, equals(16));
-      expect(nameText.style?.fontWeight, equals(FontWeight.w500));
+      // Find the RichText widget that contains the site name
+      final richTextFinder = findRichText('Styled Site');
+      expect(richTextFinder, findsOneWidget);
+
+      final richText = tester.widget<RichText>(richTextFinder);
+      final textSpan = richText.text as TextSpan;
+
+      // Recursively find TextSpan with the site name
+      TextSpan? findTextSpan(InlineSpan span, String text) {
+        if (span is TextSpan) {
+          if (span.text == text) return span;
+          if (span.children != null) {
+            for (var child in span.children!) {
+              final found = findTextSpan(child, text);
+              if (found != null) return found;
+            }
+          }
+        }
+        return null;
+      }
+
+      final siteNameSpan = findTextSpan(textSpan, 'Styled Site');
+      expect(siteNameSpan, isNotNull);
+      expect(siteNameSpan!.style?.fontSize, equals(16));
+      expect(siteNameSpan.style?.fontWeight, equals(FontWeight.w500));
     });
   });
 }
