@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile_nebula/models/Certificate.dart';
-import 'package:mobile_nebula/models/Site.dart';
+import 'package:mobile_nebula/models/certificate.dart';
+import 'package:mobile_nebula/models/site.dart';
 import 'package:mobile_nebula/models/static_hosts.dart';
 import 'package:mobile_nebula/models/unsafe_route.dart';
 import 'package:mobile_nebula/services/theme.dart';
