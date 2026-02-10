@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile_nebula/components/SiteItem.dart';
+import 'package:mobile_nebula/components/site_item.dart';
 
 import '../test_helpers.dart';
 

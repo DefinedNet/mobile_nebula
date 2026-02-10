@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile_nebula/screens/SettingsScreen.dart'
+import 'package:mobile_nebula/screens/settings_screen.dart'
     show badDebugSave, goodDebugSave, goodDebugSaveV2, SettingsScreen;
 
 void main() {
