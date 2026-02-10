@@ -81,30 +81,28 @@ class ScannerOverlay extends CustomPainter {
     // we need to pass the size to the custom paint widget
     final backgroundPath = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
 
-    final cutoutPath =
-        Path()..addRRect(
-          RRect.fromRectAndCorners(
-            scanWindow,
-            topLeft: Radius.circular(borderRadius),
-            topRight: Radius.circular(borderRadius),
-            bottomLeft: Radius.circular(borderRadius),
-            bottomRight: Radius.circular(borderRadius),
-          ),
-        );
+    final cutoutPath = Path()
+      ..addRRect(
+        RRect.fromRectAndCorners(
+          scanWindow,
+          topLeft: Radius.circular(borderRadius),
+          topRight: Radius.circular(borderRadius),
+          bottomLeft: Radius.circular(borderRadius),
+          bottomRight: Radius.circular(borderRadius),
+        ),
+      );
 
-    final backgroundPaint =
-        Paint()
-          ..color = Colors.black.withValues(alpha: 0.5)
-          ..style = PaintingStyle.fill
-          ..blendMode = BlendMode.srcOver;
+    final backgroundPaint = Paint()
+      ..color = Colors.black.withValues(alpha: 0.5)
+      ..style = PaintingStyle.fill
+      ..blendMode = BlendMode.srcOver;
 
     final backgroundWithCutout = Path.combine(PathOperation.difference, backgroundPath, cutoutPath);
 
-    final borderPaint =
-        Paint()
-          ..color = Colors.white
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 4.0;
+    final borderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4.0;
 
     final borderRect = RRect.fromRectAndCorners(
       scanWindow,

@@ -167,10 +167,10 @@ class CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
         ),
         certInfo.rawCert != null
             ? ConfigItem(
-              label: Text('PEM Format'),
-              content: SelectableText(certInfo.rawCert!, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
-              crossAxisAlignment: CrossAxisAlignment.start,
-            )
+                label: Text('PEM Format'),
+                content: SelectableText(certInfo.rawCert!, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
+                crossAxisAlignment: CrossAxisAlignment.start,
+              )
             : Container(),
       ],
     );
@@ -223,11 +223,10 @@ class CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
         width: double.infinity,
         child: DangerButton(
           child: Text('Delete'),
-          onPressed:
-              () => Utils.confirmDelete(context, title, () async {
-                Navigator.pop(context);
-                widget.onDelete!();
-              }),
+          onPressed: () => Utils.confirmDelete(context, title, () async {
+            Navigator.pop(context);
+            widget.onDelete!();
+          }),
         ),
       ),
     );

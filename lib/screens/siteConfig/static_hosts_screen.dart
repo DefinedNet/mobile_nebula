@@ -97,26 +97,24 @@ class StaticHostsScreenState extends State<StaticHostsScreen> {
                 nebulaIp: host.nebulaIp,
                 destinations: host.destinations,
                 lighthouse: host.lighthouse,
-                onSave:
-                    widget.onSave == null
-                        ? null
-                        : (map) {
-                          setState(() {
-                            changed = true;
-                            host.nebulaIp = map.nebulaIp;
-                            host.destinations = map.destinations;
-                            host.lighthouse = map.lighthouse;
-                          });
-                        },
-                onDelete:
-                    widget.onSave == null
-                        ? null
-                        : () {
-                          setState(() {
-                            changed = true;
-                            _hostmap.remove(key);
-                          });
-                        },
+                onSave: widget.onSave == null
+                    ? null
+                    : (map) {
+                        setState(() {
+                          changed = true;
+                          host.nebulaIp = map.nebulaIp;
+                          host.destinations = map.destinations;
+                          host.lighthouse = map.lighthouse;
+                        });
+                      },
+                onDelete: widget.onSave == null
+                    ? null
+                    : () {
+                        setState(() {
+                          changed = true;
+                          _hostmap.remove(key);
+                        });
+                      },
               );
             });
           },

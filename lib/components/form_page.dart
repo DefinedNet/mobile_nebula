@@ -63,10 +63,9 @@ class FormPageState extends State<FormPage> {
         title: Text(widget.title),
         child: Form(
           key: _formKey,
-          onChanged:
-              () => setState(() {
-                changed = true;
-              }),
+          onChanged: () => setState(() {
+            changed = true;
+          }),
           child: widget.child,
         ),
       ),

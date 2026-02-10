@@ -66,9 +66,9 @@ class IPAndPortFormField extends FormField<IPAndPort> {
                ),
                field.hasError
                    ? Text(
-                     field.errorText!,
-                     style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
-                   )
+                       field.errorText!,
+                       style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
+                     )
                    : Container(height: 0),
              ],
            );

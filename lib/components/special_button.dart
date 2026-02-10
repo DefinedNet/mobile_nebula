@@ -65,7 +65,10 @@ class SpecialButtonState extends State<SpecialButton> with SingleTickerProviderS
           button: true,
           child: FadeTransition(
             opacity: _opacityAnimation!,
-            child: DefaultTextStyle(style: textStyle, child: Container(color: widget.color, child: widget.child)),
+            child: DefaultTextStyle(
+              style: textStyle,
+              child: Container(color: widget.color, child: widget.child),
+            ),
           ),
         ),
       ),
@@ -133,10 +136,9 @@ class SpecialButtonState extends State<SpecialButton> with SingleTickerProviderS
     }
 
     final bool wasHeldDown = _buttonHeldDown;
-    final TickerFuture ticker =
-        _buttonHeldDown
-            ? _animationController!.animateTo(1.0, duration: kFadeOutDuration)
-            : _animationController!.animateTo(0.0, duration: kFadeInDuration);
+    final TickerFuture ticker = _buttonHeldDown
+        ? _animationController!.animateTo(1.0, duration: kFadeOutDuration)
+        : _animationController!.animateTo(0.0, duration: kFadeInDuration);
 
     ticker.then<void>((void value) {
       if (mounted && wasHeldDown != _buttonHeldDown) {

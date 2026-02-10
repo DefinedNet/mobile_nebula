@@ -94,34 +94,32 @@ class SiteLogsScreenState extends State<SiteLogsScreen> {
   Widget _buildTextWrapToggle() {
     return Platform.isIOS
         ? Tooltip(
-          message: "Turn ${settings.logWrap ? "off" : "on"} text wrapping",
-          child: CupertinoButton.tinted(
-            // Use the default tint when enabled, match the background when not.
-            color: settings.logWrap ? null : CupertinoColors.systemBackground,
-            sizeStyle: CupertinoButtonSize.small,
-            borderRadius: const BorderRadius.all(Radius.circular(8)),
-            child: const Icon(Icons.wrap_text),
-            onPressed:
-                () => {
-                  setState(() {
-                    settings.logWrap = !settings.logWrap;
-                  }),
-                },
-          ),
-        )
-        : IconButton.filledTonal(
-          isSelected: settings.logWrap,
-          tooltip: "Turn ${settings.logWrap ? "off" : "on"} text wrapping",
-          // The variants of wrap_text seem to be the same, but this seems most correct.
-          selectedIcon: const Icon(Icons.wrap_text_outlined),
-          icon: const Icon(Icons.wrap_text),
-          onPressed:
-              () => {
+            message: "Turn ${settings.logWrap ? "off" : "on"} text wrapping",
+            child: CupertinoButton.tinted(
+              // Use the default tint when enabled, match the background when not.
+              color: settings.logWrap ? null : CupertinoColors.systemBackground,
+              sizeStyle: CupertinoButtonSize.small,
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              child: const Icon(Icons.wrap_text),
+              onPressed: () => {
                 setState(() {
                   settings.logWrap = !settings.logWrap;
                 }),
               },
-        );
+            ),
+          )
+        : IconButton.filledTonal(
+            isSelected: settings.logWrap,
+            tooltip: "Turn ${settings.logWrap ? "off" : "on"} text wrapping",
+            // The variants of wrap_text seem to be the same, but this seems most correct.
+            selectedIcon: const Icon(Icons.wrap_text_outlined),
+            icon: const Icon(Icons.wrap_text),
+            onPressed: () => {
+              setState(() {
+                settings.logWrap = !settings.logWrap;
+              }),
+            },
+          );
   }
 
   Widget _buildBottomBar() {
@@ -163,9 +161,11 @@ class SiteLogsScreenState extends State<SiteLogsScreen> {
           ),
         ],
       ),
-      cupertino:
-          (context, child, platform) =>
-              Container(decoration: BoxDecoration(border: Border(top: borderSide)), padding: padding, child: child),
+      cupertino: (context, child, platform) => Container(
+        decoration: BoxDecoration(border: Border(top: borderSide)),
+        padding: padding,
+        child: child,
+      ),
       material: (context, child, platform) => BottomAppBar(child: child),
     );
   }

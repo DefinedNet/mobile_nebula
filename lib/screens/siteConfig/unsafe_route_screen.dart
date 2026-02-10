@@ -95,19 +95,18 @@ class UnsafeRouteScreenState extends State<UnsafeRouteScreen> {
           ),
           widget.onDelete != null
               ? Padding(
-                padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: DangerButton(
-                    child: Text('Delete'),
-                    onPressed:
-                        () => Utils.confirmDelete(context, 'Delete unsafe route?', () {
-                          Navigator.of(context).pop();
-                          widget.onDelete!();
-                        }),
+                  padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: DangerButton(
+                      child: Text('Delete'),
+                      onPressed: () => Utils.confirmDelete(context, 'Delete unsafe route?', () {
+                        Navigator.of(context).pop();
+                        widget.onDelete!();
+                      }),
+                    ),
                   ),
-                ),
-              )
+                )
               : Container(),
         ],
       ),

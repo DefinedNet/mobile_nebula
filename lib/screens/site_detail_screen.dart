@@ -279,14 +279,13 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
         width: double.infinity,
         child: DangerButton(
           child: Text('Delete'),
-          onPressed:
-              () => Utils.confirmDelete(context, 'Delete Site?', () async {
-                if (await _deleteSite()) {
-                  if (outerContext.mounted) {
-                    Navigator.of(outerContext).pop();
-                  }
-                }
-              }),
+          onPressed: () => Utils.confirmDelete(context, 'Delete Site?', () async {
+            if (await _deleteSite()) {
+              if (outerContext.mounted) {
+                Navigator.of(outerContext).pop();
+              }
+            }
+          }),
         ),
       ),
     );

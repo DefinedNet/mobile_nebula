@@ -65,10 +65,10 @@ class IPFormField extends FormField<String> {
                ),
                field.hasError
                    ? Text(
-                     field.errorText!,
-                     style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
-                     textAlign: textAlign,
-                   )
+                       field.errorText!,
+                       style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
+                       textAlign: textAlign,
+                     )
                    : Container(height: 0),
              ],
            );

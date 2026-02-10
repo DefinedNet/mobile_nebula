@@ -76,18 +76,17 @@ class HostInfoScreenState extends State<HostInfoScreen> {
         ),
         hostInfo.cert != null
             ? ConfigPageItem(
-              label: Text('Certificate'),
-              labelWidth: 150,
-              content: Text(hostInfo.cert!.name),
-              onPressed:
-                  () => Utils.openPage(
-                    context,
-                    (context) => CertificateDetailsScreen(
-                      certInfo: CertificateInfo(cert: hostInfo.cert!),
-                      supportsQRScanning: widget.supportsQRScanning,
-                    ),
+                label: Text('Certificate'),
+                labelWidth: 150,
+                content: Text(hostInfo.cert!.name),
+                onPressed: () => Utils.openPage(
+                  context,
+                  (context) => CertificateDetailsScreen(
+                    certInfo: CertificateInfo(cert: hostInfo.cert!),
+                    supportsQRScanning: widget.supportsQRScanning,
                   ),
-            )
+                ),
+              )
             : Container(),
       ],
     );
@@ -126,8 +125,10 @@ class HostInfoScreenState extends State<HostInfoScreen> {
   Widget _buildEditRemotes() {
     List<Widget> items = [];
     final currentRemote = hostInfo.currentRemote.toString();
-    final double ipWidth =
-        Utils.textSize("000.000.000.000:000000", CupertinoTheme.of(context).textTheme.textStyle).width;
+    final double ipWidth = Utils.textSize(
+      "000.000.000.000:000000",
+      CupertinoTheme.of(context).textTheme.textStyle,
+    ).width;
 
     for (var remoteObj in hostInfo.remoteAddresses) {
       String remote = remoteObj.toString();
@@ -161,8 +162,10 @@ class HostInfoScreenState extends State<HostInfoScreen> {
   Widget _buildStaticRemotes() {
     List<Widget> items = [];
     final currentRemote = hostInfo.currentRemote.toString();
-    final double ipWidth =
-        Utils.textSize("000.000.000.000:000000", CupertinoTheme.of(context).textTheme.textStyle).width;
+    final double ipWidth = Utils.textSize(
+      "000.000.000.000:000000",
+      CupertinoTheme.of(context).textTheme.textStyle,
+    ).width;
 
     for (var remoteObj in hostInfo.remoteAddresses) {
       String remote = remoteObj.toString();
@@ -187,20 +190,19 @@ class HostInfoScreenState extends State<HostInfoScreen> {
         width: double.infinity,
         child: DangerButton(
           child: Text('Close Tunnel'),
-          onPressed:
-              () => Utils.confirmDelete(outerContext, 'Close Tunnel?', () async {
-                try {
-                  await widget.site.closeTunnel(hostInfo.vpnAddrs[0]);
-                  if (widget.onChanged != null) {
-                    widget.onChanged!();
-                  }
-                  if (outerContext.mounted) {
-                    Navigator.pop(outerContext);
-                  }
-                } catch (err) {
-                  Utils.popError('Error while trying to close the tunnel', err.toString());
-                }
-              }, deleteLabel: 'Close'),
+          onPressed: () => Utils.confirmDelete(outerContext, 'Close Tunnel?', () async {
+            try {
+              await widget.site.closeTunnel(hostInfo.vpnAddrs[0]);
+              if (widget.onChanged != null) {
+                widget.onChanged!();
+              }
+              if (outerContext.mounted) {
+                Navigator.pop(outerContext);
+              }
+            } catch (err) {
+              Utils.popError('Error while trying to close the tunnel', err.toString());
+            }
+          }, deleteLabel: 'Close'),
         ),
       ),
     );

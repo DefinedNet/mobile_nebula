@@ -66,12 +66,11 @@ class StaticHostmapScreenState extends State<StaticHostmapScreen> {
   @override
   Widget build(BuildContext context) {
     return FormPage(
-      title:
-          widget.onDelete == null
-              ? widget.onSave == null
-                  ? 'View Static Host'
-                  : 'New Static Host'
-              : 'Edit Static Host',
+      title: widget.onDelete == null
+          ? widget.onSave == null
+                ? 'View Static Host'
+                : 'New Static Host'
+          : 'Edit Static Host',
       changed: changed,
       onSave: _onSave,
       child: Column(
@@ -82,22 +81,21 @@ class StaticHostmapScreenState extends State<StaticHostmapScreen> {
               ConfigItem(
                 label: Text('Nebula IP'),
                 labelWidth: 200,
-                content:
-                    widget.onSave == null
-                        ? Text(_nebulaIp, textAlign: TextAlign.end)
-                        : IPFormField(
-                          help: "Required",
-                          initialValue: _nebulaIp,
-                          ipOnly: true,
-                          textAlign: TextAlign.end,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          textInputAction: TextInputAction.next,
-                          onSaved: (v) {
-                            if (v != null) {
-                              _nebulaIp = v;
-                            }
-                          },
-                        ),
+                content: widget.onSave == null
+                    ? Text(_nebulaIp, textAlign: TextAlign.end)
+                    : IPFormField(
+                        help: "Required",
+                        initialValue: _nebulaIp,
+                        ipOnly: true,
+                        textAlign: TextAlign.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        textInputAction: TextInputAction.next,
+                        onSaved: (v) {
+                          if (v != null) {
+                            _nebulaIp = v;
+                          }
+                        },
+                      ),
               ),
               ConfigItem(
                 label: Text('Lighthouse'),
@@ -107,15 +105,14 @@ class StaticHostmapScreenState extends State<StaticHostmapScreen> {
                   child: Switch.adaptive(
                     value: _lighthouse,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    onChanged:
-                        widget.onSave == null
-                            ? null
-                            : (v) {
-                              setState(() {
-                                changed = true;
-                                _lighthouse = v;
-                              });
-                            },
+                    onChanged: widget.onSave == null
+                        ? null
+                        : (v) {
+                            setState(() {
+                              changed = true;
+                              _lighthouse = v;
+                            });
+                          },
                   ),
                 ),
               ),
@@ -124,19 +121,18 @@ class StaticHostmapScreenState extends State<StaticHostmapScreen> {
           ConfigSection(label: 'List of public ips or dns names where for this host', children: _buildHosts()),
           widget.onDelete != null
               ? Padding(
-                padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: DangerButton(
-                    child: Text('Delete'),
-                    onPressed:
-                        () => Utils.confirmDelete(context, 'Delete host map?', () {
-                          Navigator.of(context).pop();
-                          widget.onDelete!();
-                        }),
+                  padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: DangerButton(
+                      child: Text('Delete'),
+                      onPressed: () => Utils.confirmDelete(context, 'Delete host map?', () {
+                        Navigator.of(context).pop();
+                        widget.onDelete!();
+                      }),
+                    ),
                   ),
-                ),
-              )
+                )
               : Container(),
         ],
       ),
@@ -165,37 +161,34 @@ class StaticHostmapScreenState extends State<StaticHostmapScreen> {
           key: key,
           label: Align(
             alignment: Alignment.centerLeft,
-            child:
-                widget.onSave == null
-                    ? Container()
-                    : PlatformIconButton(
-                      padding: EdgeInsets.zero,
-                      icon: Icon(Icons.remove_circle, color: CupertinoColors.systemRed.resolveFrom(context)),
-                      onPressed:
-                          () => setState(() {
-                            _removeDestination(key);
-                            _dismissKeyboard();
-                          }),
-                    ),
+            child: widget.onSave == null
+                ? Container()
+                : PlatformIconButton(
+                    padding: EdgeInsets.zero,
+                    icon: Icon(Icons.remove_circle, color: CupertinoColors.systemRed.resolveFrom(context)),
+                    onPressed: () => setState(() {
+                      _removeDestination(key);
+                      _dismissKeyboard();
+                    }),
+                  ),
           ),
           labelWidth: 70,
           content: Row(
             children: <Widget>[
               Expanded(
-                child:
-                    widget.onSave == null
-                        ? Text(dest.destination.toString(), textAlign: TextAlign.end)
-                        : IPAndPortFormField(
-                          ipHelp: 'public ip or name',
-                          ipTextAlign: TextAlign.end,
-                          noBorder: true,
-                          initialValue: dest.destination,
-                          onSaved: (v) {
-                            if (v != null) {
-                              dest.destination = v;
-                            }
-                          },
-                        ),
+                child: widget.onSave == null
+                    ? Text(dest.destination.toString(), textAlign: TextAlign.end)
+                    : IPAndPortFormField(
+                        ipHelp: 'public ip or name',
+                        ipTextAlign: TextAlign.end,
+                        noBorder: true,
+                        initialValue: dest.destination,
+                        onSaved: (v) {
+                          if (v != null) {
+                            dest.destination = v;
+                          }
+                        },
+                      ),
               ),
             ],
           ),
@@ -207,11 +200,10 @@ class StaticHostmapScreenState extends State<StaticHostmapScreen> {
       items.add(
         ConfigButtonItem(
           content: Text('Add another'),
-          onPressed:
-              () => setState(() {
-                _addDestination();
-                _dismissKeyboard();
-              }),
+          onPressed: () => setState(() {
+            _addDestination();
+            _dismissKeyboard();
+          }),
         ),
       );
     }

@@ -203,9 +203,8 @@ class SettingsScreenState extends State<SettingsScreen> {
           ConfigPageItem(
             label: Text('Enroll with Managed Nebula'),
             labelWidth: 250,
-            onPressed:
-                () =>
-                    Utils.openPage(context, (context) => EnrollmentScreen(stream: widget.stream, allowCodeEntry: true)),
+            onPressed: () =>
+                Utils.openPage(context, (context) => EnrollmentScreen(stream: widget.stream, allowCodeEntry: true)),
           ),
         ],
       ),
@@ -219,7 +218,11 @@ class SettingsScreenState extends State<SettingsScreen> {
       ),
     );
 
-    return SimplePage(title: Text('Settings'), bottomBar: debugSite, child: Column(children: items));
+    return SimplePage(
+      title: Text('Settings'),
+      bottomBar: debugSite,
+      child: Column(children: items),
+    );
   }
 
   Widget _debugSave(Map<String, String> siteConfig) {
@@ -234,7 +237,10 @@ class SettingsScreenState extends State<SettingsScreen> {
           staticHostmap: {
             "10.1.0.1": StaticHost(
               lighthouse: true,
-              destinations: [IPAndPort(ip: '10.1.1.53', port: 4242), IPAndPort(ip: '1::1', port: 4242)],
+              destinations: [
+                IPAndPort(ip: '10.1.1.53', port: 4242),
+                IPAndPort(ip: '1::1', port: 4242),
+              ],
             ),
           },
           ca: [CertificateInfo.debug(rawCert: siteConfig['ca'])],

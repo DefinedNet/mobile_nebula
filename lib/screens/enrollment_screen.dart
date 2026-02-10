@@ -131,13 +131,12 @@ class EnrollmentScreenState extends State<EnrollmentScreen> {
                     TextSpan(
                       text: 'support@defined.net',
                       style: bodyTextStyle.apply(color: colorScheme.primary),
-                      recognizer:
-                          TapGestureRecognizer()
-                            ..onTap = () async {
-                              if (await canLaunchUrl(contactUri)) {
-                                _log.info(await launchUrl(contactUri));
-                              }
-                            },
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          if (await canLaunchUrl(contactUri)) {
+                            _log.info(await launchUrl(contactUri));
+                          }
+                        },
                     ),
                     TextSpan(text: ' and provide the following error:'),
                   ],
@@ -211,14 +210,23 @@ class EnrollmentScreenState extends State<EnrollmentScreen> {
       ),
     );
 
-    final form = Form(key: formKey, child: Platform.isAndroid ? input : ConfigSection(children: [input]));
+    final form = Form(
+      key: formKey,
+      child: Platform.isAndroid ? input : ConfigSection(children: [input]),
+    );
 
     return Column(
       children: [
         Padding(padding: EdgeInsets.symmetric(vertical: 32), child: form),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Row(children: [Expanded(child: PrimaryButton(onPressed: onSubmit, child: Text('Submit')))]),
+          child: Row(
+            children: [
+              Expanded(
+                child: PrimaryButton(onPressed: onSubmit, child: Text('Submit')),
+              ),
+            ],
+          ),
         ),
       ],
     );

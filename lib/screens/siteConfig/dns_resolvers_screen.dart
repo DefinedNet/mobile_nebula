@@ -86,39 +86,36 @@ class DnsResolversScreenState extends State<DnsResolversScreen> {
           key: key,
           label: Align(
             alignment: Alignment.centerLeft,
-            child:
-                widget.onSave == null
-                    ? Container()
-                    : PlatformIconButton(
-                      padding: EdgeInsets.zero,
-                      icon: Icon(Icons.remove_circle, color: CupertinoColors.systemRed.resolveFrom(context)),
-                      onPressed:
-                          () => setState(() {
-                            _removeResolver(key);
-                            _dismissKeyboard();
-                          }),
-                    ),
+            child: widget.onSave == null
+                ? Container()
+                : PlatformIconButton(
+                    padding: EdgeInsets.zero,
+                    icon: Icon(Icons.remove_circle, color: CupertinoColors.systemRed.resolveFrom(context)),
+                    onPressed: () => setState(() {
+                      _removeResolver(key);
+                      _dismissKeyboard();
+                    }),
+                  ),
           ),
           labelWidth: 70,
           content: Row(
             children: <Widget>[
               Expanded(
-                child:
-                    widget.onSave == null
-                        ? Text(resolver.address, textAlign: TextAlign.end)
-                        : IPFormField(
-                          help: 'ip address',
-                          textAlign: TextAlign.end,
-                          ipOnly: true,
-                          //TODO: noBorder: true,
-                          initialValue: resolver.address,
-                          autoSize: false,
-                          onSaved: (v) {
-                            if (v != null) {
-                              resolver.address = v;
-                            }
-                          },
-                        ),
+                child: widget.onSave == null
+                    ? Text(resolver.address, textAlign: TextAlign.end)
+                    : IPFormField(
+                        help: 'ip address',
+                        textAlign: TextAlign.end,
+                        ipOnly: true,
+                        //TODO: noBorder: true,
+                        initialValue: resolver.address,
+                        autoSize: false,
+                        onSaved: (v) {
+                          if (v != null) {
+                            resolver.address = v;
+                          }
+                        },
+                      ),
               ),
             ],
           ),
@@ -130,11 +127,10 @@ class DnsResolversScreenState extends State<DnsResolversScreen> {
       items.add(
         ConfigButtonItem(
           content: Text('Add another'),
-          onPressed:
-              () => setState(() {
-                _addResolver();
-                _dismissKeyboard();
-              }),
+          onPressed: () => setState(() {
+            _addResolver();
+            _dismissKeyboard();
+          }),
         ),
       );
     }

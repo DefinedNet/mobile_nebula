@@ -57,7 +57,9 @@ class ConfigPageItem extends StatelessWidget {
           crossAxisAlignment: crossAxisAlignment,
           children: <Widget>[
             label != null ? SizedBox(width: labelWidth, child: label) : Container(),
-            Expanded(child: Container(padding: EdgeInsets.only(right: 10), child: content)),
+            Expanded(
+              child: Container(padding: EdgeInsets.only(right: 10), child: content),
+            ),
             disabled
                 ? Container()
                 : Icon(Icons.arrow_forward_ios, color: CupertinoColors.placeholderText.resolveFrom(context), size: 18),

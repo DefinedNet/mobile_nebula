@@ -88,15 +88,14 @@ class CAListScreenState extends State<CAListScreen> {
             Utils.openPage(context, (context) {
               return CertificateDetailsScreen(
                 certInfo: ca,
-                onDelete:
-                    widget.onSave == null
-                        ? null
-                        : () {
-                          setState(() {
-                            changed = true;
-                            cas.remove(key);
-                          });
-                        },
+                onDelete: widget.onSave == null
+                    ? null
+                    : () {
+                        setState(() {
+                          changed = true;
+                          cas.remove(key);
+                        });
+                      },
                 supportsQRScanning: widget.supportsQRScanning,
               );
             });
