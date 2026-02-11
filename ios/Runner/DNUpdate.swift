@@ -1,12 +1,12 @@
 import Foundation
 import os.log
 
-class DNUpdater {
+class DNUpdater: @unchecked Sendable {
   private let apiClient = APIClient()
   private let timer = RepeatingTimer(timeInterval: 15 * 60)  // 15 * 60 is 15 minutes
   private let log = Logger(subsystem: "net.defined.mobileNebula", category: "DNUpdater")
 
-  func updateAll(onUpdate: @escaping (Site) -> Void) {
+  func updateAll(onUpdate: @Sendable @escaping (Site) -> Void) {
     _ = SiteList { (sites, _) -> Void in
       // NEVPN seems to force us onto the main thread and we are about to make network calls that
       // could block for a while. Push ourselves onto another thread to avoid blocking the UI.
@@ -23,21 +23,33 @@ class DNUpdater {
     }
   }
 
-  func updateAllLoop(onUpdate: @escaping (Site) -> Void) {
+  func updateAllLoop(onUpdate: @Sendable @escaping (Site) -> Void) {
     timer.eventHandler = {
       self.updateAll(onUpdate: onUpdate)
     }
     timer.resume()
   }
 
-  func updateSingleLoop(site: Site, onUpdate: @escaping (Site) -> Void) {
+  // Site updates provides an async/await alternative to `.updateAllLoop` that doesn't require a sendable closure.
+  // https://developer.apple.com/documentation/swift/asyncstream
+  var siteUpdates: AsyncStream<Site> {
+    AsyncStream { continuation in
+      self.updateAllLoop(onUpdate: { site in
+        continuation.yield(site)
+
+      })
+
+    }
+  }
+
+  func updateSingleLoop(site: Site, onUpdate: @Sendable @escaping (Site) -> Void) {
     timer.eventHandler = {
       self.updateSite(site: site, onUpdate: onUpdate)
     }
     timer.resume()
   }
 
-  func updateSite(site: Site, onUpdate: @escaping (Site) -> Void) {
+  func updateSite(site: Site, onUpdate: @Sendable @escaping (Site) -> Void) {
     do {
       if !site.managed {
         return
