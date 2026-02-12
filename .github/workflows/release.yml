@@ -83,6 +83,9 @@ jobs:
           BUILD_NAME="${BUILD_NAME%-*}" # strip the junk build number off
           echo "BUILD_NAME=$BUILD_NAME" >> $GITHUB_ENV
 
+      - name: flutter test
+        run: flutter test
+
       - name: Build iOS
         env:
           TOKEN: ${{ secrets.MACHINE_USER_PAT }}
