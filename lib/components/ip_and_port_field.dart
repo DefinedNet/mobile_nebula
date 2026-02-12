@@ -45,7 +45,7 @@ class IPAndPortField extends StatefulWidget {
 //TODO: rig up textInputAction
 class IPAndPortFieldState extends State<IPAndPortField> {
   final _portFocus = FocusNode();
-  final _ipAndPort = IPAndPort();
+  final _ipAndPort = IPAndPort('', null);
 
   @override
   void initState() {

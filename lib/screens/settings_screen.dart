@@ -237,10 +237,7 @@ class SettingsScreenState extends State<SettingsScreen> {
           staticHostmap: {
             "10.1.0.1": StaticHost(
               lighthouse: true,
-              destinations: [
-                IPAndPort(ip: '10.1.1.53', port: 4242),
-                IPAndPort(ip: '1::1', port: 4242),
-              ],
+              destinations: [IPAndPort('10.1.1.53', 4242), IPAndPort('1::1', 4242)],
             ),
           },
           ca: [CertificateInfo.debug(rawCert: siteConfig['ca'])],

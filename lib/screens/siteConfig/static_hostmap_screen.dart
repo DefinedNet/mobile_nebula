@@ -213,7 +213,7 @@ class StaticHostmapScreenState extends State<StaticHostmapScreen> {
 
   void _addDestination() {
     changed = true;
-    _destinations[UniqueKey()] = _IPAndPort(focusNode: FocusNode(), destination: IPAndPort());
+    _destinations[UniqueKey()] = _IPAndPort(focusNode: FocusNode(), destination: IPAndPort('', null));
     // We can't onChanged here because it causes rendering issues on first build due to ensuring there is a single destination
   }
 
