@@ -45,6 +45,9 @@ jobs:
           flutter pub get
           touch env.sh
 
+      - name: flutter test
+        run: flutter test
+
       - name: Build Android debug
         run: flutter build appbundle --debug
 
@@ -118,6 +121,9 @@ jobs:
           gomobile init
           flutter pub get
           touch env.sh
+
+      - name: flutter test
+        run: flutter test
 
       - name: Build iOS
         run: |
