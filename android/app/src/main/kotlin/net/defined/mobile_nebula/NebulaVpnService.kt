@@ -12,6 +12,7 @@ import android.system.OsConstants
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.work.*
+import io.sentry.android.core.SentryAndroid
 import mobileNebula.CIDR
 import java.io.File
 import java.net.Inet4Address
@@ -58,6 +59,15 @@ class NebulaVpnService : VpnService() {
 
     override fun onCreate() {
         workManager = WorkManager.getInstance(this)
+
+        //make sure to keep this in sync with the dart side!
+        SentryAndroid.init(this) { options ->
+            options.dsn = "https://96106df405ade3f013187dfc8e4200e7@o920269.ingest.us.sentry.io/4508132321001472"
+            // Capture all traces.  May need to adjust if overwhelming
+            options.tracesSampleRate = 1.0
+            // For each trace, capture all profiles
+            options.profilesSampleRate = 1.0
+        }
         super.onCreate()
     }
 
