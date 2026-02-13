@@ -15,6 +15,13 @@ class IPAndPort {
     return toString();
   }
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is IPAndPort && ip == other.ip && port == other.port;
+
+  @override
+  int get hashCode => Object.hash(ip, port);
+
   factory IPAndPort.fromString(String val) {
     // Handle IPv6 addresses in brackets [::1]:port or [2001:db8::1]:port
     if (val.startsWith('[')) {
