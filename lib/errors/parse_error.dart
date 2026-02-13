@@ -1,5 +1,5 @@
 class ParseError implements Exception {
-  final String message;
+  String message;
   ParseError(this.message);
 
   @override
