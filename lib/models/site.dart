@@ -618,6 +618,7 @@ void _fromYamlCipher(Site site, YamlMap yaml) {
 
   if (yaml['cipher'] is! String) {
     site.errors.add('cipher was not a string');
+    return;
   }
 
   final yamlCipher = (yaml['cipher'] as String).toLowerCase();
