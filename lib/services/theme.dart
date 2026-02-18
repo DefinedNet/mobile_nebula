@@ -28,11 +28,11 @@ class MaterialTheme {
       onError: Color(4294967295),
       errorContainer: Color(4294957782),
       onErrorContainer: Color(4287823882),
-      surface: Color.fromARGB(255, 226, 229, 233),
-      onSurface: Color(4280032032),
-      onSurfaceVariant: Color(4282926414),
+      surface: Color.fromRGBO(226, 229, 233, 1),
+      onSurface: Colors.black,
+      onSurfaceVariant: Color.fromRGBO(138, 151, 168, 1),
       outline: Color(4286150015),
-      outlineVariant: Color(4291478735),
+      outlineVariant: Color.fromRGBO(226, 229, 233, 1),
       shadow: Color(4278190080),
       scrim: Color(4278190080),
       inverseSurface: Color(4281478965),
@@ -83,11 +83,11 @@ class MaterialTheme {
       onError: Color(4294967295),
       errorContainer: Color(4291767335),
       onErrorContainer: Color(4294967295),
-      surface: Color.fromARGB(255, 226, 229, 233),
-      onSurface: Color(4279373846),
-      onSurfaceVariant: Color(4281873725),
+      surface: Color.fromRGBO(226, 229, 233, 1),
+      onSurface: Colors.black,
+      onSurfaceVariant: Color.fromRGBO(138, 151, 168, 1),
       outline: Color(4283715930),
-      outlineVariant: Color(4285492085),
+      outlineVariant: Color.fromRGBO(226, 229, 233, 1),
       shadow: Color(4278190080),
       scrim: Color(4278190080),
       inverseSurface: Color(4281478965),
@@ -141,11 +141,11 @@ class MaterialTheme {
       onError: Color(4294967295),
       errorContainer: Color(4288151562),
       onErrorContainer: Color(4294967295),
-      surface: Color.fromARGB(255, 226, 229, 233),
-      onSurface: Color(4278190080),
-      onSurfaceVariant: Color(4278190080),
+      surface: Color.fromRGBO(226, 229, 233, 1),
+      onSurface: Colors.black,
+      onSurfaceVariant: Color.fromRGBO(138, 151, 168, 1),
       outline: Color(4281150259),
-      outlineVariant: Color(4283123793),
+      outlineVariant: Color.fromRGBO(226, 229, 233, 1),
       shadow: Color(4278190080),
       scrim: Color(4278190080),
       inverseSurface: Color(4281478965),
@@ -199,11 +199,11 @@ class MaterialTheme {
       onError: Color(4285071365),
       errorContainer: Color(4287823882),
       onErrorContainer: Color(4294957782),
-      surface: Color.fromARGB(255, 22, 25, 29),
-      onSurface: Color(4293321193),
-      onSurfaceVariant: Color(4291478735),
+      surface: Color.fromRGBO(22, 25, 29, 1),
+      onSurface: Colors.white,
+      onSurfaceVariant: Color.fromRGBO(138, 151, 168, 1),
       outline: Color(4287860633),
-      outlineVariant: Color(4282926414),
+      outlineVariant: Color.fromRGBO(65, 75, 88, 1),
       shadow: Color(4278190080),
       scrim: Color(4278190080),
       inverseSurface: Color(4293321193),
@@ -233,7 +233,7 @@ class MaterialTheme {
   ThemeData dark() {
     return theme(
       darkScheme(),
-      BadgeThemeData(backgroundColor: Color.fromARGB(255, 93, 34, 221), textColor: Color.fromARGB(255, 223, 211, 248)),
+      BadgeThemeData(backgroundColor: Color.fromRGBO(93, 34, 221, 1), textColor: Color.fromRGBO(223, 211, 248, 1)),
     );
   }
 
@@ -258,10 +258,10 @@ class MaterialTheme {
       errorContainer: Color(4294923337),
       onErrorContainer: Color(4278190080),
       surface: Color(4279505688),
-      onSurface: Color(4294967295),
-      onSurfaceVariant: Color(4292926181),
+      onSurface: Colors.white,
+      onSurfaceVariant: Color.fromRGBO(138, 151, 168, 1),
       outline: Color(4290097339),
-      outlineVariant: Color(4287860377),
+      outlineVariant: Color.fromRGBO(65, 75, 88, 1),
       shadow: Color(4278190080),
       scrim: Color(4278190080),
       inverseSurface: Color(4293321193),
@@ -291,7 +291,7 @@ class MaterialTheme {
   ThemeData darkMediumContrast() {
     return theme(
       darkScheme(),
-      BadgeThemeData(backgroundColor: Color.fromARGB(255, 93, 34, 221), textColor: Color.fromARGB(255, 223, 211, 248)),
+      BadgeThemeData(backgroundColor: Color.fromRGBO(93, 34, 221, 1), textColor: Color.fromRGBO(223, 211, 248, 1)),
     );
   }
 
@@ -315,11 +315,11 @@ class MaterialTheme {
       onError: Color(4278190080),
       errorContainer: Color(4294946468),
       onErrorContainer: Color(4280418305),
-      surface: Color(4279505688),
-      onSurface: Color(4294967295),
-      onSurfaceVariant: Color(4294967295),
+      surface: Color.fromRGBO(22, 25, 29, 1),
+      onSurface: Colors.white,
+      onSurfaceVariant: Color.fromRGBO(138, 151, 168, 1),
       outline: Color(4294242041),
-      outlineVariant: Color(4291215563),
+      outlineVariant: Color.fromRGBO(65, 75, 88, 1),
       shadow: Color(4278190080),
       scrim: Color(4278190080),
       inverseSurface: Color(4293321193),
@@ -349,7 +349,7 @@ class MaterialTheme {
   ThemeData darkHighContrast() {
     return theme(
       darkScheme(),
-      BadgeThemeData(backgroundColor: Color.fromARGB(255, 93, 34, 221), textColor: Color.fromARGB(255, 223, 211, 248)),
+      BadgeThemeData(backgroundColor: Color.fromRGBO(93, 34, 221, 1), textColor: Color.fromRGBO(223, 211, 248, 1)),
     );
   }
 
@@ -367,6 +367,15 @@ class MaterialTheme {
       builders: Map<TargetPlatform, PageTransitionsBuilder>.fromIterable(
         TargetPlatform.values,
         value: (_) => const FadeForwardsPageTransitionsBuilder(),
+      ),
+    ),
+    listTileTheme: ListTileThemeData(
+      titleTextStyle: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w500, fontSize: 16),
+      subtitleTextStyle: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500, fontSize: 14),
+      leadingAndTrailingTextStyle: TextStyle(
+        color: colorScheme.onSurfaceVariant,
+        fontWeight: FontWeight.w500,
+        fontSize: 16,
       ),
     ),
   );
