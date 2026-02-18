@@ -12,7 +12,6 @@ import android.system.OsConstants
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.work.*
-import mobileNebula.CIDR
 import java.io.File
 import java.net.Inet4Address
 import java.net.Inet6Address
@@ -67,36 +66,56 @@ class NebulaVpnService : VpnService() {
             return Service.START_NOT_STICKY
         }
 
-        val id = intent?.getStringExtra("id")
+        val lastActiveSiteFile = filesDir.resolve("last-active-site");
+        var sitePath: String? = null
+        try {
+            sitePath = intent?.getStringExtra("path") ?: lastActiveSiteFile.readText()
+        } catch (err: Exception) {
+            // Ignore errors
+        }
+        if (sitePath.isNullOrEmpty()) {
+            Log.e(TAG, "Could not find site path in intent or last-active-site file")
+            return super.onStartCommand(intent, flags, startId)
+        }
+
+        var startSite: Site? = null
+        try {
+            startSite = Site(this, File(sitePath))
+        } catch (err: Exception) {
+            // Ignore errors
+        }
+        if (startSite == null) {
+            Log.e(TAG, "Could not get site details from: $sitePath")
+            return super.onStartCommand(intent, flags, startId)
+        }
 
         if (running) {
             // if the UI triggers this twice, check if we are already running the requested site. if not, return an error.
             // otherwise, just ignore the request since we handled it the first time.
-            if (site!!.id != id) {
-                announceExit(id, "Trying to run nebula but it is already running")
+            if (site!!.id != startSite.id) {
+                announceExit(startSite.id, "Trying to run nebula but it is already running")
             }
             return super.onStartCommand(intent, flags, startId)
         }
 
         // Make sure we don't accept commands for a different site id
-        if (site != null && site!!.id != id) {
-            announceExit(id, "Command received for a site id that is different from the current active site")
+        if (site != null && site!!.id != startSite.id) {
+            announceExit(startSite.id, "Command received for a site id that is different from the current active site")
             return super.onStartCommand(intent, flags, startId)
         }
 
-        path = intent!!.getStringExtra("path")!!
-        //TODO: if we fail to start, android will attempt a restart lacking all the intent data we need.
-        // Link active site config in Main to avoid this
-        site = Site(this, File(path!!))
-
-        if (site!!.cert == null) {
-            announceExit(id, "Site is missing a certificate")
+        if (startSite.cert == null) {
+            announceExit(startSite.id, "Site is missing a certificate")
             return super.onStartCommand(intent, flags, startId)
         }
 
         // Kick off a site update
         val workRequest = OneTimeWorkRequestBuilder<DNUpdateWorker>().build()
         workManager!!.enqueue(workRequest)
+
+        lastActiveSiteFile.writeText(sitePath)
+        site = startSite
+        path = sitePath
 
         // We don't actually start here. In order to properly capture boot errors we wait until an IPC connection is made
         return super.onStartCommand(intent, flags, startId)
