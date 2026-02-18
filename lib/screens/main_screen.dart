@@ -301,6 +301,7 @@ class MainScreenState extends State<MainScreen> {
       children.add(_debugSave(badDebugSave));
       children.add(_debugSave(goodDebugSave));
       children.add(_debugSave(goodDebugSaveV2));
+      children.add(_debugSave(goodDebugSaveV2P256));
       children.add(_debugClearKeys());
     }
 
@@ -517,5 +518,26 @@ AAABQAQR/Znu7u7u7u4AAAAAAAAAAECjJQwLdGVzdC1ncm91cDEMC3Rlc3QtZ3Jv
 dXAyDAlmb29iYXJiYXqEAf+FBGkFErqGBGrmRjqCIB1M/UJegMPjdpCkNV4spaH6
 48Zrc6EF6PgB0dmTjsGug0DHOiCTMm/fRkD1R3E+gtI53eTJk/gaRyphMvSJUuyJ
 Yd6DdoCpAMXb7cpgDfW8PGkU/77HWjLhu5HM28YHlioC
+-----END NEBULA CERTIFICATE V2-----''',
+};
+
+/// Contains a non-expired v2 CA and certificate using curve P256
+const goodDebugSaveV2P256 = {
+  'name': 'Good Site V2 P256',
+  'cert': '''-----BEGIN NEBULA CERTIFICATE V2-----
+MIHhoFGABHRlc3ShGgQFZEAAARgEEf2ZEjQAAAAAAAAAAAAAAAFAhQRpliGlhgUB
+QCnFnocg11j0TjKY5XTo6kTiHsdkHbKMgvY06sGJqj7q8IhdUAyBAQGCQQTZNYsI
+x73Zk+2pddHdP2j5DbA4EweyIgSLaGHaxCy3CfWXUl91Nkm2UIsVztCNbVA1EZk0
+hqotegK6OR0rIy8Gg0YwRAIgTb8NMfYsGGGUEt3R3wyRT+OojoQoelQ3+kdUZcc8
+uvwCIFwKsKHPV4z2Thluktp0a1BkVE686aiSE6DJsw7dcP0b
+-----END NEBULA CERTIFICATE V2-----''',
+  'key': '''-----BEGIN NEBULA P256 PRIVATE KEY-----
+/xIA9C3sS+xHiC2gsdgPITdvApS9zXPB98teFJr0Xho=
+-----END NEBULA P256 PRIVATE KEY-----''',
+  'ca': '''-----BEGIN NEBULA CERTIFICATE V2-----
+MIGmoBaABHRlc3SEAf+FBGmWIZ+GBQFAKcWfgQEBgkEEs/i7EPQ1EEKzxtMNiCpY
+S/PfnqOGvyvSk96N/TeuqtjYostx9V1yBCR27MT74jFM5RSgroSfuatcyJvXeSD3
+TINGMEQCIC719bsgIqPMEk/c/x6bVfec9OmBac2Za1TLVRny4VsSAiBjb5IfFxde
+dkbm61ltqb21JyWqsqfDbpcaCEECc20oZQ==
 -----END NEBULA CERTIFICATE V2-----''',
 };
