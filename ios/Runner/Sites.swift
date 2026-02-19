@@ -138,16 +138,17 @@ class SiteUpdater: NSObject, FlutterStreamHandler {
 
       NotificationCenter.default.addObserver(
         self, selector: #selector(onNotification),
-        name: NSNotification.Name.NEVPNConfigurationChange, object: nil)
+        name: NSNotification.Name.NEVPNConfigurationChange, object: site.manager)
       NotificationCenter.default.addObserver(
         self, selector: #selector(onNotification), name: NSNotification.Name.NEVPNStatusDidChange,
-        object: nil)
+        object: site.manager!.connection)
     #endif
     return nil
   }
 
   @objc func onNotification(n: Notification) {
     let oldConnected = self.site.connected
+
     self.site.status = statusString[self.site.manager!.connection.status]
     self.site.connected = statusMap[self.site.manager!.connection.status]
     self.site.alwaysOn = self.site.manager?.isOnDemandEnabled == true

@@ -268,8 +268,9 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
       manager?.loadFromPreferences { error in
         //TODO: Handle load error
         manager?.isOnDemandEnabled = false
-        manager?.saveToPreferences()
-        manager?.connection.stopVPNTunnel()
+        manager?.saveToPreferences { _ in
+          manager?.connection.stopVPNTunnel()
+        }
         return result(nil)
       }
     #endif
