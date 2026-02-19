@@ -164,6 +164,7 @@ class Site: Codable {
   var connected: Bool?  //TODO: active is a better name
   var status: String?
   var logFile: String?
+  var alwaysOn: Bool
   var managed: Bool
   var dnsResolvers: [String]
   // The following fields are present if managed = true
@@ -188,6 +189,7 @@ class Site: Codable {
     self.manager = manager
     self.connected = statusMap[manager.connection.status]
     self.status = statusString[manager.connection.status]
+    self.alwaysOn = manager.isOnDemandEnabled
   }
 
   convenience init(proto: NETunnelProviderProtocol) throws {
@@ -237,6 +239,7 @@ class Site: Codable {
     lastManagedUpdate = incoming.lastManagedUpdate
     dnsResolvers = incoming.dnsResolvers ?? []
     rawConfig = incoming.rawConfig
+    alwaysOn = incoming.alwaysOn ?? false
 
     // Default these to disconnected for the UI
     status = statusString[.disconnected]
@@ -385,6 +388,7 @@ class Site: Codable {
     case lastManagedUpdate
     case dnsResolvers
     case rawConfig
+    case alwaysOn
   }
 }
 
@@ -444,6 +448,7 @@ struct IncomingSite: Codable {
   var key: String?
   var managed: Bool?
   var dnsResolvers: [String]?
+  var alwaysOn: Bool?
   // The following fields are present if managed = true
   var dnCredentials: DNCredentials?
   var lastManagedUpdate: String?
@@ -545,6 +550,11 @@ struct IncomingSite: Codable {
     //TODO: This is what is shown on the vpn page. We should add more identifying details in
     manager.localizedDescription = self.name
     manager.isEnabled = true
+    
+    manager.isOnDemandEnabled = self.alwaysOn == true
+    let rule = NEOnDemandRuleConnect()
+    rule.interfaceTypeMatch = .any
+    manager.onDemandRules = [rule]
 
     manager.saveToPreferences { error in
       return callback(error)
