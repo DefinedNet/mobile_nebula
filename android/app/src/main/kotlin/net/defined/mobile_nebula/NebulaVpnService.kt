@@ -79,8 +79,9 @@ class NebulaVpnService : VpnService() {
             // Ignore errors
         }
         if (sitePath.isNullOrEmpty()) {
-            Log.e(TAG, "Could not find site path in intent or last-active-site file")
-            return super.onStartCommand(intent, flags, startId)
+            Log.e(TAG, "Could not find site path in intent or always-on-site file")
+            stopSelf(startId)
+            return START_NOT_STICKY
         }
 
         var startSite: Site? = null
@@ -91,7 +92,8 @@ class NebulaVpnService : VpnService() {
         }
         if (startSite == null) {
             Log.e(TAG, "Could not get site details from: $sitePath")
-            return super.onStartCommand(intent, flags, startId)
+            stopSelf(startId)
+            return START_NOT_STICKY
         }
 
         if (running) {
@@ -101,18 +103,20 @@ class NebulaVpnService : VpnService() {
                 announceExit(startSite.id, "Trying to run nebula but it is already running")
             }
 
-            return super.onStartCommand(intent, flags, startId)
+            return START_NOT_STICKY
         }
 
         // Make sure we don't accept commands for a different site id
         if (site != null && site!!.id != startSite.id) {
             announceExit(startSite.id, "Command received for a site id that is different from the current active site")
-            return super.onStartCommand(intent, flags, startId)
+            stopSelf(startId)
+            return START_NOT_STICKY
         }
 
         if (startSite.cert == null) {
             announceExit(startSite.id, "Site is missing a certificate")
-            return super.onStartCommand(intent, flags, startId)
+            stopSelf(startId)
+            return START_NOT_STICKY
         }
 
         // Kick off a site update
@@ -130,6 +134,11 @@ class NebulaVpnService : VpnService() {
     }
 
     private fun startVpn() {
+        if (site == null) {
+            Log.e(TAG, "Got a start command but we don't have a site to run")
+            return
+        }
+
         val builder = Builder()
                 .setMtu(site!!.mtu)
                 .setSession(TAG)
