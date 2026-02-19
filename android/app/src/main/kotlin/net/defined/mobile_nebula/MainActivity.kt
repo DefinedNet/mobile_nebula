@@ -248,8 +248,6 @@ class MainActivity: FlutterActivity() {
             return result.error("failure", "Site config was incomplete, please review and try again", null)
         }
 
-        sites?.refreshSites()
-
         if (site.alwaysOn == true) {
             if (activeSiteId != null && activeSiteId != site.id) {
                 stopSite { sites?.getSite(site.id)?.let { startSiteDirectly(it) } }
@@ -258,6 +256,7 @@ class MainActivity: FlutterActivity() {
             }
         }
 
+        sites?.refreshSites(activeSiteId)
         sites?.updateAll()
 
         result.success(null)
@@ -541,9 +540,13 @@ class MainActivity: FlutterActivity() {
     inner class IncomingHandler: Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             val id = msg.data.getString("id")
+            if (id == null) {
+                Log.i(TAG, "got a message without an id from the vpn service")
+                return
+            }
 
             //TODO: If the elvis hits then we had a deleted site running, which shouldn't happen
-            val site = sites!!.getSite(id!!) ?: return
+            val site = sites!!.getSite(id) ?: return
 
             when (msg.what) {
                 NebulaVpnService.MSG_IS_RUNNING -> isRunning(site, msg)
