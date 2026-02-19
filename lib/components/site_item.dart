@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:mobile_nebula/models/site.dart';
 import 'package:mobile_nebula/services/utils.dart';
@@ -97,31 +95,6 @@ class _SiteItemState extends State<SiteItem> {
         ),
       ),
     );
-
-    if (Platform.isIOS || Platform.isMacOS) {
-      children.add(
-        ConfigItem(
-          label: Text(
-            'Always-on',
-            style: TextStyle(color: grayTextColor, fontSize: 14, fontWeight: FontWeight.w500),
-          ),
-          content: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Switch.adaptive(
-                value: widget.site.alwaysOn,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                onChanged: (val) async {
-                  widget.site.alwaysOn = val;
-                  await widget.site.save();
-                  setState(() {});
-                },
-              ),
-            ],
-          ),
-        ),
-      );
-    }
 
     children.add(
       ConfigPageItem(
