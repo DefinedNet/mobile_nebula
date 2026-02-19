@@ -550,7 +550,7 @@ struct IncomingSite: Codable {
     //TODO: This is what is shown on the vpn page. We should add more identifying details in
     manager.localizedDescription = self.name
     manager.isEnabled = true
-    
+
     manager.isOnDemandEnabled = self.alwaysOn == true
     let rule = NEOnDemandRuleConnect()
     rule.interfaceTypeMatch = .any
