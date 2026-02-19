@@ -275,15 +275,6 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
 
   Widget _buildAlwaysOn() {
     if (Platform.isAndroid) {
-      // return ConfigSection(
-      //   children: <Widget>[
-      //     ConfigPageItem(
-      //       crossAxisAlignment: CrossAxisAlignment.center,
-      //       content: Text('Enable always-on'),
-      //       onPressed: () async => await platform.invokeMethod('android.openVpnSettings'),
-      //     ),
-      //   ],
-      // );
       return ConfigSection(
         children: <Widget>[
           ConfigItem(
@@ -312,12 +303,11 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
                           context: context,
                           builder: (context) => AlertDialog(
                             title: Text('Enable Always-On VPN'),
-                            content: Text('To complete setup, enable Always-On VPN for Nebula in Android\'s VPN settings.'),
+                            content: Text(
+                              'To complete setup, enable Always-On VPN for Nebula in Android\'s VPN settings.',
+                            ),
                             actions: [
-                              TextButton(
-                                child: Text('Cancel'),
-                                onPressed: () => Navigator.pop(context),
-                              ),
+                              TextButton(child: Text('Cancel'), onPressed: () => Navigator.pop(context)),
                               TextButton(
                                 child: Text('OK'),
                                 onPressed: () async {
@@ -334,6 +324,12 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
                 ),
               ],
             ),
+          ),
+          ConfigPageItem(
+            content: Text('Verify system always-on is enabled'),
+            onPressed: () {
+              platform.invokeMethod('android.openVpnSettings');
+            },
           ),
         ],
       );
