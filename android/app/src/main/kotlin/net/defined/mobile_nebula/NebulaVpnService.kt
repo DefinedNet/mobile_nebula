@@ -63,14 +63,19 @@ class NebulaVpnService : VpnService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
             stopVpn()
-            return Service.START_NOT_STICKY
+            return START_NOT_STICKY
         }
 
-        val lastActiveSiteFile = filesDir.resolve("last-active-site");
+        var autoStart = false
         var sitePath: String? = null
         try {
-            sitePath = intent?.getStringExtra("path") ?: lastActiveSiteFile.readText()
-        } catch (err: Exception) {
+            sitePath = intent?.getStringExtra("path")
+            if (sitePath == null) {
+                // If the UI is starting us we expect a path, if there is no path then we expect the system is starting us
+                autoStart = true
+                sitePath = filesDir.resolve("always-on-site").readText()
+            }
+        } catch (_: Exception) {
             // Ignore errors
         }
         if (sitePath.isNullOrEmpty()) {
@@ -95,6 +100,7 @@ class NebulaVpnService : VpnService() {
             if (site!!.id != startSite.id) {
                 announceExit(startSite.id, "Trying to run nebula but it is already running")
             }
+
             return super.onStartCommand(intent, flags, startId)
         }
 
@@ -113,10 +119,12 @@ class NebulaVpnService : VpnService() {
         val workRequest = OneTimeWorkRequestBuilder<DNUpdateWorker>().build()
         workManager!!.enqueue(workRequest)
 
-        lastActiveSiteFile.writeText(sitePath)
         site = startSite
         path = sitePath
 
+        if (autoStart) {
+            startVpn()
+        }
         // We don't actually start here. In order to properly capture boot errors we wait until an IPC connection is made
         return super.onStartCommand(intent, flags, startId)
     }

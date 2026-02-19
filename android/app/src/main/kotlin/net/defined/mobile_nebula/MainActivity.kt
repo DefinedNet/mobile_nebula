@@ -45,6 +45,7 @@ class MainActivity: FlutterActivity() {
     private var startingSiteContainer: SiteContainer? = null
 
     private var activeSiteId: String? = null
+    private var onStopCallback: (() -> Unit)? = null
 
     private lateinit var workManager: WorkManager
     private val refreshReceiver: BroadcastReceiver = RefreshReceiver()
@@ -68,6 +69,7 @@ class MainActivity: FlutterActivity() {
                 "android.registerActiveSite" -> registerActiveSite(result)
                 "android.deviceHasCamera" -> deviceHasCamera(result)
                 "android.openVpnSettings" -> openVpnSettings(result)
+                "android.isAlwaysOnEnabled" -> isAlwaysOnEnabled(result)
 
                 "nebula.parseCerts" -> nebulaParseCerts(call, result)
                 "nebula.generateKeyPair" -> nebulaGenerateKeyPair(result)
@@ -140,6 +142,11 @@ class MainActivity: FlutterActivity() {
         val intent = Intent(Settings.ACTION_VPN_SETTINGS)
         startActivity(intent)
         result.success(null)
+    }
+
+    private fun isAlwaysOnEnabled(result: MethodChannel.Result) {
+        val alwaysOnApp = Settings.Secure.getString(contentResolver, "always_on_vpn_app")
+        result.success(alwaysOnApp == packageName)
     }
 
     private fun nebulaParseCerts(call: MethodCall, result: MethodChannel.Result) {
@@ -243,6 +250,16 @@ class MainActivity: FlutterActivity() {
 
         sites?.refreshSites()
 
+        if (site.alwaysOn == true) {
+            if (activeSiteId != null && activeSiteId != site.id) {
+                stopSite { sites?.getSite(site.id)?.let { startSiteDirectly(it) } }
+            } else if (activeSiteId != site.id) {
+                sites?.getSite(site.id)?.let { startSiteDirectly(it) }
+            }
+        }
+
+        sites?.updateAll()
+
         result.success(null)
     }
 
@@ -259,6 +276,22 @@ class MainActivity: FlutterActivity() {
             return false
         }
         return true
+    }
+
+    private fun startSiteDirectly(siteContainer: SiteContainer) {
+        if (VpnService.prepare(this) != null) {
+            // VPN permission not granted; cannot start without user interaction
+            return
+        }
+        siteContainer.updater.setState(true, "Initializing...")
+        val intent = Intent(this, NebulaVpnService::class.java).apply {
+            putExtra("path", siteContainer.site.path)
+            putExtra("id", siteContainer.site.id)
+        }
+        startService(intent)
+        if (outMessenger == null) {
+            bindService(intent, connection, 0)
+        }
     }
 
     private fun startSite(call: MethodCall, result: MethodChannel.Result) {
@@ -279,7 +312,8 @@ class MainActivity: FlutterActivity() {
         }
     }
 
-    private fun stopSite() {
+    private fun stopSite(onStopped: (() -> Unit)? = null) {
+        onStopCallback = onStopped
         val intent = Intent(this, NebulaVpnService::class.java).apply {
             action = NebulaVpnService.ACTION_STOP
         }
@@ -538,6 +572,8 @@ class MainActivity: FlutterActivity() {
                 // a site while another is actively running.
                 activeSiteId = null
                 unbindVpnService()
+                onStopCallback?.invoke()
+                onStopCallback = null
             }
         }
     }

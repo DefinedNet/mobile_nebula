@@ -275,12 +275,65 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
 
   Widget _buildAlwaysOn() {
     if (Platform.isAndroid) {
+      // return ConfigSection(
+      //   children: <Widget>[
+      //     ConfigPageItem(
+      //       crossAxisAlignment: CrossAxisAlignment.center,
+      //       content: Text('Enable always-on'),
+      //       onPressed: () async => await platform.invokeMethod('android.openVpnSettings'),
+      //     ),
+      //   ],
+      // );
       return ConfigSection(
         children: <Widget>[
-          ConfigPageItem(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            content: Text('Enable always-on'),
-            onPressed: () async => await platform.invokeMethod('android.openVpnSettings'),
+          ConfigItem(
+            label: Text('Always-on'),
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Switch.adaptive(
+                  value: widget.site.alwaysOn,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  onChanged: (val) async {
+                    widget.site.alwaysOn = val;
+                    try {
+                      await widget.site.save();
+                    } catch (e) {
+                      Utils.popError('Failed to update always-on', e.toString());
+                      widget.site.alwaysOn = !val;
+                      setState(() {});
+                      return;
+                    }
+                    setState(() {});
+                    if (val && context.mounted) {
+                      final bool isEnabled = await platform.invokeMethod('android.isAlwaysOnEnabled');
+                      if (!isEnabled && context.mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text('Enable Always-On VPN'),
+                            content: Text('To complete setup, enable Always-On VPN for Nebula in Android\'s VPN settings.'),
+                            actions: [
+                              TextButton(
+                                child: Text('Cancel'),
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                              TextButton(
+                                child: Text('OK'),
+                                onPressed: () async {
+                                  Navigator.pop(context);
+                                  await platform.invokeMethod('android.openVpnSettings');
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       );
