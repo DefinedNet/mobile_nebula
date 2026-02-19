@@ -118,6 +118,25 @@ func RenderConfig(configData string, key string) (string, error) {
 		}
 	}
 
+	//TODO: rework this to not use an intermediate type
+	var siteFirewall struct {
+		InboundRules []firewallRule `json:"inboundRules"`
+		OutboundRules []firewallRule `json:"outboundRules"`
+	}
+	_ = json.Unmarshal([]byte(configData), &siteFirewall)
+	if siteFirewall.InboundRules != nil {
+		cfg.Firewall.Inbound = make([]configFirewallRule, len(siteFirewall.InboundRules))
+		for i, r := range siteFirewall.InboundRules {
+			cfg.Firewall.Inbound[i] = toConfigFirewallRule(r)
+		}
+	}
+	if siteFirewall.OutboundRules != nil {
+		cfg.Firewall.Outbound = make([]configFirewallRule, len(siteFirewall.OutboundRules))
+		for i, r := range siteFirewall.OutboundRules {
+			cfg.Firewall.Outbound[i] = toConfigFirewallRule(r)
+		}
+	}
+
 	finalConfig, err := yaml.Marshal(cfg)
 	if err != nil {
 		return "", err

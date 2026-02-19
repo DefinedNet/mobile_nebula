@@ -228,6 +228,8 @@ class Site(context: Context, siteDir: File) {
     val rawConfig: String?
     val lastManagedUpdate: String?
     val alwaysOn: Boolean
+    val inboundRules: List<FirewallRule>
+    val outboundRules: List<FirewallRule>
 
     // Path to this site on disk
     @Transient
@@ -258,6 +260,8 @@ class Site(context: Context, siteDir: File) {
         dnsResolvers = incomingSite.dnsResolvers ?: emptyList();
         managed = incomingSite.managed ?: false
         lastManagedUpdate = incomingSite.lastManagedUpdate
+        inboundRules = incomingSite.inboundRules ?: emptyList()
+        outboundRules = incomingSite.outboundRules ?: emptyList()
 
         connected = false
         status = "Disconnected"
@@ -350,6 +354,19 @@ data class UnsafeRoute(
     val mtu: Int?
 )
 
+data class FirewallRule(
+    val protocol: String?,
+    val startPort: Int?,
+    val endPort: Int?,
+    val fragment: Boolean?,
+    val host: String?,
+    val groups: List<String>?,
+    val localCidr: String?,
+    val remoteCidr: String?,
+    val caName: String?,
+    val caSha: String?
+)
+
 class IncomingSite(
     val name: String,
     val id: String,
@@ -371,6 +388,8 @@ class IncomingSite(
     val rawConfig: String?,
     var dnCredentials: DNCredentials?,
     val alwaysOn: Boolean?,
+    val inboundRules: List<FirewallRule>?,
+    val outboundRules: List<FirewallRule>?,
 ) {
     fun save(context: Context): File {
         // Don't allow backups of DN-managed sites

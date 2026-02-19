@@ -222,7 +222,7 @@ unsafe_routes:
 '''),
         );
         expect(site.unsafeRoutes, isEmpty);
-        expect(site.errors, contains('failed to parse unsafe route 1: unsafe route was not a map'));
+        expect(site.errors, contains('failed to parse unsafe route 1: input was not a yaml map'));
       });
     });
 
@@ -345,6 +345,113 @@ listen:
       });
     });
 
+    group('firewall', () {
+      test('inbound defaults to empty when firewall not specified', () async {
+        final site = await Site.fromYaml(loadYaml('{}'));
+        expect(site.inboundRules, isEmpty);
+      });
+
+      test('outbound defaults to allow-all when firewall not specified', () async {
+        final site = await Site.fromYaml(loadYaml('{}'));
+        expect(site.outboundRules.length, 1);
+        expect(site.outboundRules[0].startPort, 0);
+        expect(site.outboundRules[0].protocol, 'any');
+        expect(site.outboundRules[0].host, 'any');
+      });
+
+      test('parses inbound rules', () async {
+        final site = await Site.fromYaml(
+          loadYaml('''
+firewall:
+  inbound:
+    - port: any
+      proto: any
+      host: any
+    - port: 443
+      proto: tcp
+      host: any
+'''),
+        );
+        expect(site.inboundRules.length, 2);
+        expect(site.inboundRules[0].startPort, 0);
+        expect(site.inboundRules[0].protocol, 'any');
+        expect(site.inboundRules[0].host, 'any');
+        expect(site.inboundRules[1].startPort, 443);
+        expect(site.inboundRules[1].protocol, 'tcp');
+        expect(site.errors, isEmpty);
+      });
+
+      test('parses outbound rules', () async {
+        final site = await Site.fromYaml(
+          loadYaml('''
+firewall:
+  outbound:
+    - port: any
+      proto: any
+      host: any
+'''),
+        );
+        expect(site.outboundRules.length, 1);
+        expect(site.outboundRules[0].startPort, 0);
+        expect(site.outboundRules[0].protocol, 'any');
+        expect(site.outboundRules[0].host, 'any');
+        expect(site.errors, isEmpty);
+      });
+
+      test('errors when firewall is not a map', () async {
+        final site = await Site.fromYaml(loadYaml('firewall: not-a-map'));
+        expect(site.errors, contains('firewall was not a yaml map'));
+      });
+
+      test('errors when inbound is not a list', () async {
+        final site = await Site.fromYaml(
+          loadYaml('''
+firewall:
+  inbound: not-a-list
+'''),
+        );
+        expect(site.errors, contains('firewall.inbound was not a yaml list'));
+      });
+
+      test('errors when outbound is not a list', () async {
+        final site = await Site.fromYaml(
+          loadYaml('''
+firewall:
+  outbound: not-a-list
+'''),
+        );
+        expect(site.errors, contains('firewall.outbound was not a yaml list'));
+      });
+
+      test('errors on invalid inbound rule', () async {
+        final site = await Site.fromYaml(
+          loadYaml('''
+firewall:
+  inbound:
+    - port: 99999
+      proto: tcp
+      host: any
+'''),
+        );
+        expect(site.inboundRules, isEmpty);
+        expect(site.errors, contains('failed to parse firewall.inbound rule 1: port 99999 is out of range'));
+      });
+
+      test('errors on invalid outbound rule', () async {
+        final site = await Site.fromYaml(
+          loadYaml('''
+firewall:
+  outbound:
+    - port: 99999
+      proto: tcp
+      host: any
+'''),
+        );
+        expect(site.outboundRules, isEmpty);
+        expect(site.errors, contains('failed to parse firewall.outbound rule 1: port 99999 is out of range'));
+      });
+    });
+
     group('logging', () {
       test('parses all valid log levels', () async {
         for (final level in ['panic', 'fatal', 'error', 'warning', 'info', 'debug']) {
@@ -397,6 +504,15 @@ static_host_map:
 unsafe_routes:
   - route: 10.0.0.0/24
     via: 192.168.1.1
+firewall:
+  inbound:
+    - port: 443
+      proto: tcp
+      host: any
+  outbound:
+    - port: any
+      proto: any
+      host: any
 pki:
   key: "my-key"
 cipher: chachapoly
@@ -413,6 +529,12 @@ logging:
       expect(site.staticHostmap['1.1.1.1']!.lighthouse, true);
       expect(site.staticHostmap['2.2.2.2']!.lighthouse, false);
       expect(site.unsafeRoutes.length, 1);
+      expect(site.inboundRules.length, 1);
+      expect(site.inboundRules[0].startPort, 443);
+      expect(site.inboundRules[0].protocol, 'tcp');
+      expect(site.outboundRules.length, 1);
+      expect(site.outboundRules[0].startPort, 0);
+      expect(site.outboundRules[0].protocol, 'any');
       expect(site.key, 'my-key');
       expect(site.cipher, 'chachapoly');
       expect(site.mtu, 1400);

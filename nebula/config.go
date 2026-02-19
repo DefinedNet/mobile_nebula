@@ -204,15 +204,16 @@ type configConntrack struct {
 }
 
 type configFirewallRule struct {
-	Port   string   `yaml:"port,omitempty"`
-	Code   string   `yaml:"code,omitempty"`
-	Proto  string   `yaml:"proto,omitempty"`
-	Host   string   `yaml:"host,omitempty"`
-	Group  string   `yaml:"group,omitempty"`
-	Groups []string `yaml:"groups,omitempty"`
-	CIDR   string   `yaml:"cidr,omitempty"`
-	CASha  string   `yaml:"ca_sha,omitempty"`
-	CAName string   `yaml:"ca_name,omitempty"`
+	Port      string   `yaml:"port,omitempty"`
+	Code      string   `yaml:"code,omitempty"`
+	Proto     string   `yaml:"proto,omitempty"`
+	Host      string   `yaml:"host,omitempty"`
+	Group     string   `yaml:"group,omitempty"`
+	Groups    []string `yaml:"groups,omitempty"`
+	CIDR      string   `yaml:"cidr,omitempty"`
+	LocalCIDR string   `yaml:"local_cidr,omitempty"`
+	CASha     string   `yaml:"ca_sha,omitempty"`
+	CAName    string   `yaml:"ca_name,omitempty"`
 }
 
 type configRelay struct {

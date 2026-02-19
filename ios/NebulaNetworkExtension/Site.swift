@@ -170,6 +170,8 @@ class Site: Codable {
   // The following fields are present if managed = true
   var lastManagedUpdate: String?
   var rawConfig: String?
+  var inboundRules: [FirewallRule]
+  var outboundRules: [FirewallRule]
 
   /// If true then this site needs to be migrated to the filesystem. Should be handled by the initiator of the site
   var needsToMigrateToFS: Bool = false
@@ -240,6 +242,8 @@ class Site: Codable {
     dnsResolvers = incoming.dnsResolvers ?? []
     rawConfig = incoming.rawConfig
     alwaysOn = incoming.alwaysOn ?? false
+    inboundRules = incoming.inboundRules ?? []
+    outboundRules = incoming.outboundRules ?? []
 
     // Default these to disconnected for the UI
     status = statusString[.disconnected]
@@ -389,6 +393,8 @@ class Site: Codable {
     case dnsResolvers
     case rawConfig
     case alwaysOn
+    case inboundRules
+    case outboundRules
   }
 }
 
@@ -401,6 +407,19 @@ class UnsafeRoute: Codable {
   var route: String
   var via: String
   var mtu: Int?
+}
+
+struct FirewallRule: Codable {
+  var `protocol`: String?
+  var startPort: Int?
+  var endPort: Int?
+  var fragment: Bool?
+  var host: String?
+  var groups: [String]?
+  var localCidr: String?
+  var remoteCidr: String?
+  var caName: String?
+  var caSha: String?
 }
 
 class DNCredentials: Codable {
@@ -449,6 +468,8 @@ struct IncomingSite: Codable {
   var managed: Bool?
   var dnsResolvers: [String]?
   var alwaysOn: Bool?
+  var inboundRules: [FirewallRule]?
+  var outboundRules: [FirewallRule]?
   // The following fields are present if managed = true
   var dnCredentials: DNCredentials?
   var lastManagedUpdate: String?

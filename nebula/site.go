@@ -2,6 +2,8 @@ package mobileNebula
 
 import (
 	"encoding/json"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/DefinedNet/dnapi/keys"
@@ -27,6 +29,8 @@ type site struct {
 	LastManagedUpdate *time.Time            `json:"lastManagedUpdate"`
 	RawConfig         *string               `json:"rawConfig"`
 	DNCredentials     *dnCredentials        `json:"dnCredentials"`
+	InboundRules     []firewallRule        `json:"inboundRules"`
+	OutboundRules     []firewallRule        `json:"outboundRules"`
 }
 
 type staticHost struct {
@@ -38,6 +42,110 @@ type unsafeRoute struct {
 	Route string `json:"route"`
 	Via   string `json:"via"`
 	MTU   *int   `json:"mtu"`
+}
+
+type firewallRule struct {
+	Protocol   string   `json:"protocol"`
+	StartPort  int      `json:"startPort"`
+	EndPort    int      `json:"endPort"`
+	Fragment   *bool    `json:"fragment"`
+	Host       *string  `json:"host"`
+	Groups     []string `json:"groups"`
+	LocalCIDR  *string  `json:"localCidr"`
+	RemoteCIDR *string  `json:"remoteCidr"`
+	CAName     *string  `json:"caName"`
+	CASha      *string  `json:"caSha"`
+}
+
+func fromConfigFirewallRule(r configFirewallRule) firewallRule {
+	rule := firewallRule{
+		Protocol: r.Proto,
+	}
+
+	port := strings.TrimSpace(r.Port)
+	switch {
+	case port == "" || strings.ToLower(port) == "any":
+		rule.StartPort = 0
+		rule.EndPort = 0
+	case strings.ToLower(port) == "fragment":
+		frag := true
+		rule.Fragment = &frag
+	case strings.Contains(port, "-"):
+		parts := strings.SplitN(port, "-", 2)
+		rule.StartPort, _ = strconv.Atoi(strings.TrimSpace(parts[0]))
+		rule.EndPort, _ = strconv.Atoi(strings.TrimSpace(parts[1]))
+	default:
+		p, _ := strconv.Atoi(port)
+		rule.StartPort = p
+		rule.EndPort = p
+	}
+
+	if r.Host != "" {
+		h := r.Host
+		rule.Host = &h
+	}
+	if r.Group != "" {
+		rule.Groups = []string{r.Group}
+	} else if len(r.Groups) > 0 {
+		rule.Groups = r.Groups
+	}
+	if r.CIDR != "" {
+		c := r.CIDR
+		rule.RemoteCIDR = &c
+	}
+	if r.LocalCIDR != "" {
+		c := r.LocalCIDR
+		rule.LocalCIDR = &c
+	}
+	if r.CASha != "" {
+		s := r.CASha
+		rule.CASha = &s
+	}
+	if r.CAName != "" {
+		n := r.CAName
+		rule.CAName = &n
+	}
+
+	return rule
+}
+
+func toConfigFirewallRule(r firewallRule) configFirewallRule {
+	rule := configFirewallRule{
+		Proto: r.Protocol,
+	}
+
+	if r.Fragment != nil && *r.Fragment {
+		rule.Port = "fragment"
+	} else if r.StartPort == 0 && r.EndPort == 0 {
+		rule.Port = "any"
+	} else if r.StartPort == r.EndPort {
+		rule.Port = strconv.Itoa(r.StartPort)
+	} else {
+		rule.Port = strconv.Itoa(r.StartPort) + "-" + strconv.Itoa(r.EndPort)
+	}
+
+	if r.Host != nil {
+		rule.Host = *r.Host
+	}
+	if len(r.Groups) == 1 {
+		rule.Group = r.Groups[0]
+	} else if len(r.Groups) > 1 {
+		rule.Groups = r.Groups
+	}
+	if r.RemoteCIDR != nil {
+		rule.CIDR = *r.RemoteCIDR
+	}
+	if r.LocalCIDR != nil {
+		rule.LocalCIDR = *r.LocalCIDR
+	}
+	if r.CASha != nil {
+		rule.CASha = *r.CASha
+	}
+	if r.CAName != nil {
+		rule.CAName = *r.CAName
+	}
+
+	return rule
 }
 
 type dnCredentials struct {
@@ -88,6 +196,16 @@ func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials) (
 		})
 	}
 
+	// build firewall rules
+	inboundRules := make([]firewallRule, len(cfg.Firewall.Inbound))
+	for i, r := range cfg.Firewall.Inbound {
+		inboundRules[i] = fromConfigFirewallRule(r)
+	}
+	outboundRules := make([]firewallRule, len(cfg.Firewall.Outbound))
+	for i, r := range cfg.Firewall.Outbound {
+		outboundRules[i] = fromConfigFirewallRule(r)
+	}
+
 	// log verbosity is nullable
 	var logVerb *string
 	if cfg.Logging.Level != "" {
@@ -130,6 +248,8 @@ func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials) (
 		Managed:           true,
 		LastManagedUpdate: &now,
 		RawConfig:         &strCfg,
+		InboundRules:     inboundRules,
+		OutboundRules:     outboundRules,
 		DNCredentials: &dnCredentials{
 			HostID:      creds.HostID,
 			PrivateKey:  string(pkm),

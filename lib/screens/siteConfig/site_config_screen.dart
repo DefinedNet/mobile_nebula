@@ -16,6 +16,7 @@ import 'package:mobile_nebula/screens/siteConfig/add_certificate_screen.dart';
 import 'package:mobile_nebula/screens/siteConfig/advanced_screen.dart';
 import 'package:mobile_nebula/screens/siteConfig/ca_list_screen.dart';
 import 'package:mobile_nebula/screens/siteConfig/certificate_details_screen.dart';
+import 'package:mobile_nebula/screens/siteConfig/firewall_rules_screen.dart';
 import 'package:mobile_nebula/screens/siteConfig/static_hosts_screen.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
@@ -105,6 +106,7 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
           _main(),
           _keys(),
           _hosts(),
+          _firewall(),
           _advanced(),
           _managed(),
           kDebugMode ? _debugConfig() : Container(height: 0),
@@ -329,6 +331,62 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
                         setState(() {
                           changed = true;
                           site.staticHostmap = map;
+                        });
+                      },
+              );
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _firewall() {
+    return ConfigSection(
+      label: "FIREWALL",
+      children: <Widget>[
+        ConfigPageItem(
+          label: Text('Inbound'),
+          content: Wrap(
+            alignment: WrapAlignment.end,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: <Widget>[Text(Utils.itemCountFormat(site.inboundRules.length))],
+          ),
+          onPressed: () {
+            Utils.openPage(context, (context) {
+              return FirewallRulesScreen(
+                title: 'Inbound Rules',
+                rules: site.inboundRules,
+                onSave: site.managed
+                    ? null
+                    : (rules) {
+                        setState(() {
+                          changed = true;
+                          site.inboundRules = rules;
+                        });
+                      },
+              );
+            });
+          },
+        ),
+        ConfigPageItem(
+          label: Text('Outbound'),
+          content: Wrap(
+            alignment: WrapAlignment.end,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: <Widget>[Text(Utils.itemCountFormat(site.outboundRules.length))],
+          ),
+          onPressed: () {
+            Utils.openPage(context, (context) {
+              return FirewallRulesScreen(
+                title: 'Outbound Rules',
+                rules: site.outboundRules,
+                onSave: site.managed
+                    ? null
+                    : (rules) {
+                        setState(() {
+                          changed = true;
+                          site.outboundRules = rules;
                         });
                       },
               );
