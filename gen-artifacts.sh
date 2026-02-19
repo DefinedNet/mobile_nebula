@@ -20,7 +20,7 @@ elif [ "$1" = "android" ]; then
   rm -rf ../android/mobileNebula/mobileNebula.aar
   cp mobileNebula.aar ../android/mobileNebula/mobileNebula.aar
 
-else
+elif [ "$1" != "skip" ]; then
   echo "Error: unsupported target os $1"
   exit 1
 fi

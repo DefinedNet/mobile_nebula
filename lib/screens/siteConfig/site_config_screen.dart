@@ -19,18 +19,23 @@ import 'package:mobile_nebula/screens/siteConfig/certificate_details_screen.dart
 import 'package:mobile_nebula/screens/siteConfig/static_hosts_screen.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
-//TODO: Add a config test mechanism
-//TODO: Enforce a name
-
 class SiteConfigScreen extends StatefulWidget {
-  const SiteConfigScreen({super.key, this.site, required this.onSave, required this.supportsQRScanning});
+  const SiteConfigScreen({
+    super.key,
+    this.site,
+    required this.onSave,
+    required this.supportsQRScanning,
+    this.startChanged = false,
+  });
 
   final Site? site;
 
   // This is called after the target OS has saved the configuration
   final ValueChanged<Site> onSave;
-
   final bool supportsQRScanning;
+
+  // startChanged is currently only used for loading a site from yaml, we need to start by showing the save button.
+  final bool startChanged;
 
   @override
   SiteConfigScreenState createState() => SiteConfigScreenState();
@@ -57,6 +62,10 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
     } else {
       site = widget.site!;
       nameController.text = site.name;
+    }
+
+    if (widget.startChanged) {
+      changed = true;
     }
 
     super.initState();
@@ -92,6 +101,7 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
       },
       child: Column(
         children: <Widget>[
+          _errors(),
           _main(),
           _keys(),
           _hosts(),
@@ -115,6 +125,29 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
     return ConfigSection(
       label: 'DEBUG',
       children: [ConfigItem(labelWidth: 0, content: SelectableText(data))],
+    );
+  }
+
+  Widget _errors() {
+    if (site.errors.isEmpty) {
+      return Container();
+    }
+
+    List<Widget> items = [];
+    for (var error in site.errors) {
+      items.add(
+        ConfigItem(
+          labelWidth: 0,
+          content: Padding(padding: EdgeInsets.symmetric(vertical: 10), child: SelectableText(error)),
+        ),
+      );
+    }
+
+    return ConfigSection(
+      label: 'ERRORS',
+      borderColor: CupertinoColors.systemRed.resolveFrom(context),
+      labelColor: CupertinoColors.systemRed.resolveFrom(context),
+      children: items,
     );
   }
 

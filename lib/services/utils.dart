@@ -186,4 +186,18 @@ class Utils {
     );
     return textTheme;
   }
+
+  static (int, bool) dynamicToInt(dynamic d) {
+    if (d is String) {
+      final i = int.tryParse(d);
+      if (i == null) {
+        return (0, false);
+      }
+      return (i, true);
+    } else if (d is num) {
+      return (d.toInt(), true);
+    }
+
+    return (0, false);
+  }
 }

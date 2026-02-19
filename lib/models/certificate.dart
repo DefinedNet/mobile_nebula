@@ -1,9 +1,11 @@
+import 'package:mobile_nebula/errors/parse_error.dart';
+
 class CertificateInfo {
   Certificate cert;
   String? rawCert;
   CertificateValidity? validity;
 
-  CertificateInfo.debug({this.rawCert = ""}) : cert = Certificate.debug(), validity = CertificateValidity.debug();
+  CertificateInfo.debug({this.rawCert = ''}) : cert = Certificate.debug(), validity = CertificateValidity.debug();
 
   CertificateInfo.fromJson(Map<String, dynamic> json)
     : cert = Certificate.fromJson(json['Cert']),
@@ -34,50 +36,50 @@ class Certificate {
 
   Certificate.debug()
     : version = 2,
-      name = "DEBUG",
+      name = 'DEBUG',
       networks = [],
       unsafeNetworks = [],
       groups = [],
       isCa = false,
       notBefore = DateTime.now(),
       notAfter = DateTime.now(),
-      issuer = "DEBUG",
-      publicKey = "",
-      curve = "",
-      fingerprint = "DEBUG",
-      signature = "DEBUG";
+      issuer = 'DEBUG',
+      publicKey = '',
+      curve = '',
+      fingerprint = 'DEBUG',
+      signature = 'DEBUG';
 
   factory Certificate.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic> details = json;
     String publicKey;
     String curve;
-    if (json.containsKey("details")) {
-      details = json["details"];
+    if (json.containsKey('details')) {
+      details = json['details'];
       //TODO: currently swift and kotlin flatten the certificate structure but
       // nebula outputs cert json in the nested format
-      switch (json["version"]) {
+      switch (json['version']) {
         case 1:
           // In V1 the public key was under details
-          publicKey = details["publicKey"];
-          curve = details["curve"];
+          publicKey = details['publicKey'];
+          curve = details['curve'];
           break;
         case 2:
           // In V2 the public key moved to the top level
-          publicKey = json["publicKey"];
-          curve = json["curve"];
+          publicKey = json['publicKey'];
+          curve = json['curve'];
           break;
         default:
-          throw Exception('Unknown certificate version');
+          throw ParseError('unknown certificate version: ${json['version']}');
       }
     } else {
       // This is a flattened certificate format, publicKey is at the top
-      publicKey = json["publicKey"];
-      curve = json["curve"];
+      publicKey = json['publicKey'];
+      curve = json['curve'];
     }
 
     return Certificate(
-      json["version"],
-      details["name"],
+      json['version'],
+      details['name'],
       List<String>.from(details['networks'] ?? []),
       List<String>.from(details['unsafeNetworks'] ?? []),
       List<String>.from(details['groups'] ?? []),
@@ -113,7 +115,7 @@ class CertificateValidity {
   bool valid;
   String reason;
 
-  CertificateValidity.debug() : valid = true, reason = "";
+  CertificateValidity.debug() : valid = true, reason = '';
 
   CertificateValidity.fromJson(Map<String, dynamic> json) : valid = json['Valid'], reason = json['Reason'];
 }
