@@ -55,6 +55,7 @@ class Site {
   late String status;
   late String logFile;
   late String logVerbosity;
+  late bool alwaysOn;
   late List<String> dnsResolvers;
 
   late bool managed;
@@ -85,6 +86,7 @@ class Site {
     this.managed = false,
     this.rawConfig,
     this.lastManagedUpdate,
+    this.alwaysOn = false,
     List<String>? dnsResolvers,
   }) {
     this.id = id ?? uuid.v4();
@@ -141,6 +143,7 @@ class Site {
       rawConfig: decoded['rawConfig'],
       lastManagedUpdate: decoded['lastManagedUpdate'],
       dnsResolvers: decoded['dnsResolvers'],
+      alwaysOn: decoded['alwaysOn'],
     );
   }
 
@@ -186,6 +189,7 @@ class Site {
     rawConfig = decoded['rawConfig'];
     lastManagedUpdate = decoded['lastManagedUpdate'];
     dnsResolvers = decoded['dnsResolvers'];
+    alwaysOn = decoded['alwaysOn'];
   }
 
   static Map<String, dynamic> _fromJson(Map<String, dynamic> json) {
@@ -245,6 +249,7 @@ class Site {
       "rawConfig": json['rawConfig'],
       "lastManagedUpdate": json["lastManagedUpdate"] == null ? null : DateTime.parse(json["lastManagedUpdate"]),
       "dnsResolvers": dnsResolvers,
+      "alwaysOn": json['alwaysOn'] ?? false,
     };
   }
 
@@ -274,6 +279,7 @@ class Site {
       'managed': managed,
       'rawConfig': rawConfig,
       'dnsResolvers': dnsResolvers,
+      'alwaysOn': alwaysOn,
     };
   }
 

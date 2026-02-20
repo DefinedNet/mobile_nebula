@@ -1,6 +1,7 @@
 package net.defined.mobile_nebula
 
 import android.content.Context
+import android.provider.Settings
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
@@ -48,9 +49,18 @@ class Sites(private var engine: FlutterEngine) {
         return containers.mapValues { it.value.site }
     }
 
+    fun updateAll() {
+        containers.values.forEach { it.updater.notifyChanged() }
+    }
+
     fun deleteSite(id: String) {
         val context = MainActivity.getContext()!!
         val site = containers[id]!!.site
+
+        val alwaysOnFile = context.filesDir.resolve("always-on-site")
+        if (alwaysOnFile.exists() && alwaysOnFile.readText() == site.path) {
+            alwaysOnFile.delete()
+        }
 
         val baseDir = if(site.managed) context.noBackupFilesDir else context.filesDir
         val siteDir = baseDir.resolve("sites").resolve(id)
@@ -130,6 +140,10 @@ class SiteUpdater(private var site: Site, engine: FlutterEngine): EventChannel.S
         } else {
             eventSink?.success(gson.toJson(site))
         }
+    }
+
+    fun notifyChanged() {
+        eventSink?.success(gson.toJson(site))
     }
 
     init {
@@ -213,6 +227,7 @@ class Site(context: Context, siteDir: File) {
     // The following fields are present when managed = true
     val rawConfig: String?
     val lastManagedUpdate: String?
+    val alwaysOn: Boolean
 
     // Path to this site on disk
     @Transient
@@ -246,6 +261,9 @@ class Site(context: Context, siteDir: File) {
 
         connected = false
         status = "Disconnected"
+
+        val alwaysOnPath = try { context.filesDir.resolve("always-on-site").readText() } catch (_: Exception) { null }
+        alwaysOn = alwaysOnPath == path
 
         try {
             val rawDetails = mobileNebula.MobileNebula.parseCerts(incomingSite.cert)
@@ -352,6 +370,7 @@ class IncomingSite(
     val lastManagedUpdate: String?,
     val rawConfig: String?,
     var dnCredentials: DNCredentials?,
+    val alwaysOn: Boolean?,
 ) {
     fun save(context: Context): File {
         // Don't allow backups of DN-managed sites
@@ -372,6 +391,15 @@ class IncomingSite(
 
         dnCredentials?.save(context, siteDir)
         dnCredentials = null
+
+        val alwaysOnFile = context.filesDir.resolve("always-on-site")
+        when (alwaysOn) {
+            true -> alwaysOnFile.writeText(siteDir.absolutePath)
+            false -> if (alwaysOnFile.exists() && alwaysOnFile.readText() == siteDir.absolutePath) {
+                alwaysOnFile.delete()
+            }
+            null -> {}
+        }
 
         val confFile = siteDir.resolve("config.json")
         confFile.writeText(Gson().toJson(this))

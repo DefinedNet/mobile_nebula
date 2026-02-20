@@ -12,7 +12,6 @@ import android.system.OsConstants
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.work.*
-import mobileNebula.CIDR
 import java.io.File
 import java.net.Inet4Address
 import java.net.Inet6Address
@@ -64,45 +63,82 @@ class NebulaVpnService : VpnService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
             stopVpn()
-            return Service.START_NOT_STICKY
+            return START_NOT_STICKY
         }
 
-        val id = intent?.getStringExtra("id")
+        var autoStart = false
+        var sitePath: String? = null
+        try {
+            sitePath = intent?.getStringExtra("path")
+            if (sitePath == null) {
+                // If the UI is starting us we expect a path, if there is no path then we expect the system is starting us
+                autoStart = true
+                sitePath = filesDir.resolve("always-on-site").readText()
+            }
+        } catch (_: Exception) {
+            // Ignore errors
+        }
+        if (sitePath.isNullOrEmpty()) {
+            Log.e(TAG, "Could not find site path in intent or always-on-site file")
+            stopSelf(startId)
+            return START_NOT_STICKY
+        }
+
+        var startSite: Site? = null
+        try {
+            startSite = Site(this, File(sitePath))
+        } catch (err: Exception) {
+            // Ignore errors
+        }
+        if (startSite == null) {
+            Log.e(TAG, "Could not get site details from: $sitePath")
+            stopSelf(startId)
+            return START_NOT_STICKY
+        }
 
         if (running) {
             // if the UI triggers this twice, check if we are already running the requested site. if not, return an error.
             // otherwise, just ignore the request since we handled it the first time.
-            if (site!!.id != id) {
-                announceExit(id, "Trying to run nebula but it is already running")
+            if (site!!.id != startSite.id) {
+                announceExit(startSite.id, "Trying to run nebula but it is already running")
             }
-            return super.onStartCommand(intent, flags, startId)
+
+            return START_NOT_STICKY
         }
 
         // Make sure we don't accept commands for a different site id
-        if (site != null && site!!.id != id) {
-            announceExit(id, "Command received for a site id that is different from the current active site")
-            return super.onStartCommand(intent, flags, startId)
+        if (site != null && site!!.id != startSite.id) {
+            announceExit(startSite.id, "Command received for a site id that is different from the current active site")
+            stopSelf(startId)
+            return START_NOT_STICKY
         }
 
-        path = intent!!.getStringExtra("path")!!
-        //TODO: if we fail to start, android will attempt a restart lacking all the intent data we need.
-        // Link active site config in Main to avoid this
-        site = Site(this, File(path!!))
-
-        if (site!!.cert == null) {
-            announceExit(id, "Site is missing a certificate")
-            return super.onStartCommand(intent, flags, startId)
+        if (startSite.cert == null) {
+            announceExit(startSite.id, "Site is missing a certificate")
+            stopSelf(startId)
+            return START_NOT_STICKY
         }
 
         // Kick off a site update
         val workRequest = OneTimeWorkRequestBuilder<DNUpdateWorker>().build()
         workManager!!.enqueue(workRequest)
 
+        site = startSite
+        path = sitePath
+
+        if (autoStart) {
+            startVpn()
+        }
         // We don't actually start here. In order to properly capture boot errors we wait until an IPC connection is made
         return super.onStartCommand(intent, flags, startId)
     }
 
     private fun startVpn() {
+        if (site == null) {
+            Log.e(TAG, "Got a start command but we don't have a site to run")
+            return
+        }
+
         val builder = Builder()
                 .setMtu(site!!.mtu)
                 .setSession(TAG)
