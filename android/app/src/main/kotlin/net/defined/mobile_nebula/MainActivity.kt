@@ -69,7 +69,6 @@ class MainActivity: FlutterActivity() {
                 "android.registerActiveSite" -> registerActiveSite(result)
                 "android.deviceHasCamera" -> deviceHasCamera(result)
                 "android.openVpnSettings" -> openVpnSettings(result)
-                "android.isAlwaysOnEnabled" -> isAlwaysOnEnabled(result)
 
                 "nebula.parseCerts" -> nebulaParseCerts(call, result)
                 "nebula.generateKeyPair" -> nebulaGenerateKeyPair(result)
@@ -142,11 +141,6 @@ class MainActivity: FlutterActivity() {
         val intent = Intent(Settings.ACTION_VPN_SETTINGS)
         startActivity(intent)
         result.success(null)
-    }
-
-    private fun isAlwaysOnEnabled(result: MethodChannel.Result) {
-        val alwaysOnApp = Settings.Secure.getString(contentResolver, "always_on_vpn_app")
-        result.success(alwaysOnApp == packageName)
     }
 
     private fun nebulaParseCerts(call: MethodCall, result: MethodChannel.Result) {

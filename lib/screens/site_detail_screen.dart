@@ -296,30 +296,6 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
                       return;
                     }
                     setState(() {});
-                    if (val && context.mounted) {
-                      final bool isEnabled = await platform.invokeMethod('android.isAlwaysOnEnabled');
-                      if (!isEnabled && context.mounted) {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text('Enable Always-On VPN'),
-                            content: Text(
-                              'To complete setup, enable Always-On VPN for Nebula in Android\'s VPN settings.',
-                            ),
-                            actions: [
-                              TextButton(child: Text('Cancel'), onPressed: () => Navigator.pop(context)),
-                              TextButton(
-                                child: Text('OK'),
-                                onPressed: () async {
-                                  Navigator.pop(context);
-                                  await platform.invokeMethod('android.openVpnSettings');
-                                },
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                    }
                   },
                 ),
               ],
