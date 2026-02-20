@@ -54,7 +54,12 @@ class AboutScreenState extends State<AboutScreen> {
               ConfigItem(
                 label: Text('App version'),
                 labelWidth: 150,
-                content: _buildText('${packageInfo!.version}-${packageInfo!.buildNumber} (sha: $gitSha)'),
+                content: _buildText(gitIsTaggedRelease ? '$gitTag ($gitSha)' : gitTag),
+              ),
+              ConfigItem(
+                label: Text('Store version'),
+                labelWidth: 150,
+                content: _buildText('${packageInfo!.version}-${packageInfo!.buildNumber}'),
               ),
               ConfigItem(
                 label: Text('Nebula version'),
