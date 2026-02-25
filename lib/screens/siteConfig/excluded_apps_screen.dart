@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_nebula/components/form_page.dart';
 import 'package:mobile_nebula/components/simple_page.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
@@ -147,79 +148,47 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope<Object?>(
-      canPop: !changed,
-      onPopInvokedWithResult: (bool didPop, Object? result) async {
-        if (didPop) return;
-        final NavigatorState navigator = Navigator.of(context);
-        Utils.confirmDelete(
-          context,
-          'Discard changes?',
-          () { navigator.pop(); },
-          deleteLabel: 'Yes',
-          cancelLabel: 'No',
-        );
+    return FormPage(
+      title: 'Excluded Apps',
+      changed: changed,
+      scrollable: SimpleScrollable.none,
+      hideSave: widget.onSave == null,
+      onSave: () {
+        Navigator.pop(context);
+        widget.onSave?.call(selectedApps.toList());
       },
-      child: SimplePage(
-        title: const Text('Excluded Apps'),
-        scrollable: SimpleScrollable.none,
-        leadingAction: Utils.leadingBackWidget(
-          context,
-          label: changed ? 'Cancel' : 'Back',
-          onPressed: () {
-            if (changed) {
-              Utils.confirmDelete(
-                context,
-                'Discard changes?',
-                () { Navigator.pop(context); },
-                deleteLabel: 'Yes',
-                cancelLabel: 'No',
-              );
-            } else {
-              Navigator.pop(context);
-            }
-          },
-        ),
-        trailingActions: [
-          if (changed && widget.onSave != null)
-            Utils.trailingSaveWidget(context, () {
-              Navigator.pop(context);
-              widget.onSave?.call(selectedApps.toList());
-            }),
-        ],
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: CupertinoSearchTextField(
-                controller: searchController,
-                placeholder: 'Search apps...',
-                onChanged: (value) {
-                  setState(() {
-                    searchQuery = value;
-                    _applyFilter();
-                  });
-                },
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: CupertinoSearchTextField(
+              controller: searchController,
+              placeholder: 'Search apps...',
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value;
+                  _applyFilter();
+                });
+              },
+            ),
+          ),
+          if (loading)
+            const Expanded(
+              child: Center(child: CircularProgressIndicator.adaptive()),
+            )
+          else if (filteredApps.isEmpty)
+            const Expanded(
+              child: Center(child: Text('No apps found')),
+            )
+          else
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: filteredApps.length,
+                itemBuilder: (context, index) => _buildAppTile(filteredApps[index]),
               ),
             ),
-            if (loading)
-              const Expanded(
-                child: Center(child: CircularProgressIndicator.adaptive()),
-              )
-            else if (filteredApps.isEmpty)
-              const Expanded(
-                child: Center(child: Text('No apps found')),
-              )
-            else
-              Expanded(
-                child: ListView.builder(
-                  controller: _scrollController,
-                  itemCount: filteredApps.length,
-                  itemBuilder: (context, index) => _buildAppTile(filteredApps[index]),
-                ),
-              ),
-          ],
-        ),
+        ],
       ),
     );
   }

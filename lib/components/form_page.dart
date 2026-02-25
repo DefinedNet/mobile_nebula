@@ -13,12 +13,14 @@ class FormPage extends StatefulWidget {
     required this.changed,
     this.hideSave = false,
     this.scrollController,
+    this.scrollable = SimpleScrollable.vertical,
   });
 
   final String title;
   final Function onSave;
   final Widget child;
   final ScrollController? scrollController;
+  final SimpleScrollable scrollable;
 
   /// If you need the page to progress to a certain point before saving, control it here
   final bool hideSave;
@@ -60,6 +62,7 @@ class FormPageState extends State<FormPage> {
         leadingAction: _buildLeader(context),
         trailingActions: _buildTrailer(context),
         scrollController: widget.scrollController,
+        scrollable: widget.scrollable,
         title: Text(widget.title),
         child: Form(
           key: _formKey,
