@@ -359,6 +359,7 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
                     site.unsafeRoutes = settings.unsafeRoutes;
                     site.dnsResolvers = settings.dnsResolvers;
                     site.mtu = settings.mtu;
+                    site.excludedApps = settings.excludedApps;
                   });
                 },
               );
