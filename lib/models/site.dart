@@ -44,6 +44,7 @@ class Site {
   late String status;
   late String logFile;
   late bool alwaysOn;
+  late List<String> excludedApps;
 
   // DN management
   late bool managed;
@@ -67,11 +68,13 @@ class Site {
     this.managed = false,
     this.lastManagedUpdate,
     this.alwaysOn = false,
+    List<String>? excludedApps,
   }) {
     this.id = id ?? uuid.v4();
     this.rawConfig = rawConfig ?? {};
     this.ca = ca ?? [];
     this.errors = errors ?? [];
+    this.excludedApps = excludedApps ?? [];
 
     if (id != null) {
       _updates = EventChannel('net.defined.nebula/${this.id}');
@@ -114,6 +117,7 @@ class Site {
       managed: decoded['managed'],
       lastManagedUpdate: decoded['lastManagedUpdate'],
       alwaysOn: decoded['alwaysOn'],
+      excludedApps: decoded['excludedApps'],
     );
   }
 
@@ -200,6 +204,7 @@ class Site {
     managed = decoded['managed'];
     lastManagedUpdate = decoded['lastManagedUpdate'];
     alwaysOn = decoded['alwaysOn'];
+    excludedApps = decoded['excludedApps'];
   }
 
   static Map<String, dynamic> _fromJson(Map<String, dynamic> json) {
@@ -212,6 +217,12 @@ class Site {
       } catch (err) {
         rawConfigErrors.add('Failed to parse rawConfig: $err');
       }
+    }
+
+    List<dynamic> rawExcludedApps = json['excludedApps'] ?? [];
+    List<String> excludedApps = [];
+    for (var val in rawExcludedApps) {
+      excludedApps.add(val.toString());
     }
 
     List<dynamic> rawCA = json['ca'] ?? [];
@@ -246,6 +257,7 @@ class Site {
       "managed": json['managed'] ?? false,
       "lastManagedUpdate": json["lastManagedUpdate"] == null ? null : DateTime.parse(json["lastManagedUpdate"]),
       "alwaysOn": json['alwaysOn'] ?? false,
+      "excludedApps": excludedApps,
     };
   }
 
@@ -263,6 +275,7 @@ class Site {
       'rawConfig': jsonEncode(rawConfig),
       'key': key,
       'alwaysOn': alwaysOn,
+      'excludedApps': excludedApps,
     };
   }
 

@@ -833,10 +833,17 @@ packages:
     dependency: transitive
     description:
       name: test_core
+<<<<<<< HEAD
       sha256: "0381bd1585d1a924763c308100f2138205252fb90c9d4eeaf28489ee65ccde51"
       url: "https://pub.dev"
     source: hosted
     version: "0.6.16"
+=======
+      sha256: "394f07d21f0f2255ec9e3989f21e54d3c7dc0e6e9dbce160e5a9c1a6be0e2943"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.15"
+>>>>>>> 49d8124 (Add excluded apps (disallow apps) feature for Android VPN)
   typed_data:
     dependency: transitive
     description:
