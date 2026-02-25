@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -228,27 +230,28 @@ class AdvancedScreenState extends State<AdvancedScreen> {
                   });
                 },
               ),
-              ConfigPageItem(
-                label: Text('Excluded apps'),
-                labelWidth: 150,
-                content: Text(
-                  settings.excludedApps.isEmpty ? 'None' : Utils.itemCountFormat(settings.excludedApps.length),
-                  textAlign: TextAlign.end,
+              if (Platform.isAndroid)
+                ConfigPageItem(
+                  label: Text('Excluded apps'),
+                  labelWidth: 150,
+                  content: Text(
+                    settings.excludedApps.isEmpty ? 'None' : Utils.itemCountFormat(settings.excludedApps.length),
+                    textAlign: TextAlign.end,
+                  ),
+                  onPressed: () {
+                    Utils.openPage(context, (context) {
+                      return ExcludedAppsScreen(
+                        excludedApps: settings.excludedApps,
+                        onSave: (apps) {
+                          setState(() {
+                            settings.excludedApps = apps;
+                            changed = true;
+                          });
+                        },
+                      );
+                    });
+                  },
                 ),
-                onPressed: () {
-                  Utils.openPage(context, (context) {
-                    return ExcludedAppsScreen(
-                      excludedApps: settings.excludedApps,
-                      onSave: (apps) {
-                        setState(() {
-                          settings.excludedApps = apps;
-                          changed = true;
-                        });
-                      },
-                    );
-                  });
-                },
-              ),
             ],
           ),
           ConfigSection(
