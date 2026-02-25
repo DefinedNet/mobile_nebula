@@ -138,15 +138,11 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
   }
 
   void _applyFilter() {
-    if (searchQuery.isEmpty) {
-      filteredApps = List.from(allApps);
-    } else {
-      final q = searchQuery.toLowerCase();
-      filteredApps = allApps.where((app) =>
-        app.appName.toLowerCase().contains(q) ||
-        app.packageName.toLowerCase().contains(q)
-      ).toList();
-    }
+    final q = searchQuery.toLowerCase();
+    filteredApps = allApps.where((app) =>
+      app.appName.toLowerCase().contains(q) ||
+      app.packageName.toLowerCase().contains(q)
+    ).toList();
   }
 
   @override

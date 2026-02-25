@@ -39,8 +39,8 @@ class NebulaVpnService : VpnService() {
 
         val ALWAYS_EXCLUDED_APPS = listOf(
             "com.google.android.projection.gearhead",  // Android Auto
-            "com.google.android.apps.chromecast.app",   // Chromecast
-            "com.google.android.apps.messaging",        // RCS / Jibe
+            "com.google.android.apps.chromecast.app",  // Chromecast
+            "com.google.android.apps.messaging",       // RCS / Jibe
         )
     }
 
