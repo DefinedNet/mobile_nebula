@@ -12,12 +12,7 @@ import 'package:mobile_nebula/models/firewall_rule.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 class FirewallRuleScreen extends StatefulWidget {
-  const FirewallRuleScreen({
-    super.key,
-    required this.rule,
-    this.onSave,
-    this.onDelete,
-  });
+  const FirewallRuleScreen({super.key, required this.rule, this.onSave, this.onDelete});
 
   final FirewallRule rule;
   final ValueChanged<FirewallRule>? onSave;
@@ -280,10 +275,7 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
                     child: Container(
                       width: 28,
                       height: 28,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: Theme.of(context).colorScheme.primary),
                       child: Icon(CupertinoIcons.check_mark, color: Theme.of(context).colorScheme.onPrimary, size: 16),
                     ),
                   ),
@@ -300,7 +292,11 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
                         shape: BoxShape.circle,
                         border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                       ),
-                      child: Icon(CupertinoIcons.xmark, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 14),
+                      child: Icon(
+                        CupertinoIcons.xmark,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        size: 14,
+                      ),
                     ),
                   ),
                 ],
@@ -314,10 +310,7 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
   Widget _buildGroupChip(String group, int index, {required bool readOnly, required BadgeThemeData badgeTheme}) {
     final chip = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: badgeTheme.backgroundColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: BoxDecoration(color: badgeTheme.backgroundColor, borderRadius: BorderRadius.circular(16)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -500,7 +493,6 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
       ),
     );
   }
-
 }
 
 // ---------------------------------------------------------------------------

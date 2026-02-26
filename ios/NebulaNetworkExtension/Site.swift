@@ -254,7 +254,9 @@ class Site: Codable {
         inboundRules = parsed.inboundRules ?? []
         outboundRules = parsed.outboundRules ?? []
       } else {
-        errors.append("Failed to parse firewall rules from config: \(parseErr?.localizedDescription ?? "unknown")")
+        errors.append(
+          "Failed to parse firewall rules from config: \(parseErr?.localizedDescription ?? "unknown")"
+        )
         inboundRules = incoming.inboundRules ?? []
         outboundRules = incoming.outboundRules ?? []
       }
