@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:mobile_nebula/components/config/config_page_item.dart';
 import 'package:mobile_nebula/components/config/config_section.dart';
 import 'package:mobile_nebula/components/form_page.dart';
@@ -32,32 +33,55 @@ class _FirewallRulesScreenState extends State<FirewallRulesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final editable = widget.onSave != null;
     return FormPage(
       title: widget.title,
       changed: changed,
       onSave: _onSave,
-      trailingActions: widget.onSave != null ? [_buildAddButton(context)] : null,
+      bottomBar: editable ? _buildAddRuleButton(context) : null,
       child: ConfigSection(children: _buildRules()),
     );
   }
 
-  Widget _buildAddButton(BuildContext context) {
-    return CupertinoButton(
-      padding: EdgeInsets.zero,
-      child: const Icon(CupertinoIcons.add),
-      onPressed: () {
-        Utils.openPage(context, (context) {
-          return FirewallRuleScreen(
-            rule: FirewallRule(),
-            onSave: (rule) {
-              setState(() {
-                changed = true;
-                rules[UniqueKey()] = rule;
-              });
-            },
-          );
-        });
-      },
+  Widget _buildAddRuleButton(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16, top: 8, right: 32),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: colorScheme.primary,
+            foregroundColor: colorScheme.onPrimary,
+            padding: EdgeInsets.fromLTRB(10, 12, 16, 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          ),
+          child: Text.rich(
+            TextSpan(
+              children: [
+                WidgetSpan(
+                  child: Icon(Icons.add, size: 20, color: colorScheme.onPrimary),
+                  alignment: PlaceholderAlignment.middle,
+                ),
+                const TextSpan(text: ' Add rule'),
+              ],
+            ),
+          ),
+          onPressed: () {
+            Utils.openPage(context, (context) {
+              return FirewallRuleScreen(
+                rule: FirewallRule(),
+                onSave: (rule) {
+                  setState(() {
+                    changed = true;
+                    rules[UniqueKey()] = rule;
+                  });
+                },
+              );
+            });
+          },
+        ),
+      ),
     );
   }
 

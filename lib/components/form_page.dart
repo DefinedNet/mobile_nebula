@@ -15,6 +15,7 @@ class FormPage extends StatefulWidget {
     this.alwaysShowSave = false,
     this.scrollController,
     this.trailingActions,
+    this.bottomBar,
   });
 
   final String title;
@@ -33,6 +34,9 @@ class FormPage extends StatefulWidget {
 
   /// Additional trailing actions to show in the nav bar (before the save button)
   final List<Widget>? trailingActions;
+
+  /// A widget to display at the bottom of the page, below the scrollable content
+  final Widget? bottomBar;
 
   @override
   FormPageState createState() => FormPageState();
@@ -68,6 +72,7 @@ class FormPageState extends State<FormPage> {
         leadingAction: _buildLeader(context),
         trailingActions: _buildTrailer(context),
         scrollController: widget.scrollController,
+        bottomBar: widget.bottomBar,
         title: Text(widget.title),
         child: Form(
           key: _formKey,
