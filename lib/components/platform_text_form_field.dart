@@ -29,6 +29,7 @@ class PlatformTextFormField extends FormField<String> {
     String? placeholder,
     FormFieldValidator<String>? validator,
     super.onSaved,
+    bool enabled = true,
   }) : super(
          initialValue: controller != null ? controller.text : (initialValue ?? ''),
          validator: (str) {
@@ -71,6 +72,7 @@ class PlatformTextFormField extends FormField<String> {
                  placeholder: placeholder,
                  inputFormatters: inputFormatters,
                  suffix: suffix,
+                 enabled: enabled,
                ),
                field.hasError
                    ? Text(

@@ -170,6 +170,9 @@ class Site: Codable {
   // The following fields are present if managed = true
   var lastManagedUpdate: String?
   var rawConfig: String?
+  var inboundRules: [FirewallRule]
+  var outboundRules: [FirewallRule]
+  var configVersion: Int
 
   /// If true then this site needs to be migrated to the filesystem. Should be handled by the initiator of the site
   var needsToMigrateToFS: Bool = false
@@ -240,6 +243,46 @@ class Site: Codable {
     dnsResolvers = incoming.dnsResolvers ?? []
     rawConfig = incoming.rawConfig
     alwaysOn = incoming.alwaysOn ?? false
+    configVersion = incoming.configVersion ?? 0
+
+    // Derive firewall rules from rawConfig when available (managed sites),
+    // rather than trusting potentially stale rules stored in config.json.
+    if let rawConfig = incoming.rawConfig {
+      var parseErr: NSError?
+      let rulesJson = MobileNebulaParseFirewallRules(rawConfig, &parseErr)
+      if parseErr == nil, let data = rulesJson.data(using: .utf8),
+        let parsed = try? JSONDecoder().decode(ParsedFirewallRules.self, from: data)
+      {
+        inboundRules = parsed.inboundRules ?? []
+        outboundRules = parsed.outboundRules ?? []
+      } else {
+        errors.append(
+          "Failed to parse firewall rules from config: \(parseErr?.localizedDescription ?? "unknown")"
+        )
+        inboundRules = incoming.inboundRules ?? []
+        outboundRules = incoming.outboundRules ?? []
+      }
+    } else {
+      inboundRules = incoming.inboundRules ?? []
+      outboundRules = incoming.outboundRules ?? []
+    }
+
+    // Migrate old configs that predate firewall rule storage
+    if configVersion < 1 {
+      if incoming.inboundRules == nil && incoming.outboundRules == nil {
+        inboundRules = []
+        outboundRules = [FirewallRule(proto: "any", port: "any", host: "any")]
+      }
+      configVersion = 1
+      incomingSite?.configVersion = configVersion
+      incomingSite?.inboundRules = inboundRules
+      incomingSite?.outboundRules = outboundRules
+      if let configPath = try? SiteList.getSiteConfigFile(id: id, createDir: false),
+        let configData = try? JSONEncoder().encode(incomingSite)
+      {
+        try? configData.write(to: configPath)
+      }
+    }
 
     // Default these to disconnected for the UI
     status = statusString[.disconnected]
@@ -389,6 +432,9 @@ class Site: Codable {
     case dnsResolvers
     case rawConfig
     case alwaysOn
+    case inboundRules
+    case outboundRules
+    case configVersion
   }
 }
 
@@ -401,6 +447,23 @@ class UnsafeRoute: Codable {
   var route: String
   var via: String
   var mtu: Int?
+}
+
+struct FirewallRule: Codable {
+  var proto: String?
+  var port: String?
+  var host: String?
+  var group: String?
+  var groups: [String]?
+  var localCidr: String?
+  var cidr: String?
+  var caName: String?
+  var caSha: String?
+}
+
+struct ParsedFirewallRules: Codable {
+  var inboundRules: [FirewallRule]?
+  var outboundRules: [FirewallRule]?
 }
 
 class DNCredentials: Codable {
@@ -449,6 +512,9 @@ struct IncomingSite: Codable {
   var managed: Bool?
   var dnsResolvers: [String]?
   var alwaysOn: Bool?
+  var inboundRules: [FirewallRule]?
+  var outboundRules: [FirewallRule]?
+  var configVersion: Int?
   // The following fields are present if managed = true
   var dnCredentials: DNCredentials?
   var lastManagedUpdate: String?

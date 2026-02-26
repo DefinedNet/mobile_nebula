@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
 import 'package:mobile_nebula/errors/parse_error.dart';
+import 'package:mobile_nebula/models/firewall_rule.dart';
 import 'package:mobile_nebula/models/hostinfo.dart';
 import 'package:mobile_nebula/models/ip_and_port.dart';
 import 'package:mobile_nebula/models/unsafe_route.dart';
@@ -58,6 +59,11 @@ class Site {
   late bool alwaysOn;
   late List<String> dnsResolvers;
 
+  late List<FirewallRule> inboundRules;
+  late List<FirewallRule> outboundRules;
+
+  late int configVersion;
+
   late bool managed;
   // The following fields are present when managed = true
   late String? rawConfig;
@@ -88,6 +94,9 @@ class Site {
     this.lastManagedUpdate,
     this.alwaysOn = false,
     List<String>? dnsResolvers,
+    List<FirewallRule>? inboundRules,
+    List<FirewallRule>? outboundRules,
+    this.configVersion = 0,
   }) {
     this.id = id ?? uuid.v4();
     this.staticHostmap = staticHostmap ?? {};
@@ -95,6 +104,13 @@ class Site {
     this.errors = errors ?? [];
     this.unsafeRoutes = unsafeRoutes ?? [];
     this.dnsResolvers = dnsResolvers ?? [];
+    this.inboundRules = inboundRules ?? [];
+
+    if (outboundRules == null) {
+      this.outboundRules = [FirewallRule(startPort: 0, protocol: 'any', host: 'any')];
+    } else {
+      this.outboundRules = outboundRules;
+    }
 
     //TODO: I think this plays well with new saved sites because we should be recreating it on the main screen
     // However it might not work on the site details page with the logs button.
@@ -144,6 +160,9 @@ class Site {
       lastManagedUpdate: decoded['lastManagedUpdate'],
       dnsResolvers: decoded['dnsResolvers'],
       alwaysOn: decoded['alwaysOn'],
+      inboundRules: decoded['inboundRules'],
+      outboundRules: decoded['outboundRules'],
+      configVersion: decoded['configVersion'],
     );
   }
 
@@ -156,6 +175,7 @@ class Site {
     var lighthouses = _fromYamlLighthouse(site, yaml);
     _fromYamlStaticHostmap(site, lighthouses, yaml);
     _fromYamlUnsafeRoutes(site, yaml);
+    _fromYamlFirewall(site, yaml);
     _fromYamlCipher(site, yaml);
     _fromYamlTun(site, yaml);
     _fromYamlListen(site, yaml);
@@ -190,6 +210,9 @@ class Site {
     lastManagedUpdate = decoded['lastManagedUpdate'];
     dnsResolvers = decoded['dnsResolvers'];
     alwaysOn = decoded['alwaysOn'];
+    inboundRules = decoded['inboundRules'] ?? [];
+    outboundRules = decoded['outboundRules'] ?? [FirewallRule(startPort: 0, protocol: 'any', host: 'any')];
+    configVersion = decoded['configVersion'];
   }
 
   static Map<String, dynamic> _fromJson(Map<String, dynamic> json) {
@@ -228,6 +251,22 @@ class Site {
       errors.add(error);
     }
 
+    List<FirewallRule>? inboundRules;
+    if (json['inboundRules'] != null) {
+      inboundRules = [];
+      for (var val in json['inboundRules']) {
+        inboundRules.add(FirewallRule.fromJson(val));
+      }
+    }
+
+    List<FirewallRule>? outboundRules;
+    if (json['outboundRules'] != null) {
+      outboundRules = [];
+      for (var val in json['outboundRules']) {
+        outboundRules.add(FirewallRule.fromJson(val));
+      }
+    }
+
     return {
       "name": json["name"],
       "id": json['id'],
@@ -250,6 +289,9 @@ class Site {
       "lastManagedUpdate": json["lastManagedUpdate"] == null ? null : DateTime.parse(json["lastManagedUpdate"]),
       "dnsResolvers": dnsResolvers,
       "alwaysOn": json['alwaysOn'] ?? false,
+      'inboundRules': inboundRules,
+      'outboundRules': outboundRules,
+      'configVersion': json['configVersion'] ?? 0,
     };
   }
 
@@ -280,6 +322,9 @@ class Site {
       'rawConfig': rawConfig,
       'dnsResolvers': dnsResolvers,
       'alwaysOn': alwaysOn,
+      'inboundRules': inboundRules,
+      'outboundRules': outboundRules,
+      'configVersion': configVersion,
     };
   }
 
@@ -613,6 +658,55 @@ void _fromYamlUnsafeRoutes(Site site, YamlMap yaml) {
       site.unsafeRoutes.add(UnsafeRoute.fromYaml(yamlRoute));
     } on ParseError catch (err) {
       site.errors.add('failed to parse unsafe route $i: ${err.message}');
+    }
+  }
+}
+
+void _fromYamlFirewall(Site site, YamlMap yaml) {
+  if (!yaml.containsKey('firewall')) {
+    return;
+  }
+
+  if (yaml['firewall'] is! YamlMap) {
+    site.errors.add('firewall was not a yaml map');
+    return;
+  }
+
+  final yamlFirewall = yaml['firewall'] as YamlMap;
+
+  if (yamlFirewall.containsKey('inbound')) {
+    if (yamlFirewall['inbound'] is! YamlList) {
+      site.errors.add('firewall.inbound was not a yaml list');
+    } else {
+      final yamlInbound = yamlFirewall['inbound'] as YamlList;
+      site.inboundRules = [];
+      var i = 0;
+      for (var yamlRule in yamlInbound) {
+        i++;
+        try {
+          site.inboundRules.add(FirewallRule.fromYaml(yamlRule));
+        } on ParseError catch (err) {
+          site.errors.add('failed to parse firewall.inbound rule $i: ${err.message}');
+        }
+      }
+    }
+  }
+
+  if (yamlFirewall.containsKey('outbound')) {
+    if (yamlFirewall['outbound'] is! YamlList) {
+      site.errors.add('firewall.outbound was not a yaml list');
+    } else {
+      final yamlOutbound = yamlFirewall['outbound'] as YamlList;
+      site.outboundRules = [];
+      var i = 0;
+      for (var yamlRule in yamlOutbound) {
+        i++;
+        try {
+          site.outboundRules.add(FirewallRule.fromYaml(yamlRule));
+        } on ParseError catch (err) {
+          site.errors.add('failed to parse firewall.outbound rule $i: ${err.message}');
+        }
+      }
     }
   }
 }

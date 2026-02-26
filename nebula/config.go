@@ -76,14 +76,8 @@ func newConfig() *config {
 				DefaultTimeout: "10m",
 				MaxConnections: 100000,
 			},
-			Outbound: []configFirewallRule{
-				{
-					Port:  "any",
-					Proto: "any",
-					Host:  "any",
-				},
-			},
-			Inbound: []configFirewallRule{},
+			Outbound: []configFirewallRule{},
+			Inbound:  []configFirewallRule{},
 		},
 	}
 }
@@ -204,15 +198,16 @@ type configConntrack struct {
 }
 
 type configFirewallRule struct {
-	Port   string   `yaml:"port,omitempty"`
-	Code   string   `yaml:"code,omitempty"`
-	Proto  string   `yaml:"proto,omitempty"`
-	Host   string   `yaml:"host,omitempty"`
-	Group  string   `yaml:"group,omitempty"`
-	Groups []string `yaml:"groups,omitempty"`
-	CIDR   string   `yaml:"cidr,omitempty"`
-	CASha  string   `yaml:"ca_sha,omitempty"`
-	CAName string   `yaml:"ca_name,omitempty"`
+	Port      string   `yaml:"port,omitempty"      json:"port,omitempty"`
+	Code      string   `yaml:"code,omitempty"      json:"code,omitempty"`
+	Proto     string   `yaml:"proto,omitempty"     json:"proto,omitempty"`
+	Host      string   `yaml:"host,omitempty"      json:"host,omitempty"`
+	Group     string   `yaml:"group,omitempty"     json:"group,omitempty"`
+	Groups    []string `yaml:"groups,omitempty"    json:"groups,omitempty"`
+	CIDR      string   `yaml:"cidr,omitempty"      json:"cidr,omitempty"`
+	LocalCIDR string   `yaml:"local_cidr,omitempty" json:"localCidr,omitempty"`
+	CASha     string   `yaml:"ca_sha,omitempty"    json:"caSha,omitempty"`
+	CAName    string   `yaml:"ca_name,omitempty"   json:"caName,omitempty"`
 }
 
 type configRelay struct {

@@ -12,7 +12,10 @@ class FormPage extends StatefulWidget {
     required this.onSave,
     required this.changed,
     this.hideSave = false,
+    this.alwaysShowSave = false,
     this.scrollController,
+    this.trailingActions,
+    this.bottomBar,
   });
 
   final String title;
@@ -25,6 +28,15 @@ class FormPage extends StatefulWidget {
 
   /// Useful if you have a non form field that can change, overrides the internal changed state if true
   final bool changed;
+
+  /// When true, show the save button even if no changes have been made
+  final bool alwaysShowSave;
+
+  /// Additional trailing actions to show in the nav bar (before the save button)
+  final List<Widget>? trailingActions;
+
+  /// A widget to display at the bottom of the page, below the scrollable content
+  final Widget? bottomBar;
 
   @override
   FormPageState createState() => FormPageState();
@@ -60,6 +72,7 @@ class FormPageState extends State<FormPage> {
         leadingAction: _buildLeader(context),
         trailingActions: _buildTrailer(context),
         scrollController: widget.scrollController,
+        bottomBar: widget.bottomBar,
         title: Text(widget.title),
         child: Form(
           key: _formKey,
@@ -96,11 +109,14 @@ class FormPageState extends State<FormPage> {
   }
 
   List<Widget> _buildTrailer(BuildContext context) {
-    if (!changed || widget.hideSave) {
-      return [];
+    final extra = widget.trailingActions ?? [];
+
+    if (widget.hideSave || (!changed && !widget.alwaysShowSave)) {
+      return extra;
     }
 
     return [
+      ...extra,
       Utils.trailingSaveWidget(context, () {
         if (_formKey.currentState == null) {
           return;

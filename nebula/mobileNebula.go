@@ -118,6 +118,18 @@ func RenderConfig(configData string, key string) (string, error) {
 		}
 	}
 
+	var siteFirewall struct {
+		InboundRules  []configFirewallRule `json:"inboundRules"`
+		OutboundRules []configFirewallRule `json:"outboundRules"`
+	}
+	_ = json.Unmarshal([]byte(configData), &siteFirewall)
+	if siteFirewall.InboundRules != nil {
+		cfg.Firewall.Inbound = siteFirewall.InboundRules
+	}
+	if siteFirewall.OutboundRules != nil {
+		cfg.Firewall.Outbound = siteFirewall.OutboundRules
+	}
+
 	finalConfig, err := yaml.Marshal(cfg)
 	if err != nil {
 		return "", err
@@ -168,6 +180,43 @@ func GetConfigSetting(configData string, setting string) string {
 	c := nc.NewC(l)
 	c.LoadString(configData)
 	return c.GetString(setting, "")
+}
+
+// ParseFirewallRules takes a raw YAML nebula config and returns JSON-encoded firewall rules.
+// This is used by the native layer to derive firewall rules from rawConfig for managed sites,
+// rather than relying on potentially stale inboundRules/outboundRules stored on disk.
+func ParseFirewallRules(rawYamlConfig string) (string, error) {
+	l := logrus.New()
+	l.SetOutput(io.Discard)
+	c := nc.NewC(l)
+	if err := c.LoadString(rawYamlConfig); err != nil {
+		return "", fmt.Errorf("failed to load config: %w", err)
+	}
+
+	collector := &ruleCollector{
+		inbound:  []configFirewallRule{},
+		outbound: []configFirewallRule{},
+	}
+	if err := nebula.AddFirewallRulesFromConfig(l, true, c, collector); err != nil {
+		return "", fmt.Errorf("failed to parse inbound rules: %w", err)
+	}
+	if err := nebula.AddFirewallRulesFromConfig(l, false, c, collector); err != nil {
+		return "", fmt.Errorf("failed to parse outbound rules: %w", err)
+	}
+
+	result := struct {
+		InboundRules  []configFirewallRule `json:"inboundRules"`
+		OutboundRules []configFirewallRule `json:"outboundRules"`
+	}{
+		InboundRules:  collector.inbound,
+		OutboundRules: collector.outbound,
+	}
+
+	j, err := json.Marshal(result)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal rules: %w", err)
+	}
+	return string(j), nil
 }
 
 func ParseCIDR(cidr string) (*CIDR, error) {

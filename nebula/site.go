@@ -2,9 +2,14 @@ package mobileNebula
 
 import (
 	"encoding/json"
+	"io"
+	"strconv"
 	"time"
 
 	"github.com/DefinedNet/dnapi/keys"
+	"github.com/sirupsen/logrus"
+	"github.com/slackhq/nebula"
+	nc "github.com/slackhq/nebula/config"
 	"gopkg.in/yaml.v2"
 )
 
@@ -27,6 +32,8 @@ type site struct {
 	LastManagedUpdate *time.Time            `json:"lastManagedUpdate"`
 	RawConfig         *string               `json:"rawConfig"`
 	DNCredentials     *dnCredentials        `json:"dnCredentials"`
+	InboundRules      []configFirewallRule  `json:"inboundRules"`
+	OutboundRules     []configFirewallRule  `json:"outboundRules"`
 }
 
 type staticHost struct {
@@ -38,6 +45,53 @@ type unsafeRoute struct {
 	Route string `json:"route"`
 	Via   string `json:"via"`
 	MTU   *int   `json:"mtu"`
+}
+
+// ruleCollector implements nebula.FirewallInterface to collect firewall rules from nebula's config parser.
+type ruleCollector struct {
+	inbound  []configFirewallRule
+	outbound []configFirewallRule
+}
+
+func (rc *ruleCollector) AddRule(incoming bool, proto uint8, startPort int32, endPort int32, groups []string, host string, cidr string, localCidr string, caName string, caSha string) error {
+	protoNames := map[uint8]string{0: "any", 1: "icmp", 6: "tcp", 17: "udp"}
+	protoStr, ok := protoNames[proto]
+	if !ok {
+		protoStr = "any"
+	}
+
+	var portStr string
+	switch {
+	case startPort == -1:
+		portStr = "fragment"
+	case startPort == 0 && endPort == 0:
+		portStr = "any"
+	case startPort == endPort:
+		portStr = strconv.Itoa(int(startPort))
+	default:
+		portStr = strconv.Itoa(int(startPort)) + "-" + strconv.Itoa(int(endPort))
+	}
+
+	rule := configFirewallRule{
+		Port:      portStr,
+		Proto:     protoStr,
+		Host:      host,
+		CIDR:      cidr,
+		LocalCIDR: localCidr,
+		CAName:    caName,
+		CASha:     caSha,
+	}
+	if len(groups) == 1 {
+		rule.Group = groups[0]
+	} else if len(groups) > 1 {
+		rule.Groups = groups
+	}
+	if incoming {
+		rc.inbound = append(rc.inbound, rule)
+	} else {
+		rc.outbound = append(rc.outbound, rule)
+	}
+	return nil
 }
 
 type dnCredentials struct {
@@ -88,6 +142,24 @@ func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials) (
 		})
 	}
 
+	// build firewall rules using nebula's config parser
+	l := logrus.New()
+	l.SetOutput(io.Discard)
+	c := nc.NewC(l)
+	if err := c.LoadString(strCfg); err != nil {
+		return nil, err
+	}
+	collector := &ruleCollector{
+		inbound:  []configFirewallRule{},
+		outbound: []configFirewallRule{},
+	}
+	if err := nebula.AddFirewallRulesFromConfig(l, true, c, collector); err != nil {
+		return nil, err
+	}
+	if err := nebula.AddFirewallRulesFromConfig(l, false, c, collector); err != nil {
+		return nil, err
+	}
+
 	// log verbosity is nullable
 	var logVerb *string
 	if cfg.Logging.Level != "" {
@@ -130,6 +202,8 @@ func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials) (
 		Managed:           true,
 		LastManagedUpdate: &now,
 		RawConfig:         &strCfg,
+		InboundRules:      collector.inbound,
+		OutboundRules:     collector.outbound,
 		DNCredentials: &dnCredentials{
 			HostID:      creds.HostID,
 			PrivateKey:  string(pkm),
