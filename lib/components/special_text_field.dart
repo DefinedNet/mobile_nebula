@@ -114,7 +114,7 @@ class SpecialTextFieldState extends State<SpecialTextField> {
         placeholder: widget.placeholder,
         suffix: widget.suffix,
       ),
-      style: widget.style,
+      style: widget.style ?? Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.normal),
       controller: widget.controller,
     );
   }

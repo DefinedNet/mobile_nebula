@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
@@ -24,12 +21,7 @@ class ConfigItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle textStyle;
-    if (Platform.isAndroid) {
-      textStyle = Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.normal);
-    } else {
-      textStyle = CupertinoTheme.of(context).textTheme.textStyle;
-    }
+    final textStyle = Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.normal);
 
     return Container(
       color: Theme.of(context).colorScheme.primaryContainer,
