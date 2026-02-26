@@ -26,8 +26,9 @@ class ExcludedAppsScreen extends StatefulWidget {
 class _AppInfo {
   final String packageName;
   final String appName;
+  final bool isUninstalled;
 
-  _AppInfo({required this.packageName, required this.appName});
+  _AppInfo({required this.packageName, required this.appName, this.isUninstalled = false});
 }
 
 class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
@@ -77,19 +78,28 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
         appName: app['appName'] as String,
       )).toList();
 
-      // Filter stale packages from selectedApps (uninstalled since last save)
+      // Create synthetic entries for selected apps that are no longer installed
       final installedPackages = loaded.map((a) => a.packageName).toSet();
-      selectedApps = selectedApps.intersection(installedPackages);
+      final uninstalledSelected = selectedApps.difference(installedPackages);
+      for (final pkg in uninstalledSelected) {
+        loaded.add(_AppInfo(
+          packageName: pkg,
+          appName: 'Not installed',
+          isUninstalled: true,
+        ));
+      }
 
       loaded.sort((a, b) {
         final aAlways = alwaysExcludedApps.contains(a.packageName);
         final bAlways = alwaysExcludedApps.contains(b.packageName);
         final aSelected = selectedApps.contains(a.packageName);
         final bSelected = selectedApps.contains(b.packageName);
-        // Always-excluded and user-selected both sort to the top
-        final aTop = aAlways || aSelected;
-        final bTop = bAlways || bSelected;
+        // Uninstalled, always-excluded, and user-selected all sort to the top
+        final aTop = a.isUninstalled || aAlways || aSelected;
+        final bTop = b.isUninstalled || bAlways || bSelected;
         if (aTop != bTop) return aTop ? -1 : 1;
+        // Uninstalled apps sort above other top items
+        if (a.isUninstalled != b.isUninstalled) return a.isUninstalled ? -1 : 1;
         return a.appName.toLowerCase().compareTo(b.appName.toLowerCase());
       });
 
@@ -213,11 +223,18 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
           leading: _buildAppIcon(app),
           title: Text(
             app.appName,
-            style: const TextStyle(fontSize: 15),
+            style: TextStyle(
+              fontSize: 15,
+              fontStyle: app.isUninstalled ? FontStyle.italic : FontStyle.normal,
+            ),
             overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
-            isAlwaysExcluded ? '${app.packageName} (always excluded)' : app.packageName,
+            isAlwaysExcluded
+                ? '${app.packageName} (always excluded)'
+                : app.isUninstalled
+                    ? '${app.packageName} (not installed)'
+                    : app.packageName,
             style: TextStyle(
               fontSize: 11,
               color: CupertinoColors.secondaryLabel.resolveFrom(context),
@@ -259,6 +276,18 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
   }
 
   Widget _buildAppIcon(_AppInfo app) {
+    if (app.isUninstalled) {
+      return Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: CupertinoColors.systemGrey5.resolveFrom(context),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(Icons.remove_circle_outline, size: 24,
+            color: CupertinoColors.systemGrey.resolveFrom(context)),
+      );
+    }
     final bytes = iconCache[app.packageName];
     if (bytes != null) {
       return ClipRRect(
