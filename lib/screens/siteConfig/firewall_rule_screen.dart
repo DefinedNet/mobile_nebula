@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart' show CupertinoIcons, CupertinoSegmentedControl, CupertinoTextField;
+import 'package:flutter/cupertino.dart' show CupertinoIcons, CupertinoTextField;
 import 'package:flutter/material.dart';
 import 'package:mobile_nebula/components/cidr_form_field.dart';
 import 'package:mobile_nebula/components/config/config_item.dart';
@@ -109,6 +109,8 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
     );
   }
 
+  TextStyle _labelStyle() => TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14);
+
   Widget _buildTrafficSection() {
     final readOnly = widget.onSave == null;
     return ConfigSection(
@@ -116,30 +118,41 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
       children: [
         ConfigItem(
           labelWidth: 0,
-          content: IgnorePointer(
-            ignoring: readOnly,
-            child: Opacity(
-              opacity: readOnly ? 0.6 : 1.0,
-              child: CupertinoSegmentedControl<String>(
-                children: const {
-                  'any': Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text('Any')),
-                  'tcp': Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text('TCP')),
-                  'udp': Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text('UDP')),
-                  'icmp': Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text('ICMP')),
-                },
-                groupValue: _protocol,
-                onValueChanged: (v) {
-                  setState(() {
-                    changed = true;
-                    _protocol = v;
-                  });
-                },
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(padding: const EdgeInsets.only(top: 6), child: Text('Protocol', style: _labelStyle())),
+              const SizedBox(height: 6),
+              IgnorePointer(
+                ignoring: readOnly,
+                child: Opacity(
+                  opacity: readOnly ? 0.6 : 1.0,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: SegmentedButton<String>(
+                      showSelectedIcon: false,
+                      segments: const [
+                        ButtonSegment(value: 'any', label: Text('Any')),
+                        ButtonSegment(value: 'tcp', label: Text('TCP')),
+                        ButtonSegment(value: 'udp', label: Text('UDP')),
+                        ButtonSegment(value: 'icmp', label: Text('ICMP')),
+                      ],
+                      selected: {_protocol},
+                      onSelectionChanged: (v) {
+                        setState(() {
+                          changed = true;
+                          _protocol = v.first;
+                        });
+                      },
+                    ),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ),
         ConfigItem(
-          label: Text('Fragment'),
+          label: Text('Fragment', style: _labelStyle()),
           labelWidth: 90,
           content: Container(
             alignment: Alignment.centerRight,
@@ -156,12 +169,9 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
         ),
         if (_protocol != 'icmp' && !_useFragment)
           ConfigPageItem(
-            label: Text('Port'),
+            label: Text('Port', style: _labelStyle()),
             disabled: readOnly,
-            content: Container(
-              alignment: Alignment.centerRight,
-              child: Text(_portDisplayValue(), style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-            ),
+            content: Container(alignment: Alignment.centerRight, child: Text(_portDisplayValue())),
             onPressed: () => _openPortScreen(),
           ),
       ],
@@ -174,30 +184,40 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
       label: 'Allowed hosts',
       children: [
         ConfigItem(
-          label: Text('Match by'),
-          labelWidth: 90,
-          content: IgnorePointer(
-            ignoring: readOnly,
-            child: Opacity(
-              opacity: readOnly ? 0.6 : 1.0,
-              child: CupertinoSegmentedControl<String>(
-                children: const {
-                  'host': Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text('Host')),
-                  'group': Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text('Group')),
-                  'cidr': Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text('CIDR')),
-                },
-                groupValue: _matchBy,
-                onValueChanged: (v) => setState(() {
-                  changed = true;
-                  _matchBy = v;
-                }),
+          labelWidth: 0,
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(padding: const EdgeInsets.only(top: 6), child: Text('Match by', style: _labelStyle())),
+              const SizedBox(height: 6),
+              IgnorePointer(
+                ignoring: readOnly,
+                child: Opacity(
+                  opacity: readOnly ? 0.6 : 1.0,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: SegmentedButton<String>(
+                      showSelectedIcon: false,
+                      segments: const [
+                        ButtonSegment(value: 'host', label: Text('Host')),
+                        ButtonSegment(value: 'group', label: Text('Group')),
+                        ButtonSegment(value: 'cidr', label: Text('CIDR')),
+                      ],
+                      selected: {_matchBy},
+                      onSelectionChanged: (v) => setState(() {
+                        changed = true;
+                        _matchBy = v.first;
+                      }),
+                    ),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ),
         if (_matchBy == 'host')
           ConfigItem(
-            label: Text('Host'),
+            label: Text('Host', style: _labelStyle()),
             content: PlatformTextFormField(
               placeholder: 'any',
               initialValue: _host,
@@ -210,7 +230,7 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
         if (_matchBy == 'group') _buildGroupChipsItem(readOnly),
         if (_matchBy == 'cidr')
           ConfigItem(
-            label: Text('CIDR'),
+            label: Text('CIDR', style: _labelStyle()),
             content: CIDRFormField(
               initialValue: _remoteCidr,
               textInputAction: TextInputAction.next,
@@ -219,7 +239,7 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
             ),
           ),
         ConfigPageItem(
-          label: Text('Local CIDR'),
+          label: Text('Local CIDR', style: _labelStyle()),
           labelWidth: 90,
           disabled: readOnly,
           content: Container(
@@ -368,7 +388,7 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
       label: 'Certificate authority',
       children: [
         ConfigItem(
-          label: Text('Name'),
+          label: Text('Name', style: _labelStyle()),
           content: PlatformTextFormField(
             placeholder: 'any',
             initialValue: _caName,
@@ -381,7 +401,7 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
           ),
         ),
         ConfigItem(
-          label: Text('SHA'),
+          label: Text('SHA', style: _labelStyle()),
           content: PlatformTextFormField(
             placeholder: 'any',
             initialValue: _caSha,

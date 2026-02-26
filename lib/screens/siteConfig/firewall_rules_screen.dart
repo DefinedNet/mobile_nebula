@@ -5,6 +5,7 @@ import 'package:mobile_nebula/components/config/config_section.dart';
 import 'package:mobile_nebula/components/form_page.dart';
 import 'package:mobile_nebula/models/firewall_rule.dart';
 import 'package:mobile_nebula/screens/siteConfig/firewall_rule_screen.dart';
+import 'package:mobile_nebula/services/theme.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 class FirewallRulesScreen extends StatefulWidget {
@@ -45,6 +46,7 @@ class _FirewallRulesScreenState extends State<FirewallRulesScreen> {
 
   Widget _buildAddRuleButton(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final appColors = Theme.of(context).extension<AppColors>();
     return Padding(
       padding: const EdgeInsets.only(bottom: 16, top: 8, right: 32),
       child: Align(
@@ -60,7 +62,7 @@ class _FirewallRulesScreenState extends State<FirewallRulesScreen> {
             TextSpan(
               children: [
                 WidgetSpan(
-                  child: Icon(Icons.add, size: 20, color: colorScheme.onPrimary),
+                  child: Icon(Icons.add, size: 20, color: appColors?.primaryMuted ?? colorScheme.onPrimary),
                   alignment: PlaceholderAlignment.middle,
                 ),
                 const TextSpan(text: ' Add rule'),

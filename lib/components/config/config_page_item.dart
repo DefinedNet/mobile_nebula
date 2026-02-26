@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_nebula/components/special_button.dart';
@@ -29,30 +27,7 @@ class ConfigPageItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    dynamic theme;
-
-    if (Platform.isAndroid) {
-      final origTheme = Theme.of(context);
-      theme = origTheme.copyWith(
-        textTheme: origTheme.textTheme.copyWith(
-          labelLarge: origTheme.textTheme.labelLarge!.copyWith(fontWeight: FontWeight.normal),
-        ),
-      );
-      return Theme(data: theme, child: _buildContent(context));
-    } else {
-      final origTheme = CupertinoTheme.of(context);
-      theme = origTheme.copyWith(primaryColor: CupertinoColors.label.resolveFrom(context));
-      return CupertinoTheme(data: theme, child: _buildContent(context));
-    }
-  }
-
-  Widget _buildContent(BuildContext context) {
-    TextStyle textStyle;
-    if (Platform.isAndroid) {
-      textStyle = Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.normal);
-    } else {
-      textStyle = CupertinoTheme.of(context).textTheme.textStyle;
-    }
+    final textStyle = Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.normal);
 
     return SpecialButton(
       onPressed: disabled ? null : onPressed,
