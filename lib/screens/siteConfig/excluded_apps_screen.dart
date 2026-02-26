@@ -10,11 +10,7 @@ import 'package:mobile_nebula/components/simple_page.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
 class ExcludedAppsScreen extends StatefulWidget {
-  const ExcludedAppsScreen({
-    super.key,
-    required this.excludedApps,
-    required this.onSave,
-  });
+  const ExcludedAppsScreen({super.key, required this.excludedApps, required this.onSave});
 
   final List<String> excludedApps;
   final ValueChanged<List<String>>? onSave;
@@ -73,20 +69,15 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
 
       final List<dynamic> apps = jsonDecode(results[1]!);
 
-      final loaded = apps.map((app) => _AppInfo(
-        packageName: app['packageName'] as String,
-        appName: app['appName'] as String,
-      )).toList();
+      final loaded = apps
+          .map((app) => _AppInfo(packageName: app['packageName'] as String, appName: app['appName'] as String))
+          .toList();
 
       // Create synthetic entries for selected apps that are no longer installed
       final installedPackages = loaded.map((a) => a.packageName).toSet();
       final uninstalledSelected = selectedApps.difference(installedPackages);
       for (final pkg in uninstalledSelected) {
-        loaded.add(_AppInfo(
-          packageName: pkg,
-          appName: 'Not installed',
-          isUninstalled: true,
-        ));
+        loaded.add(_AppInfo(packageName: pkg, appName: 'Not installed', isUninstalled: true));
       }
 
       loaded.sort((a, b) {
@@ -124,10 +115,7 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
       if (!mounted) return;
       final batch = packageNames.sublist(i, min(i + batchSize, packageNames.length));
       try {
-        final String result = await platform.invokeMethod(
-          'android.getAppIcons',
-          jsonEncode(batch),
-        );
+        final String result = await platform.invokeMethod('android.getAppIcons', jsonEncode(batch));
         final Map<String, dynamic> raw = jsonDecode(result);
 
         final updates = <String, Uint8List>{};
@@ -150,10 +138,9 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
 
   void _applyFilter() {
     final q = searchQuery.toLowerCase();
-    filteredApps = allApps.where((app) =>
-      app.appName.toLowerCase().contains(q) ||
-      app.packageName.toLowerCase().contains(q)
-    ).toList();
+    filteredApps = allApps
+        .where((app) => app.appName.toLowerCase().contains(q) || app.packageName.toLowerCase().contains(q))
+        .toList();
   }
 
   @override
@@ -183,13 +170,9 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
             ),
           ),
           if (loading)
-            const Expanded(
-              child: Center(child: CircularProgressIndicator.adaptive()),
-            )
+            const Expanded(child: Center(child: CircularProgressIndicator.adaptive()))
           else if (filteredApps.isEmpty)
-            const Expanded(
-              child: Center(child: Text('No apps found')),
-            )
+            const Expanded(child: Center(child: Text('No apps found')))
           else
             Expanded(
               child: ListView.builder(
@@ -212,33 +195,22 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
       opacity: isAlwaysExcluded ? 0.6 : 1.0,
       child: Container(
         decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: CupertinoColors.separator.resolveFrom(context),
-              width: 0.5,
-            ),
-          ),
+          border: Border(bottom: BorderSide(color: CupertinoColors.separator.resolveFrom(context), width: 0.5)),
         ),
         child: ListTile(
           leading: _buildAppIcon(app),
           title: Text(
             app.appName,
-            style: TextStyle(
-              fontSize: 15,
-              fontStyle: app.isUninstalled ? FontStyle.italic : FontStyle.normal,
-            ),
+            style: TextStyle(fontSize: 15, fontStyle: app.isUninstalled ? FontStyle.italic : FontStyle.normal),
             overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
             isAlwaysExcluded
                 ? '${app.packageName} (always excluded)'
                 : app.isUninstalled
-                    ? '${app.packageName} (not installed)'
-                    : app.packageName,
-            style: TextStyle(
-              fontSize: 11,
-              color: CupertinoColors.secondaryLabel.resolveFrom(context),
-            ),
+                ? '${app.packageName} (not installed)'
+                : app.packageName,
+            style: TextStyle(fontSize: 11, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
             overflow: TextOverflow.ellipsis,
           ),
           trailing: isReadOnly
@@ -284,8 +256,7 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
           color: CupertinoColors.systemGrey5.resolveFrom(context),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(Icons.remove_circle_outline, size: 24,
-            color: CupertinoColors.systemGrey.resolveFrom(context)),
+        child: Icon(Icons.remove_circle_outline, size: 24, color: CupertinoColors.systemGrey.resolveFrom(context)),
       );
     }
     final bytes = iconCache[app.packageName];
