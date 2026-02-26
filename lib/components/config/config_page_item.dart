@@ -27,7 +27,10 @@ class ConfigPageItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.normal);
+    final textStyle = Theme.of(context).textTheme.labelLarge!.copyWith(
+      fontWeight: FontWeight.normal,
+      color: Theme.of(context).colorScheme.onSecondaryContainer,
+    );
 
     return SpecialButton(
       onPressed: disabled ? null : onPressed,

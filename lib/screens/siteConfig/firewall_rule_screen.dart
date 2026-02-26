@@ -121,7 +121,10 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(padding: const EdgeInsets.only(top: 6), child: Text('Protocol', style: _labelStyle())),
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text('Protocol', style: _labelStyle()),
+              ),
               const SizedBox(height: 6),
               IgnorePointer(
                 ignoring: readOnly,
@@ -188,7 +191,10 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(padding: const EdgeInsets.only(top: 6), child: Text('Match by', style: _labelStyle())),
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text('Match by', style: _labelStyle()),
+              ),
               const SizedBox(height: 6),
               IgnorePointer(
                 ignoring: readOnly,

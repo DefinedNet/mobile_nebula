@@ -255,7 +255,7 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
       children: <Widget>[
         ConfigPageItem(
           crossAxisAlignment: CrossAxisAlignment.center,
-          content: Text('Configuration'),
+          label: Text('Configuration'),
           onPressed: () {
             Utils.openPage(context, (context) {
               return SiteConfigScreen(
@@ -301,9 +301,9 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
               ],
             ),
           ),
-
           ConfigPageItem(
-            content: Text('Verify system always-on is enabled'),
+            label: Text('Verify system always-on is enabled'),
+            labelWidth: 300,
             onPressed: () {
               platform.invokeMethod('android.openVpnSettings');
             },
