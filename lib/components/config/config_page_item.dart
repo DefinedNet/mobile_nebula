@@ -41,14 +41,16 @@ class ConfigPageItem extends StatelessWidget {
         child: Row(
           crossAxisAlignment: crossAxisAlignment,
           children: <Widget>[
-            label != null
+            content != null && label != null
                 ? SizedBox(
                     width: labelWidth,
                     child: DefaultTextStyle(style: textStyle, child: label!),
                   )
                 : Container(),
             Expanded(
-              child: Container(padding: EdgeInsets.only(right: 10), child: content),
+              child: content != null
+                  ? Container(padding: EdgeInsets.only(right: 10), child: content)
+                  : DefaultTextStyle(style: textStyle, child: label ?? Container()),
             ),
             disabled
                 ? Container()
