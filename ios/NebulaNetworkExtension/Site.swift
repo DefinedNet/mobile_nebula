@@ -242,8 +242,26 @@ class Site: Codable {
     dnsResolvers = incoming.dnsResolvers ?? []
     rawConfig = incoming.rawConfig
     alwaysOn = incoming.alwaysOn ?? false
-    inboundRules = incoming.inboundRules ?? []
-    outboundRules = incoming.outboundRules ?? []
+
+    // Derive firewall rules from rawConfig when available (managed sites),
+    // rather than trusting potentially stale rules stored in config.json.
+    if let rawConfig = incoming.rawConfig {
+      var parseErr: NSError?
+      let rulesJson = MobileNebulaParseFirewallRules(rawConfig, &parseErr)
+      if parseErr == nil, let data = rulesJson.data(using: .utf8),
+        let parsed = try? JSONDecoder().decode(ParsedFirewallRules.self, from: data)
+      {
+        inboundRules = parsed.inboundRules ?? []
+        outboundRules = parsed.outboundRules ?? []
+      } else {
+        errors.append("Failed to parse firewall rules from config: \(parseErr?.localizedDescription ?? "unknown")")
+        inboundRules = incoming.inboundRules ?? []
+        outboundRules = incoming.outboundRules ?? []
+      }
+    } else {
+      inboundRules = incoming.inboundRules ?? []
+      outboundRules = incoming.outboundRules ?? []
+    }
 
     // Default these to disconnected for the UI
     status = statusString[.disconnected]
@@ -410,16 +428,20 @@ class UnsafeRoute: Codable {
 }
 
 struct FirewallRule: Codable {
-  var `protocol`: String?
-  var startPort: Int?
-  var endPort: Int?
-  var fragment: Bool?
+  var proto: String?
+  var port: String?
   var host: String?
+  var group: String?
   var groups: [String]?
   var localCidr: String?
-  var remoteCidr: String?
+  var cidr: String?
   var caName: String?
   var caSha: String?
+}
+
+struct ParsedFirewallRules: Codable {
+  var inboundRules: [FirewallRule]?
+  var outboundRules: [FirewallRule]?
 }
 
 class DNCredentials: Codable {

@@ -150,17 +150,35 @@ class FirewallRule {
   factory FirewallRule.fromJson(Map<String, dynamic> json) {
     final rule = FirewallRule();
 
-    rule.protocol = json['protocol'];
-    rule.startPort = json['startPort'];
-    rule.endPort = json['endPort'];
-    rule.fragment = json['fragment'];
+    rule.protocol = json['proto'] ?? 'any';
+
+    final portVal = json['port'];
+    if (portVal is String) {
+      final rawPort = portVal.toLowerCase().trim();
+      if (rawPort == 'fragment') {
+        rule.fragment = true;
+      } else if (rawPort.isEmpty || rawPort == 'any') {
+        rule.startPort = 0;
+        rule.endPort = 0;
+      } else if (rawPort.contains('-')) {
+        final parts = rawPort.split('-');
+        rule.startPort = int.tryParse(parts[0].trim()) ?? 0;
+        rule.endPort = int.tryParse(parts[1].trim()) ?? 0;
+      } else {
+        final p = int.tryParse(rawPort) ?? 0;
+        rule.startPort = p;
+        rule.endPort = p;
+      }
+    }
+
     rule.host = json['host'];
-    rule.groups = json['groups'];
-    //TODO: test local and remoteCidr to make sure it doesn't fail on parsing nothing
-    rule.localCidr = (json['localCidr'] != null && json['localCidr'] != "") ? CIDR.fromString(json['localCidr']) : null;
-    rule.remoteCidr = (json['remoteCidr'] != null && json['remoteCidr'] != "")
-        ? CIDR.fromString(json['remoteCidr'])
-        : null;
+    if (json['groups'] != null) {
+      rule.groups = List<String>.from(json['groups']);
+    } else if (json['group'] != null && (json['group'] as String).isNotEmpty) {
+      rule.groups = [json['group'] as String];
+    }
+    rule.localCidr = (json['localCidr'] != null && json['localCidr'] != '') ? CIDR.fromString(json['localCidr']) : null;
+    rule.remoteCidr = (json['cidr'] != null && json['cidr'] != '') ? CIDR.fromString(json['cidr']) : null;
     rule.caName = json['caName'];
     rule.caSha = json['caSha'];
 
@@ -168,15 +186,24 @@ class FirewallRule {
   }
 
   Map<String, dynamic> toJson() {
+    String portStr;
+    if (fragment == true) {
+      portStr = 'fragment';
+    } else if (startPort == 0 && endPort == 0) {
+      portStr = 'any';
+    } else if (startPort == endPort) {
+      portStr = '$startPort';
+    } else {
+      portStr = '$startPort-$endPort';
+    }
+
     return {
-      'protocol': protocol,
-      'startPort': startPort,
-      'endPort': endPort,
-      'fragment': fragment,
+      'proto': protocol,
+      'port': portStr,
       'host': host,
       'groups': groups,
       'localCidr': localCidr?.toJson(),
-      'remoteCidr': remoteCidr?.toJson(),
+      'cidr': remoteCidr?.toJson(),
       'caName': caName,
       'caSha': caSha,
     };

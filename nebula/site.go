@@ -2,11 +2,14 @@ package mobileNebula
 
 import (
 	"encoding/json"
+	"io"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/DefinedNet/dnapi/keys"
+	"github.com/sirupsen/logrus"
+	"github.com/slackhq/nebula"
+	nc "github.com/slackhq/nebula/config"
 	"gopkg.in/yaml.v2"
 )
 
@@ -29,8 +32,8 @@ type site struct {
 	LastManagedUpdate *time.Time            `json:"lastManagedUpdate"`
 	RawConfig         *string               `json:"rawConfig"`
 	DNCredentials     *dnCredentials        `json:"dnCredentials"`
-	InboundRules     []firewallRule        `json:"inboundRules"`
-	OutboundRules     []firewallRule        `json:"outboundRules"`
+	InboundRules      []configFirewallRule  `json:"inboundRules"`
+	OutboundRules     []configFirewallRule  `json:"outboundRules"`
 }
 
 type staticHost struct {
@@ -44,108 +47,51 @@ type unsafeRoute struct {
 	MTU   *int   `json:"mtu"`
 }
 
-type firewallRule struct {
-	Protocol   string   `json:"protocol"`
-	StartPort  int      `json:"startPort"`
-	EndPort    int      `json:"endPort"`
-	Fragment   *bool    `json:"fragment"`
-	Host       *string  `json:"host"`
-	Groups     []string `json:"groups"`
-	LocalCIDR  *string  `json:"localCidr"`
-	RemoteCIDR *string  `json:"remoteCidr"`
-	CAName     *string  `json:"caName"`
-	CASha      *string  `json:"caSha"`
+// ruleCollector implements nebula.FirewallInterface to collect firewall rules from nebula's config parser.
+type ruleCollector struct {
+	inbound  []configFirewallRule
+	outbound []configFirewallRule
 }
 
-func fromConfigFirewallRule(r configFirewallRule) firewallRule {
-	rule := firewallRule{
-		Protocol: r.Proto,
+func (rc *ruleCollector) AddRule(incoming bool, proto uint8, startPort int32, endPort int32, groups []string, host string, cidr string, localCidr string, caName string, caSha string) error {
+	protoNames := map[uint8]string{0: "any", 1: "icmp", 6: "tcp", 17: "udp"}
+	protoStr, ok := protoNames[proto]
+	if !ok {
+		protoStr = "any"
 	}
 
-	port := strings.TrimSpace(r.Port)
+	var portStr string
 	switch {
-	case port == "" || strings.ToLower(port) == "any":
-		rule.StartPort = 0
-		rule.EndPort = 0
-	case strings.ToLower(port) == "fragment":
-		frag := true
-		rule.Fragment = &frag
-	case strings.Contains(port, "-"):
-		parts := strings.SplitN(port, "-", 2)
-		rule.StartPort, _ = strconv.Atoi(strings.TrimSpace(parts[0]))
-		rule.EndPort, _ = strconv.Atoi(strings.TrimSpace(parts[1]))
+	case startPort == -1:
+		portStr = "fragment"
+	case startPort == 0 && endPort == 0:
+		portStr = "any"
+	case startPort == endPort:
+		portStr = strconv.Itoa(int(startPort))
 	default:
-		p, _ := strconv.Atoi(port)
-		rule.StartPort = p
-		rule.EndPort = p
+		portStr = strconv.Itoa(int(startPort)) + "-" + strconv.Itoa(int(endPort))
 	}
 
-	if r.Host != "" {
-		h := r.Host
-		rule.Host = &h
-	}
-	if r.Group != "" {
-		rule.Groups = []string{r.Group}
-	} else if len(r.Groups) > 0 {
-		rule.Groups = r.Groups
-	}
-	if r.CIDR != "" {
-		c := r.CIDR
-		rule.RemoteCIDR = &c
-	}
-	if r.LocalCIDR != "" {
-		c := r.LocalCIDR
-		rule.LocalCIDR = &c
-	}
-	if r.CASha != "" {
-		s := r.CASha
-		rule.CASha = &s
-	}
-	if r.CAName != "" {
-		n := r.CAName
-		rule.CAName = &n
-	}
-
-	return rule
-}
-
-func toConfigFirewallRule(r firewallRule) configFirewallRule {
 	rule := configFirewallRule{
-		Proto: r.Protocol,
+		Port:      portStr,
+		Proto:     protoStr,
+		Host:      host,
+		CIDR:      cidr,
+		LocalCIDR: localCidr,
+		CAName:    caName,
+		CASha:     caSha,
 	}
-
-	if r.Fragment != nil && *r.Fragment {
-		rule.Port = "fragment"
-	} else if r.StartPort == 0 && r.EndPort == 0 {
-		rule.Port = "any"
-	} else if r.StartPort == r.EndPort {
-		rule.Port = strconv.Itoa(r.StartPort)
+	if len(groups) == 1 {
+		rule.Group = groups[0]
+	} else if len(groups) > 1 {
+		rule.Groups = groups
+	}
+	if incoming {
+		rc.inbound = append(rc.inbound, rule)
 	} else {
-		rule.Port = strconv.Itoa(r.StartPort) + "-" + strconv.Itoa(r.EndPort)
+		rc.outbound = append(rc.outbound, rule)
 	}
-
-	if r.Host != nil {
-		rule.Host = *r.Host
-	}
-	if len(r.Groups) == 1 {
-		rule.Group = r.Groups[0]
-	} else if len(r.Groups) > 1 {
-		rule.Groups = r.Groups
-	}
-	if r.RemoteCIDR != nil {
-		rule.CIDR = *r.RemoteCIDR
-	}
-	if r.LocalCIDR != nil {
-		rule.LocalCIDR = *r.LocalCIDR
-	}
-	if r.CASha != nil {
-		rule.CASha = *r.CASha
-	}
-	if r.CAName != nil {
-		rule.CAName = *r.CAName
-	}
-
-	return rule
+	return nil
 }
 
 type dnCredentials struct {
@@ -196,14 +142,22 @@ func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials) (
 		})
 	}
 
-	// build firewall rules
-	inboundRules := make([]firewallRule, len(cfg.Firewall.Inbound))
-	for i, r := range cfg.Firewall.Inbound {
-		inboundRules[i] = fromConfigFirewallRule(r)
+	// build firewall rules using nebula's config parser
+	l := logrus.New()
+	l.SetOutput(io.Discard)
+	c := nc.NewC(l)
+	if err := c.LoadString(strCfg); err != nil {
+		return nil, err
 	}
-	outboundRules := make([]firewallRule, len(cfg.Firewall.Outbound))
-	for i, r := range cfg.Firewall.Outbound {
-		outboundRules[i] = fromConfigFirewallRule(r)
+	collector := &ruleCollector{
+		inbound:  []configFirewallRule{},
+		outbound: []configFirewallRule{},
+	}
+	if err := nebula.AddFirewallRulesFromConfig(l, true, c, collector); err != nil {
+		return nil, err
+	}
+	if err := nebula.AddFirewallRulesFromConfig(l, false, c, collector); err != nil {
+		return nil, err
 	}
 
 	// log verbosity is nullable
@@ -248,8 +202,8 @@ func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials) (
 		Managed:           true,
 		LastManagedUpdate: &now,
 		RawConfig:         &strCfg,
-		InboundRules:     inboundRules,
-		OutboundRules:     outboundRules,
+		InboundRules:      collector.inbound,
+		OutboundRules:     collector.outbound,
 		DNCredentials: &dnCredentials{
 			HostID:      creds.HostID,
 			PrivateKey:  string(pkm),

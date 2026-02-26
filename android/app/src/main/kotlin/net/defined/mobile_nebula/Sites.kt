@@ -260,8 +260,21 @@ class Site(context: Context, siteDir: File) {
         dnsResolvers = incomingSite.dnsResolvers ?: emptyList();
         managed = incomingSite.managed ?: false
         lastManagedUpdate = incomingSite.lastManagedUpdate
-        inboundRules = incomingSite.inboundRules ?: emptyList()
-        outboundRules = incomingSite.outboundRules ?: emptyList()
+
+        // Derive firewall rules from rawConfig when available (managed sites),
+        // rather than trusting potentially stale rules stored in config.json.
+        val parsedRules = if (rawConfig != null) {
+            try {
+                val rulesJson = mobileNebula.MobileNebula.parseFirewallRules(rawConfig)
+                gson.fromJson(rulesJson, ParsedFirewallRules::class.java)
+            } catch (e: Exception) {
+                errors.add("Failed to parse firewall rules from config: ${e.message}")
+                null
+            }
+        } else null
+
+        inboundRules = parsedRules?.inboundRules ?: incomingSite.inboundRules ?: emptyList()
+        outboundRules = parsedRules?.outboundRules ?: incomingSite.outboundRules ?: emptyList()
 
         connected = false
         status = "Disconnected"
@@ -355,16 +368,20 @@ data class UnsafeRoute(
 )
 
 data class FirewallRule(
-    val protocol: String?,
-    val startPort: Int?,
-    val endPort: Int?,
-    val fragment: Boolean?,
+    val proto: String?,
+    val port: String?,
     val host: String?,
+    val group: String?,
     val groups: List<String>?,
     val localCidr: String?,
-    val remoteCidr: String?,
+    val cidr: String?,
     val caName: String?,
     val caSha: String?
+)
+
+data class ParsedFirewallRules(
+    val inboundRules: List<FirewallRule>?,
+    val outboundRules: List<FirewallRule>?
 )
 
 class IncomingSite(

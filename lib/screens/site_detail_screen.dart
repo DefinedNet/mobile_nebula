@@ -301,6 +301,7 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
               ],
             ),
           ),
+
           ConfigPageItem(
             content: Text('Verify system always-on is enabled'),
             onPressed: () {

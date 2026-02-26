@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:mobile_nebula/components/config/config_button_item.dart';
 import 'package:mobile_nebula/components/config/config_page_item.dart';
 import 'package:mobile_nebula/components/config/config_section.dart';
 import 'package:mobile_nebula/components/form_page.dart';
@@ -37,7 +36,28 @@ class _FirewallRulesScreenState extends State<FirewallRulesScreen> {
       title: widget.title,
       changed: changed,
       onSave: _onSave,
+      trailingActions: widget.onSave != null ? [_buildAddButton(context)] : null,
       child: ConfigSection(children: _buildRules()),
+    );
+  }
+
+  Widget _buildAddButton(BuildContext context) {
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      child: const Icon(CupertinoIcons.add),
+      onPressed: () {
+        Utils.openPage(context, (context) {
+          return FirewallRuleScreen(
+            rule: FirewallRule(),
+            onSave: (rule) {
+              setState(() {
+                changed = true;
+                rules[UniqueKey()] = rule;
+              });
+            },
+          );
+        });
+      },
     );
   }
 
@@ -48,19 +68,47 @@ class _FirewallRulesScreenState extends State<FirewallRulesScreen> {
     }
   }
 
-  String _portLabel(FirewallRule rule) {
-    if (rule.fragment == true) return 'fragment';
-    if (rule.startPort == 0 && rule.endPort == 0) return 'any';
-    if (rule.startPort == rule.endPort) return '${rule.startPort}';
-    return '${rule.startPort}-${rule.endPort}';
+  String _ruleTitle(FirewallRule rule) {
+    final protocol = rule.protocol == 'any' ? 'Any' : rule.protocol.toUpperCase();
+
+    String port;
+    if (rule.fragment == true) {
+      port = 'fragment';
+    } else if (rule.startPort == 0 && rule.endPort == 0) {
+      port = 'any';
+    } else if (rule.startPort == rule.endPort) {
+      port = '${rule.startPort}';
+    } else {
+      port = '${rule.startPort}-${rule.endPort}';
+    }
+
+    return '$protocol:$port';
   }
 
-  String _targetLabel(FirewallRule rule) {
-    if (rule.groups != null && rule.groups!.isNotEmpty) return rule.groups!.join(' + ');
-    if (rule.host != null && rule.host!.isNotEmpty && rule.host != 'any') return rule.host!;
-    //TODO: we need to do something with localCidr as well, and make sure it fits in the config language
-    if (rule.remoteCidr != null) return rule.remoteCidr.toString();
-    return 'any';
+  String _ruleSubtitle(FirewallRule rule) {
+    final parts = <String>[];
+
+    if (rule.groups != null && rule.groups!.isNotEmpty) {
+      parts.add(rule.groups!.join(' + '));
+    }
+
+    if (rule.host != null && rule.host!.isNotEmpty && rule.host != 'any') {
+      parts.add(rule.host!);
+    }
+
+    if (rule.remoteCidr != null) {
+      parts.add(rule.remoteCidr.toString());
+    }
+
+    if (parts.isEmpty) {
+      return 'Any source allowed';
+    }
+
+    return parts.join(' \u2022 ');
+  }
+
+  bool _hasAdvancedSettings(FirewallRule rule) {
+    return rule.caName != null || rule.caSha != null || rule.localCidr != null || rule.fragment == true;
   }
 
   List<Widget> _buildRules() {
@@ -69,19 +117,19 @@ class _FirewallRulesScreenState extends State<FirewallRulesScreen> {
     rules.forEach((key, rule) {
       items.add(
         ConfigPageItem(
-          disabled: widget.onSave == null,
-          label: Text('${rule.protocol} / ${_portLabel(rule)}'),
-          content: Text(_targetLabel(rule), textAlign: TextAlign.end),
+          content: _buildRuleContent(context, rule),
           onPressed: () {
             Utils.openPage(context, (context) {
               return FirewallRuleScreen(
                 rule: rule,
-                onSave: (updated) {
-                  setState(() {
-                    changed = true;
-                    rules[key] = updated;
-                  });
-                },
+                onSave: widget.onSave == null
+                    ? null
+                    : (updated) {
+                        setState(() {
+                          changed = true;
+                          rules[key] = updated;
+                        });
+                      },
                 onDelete: widget.onSave == null
                     ? null
                     : () {
@@ -97,27 +145,36 @@ class _FirewallRulesScreenState extends State<FirewallRulesScreen> {
       );
     });
 
-    if (widget.onSave != null) {
-      items.add(
-        ConfigButtonItem(
-          content: const Text('Add a new rule'),
-          onPressed: () {
-            Utils.openPage(context, (context) {
-              return FirewallRuleScreen(
-                rule: FirewallRule(),
-                onSave: (rule) {
-                  setState(() {
-                    changed = true;
-                    rules[UniqueKey()] = rule;
-                  });
-                },
-              );
-            });
-          },
-        ),
-      );
-    }
-
     return items;
+  }
+
+  Widget _buildRuleContent(BuildContext context, FirewallRule rule) {
+    final hasAdvanced = _hasAdvancedSettings(rule);
+    final secondaryColor = CupertinoColors.secondaryLabel.resolveFrom(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(_ruleTitle(rule), style: const TextStyle(fontWeight: FontWeight.bold)),
+            if (hasAdvanced)
+              Padding(
+                padding: const EdgeInsets.only(left: 6),
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.systemBlue.resolveFrom(context),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Text(_ruleSubtitle(rule), style: TextStyle(color: secondaryColor, fontSize: 14)),
+      ],
+    );
   }
 }

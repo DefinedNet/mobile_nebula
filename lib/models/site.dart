@@ -206,8 +206,8 @@ class Site {
     lastManagedUpdate = decoded['lastManagedUpdate'];
     dnsResolvers = decoded['dnsResolvers'];
     alwaysOn = decoded['alwaysOn'];
-    inboundRules = decoded['inboundRules'];
-    outboundRules = decoded['outboundRules'];
+    inboundRules = decoded['inboundRules'] ?? [];
+    outboundRules = decoded['outboundRules'] ?? [FirewallRule(startPort: 0, protocol: 'any', host: 'any')];
   }
 
   static Map<String, dynamic> _fromJson(Map<String, dynamic> json) {
@@ -246,16 +246,20 @@ class Site {
       errors.add(error);
     }
 
-    List<dynamic> rawInboundRules = json['inboundRules'];
-    List<FirewallRule> inboundRules = [];
-    for (var val in rawInboundRules) {
-      inboundRules.add(FirewallRule.fromJson(val));
+    List<FirewallRule>? inboundRules;
+    if (json['inboundRules'] != null) {
+      inboundRules = [];
+      for (var val in json['inboundRules']) {
+        inboundRules.add(FirewallRule.fromJson(val));
+      }
     }
 
-    List<dynamic> rawOutboundRules = json['outboundRules'];
-    List<FirewallRule> outboundRules = [];
-    for (var val in rawOutboundRules) {
-      outboundRules.add(FirewallRule.fromJson(val));
+    List<FirewallRule>? outboundRules;
+    if (json['outboundRules'] != null) {
+      outboundRules = [];
+      for (var val in json['outboundRules']) {
+        outboundRules.add(FirewallRule.fromJson(val));
+      }
     }
 
     return {

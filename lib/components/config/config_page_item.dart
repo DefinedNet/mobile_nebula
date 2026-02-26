@@ -47,6 +47,13 @@ class ConfigPageItem extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context) {
+    TextStyle textStyle;
+    if (Platform.isAndroid) {
+      textStyle = Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.normal);
+    } else {
+      textStyle = CupertinoTheme.of(context).textTheme.textStyle;
+    }
+
     return SpecialButton(
       onPressed: disabled ? null : onPressed,
       color: Theme.of(context).colorScheme.primaryContainer,
@@ -56,7 +63,9 @@ class ConfigPageItem extends StatelessWidget {
         child: Row(
           crossAxisAlignment: crossAxisAlignment,
           children: <Widget>[
-            label != null ? SizedBox(width: labelWidth, child: label) : Container(),
+            label != null
+                ? SizedBox(width: labelWidth, child: DefaultTextStyle(style: textStyle, child: label!))
+                : Container(),
             Expanded(
               child: Container(padding: EdgeInsets.only(right: 10), child: content),
             ),
