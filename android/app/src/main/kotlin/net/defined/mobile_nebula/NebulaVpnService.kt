@@ -36,6 +36,12 @@ class NebulaVpnService : VpnService() {
         const val MSG_SET_REMOTE_FOR_TUNNEL = 7
         const val MSG_CLOSE_TUNNEL = 8
         const val MSG_EXIT = 9
+
+        val ALWAYS_EXCLUDED_APPS = listOf(
+            "com.google.android.projection.gearhead",  // Android Auto
+            "com.google.android.apps.chromecast.app",  // Chromecast
+            "com.google.android.apps.messaging",       // RCS / Jibe
+        )
     }
 
     /**
@@ -173,17 +179,18 @@ class NebulaVpnService : VpnService() {
             builder.setMetered(false)
         }
 
-        // Disallow some common, known-problematic apps
-        // TODO Make this user configurable
-        // Ensure that a misconfigured unsafe_route doesn't block access to the DN API
+        // Always exclude ourselves to prevent routing loops
         disallowApp(builder, "net.defined.mobile_nebula")
         disallowApp(builder, "net.defined.mobile_nebula.debug")
-        // Android Auto Wireless (https://github.com/DefinedNet/mobile_nebula/issues/102)
-        disallowApp(builder, "com.google.android.projection.gearhead")
-        // Chromecast (https://github.com/DefinedNet/mobile_nebula/issues/102)
-        disallowApp(builder, "com.google.android.apps.chromecast.app")
-        // RCS / Jibe
-        disallowApp(builder, "com.google.android.apps.messaging")
+
+        // Default exclusions for known-problematic apps
+        // Users can add more via the Excluded Apps setting
+        ALWAYS_EXCLUDED_APPS.forEach { disallowApp(builder, it) }
+
+        // User-configured excluded apps
+        site!!.excludedApps.forEach { packageName ->
+            disallowApp(builder, packageName)
+        }
 
         var hasDnsResolvers = false
         site!!.dnsResolvers.forEach {

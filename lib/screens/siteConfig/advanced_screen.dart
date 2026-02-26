@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,6 +17,7 @@ import 'package:mobile_nebula/screens/siteConfig/log_verbosity_screen.dart';
 import 'package:mobile_nebula/screens/siteConfig/rendered_config_screen.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
+import 'package:mobile_nebula/screens/siteConfig/excluded_apps_screen.dart';
 import 'unsafe_routes_screen.dart';
 
 //TODO: form validation (seconds and port)
@@ -30,6 +33,7 @@ class Advanced {
   List<UnsafeRoute> unsafeRoutes;
   int mtu;
   List<String> dnsResolvers;
+  List<String> excludedApps;
 
   Advanced({
     required this.lhDuration,
@@ -39,6 +43,7 @@ class Advanced {
     required this.unsafeRoutes,
     required this.mtu,
     required this.dnsResolvers,
+    required this.excludedApps,
   });
 }
 
@@ -66,6 +71,7 @@ class AdvancedScreenState extends State<AdvancedScreen> {
       unsafeRoutes: widget.site.unsafeRoutes,
       mtu: widget.site.mtu,
       dnsResolvers: widget.site.dnsResolvers,
+      excludedApps: widget.site.excludedApps,
     );
     super.initState();
   }
@@ -224,6 +230,28 @@ class AdvancedScreenState extends State<AdvancedScreen> {
                   });
                 },
               ),
+              if (Platform.isAndroid)
+                ConfigPageItem(
+                  label: Text('Excluded apps'),
+                  labelWidth: 150,
+                  content: Text(
+                    settings.excludedApps.isEmpty ? 'None' : Utils.itemCountFormat(settings.excludedApps.length),
+                    textAlign: TextAlign.end,
+                  ),
+                  onPressed: () {
+                    Utils.openPage(context, (context) {
+                      return ExcludedAppsScreen(
+                        excludedApps: settings.excludedApps,
+                        onSave: (apps) {
+                          setState(() {
+                            settings.excludedApps = apps;
+                            changed = true;
+                          });
+                        },
+                      );
+                    });
+                  },
+                ),
             ],
           ),
           ConfigSection(
