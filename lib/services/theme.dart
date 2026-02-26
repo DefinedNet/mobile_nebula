@@ -371,9 +371,9 @@ class MaterialTheme {
     ),
     brightness: colorScheme.brightness,
     colorScheme: colorScheme,
-    textTheme: textTheme.apply(bodyColor: colorScheme.onSurface, displayColor: colorScheme.onSurface).copyWith(
-      labelLarge: textTheme.labelLarge!.copyWith(color: colorScheme.onSurface, height: 1.6),
-    ),
+    textTheme: textTheme
+        .apply(bodyColor: colorScheme.onSurface, displayColor: colorScheme.onSurface)
+        .copyWith(labelLarge: textTheme.labelLarge!.copyWith(color: colorScheme.onSurface, height: 1.6)),
     scaffoldBackgroundColor: colorScheme.surface,
     canvasColor: colorScheme.surface,
     pageTransitionsTheme: PageTransitionsTheme(
