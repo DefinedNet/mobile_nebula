@@ -79,12 +79,10 @@ class AboutScreenState extends State<AboutScreen> {
               //          ConfigPageItem(label: Text('Changelog'), labelWidth: 300, onPressed: () => Utils.launchUrl('https://defined.net/mobile/changelog', context)),
               ConfigPageItem(
                 label: Text('Privacy policy'),
-                labelWidth: 300,
                 onPressed: () => Utils.launchUrl('https://www.defined.net/privacy/'),
               ),
               ConfigPageItem(
                 label: Text('Licenses'),
-                labelWidth: 300,
                 onPressed: () => Utils.openPage(context, (context) {
                   return LicensesScreen();
                 }),

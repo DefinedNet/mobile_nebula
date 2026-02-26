@@ -303,7 +303,6 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
           ),
           ConfigPageItem(
             label: Text('Verify system always-on is enabled'),
-            labelWidth: 300,
             onPressed: () {
               platform.invokeMethod('android.openVpnSettings');
             },
