@@ -37,6 +37,18 @@ cd ..
   # Get our current git sha
   git rev-parse --short HEAD | sed -e "s/\(.*\)/const gitSha = '\1';/"
 
+  # Get the git tag version
+  # If on an exact tag, gitIsTaggedRelease=true and gitTag is the tag name
+  # Otherwise, gitTag is just the closest tag (without commit count/sha suffix)
+  if git describe --tags --exact-match HEAD >/dev/null 2>&1; then
+    GIT_TAG="$(git describe --tags --exact-match HEAD)"
+    echo "const gitIsTaggedRelease = true;"
+  else
+    GIT_TAG="$(git describe --tags --always 2>/dev/null || echo 'unknown')"
+    echo "const gitIsTaggedRelease = false;"
+  fi
+  echo "const gitTag = '$GIT_TAG';"
+
   # Get the nebula version
   cd nebula
   NEBULA_VERSION="$(go list -m -f "{{.Version}}" github.com/slackhq/nebula | cut -f1 -d'-' | cut -c2-)"
