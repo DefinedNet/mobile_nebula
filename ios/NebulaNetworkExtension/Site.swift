@@ -172,6 +172,7 @@ class Site: Codable {
   var rawConfig: String?
   var inboundRules: [FirewallRule]
   var outboundRules: [FirewallRule]
+  var configVersion: Int
 
   /// If true then this site needs to be migrated to the filesystem. Should be handled by the initiator of the site
   var needsToMigrateToFS: Bool = false
@@ -242,6 +243,7 @@ class Site: Codable {
     dnsResolvers = incoming.dnsResolvers ?? []
     rawConfig = incoming.rawConfig
     alwaysOn = incoming.alwaysOn ?? false
+    configVersion = incoming.configVersion ?? 0
 
     // Derive firewall rules from rawConfig when available (managed sites),
     // rather than trusting potentially stale rules stored in config.json.
@@ -263,6 +265,23 @@ class Site: Codable {
     } else {
       inboundRules = incoming.inboundRules ?? []
       outboundRules = incoming.outboundRules ?? []
+    }
+
+    // Migrate old configs that predate firewall rule storage
+    if configVersion < 1 {
+      if incoming.inboundRules == nil && incoming.outboundRules == nil {
+        inboundRules = []
+        outboundRules = [FirewallRule(proto: "any", port: "any", host: "any")]
+      }
+      configVersion = 1
+      incomingSite?.configVersion = configVersion
+      incomingSite?.inboundRules = inboundRules
+      incomingSite?.outboundRules = outboundRules
+      if let configPath = try? SiteList.getSiteConfigFile(id: id, createDir: false),
+        let configData = try? JSONEncoder().encode(incomingSite)
+      {
+        try? configData.write(to: configPath)
+      }
     }
 
     // Default these to disconnected for the UI
@@ -415,6 +434,7 @@ class Site: Codable {
     case alwaysOn
     case inboundRules
     case outboundRules
+    case configVersion
   }
 }
 
@@ -494,6 +514,7 @@ struct IncomingSite: Codable {
   var alwaysOn: Bool?
   var inboundRules: [FirewallRule]?
   var outboundRules: [FirewallRule]?
+  var configVersion: Int?
   // The following fields are present if managed = true
   var dnCredentials: DNCredentials?
   var lastManagedUpdate: String?

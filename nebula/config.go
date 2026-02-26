@@ -76,14 +76,8 @@ func newConfig() *config {
 				DefaultTimeout: "10m",
 				MaxConnections: 100000,
 			},
-			Outbound: []configFirewallRule{
-				{
-					Port:  "any",
-					Proto: "any",
-					Host:  "any",
-				},
-			},
-			Inbound: []configFirewallRule{},
+			Outbound: []configFirewallRule{},
+			Inbound:  []configFirewallRule{},
 		},
 	}
 }

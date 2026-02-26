@@ -62,6 +62,8 @@ class Site {
   late List<FirewallRule> inboundRules;
   late List<FirewallRule> outboundRules;
 
+  late int configVersion;
+
   late bool managed;
   // The following fields are present when managed = true
   late String? rawConfig;
@@ -94,6 +96,7 @@ class Site {
     List<String>? dnsResolvers,
     List<FirewallRule>? inboundRules,
     List<FirewallRule>? outboundRules,
+    this.configVersion = 0,
   }) {
     this.id = id ?? uuid.v4();
     this.staticHostmap = staticHostmap ?? {};
@@ -159,6 +162,7 @@ class Site {
       alwaysOn: decoded['alwaysOn'],
       inboundRules: decoded['inboundRules'],
       outboundRules: decoded['outboundRules'],
+      configVersion: decoded['configVersion'],
     );
   }
 
@@ -208,6 +212,7 @@ class Site {
     alwaysOn = decoded['alwaysOn'];
     inboundRules = decoded['inboundRules'] ?? [];
     outboundRules = decoded['outboundRules'] ?? [FirewallRule(startPort: 0, protocol: 'any', host: 'any')];
+    configVersion = decoded['configVersion'];
   }
 
   static Map<String, dynamic> _fromJson(Map<String, dynamic> json) {
@@ -286,6 +291,7 @@ class Site {
       "alwaysOn": json['alwaysOn'] ?? false,
       'inboundRules': inboundRules,
       'outboundRules': outboundRules,
+      'configVersion': json['configVersion'] ?? 0,
     };
   }
 
@@ -318,6 +324,7 @@ class Site {
       'alwaysOn': alwaysOn,
       'inboundRules': inboundRules,
       'outboundRules': outboundRules,
+      'configVersion': configVersion,
     };
   }
 
