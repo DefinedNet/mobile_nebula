@@ -12,31 +12,30 @@ class UnsafeRoute {
 
   factory UnsafeRoute.fromYaml(dynamic yaml) {
     if (yaml is! YamlMap) {
-      throw ParseError('unsafe route was not a map');
+      throw ParseError('input was not a yaml map');
     }
 
     final unsafeRoute = UnsafeRoute();
-    if (yaml.containsKey('route') && yaml['route'] is String) {
-      try {
-        unsafeRoute.route = CIDR.fromString(yaml['route'] as String).toString();
-      } on ParseError catch (err) {
-        err.message = 'unable to parse CIDR from route: ${err.message}';
-        rethrow;
-      }
-    } else {
+
+    if (yaml['route'] is! String) {
       throw ParseError('route was not a string');
     }
+    try {
+      unsafeRoute.route = CIDR.fromString(yaml['route'] as String).toString();
+    } on ParseError catch (err) {
+      err.message = 'unable to parse CIDR from route: ${err.message}';
+      rethrow;
+    }
 
-    if (yaml.containsKey('via') && yaml['via'] is String) {
-      final yamlVia = yaml['via'] as String;
-      var (valid, _) = ipValidator(yamlVia);
-      if (!valid) {
-        throw ParseError('via was not a valid ip address');
-      }
-      unsafeRoute.via = yamlVia;
-    } else {
+    if (yaml['via'] is! String) {
       throw ParseError('via was not a string');
     }
+    final yamlVia = yaml['via'] as String;
+    var (valid, _) = ipValidator(yamlVia);
+    if (!valid) {
+      throw ParseError('via was not a valid ip address');
+    }
+    unsafeRoute.via = yamlVia;
 
     return unsafeRoute;
   }

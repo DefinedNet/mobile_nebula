@@ -222,7 +222,7 @@ unsafe_routes:
 '''),
         );
         expect(site.unsafeRoutes, isEmpty);
-        expect(site.errors, contains('failed to parse unsafe route 1: unsafe route was not a map'));
+        expect(site.errors, contains('failed to parse unsafe route 1: input was not a yaml map'));
       });
     });
 
@@ -345,6 +345,20 @@ listen:
       });
     });
 
+    // Firewall rule parsing is delegated to Go via method channel (nebula.parseFirewallRules).
+    // These are tested in Go (nebula/site_test.go) and in integration tests.
+    group('firewall', () {
+      test('inbound defaults to empty when firewall not specified', () async {
+        final site = await Site.fromYaml(loadYaml('{}'));
+        expect(site.inboundRules, isEmpty);
+      });
+
+      test('outbound defaults to empty when firewall not specified', () async {
+        final site = await Site.fromYaml(loadYaml('{}'));
+        expect(site.outboundRules, isEmpty);
+      });
+    });
+
     group('logging', () {
       test('parses all valid log levels', () async {
         for (final level in ['panic', 'fatal', 'error', 'warning', 'info', 'debug']) {
@@ -382,6 +396,8 @@ logging:
       });
     });
 
+    // Note: firewall rules are tested separately via Go (nebula/site_test.go) and integration tests.
+    // This test omits the firewall section to avoid needing the method channel.
     test('full config parses all fields together', () async {
       final site = await Site.fromYaml(
         loadYaml('''

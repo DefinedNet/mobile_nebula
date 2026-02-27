@@ -170,6 +170,9 @@ class Site: Codable {
   // The following fields are present if managed = true
   var lastManagedUpdate: String?
   var rawConfig: String?
+  var inboundRules: [FirewallRule]
+  var outboundRules: [FirewallRule]
+  var configVersion: Int
 
   /// If true then this site needs to be migrated to the filesystem. Should be handled by the initiator of the site
   var needsToMigrateToFS: Bool = false
@@ -223,23 +226,27 @@ class Site: Codable {
   init(incoming: IncomingSite) {
     var err: NSError?
 
-    incomingSite = incoming
     errors = []
-    name = incoming.name
-    id = incoming.id
-    staticHostmap = incoming.staticHostmap
-    unsafeRoutes = incoming.unsafeRoutes ?? []
-    lhDuration = incoming.lhDuration
-    port = incoming.port
-    cipher = incoming.cipher
-    sortKey = incoming.sortKey ?? 0
-    logVerbosity = incoming.logVerbosity ?? "info"
-    mtu = incoming.mtu ?? 1300
-    managed = incoming.managed ?? false
-    lastManagedUpdate = incoming.lastManagedUpdate
-    dnsResolvers = incoming.dnsResolvers ?? []
-    rawConfig = incoming.rawConfig
-    alwaysOn = incoming.alwaysOn ?? false
+    let migrated = ConfigMigrator.migrate(incoming, errors: &errors)
+    incomingSite = migrated
+    name = migrated.name
+    id = migrated.id
+    staticHostmap = migrated.staticHostmap
+    unsafeRoutes = migrated.unsafeRoutes ?? []
+    lhDuration = migrated.lhDuration
+    port = migrated.port
+    cipher = migrated.cipher
+    sortKey = migrated.sortKey ?? 0
+    logVerbosity = migrated.logVerbosity ?? "info"
+    mtu = migrated.mtu ?? 1300
+    managed = migrated.managed ?? false
+    lastManagedUpdate = migrated.lastManagedUpdate
+    dnsResolvers = migrated.dnsResolvers ?? []
+    rawConfig = migrated.rawConfig
+    alwaysOn = migrated.alwaysOn ?? false
+    configVersion = migrated.configVersion ?? 0
+    inboundRules = migrated.inboundRules ?? []
+    outboundRules = migrated.outboundRules ?? []
 
     // Default these to disconnected for the UI
     status = statusString[.disconnected]
@@ -389,6 +396,9 @@ class Site: Codable {
     case dnsResolvers
     case rawConfig
     case alwaysOn
+    case inboundRules
+    case outboundRules
+    case configVersion
   }
 }
 
@@ -401,6 +411,24 @@ class UnsafeRoute: Codable {
   var route: String
   var via: String
   var mtu: Int?
+}
+
+struct FirewallRule: Codable {
+  var `protocol`: String?
+  var startPort: Int?
+  var endPort: Int?
+  var fragment: Bool?
+  var host: String?
+  var groups: [String]?
+  var localCidr: String?
+  var remoteCidr: String?
+  var caName: String?
+  var caSha: String?
+}
+
+struct ParsedFirewallRules: Codable {
+  var inboundRules: [FirewallRule]?
+  var outboundRules: [FirewallRule]?
 }
 
 class DNCredentials: Codable {
@@ -449,6 +477,9 @@ struct IncomingSite: Codable {
   var managed: Bool?
   var dnsResolvers: [String]?
   var alwaysOn: Bool?
+  var inboundRules: [FirewallRule]?
+  var outboundRules: [FirewallRule]?
+  var configVersion: Int?
   // The following fields are present if managed = true
   var dnCredentials: DNCredentials?
   var lastManagedUpdate: String?

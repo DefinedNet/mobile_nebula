@@ -11,6 +11,7 @@ import 'package:mobile_nebula/components/config/config_page_item.dart';
 import 'package:mobile_nebula/components/config/config_section.dart';
 import 'package:mobile_nebula/components/form_page.dart';
 import 'package:mobile_nebula/components/platform_text_form_field.dart';
+import 'package:mobile_nebula/models/firewall_rule.dart';
 import 'package:mobile_nebula/models/site.dart';
 import 'package:mobile_nebula/screens/siteConfig/add_certificate_screen.dart';
 import 'package:mobile_nebula/screens/siteConfig/advanced_screen.dart';
@@ -58,7 +59,10 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
     _generateKeys();
     if (widget.site == null) {
       newSite = true;
-      site = Site();
+      site = Site(
+        outboundRules: [FirewallRule()],
+        inboundRules: [FirewallRule(protocol: 'icmp')],
+      );
     } else {
       site = widget.site!;
       nameController.text = site.name;

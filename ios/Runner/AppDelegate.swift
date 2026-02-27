@@ -48,6 +48,8 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     ui!.setMethodCallHandler({ (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
       switch call.method {
       case "nebula.parseCerts": return self.nebulaParseCerts(call: call, result: result)
+      case "nebula.parseFirewallRules":
+        return self.nebulaParseFirewallRules(call: call, result: result)
       case "nebula.generateKeyPair": return self.nebulaGenerateKeyPair(result: result)
       case "nebula.renderConfig": return self.nebulaRenderConfig(call: call, result: result)
       case "nebula.verifyCertAndKey": return self.nebulaVerifyCertAndKey(call: call, result: result)
@@ -93,6 +95,23 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
       return result(
         CallFailedError(
           message: "Error while parsing certificate(s)", details: err!.localizedDescription))
+    }
+
+    return result(json)
+  }
+
+  func nebulaParseFirewallRules(call: FlutterMethodCall, result: FlutterResult) {
+    guard let args = call.arguments as? [String: String] else { return result(NoArgumentsError()) }
+    guard let config = args["config"] else {
+      return result(MissingArgumentError(message: "config is a required argument"))
+    }
+
+    var err: NSError?
+    let json = MobileNebulaParseFirewallRules(config, &err)
+    if err != nil {
+      return result(
+        CallFailedError(
+          message: "Error while parsing firewall rules", details: err!.localizedDescription))
     }
 
     return result(json)
