@@ -26,7 +26,7 @@ class Utils {
     return textPainter.size;
   }
 
-  static openPage(BuildContext context, WidgetBuilder pageToDisplayBuilder) {
+  static void openPage(BuildContext context, WidgetBuilder pageToDisplayBuilder) {
     Navigator.push(context, platformPageRoute(context: context, builder: pageToDisplayBuilder));
   }
 
@@ -77,7 +77,7 @@ class Utils {
   }
 
   /// Simple cross platform delete confirmation dialog - can also be used to confirm throwing away a change by swapping the deleteLabel
-  static confirmDelete(
+  static void confirmDelete(
     BuildContext context,
     String title,
     Function onConfirm, {
@@ -113,7 +113,7 @@ class Utils {
     );
   }
 
-  static popError(String title, String error, {StackTrace? stack}) {
+  static void popError(String title, String error, {StackTrace? stack}) {
     if (stack != null) {
       error += '\n${stack.toString()}';
     }
@@ -153,7 +153,7 @@ class Utils {
     );
   }
 
-  static launchUrl(String url) async {
+  static Future<void> launchUrl(String url) async {
     if (await canLaunchUrlString(url)) {
       await launchUrlString(url);
     } else {
@@ -185,5 +185,19 @@ class Utils {
       labelSmall: bodyTextTheme.labelSmall,
     );
     return textTheme;
+  }
+
+  static (int, bool) dynamicToInt(dynamic d) {
+    if (d is String) {
+      final i = int.tryParse(d);
+      if (i == null) {
+        return (0, false);
+      }
+      return (i, true);
+    } else if (d is num) {
+      return (d.toInt(), true);
+    }
+
+    return (0, false);
   }
 }

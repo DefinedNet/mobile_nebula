@@ -5,11 +5,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:logging/logging.dart';
 import 'package:mobile_nebula/components/buttons/primary_button.dart';
 import 'package:mobile_nebula/components/simple_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../components/config/config_section.dart';
+
+final _log = Logger('enrollment_screen');
 
 class EnrollmentScreen extends StatefulWidget {
   final String? code;
@@ -61,7 +64,7 @@ class EnrollmentScreenState extends State<EnrollmentScreen> {
     super.dispose();
   }
 
-  _enroll() async {
+  Future<void> _enroll() async {
     if (code == null) {
       return; //nothing to do
     }
@@ -128,13 +131,12 @@ class EnrollmentScreenState extends State<EnrollmentScreen> {
                     TextSpan(
                       text: 'support@defined.net',
                       style: bodyTextStyle.apply(color: colorScheme.primary),
-                      recognizer:
-                          TapGestureRecognizer()
-                            ..onTap = () async {
-                              if (await canLaunchUrl(contactUri)) {
-                                print(await launchUrl(contactUri));
-                              }
-                            },
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          if (await canLaunchUrl(contactUri)) {
+                            _log.info(await launchUrl(contactUri));
+                          }
+                        },
                     ),
                     TextSpan(text: ' and provide the following error:'),
                   ],
@@ -208,14 +210,23 @@ class EnrollmentScreenState extends State<EnrollmentScreen> {
       ),
     );
 
-    final form = Form(key: formKey, child: Platform.isAndroid ? input : ConfigSection(children: [input]));
+    final form = Form(
+      key: formKey,
+      child: Platform.isAndroid ? input : ConfigSection(children: [input]),
+    );
 
     return Column(
       children: [
         Padding(padding: EdgeInsets.symmetric(vertical: 32), child: form),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Row(children: [Expanded(child: PrimaryButton(onPressed: onSubmit, child: Text('Submit')))]),
+          child: Row(
+            children: [
+              Expanded(
+                child: PrimaryButton(onPressed: onSubmit, child: Text('Submit')),
+              ),
+            ],
+          ),
         ),
       ],
     );

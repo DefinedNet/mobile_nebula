@@ -66,9 +66,9 @@ class IPAndPortFormField extends FormField<IPAndPort> {
                ),
                field.hasError
                    ? Text(
-                     field.errorText!,
-                     style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
-                   )
+                       field.errorText!,
+                       style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
+                     )
                    : Container(height: 0),
              ],
            );
@@ -111,7 +111,7 @@ class IPAndPortFormFieldState extends FormFieldState<IPAndPort> {
   @override
   void didUpdateWidget(IPAndPortFormField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    var update = IPAndPort(ip: widget.ipController?.text, port: int.tryParse(widget.portController?.text ?? ""));
+    var update = IPAndPort(widget.ipController?.text ?? '', int.tryParse(widget.portController?.text ?? ""));
     bool shouldUpdate = false;
 
     if (widget.ipController != oldWidget.ipController) {
@@ -179,7 +179,7 @@ class IPAndPortFormFieldState extends FormFieldState<IPAndPort> {
     }
 
     if (_effectiveIPController.text != value!.ip || effectivePort != value!.port) {
-      didChange(IPAndPort(ip: _effectiveIPController.text, port: effectivePort));
+      didChange(IPAndPort(_effectiveIPController.text, effectivePort));
     }
   }
 }

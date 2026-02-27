@@ -51,43 +51,43 @@ class SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<ConfigPageItem> children =
-        tunnels.map((hostInfo) {
-          final isLh = _isLighthouse(hostInfo.vpnAddrs);
-          final icon = switch (isLh) {
-            true => Icon(Icons.lightbulb_outline, color: CupertinoColors.placeholderText.resolveFrom(context)),
-            false => Icon(Icons.computer, color: CupertinoColors.placeholderText.resolveFrom(context)),
-          };
+    final List<ConfigPageItem> children = tunnels.map((hostInfo) {
+      final isLh = _isLighthouse(hostInfo.vpnAddrs);
+      final icon = switch (isLh) {
+        true => Icon(Icons.lightbulb_outline, color: CupertinoColors.placeholderText.resolveFrom(context)),
+        false => Icon(Icons.computer, color: CupertinoColors.placeholderText.resolveFrom(context)),
+      };
 
-          return (ConfigPageItem(
-            onPressed:
-                () => Utils.openPage(
-                  context,
-                  (context) => HostInfoScreen(
-                    isLighthouse: isLh,
-                    hostInfo: hostInfo,
-                    pending: widget.pending,
-                    site: widget.site,
-                    onChanged: () {
-                      _listHostmap();
-                    },
-                    supportsQRScanning: widget.supportsQRScanning,
-                  ),
-                ),
-            content: Container(
-              alignment: Alignment.centerLeft,
-              child: Row(
-                children: <Widget>[
-                  Padding(padding: EdgeInsets.only(right: 10), child: icon),
-                  Text(hostInfo.cert?.name ?? hostInfo.vpnAddrs[0]),
-                ],
-              ),
-            ),
-          ));
-        }).toList();
+      return (ConfigPageItem(
+        onPressed: () => Utils.openPage(
+          context,
+          (context) => HostInfoScreen(
+            isLighthouse: isLh,
+            hostInfo: hostInfo,
+            pending: widget.pending,
+            site: widget.site,
+            onChanged: () {
+              _listHostmap();
+            },
+            supportsQRScanning: widget.supportsQRScanning,
+          ),
+        ),
+        content: Container(
+          alignment: Alignment.centerLeft,
+          child: Row(
+            children: <Widget>[
+              Padding(padding: EdgeInsets.only(right: 10), child: icon),
+              Text(hostInfo.cert?.name ?? hostInfo.vpnAddrs[0]),
+            ],
+          ),
+        ),
+      ));
+    }).toList();
 
     final Widget child = switch (children.length) {
-      0 => Center(child: Padding(padding: EdgeInsets.only(top: 30), child: Text('No tunnels to show'))),
+      0 => Center(
+        child: Padding(padding: EdgeInsets.only(top: 30), child: Text('No tunnels to show')),
+      ),
       _ => ConfigSection(children: children),
     };
 
@@ -104,7 +104,7 @@ class SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
     );
   }
 
-  _sortTunnels() {
+  void _sortTunnels() {
     tunnels.sort((a, b) {
       final aLh = _isLighthouse(a.vpnAddrs), bLh = _isLighthouse(b.vpnAddrs);
 
@@ -136,7 +136,7 @@ class SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
     return isLh;
   }
 
-  _listHostmap() async {
+  Future<void> _listHostmap() async {
     try {
       if (widget.pending) {
         tunnels = await site.listPendingHostmap();

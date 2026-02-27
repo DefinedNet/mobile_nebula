@@ -76,18 +76,17 @@ class HostInfoScreenState extends State<HostInfoScreen> {
         ),
         hostInfo.cert != null
             ? ConfigPageItem(
-              label: Text('Certificate'),
-              labelWidth: 150,
-              content: Text(hostInfo.cert!.name),
-              onPressed:
-                  () => Utils.openPage(
-                    context,
-                    (context) => CertificateDetailsScreen(
-                      certInfo: CertificateInfo(cert: hostInfo.cert!),
-                      supportsQRScanning: widget.supportsQRScanning,
-                    ),
+                label: Text('Certificate'),
+                labelWidth: 150,
+                content: Text(hostInfo.cert!.name),
+                onPressed: () => Utils.openPage(
+                  context,
+                  (context) => CertificateDetailsScreen(
+                    certInfo: CertificateInfo(cert: hostInfo.cert!),
+                    supportsQRScanning: widget.supportsQRScanning,
                   ),
-            )
+                ),
+              )
             : Container(),
       ],
     );
@@ -126,8 +125,10 @@ class HostInfoScreenState extends State<HostInfoScreen> {
   Widget _buildEditRemotes() {
     List<Widget> items = [];
     final currentRemote = hostInfo.currentRemote.toString();
-    final double ipWidth =
-        Utils.textSize("000.000.000.000:000000", CupertinoTheme.of(context).textTheme.textStyle).width;
+    final double ipWidth = Utils.textSize(
+      "000.000.000.000:000000",
+      CupertinoTheme.of(context).textTheme.textStyle,
+    ).width;
 
     for (var remoteObj in hostInfo.remoteAddresses) {
       String remote = remoteObj.toString();
@@ -161,8 +162,10 @@ class HostInfoScreenState extends State<HostInfoScreen> {
   Widget _buildStaticRemotes() {
     List<Widget> items = [];
     final currentRemote = hostInfo.currentRemote.toString();
-    final double ipWidth =
-        Utils.textSize("000.000.000.000:000000", CupertinoTheme.of(context).textTheme.textStyle).width;
+    final double ipWidth = Utils.textSize(
+      "000.000.000.000:000000",
+      CupertinoTheme.of(context).textTheme.textStyle,
+    ).width;
 
     for (var remoteObj in hostInfo.remoteAddresses) {
       String remote = remoteObj.toString();
@@ -180,30 +183,32 @@ class HostInfoScreenState extends State<HostInfoScreen> {
   }
 
   Widget _buildClose() {
+    final outerContext = context;
     return Padding(
       padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
       child: SizedBox(
         width: double.infinity,
         child: DangerButton(
           child: Text('Close Tunnel'),
-          onPressed:
-              () => Utils.confirmDelete(context, 'Close Tunnel?', () async {
-                try {
-                  await widget.site.closeTunnel(hostInfo.vpnAddrs[0]);
-                  if (widget.onChanged != null) {
-                    widget.onChanged!();
-                  }
-                  Navigator.pop(context);
-                } catch (err) {
-                  Utils.popError('Error while trying to close the tunnel', err.toString());
-                }
-              }, deleteLabel: 'Close'),
+          onPressed: () => Utils.confirmDelete(outerContext, 'Close Tunnel?', () async {
+            try {
+              await widget.site.closeTunnel(hostInfo.vpnAddrs[0]);
+              if (widget.onChanged != null) {
+                widget.onChanged!();
+              }
+              if (outerContext.mounted) {
+                Navigator.pop(outerContext);
+              }
+            } catch (err) {
+              Utils.popError('Error while trying to close the tunnel', err.toString());
+            }
+          }, deleteLabel: 'Close'),
         ),
       ),
     );
   }
 
-  _getHostInfo() async {
+  Future<dynamic> _getHostInfo() async {
     try {
       final h = await widget.site.getHostInfo(hostInfo.vpnAddrs[0], widget.pending);
       if (h == null) {
@@ -216,7 +221,7 @@ class HostInfoScreenState extends State<HostInfoScreen> {
     }
   }
 
-  _setHostInfo(HostInfo h) {
+  void _setHostInfo(HostInfo h) {
     h.remoteAddresses.sort((a, b) {
       final diff = a.ip.compareTo(b.ip);
       return diff == 0 ? a.port - b.port : diff;

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -105,6 +106,7 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
           _buildConfig(),
           site.connected ? _buildHosts() : Container(),
           _buildSiteDetails(),
+          _buildAlwaysOn(),
           _buildDelete(),
         ],
       ),
@@ -271,25 +273,90 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
     );
   }
 
+  Widget _buildAlwaysOn() {
+    if (Platform.isAndroid) {
+      return ConfigSection(
+        children: <Widget>[
+          ConfigItem(
+            label: Text('Always-on'),
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Switch.adaptive(
+                  value: widget.site.alwaysOn,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  onChanged: (val) async {
+                    widget.site.alwaysOn = val;
+                    try {
+                      await widget.site.save();
+                    } catch (e) {
+                      Utils.popError('Failed to update always-on', e.toString());
+                      widget.site.alwaysOn = !val;
+                      setState(() {});
+                      return;
+                    }
+                    setState(() {});
+                  },
+                ),
+              ],
+            ),
+          ),
+          ConfigPageItem(
+            content: Text('Verify system always-on is enabled'),
+            onPressed: () {
+              platform.invokeMethod('android.openVpnSettings');
+            },
+          ),
+        ],
+      );
+    } else if (Platform.isIOS || Platform.isMacOS) {
+      return ConfigSection(
+        children: <Widget>[
+          ConfigItem(
+            label: Text('Always-on'),
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Switch.adaptive(
+                  value: widget.site.alwaysOn,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  onChanged: (val) async {
+                    widget.site.alwaysOn = val;
+                    await widget.site.save();
+                    setState(() {});
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Container();
+  }
+
   Widget _buildDelete() {
+    final outerContext = context;
     return Padding(
       padding: EdgeInsets.only(top: 50, bottom: 10, left: 10, right: 10),
       child: SizedBox(
         width: double.infinity,
         child: DangerButton(
           child: Text('Delete'),
-          onPressed:
-              () => Utils.confirmDelete(context, 'Delete Site?', () async {
-                if (await _deleteSite()) {
-                  Navigator.of(context).pop();
-                }
-              }),
+          onPressed: () => Utils.confirmDelete(context, 'Delete Site?', () async {
+            if (await _deleteSite()) {
+              if (outerContext.mounted) {
+                Navigator.of(outerContext).pop();
+              }
+            }
+          }),
         ),
       ),
     );
   }
 
-  _listHostmap() async {
+  Future<void> _listHostmap() async {
     try {
       var maps = await site.listAllHostmaps();
       activeHosts = maps["active"];

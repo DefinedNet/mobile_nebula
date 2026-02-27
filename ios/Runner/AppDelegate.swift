@@ -262,11 +262,15 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
       updater?.update(connected: false)
 
     #else
-      let manager = self.sites?.getSite(id: id)?.manager
+      let container = self.sites?.getContainer(id: id)
+      let manager = container?.site.manager
+
       manager?.loadFromPreferences { error in
         //TODO: Handle load error
-
-        manager?.connection.stopVPNTunnel()
+        manager?.isOnDemandEnabled = false
+        manager?.saveToPreferences { _ in
+          manager?.connection.stopVPNTunnel()
+        }
         return result(nil)
       }
     #endif

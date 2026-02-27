@@ -65,15 +65,27 @@ class SiteLogsScreenState extends State<SiteLogsScreen> {
         constraints: logBoxConstraints(context),
         child: ListenableBuilder(
           listenable: logsNotifier,
-          builder:
-              (context, child) => SelectableText(switch (logsNotifier.logsResult) {
-                Ok<String>(:var value) => value.trim(),
-                Error<String>(:var error) =>
-                  error is LogsNotFoundException
-                      ? error.error()
-                      : Utils.popError("Error while reading logs.", error.toString()),
-                null => "",
-              }, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14)),
+          builder: (context, child) {
+            var text = "";
+            switch (logsNotifier.logsResult) {
+              case Ok<String>(:var value):
+                text = value.trim();
+                break;
+              case Error<String>(:var error):
+                if (error is LogsNotFoundException) {
+                  text = error.error();
+                } else {
+                  text = "";
+                  Utils.popError("Error while reading logs.", error.toString());
+                }
+                break;
+              default:
+                text = "";
+                break;
+            }
+
+            return SelectableText(text, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14));
+          },
         ),
       ),
     );
@@ -82,34 +94,32 @@ class SiteLogsScreenState extends State<SiteLogsScreen> {
   Widget _buildTextWrapToggle() {
     return Platform.isIOS
         ? Tooltip(
-          message: "Turn ${settings.logWrap ? "off" : "on"} text wrapping",
-          child: CupertinoButton.tinted(
-            // Use the default tint when enabled, match the background when not.
-            color: settings.logWrap ? null : CupertinoColors.systemBackground,
-            sizeStyle: CupertinoButtonSize.small,
-            borderRadius: const BorderRadius.all(Radius.circular(8)),
-            child: const Icon(Icons.wrap_text),
-            onPressed:
-                () => {
-                  setState(() {
-                    settings.logWrap = !settings.logWrap;
-                  }),
-                },
-          ),
-        )
-        : IconButton.filledTonal(
-          isSelected: settings.logWrap,
-          tooltip: "Turn ${settings.logWrap ? "off" : "on"} text wrapping",
-          // The variants of wrap_text seem to be the same, but this seems most correct.
-          selectedIcon: const Icon(Icons.wrap_text_outlined),
-          icon: const Icon(Icons.wrap_text),
-          onPressed:
-              () => {
+            message: "Turn ${settings.logWrap ? "off" : "on"} text wrapping",
+            child: CupertinoButton.tinted(
+              // Use the default tint when enabled, match the background when not.
+              color: settings.logWrap ? null : CupertinoColors.systemBackground,
+              sizeStyle: CupertinoButtonSize.small,
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              child: const Icon(Icons.wrap_text),
+              onPressed: () => {
                 setState(() {
                   settings.logWrap = !settings.logWrap;
                 }),
               },
-        );
+            ),
+          )
+        : IconButton.filledTonal(
+            isSelected: settings.logWrap,
+            tooltip: "Turn ${settings.logWrap ? "off" : "on"} text wrapping",
+            // The variants of wrap_text seem to be the same, but this seems most correct.
+            selectedIcon: const Icon(Icons.wrap_text_outlined),
+            icon: const Icon(Icons.wrap_text),
+            onPressed: () => {
+              setState(() {
+                settings.logWrap = !settings.logWrap;
+              }),
+            },
+          );
   }
 
   Widget _buildBottomBar() {
@@ -151,14 +161,16 @@ class SiteLogsScreenState extends State<SiteLogsScreen> {
           ),
         ],
       ),
-      cupertino:
-          (context, child, platform) =>
-              Container(decoration: BoxDecoration(border: Border(top: borderSide)), padding: padding, child: child),
+      cupertino: (context, child, platform) => Container(
+        decoration: BoxDecoration(border: Border(top: borderSide)),
+        padding: padding,
+        child: child,
+      ),
       material: (context, child, platform) => BottomAppBar(child: child),
     );
   }
 
-  logBoxConstraints(BuildContext context) {
+  BoxConstraints logBoxConstraints(BuildContext context) {
     if (settings.logWrap) {
       return BoxConstraints(maxWidth: MediaQuery.of(context).size.width);
     } else {

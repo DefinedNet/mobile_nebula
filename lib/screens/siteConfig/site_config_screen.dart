@@ -19,18 +19,23 @@ import 'package:mobile_nebula/screens/siteConfig/certificate_details_screen.dart
 import 'package:mobile_nebula/screens/siteConfig/static_hosts_screen.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
-//TODO: Add a config test mechanism
-//TODO: Enforce a name
-
 class SiteConfigScreen extends StatefulWidget {
-  const SiteConfigScreen({super.key, this.site, required this.onSave, required this.supportsQRScanning});
+  const SiteConfigScreen({
+    super.key,
+    this.site,
+    required this.onSave,
+    required this.supportsQRScanning,
+    this.startChanged = false,
+  });
 
   final Site? site;
 
   // This is called after the target OS has saved the configuration
   final ValueChanged<Site> onSave;
-
   final bool supportsQRScanning;
+
+  // startChanged is currently only used for loading a site from yaml, we need to start by showing the save button.
+  final bool startChanged;
 
   @override
   SiteConfigScreenState createState() => SiteConfigScreenState();
@@ -59,6 +64,10 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
       nameController.text = site.name;
     }
 
+    if (widget.startChanged) {
+      changed = true;
+    }
+
     super.initState();
   }
 
@@ -85,11 +94,14 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
           return Utils.popError('Failed to save the site configuration', error.toString());
         }
 
-        Navigator.pop(context);
+        if (context.mounted) {
+          Navigator.pop(context);
+        }
         widget.onSave(site);
       },
       child: Column(
         children: <Widget>[
+          _errors(),
           _main(),
           _keys(),
           _hosts(),
@@ -110,7 +122,33 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
       data = err.toString();
     }
 
-    return ConfigSection(label: 'DEBUG', children: [ConfigItem(labelWidth: 0, content: SelectableText(data))]);
+    return ConfigSection(
+      label: 'DEBUG',
+      children: [ConfigItem(labelWidth: 0, content: SelectableText(data))],
+    );
+  }
+
+  Widget _errors() {
+    if (site.errors.isEmpty) {
+      return Container();
+    }
+
+    List<Widget> items = [];
+    for (var error in site.errors) {
+      items.add(
+        ConfigItem(
+          labelWidth: 0,
+          content: Padding(padding: EdgeInsets.symmetric(vertical: 10), child: SelectableText(error)),
+        ),
+      );
+    }
+
+    return ConfigSection(
+      label: 'ERRORS',
+      borderColor: CupertinoColors.systemRed.resolveFrom(context),
+      labelColor: CupertinoColors.systemRed.resolveFrom(context),
+      children: items,
+    );
   }
 
   Widget _main() {
@@ -142,18 +180,18 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
 
     return site.managed
         ? ConfigSection(
-          label: "MANAGED CONFIG",
-          children: <Widget>[
-            ConfigItem(
-              label: Text("Last Update"),
-              content: Wrap(
-                alignment: WrapAlignment.end,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: <Widget>[Text(lastUpdate)],
+            label: "MANAGED CONFIG",
+            children: <Widget>[
+              ConfigItem(
+                label: Text("Last Update"),
+                content: Wrap(
+                  alignment: WrapAlignment.end,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: <Widget>[Text(lastUpdate)],
+                ),
               ),
-            ),
-          ],
-        )
+            ],
+          )
         : Container();
   }
 
@@ -182,9 +220,9 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
             children: <Widget>[
               certError
                   ? Padding(
-                    padding: EdgeInsets.only(right: 5),
-                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
-                  )
+                      padding: EdgeInsets.only(right: 5),
+                      child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
+                    )
                   : Container(),
               certError ? Text('Needs attention') : Text(site.certInfo?.cert.name ?? 'Unknown certificate'),
             ],
@@ -196,16 +234,15 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
                   certInfo: site.certInfo!,
                   pubKey: pubKey,
                   privKey: privKey,
-                  onReplace:
-                      site.managed
-                          ? null
-                          : (result) {
-                            setState(() {
-                              changed = true;
-                              site.certInfo = result.certInfo;
-                              site.key = result.key;
-                            });
-                          },
+                  onReplace: site.managed
+                      ? null
+                      : (result) {
+                          setState(() {
+                            changed = true;
+                            site.certInfo = result.certInfo;
+                            site.key = result.key;
+                          });
+                        },
                   supportsQRScanning: widget.supportsQRScanning,
                 );
               }
@@ -233,9 +270,9 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
             children: <Widget>[
               caError
                   ? Padding(
-                    padding: EdgeInsets.only(right: 5),
-                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
-                  )
+                      padding: EdgeInsets.only(right: 5),
+                      child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
+                    )
                   : Container(),
               caError ? Text('Needs attention') : Text(Utils.itemCountFormat(site.ca.length)),
             ],
@@ -244,15 +281,14 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
             Utils.openPage(context, (context) {
               return CAListScreen(
                 cas: site.ca,
-                onSave:
-                    site.managed
-                        ? null
-                        : (ca) {
-                          setState(() {
-                            changed = true;
-                            site.ca = ca;
-                          });
-                        },
+                onSave: site.managed
+                    ? null
+                    : (ca) {
+                        setState(() {
+                          changed = true;
+                          site.ca = ca;
+                        });
+                      },
                 supportsQRScanning: widget.supportsQRScanning,
               );
             });
@@ -274,9 +310,9 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
             children: <Widget>[
               site.staticHostmap.isEmpty
                   ? Padding(
-                    padding: EdgeInsets.only(right: 5),
-                    child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
-                  )
+                      padding: EdgeInsets.only(right: 5),
+                      child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
+                    )
                   : Container(),
               site.staticHostmap.isEmpty
                   ? Text('Needs attention')
@@ -287,15 +323,14 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
             Utils.openPage(context, (context) {
               return StaticHostsScreen(
                 hostmap: site.staticHostmap,
-                onSave:
-                    site.managed
-                        ? null
-                        : (map) {
-                          setState(() {
-                            changed = true;
-                            site.staticHostmap = map;
-                          });
-                        },
+                onSave: site.managed
+                    ? null
+                    : (map) {
+                        setState(() {
+                          changed = true;
+                          site.staticHostmap = map;
+                        });
+                      },
               );
             });
           },
@@ -334,7 +369,7 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
     );
   }
 
-  _generateKeys() async {
+  Future<void> _generateKeys() async {
     try {
       var kp = await platform.invokeMethod("nebula.generateKeyPair");
       Map<String, dynamic> keyPair = jsonDecode(kp);

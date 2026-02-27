@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart' as sp;
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class Share {
   /// Transforms a string of text into a file and shares that file
@@ -27,7 +27,9 @@ class Share {
 
     try {
       file.writeAsStringSync(text, flush: true);
-      res = await Share.shareFile(context, title: title, filePath: file.path);
+      if (context.mounted) {
+        res = await Share.shareFile(context, title: title, filePath: file.path);
+      }
     } catch (err) {
       // Ignoring file write errors
     }
@@ -54,12 +56,13 @@ class Share {
     //NOTE: the filename used to specify the name of the file in gmail/slack/etc but no longer works that way
     // If we want to support that again we will need to save the file to a temporary directory, share that,
     // and then delete it
-    final xFile = sp.XFile(filePath, name: filename);
-    final result = await sp.Share.shareXFiles(
-      [xFile],
-      subject: title,
-      sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+    final result = await SharePlus.instance.share(
+      ShareParams(
+        subject: title,
+        sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+        files: [XFile(filePath, name: filename)],
+      ),
     );
-    return result.status == sp.ShareResultStatus.success;
+    return result.status == ShareResultStatus.success;
   }
 }

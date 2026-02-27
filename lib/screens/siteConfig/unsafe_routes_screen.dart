@@ -41,7 +41,7 @@ class UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
     );
   }
 
-  _onSave() {
+  void _onSave() {
     Navigator.pop(context);
     if (widget.onSave != null) {
       widget.onSave!(unsafeRoutes.values.toList());

@@ -98,24 +98,22 @@ class SpecialTextFieldState extends State<SpecialTextField> {
       },
       expands: widget.expands,
       inputFormatters: formatters,
-      material:
-          (_, _) => MaterialTextFieldData(
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
-              isDense: true,
-              hintText: widget.placeholder,
-              counterText: '',
-              suffix: widget.suffix,
-            ),
-          ),
-      cupertino:
-          (_, _) => CupertinoTextFieldData(
-            decoration: BoxDecoration(),
-            padding: EdgeInsets.zero,
-            placeholder: widget.placeholder,
-            suffix: widget.suffix,
-          ),
+      material: (_, _) => MaterialTextFieldData(
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.zero,
+          isDense: true,
+          hintText: widget.placeholder,
+          counterText: '',
+          suffix: widget.suffix,
+        ),
+      ),
+      cupertino: (_, _) => CupertinoTextFieldData(
+        decoration: BoxDecoration(),
+        padding: EdgeInsets.zero,
+        placeholder: widget.placeholder,
+        suffix: widget.suffix,
+      ),
       style: widget.style,
       controller: widget.controller,
     );

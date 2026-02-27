@@ -62,7 +62,7 @@ class DnsResolversScreenState extends State<DnsResolversScreen> {
     );
   }
 
-  _onSave() {
+  void _onSave() {
     Navigator.pop(context);
     if (widget.onSave != null) {
       List<String> resolvers = [];
@@ -86,39 +86,36 @@ class DnsResolversScreenState extends State<DnsResolversScreen> {
           key: key,
           label: Align(
             alignment: Alignment.centerLeft,
-            child:
-                widget.onSave == null
-                    ? Container()
-                    : PlatformIconButton(
-                      padding: EdgeInsets.zero,
-                      icon: Icon(Icons.remove_circle, color: CupertinoColors.systemRed.resolveFrom(context)),
-                      onPressed:
-                          () => setState(() {
-                            _removeResolver(key);
-                            _dismissKeyboard();
-                          }),
-                    ),
+            child: widget.onSave == null
+                ? Container()
+                : PlatformIconButton(
+                    padding: EdgeInsets.zero,
+                    icon: Icon(Icons.remove_circle, color: CupertinoColors.systemRed.resolveFrom(context)),
+                    onPressed: () => setState(() {
+                      _removeResolver(key);
+                      _dismissKeyboard();
+                    }),
+                  ),
           ),
           labelWidth: 70,
           content: Row(
             children: <Widget>[
               Expanded(
-                child:
-                    widget.onSave == null
-                        ? Text(resolver.address, textAlign: TextAlign.end)
-                        : IPFormField(
-                          help: 'ip address',
-                          textAlign: TextAlign.end,
-                          ipOnly: true,
-                          //TODO: noBorder: true,
-                          initialValue: resolver.address,
-                          autoSize: false,
-                          onSaved: (v) {
-                            if (v != null) {
-                              resolver.address = v;
-                            }
-                          },
-                        ),
+                child: widget.onSave == null
+                    ? Text(resolver.address, textAlign: TextAlign.end)
+                    : IPFormField(
+                        help: 'ip address',
+                        textAlign: TextAlign.end,
+                        ipOnly: true,
+                        //TODO: noBorder: true,
+                        initialValue: resolver.address,
+                        autoSize: false,
+                        onSaved: (v) {
+                          if (v != null) {
+                            resolver.address = v;
+                          }
+                        },
+                      ),
               ),
             ],
           ),
@@ -130,11 +127,10 @@ class DnsResolversScreenState extends State<DnsResolversScreen> {
       items.add(
         ConfigButtonItem(
           content: Text('Add another'),
-          onPressed:
-              () => setState(() {
-                _addResolver();
-                _dismissKeyboard();
-              }),
+          onPressed: () => setState(() {
+            _addResolver();
+            _dismissKeyboard();
+          }),
         ),
       );
     }
@@ -142,18 +138,18 @@ class DnsResolversScreenState extends State<DnsResolversScreen> {
     return items;
   }
 
-  _addResolver() {
+  void _addResolver() {
     changed = true;
     _dnsResolvers[UniqueKey()] = _Resolver(focusNode: FocusNode(), address: "");
     // We can't onChanged here because it causes rendering issues on first build due to ensuring there is a single destination
   }
 
-  _removeResolver(Key key) {
+  void _removeResolver(Key key) {
     changed = true;
     _dnsResolvers.remove(key);
   }
 
-  _dismissKeyboard() {
+  void _dismissKeyboard() {
     FocusScopeNode currentFocus = FocusScope.of(context);
 
     if (!currentFocus.hasPrimaryFocus) {

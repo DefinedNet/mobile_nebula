@@ -13,8 +13,8 @@ class IPField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final EdgeInsetsGeometry textPadding;
   final TextInputAction? textInputAction;
-  final controller;
-  final textAlign;
+  final TextEditingController? controller;
+  final TextAlign textAlign;
   final bool autoSize;
 
   const IPField({
@@ -46,10 +46,9 @@ class IPField extends StatelessWidget {
       onChanged: onChanged,
       maxLength: ipOnly ? 45 : null,
       maxLengthEnforcement: ipOnly ? MaxLengthEnforcement.enforced : MaxLengthEnforcement.none,
-      inputFormatters:
-          ipOnly
-              ? [FilteringTextInputFormatter.allow(RegExp(r'[\d\.:a-fA-F]+'))]
-              : [FilteringTextInputFormatter.allow(RegExp(r'[^\s]+'))],
+      inputFormatters: ipOnly
+          ? [FilteringTextInputFormatter.allow(RegExp(r'[\d\.:a-fA-F]+'))]
+          : [FilteringTextInputFormatter.allow(RegExp(r'[^\s]+'))],
       textInputAction: textInputAction,
       placeholder: help,
     );

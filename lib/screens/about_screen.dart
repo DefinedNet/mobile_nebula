@@ -54,7 +54,12 @@ class AboutScreenState extends State<AboutScreen> {
               ConfigItem(
                 label: Text('App version'),
                 labelWidth: 150,
-                content: _buildText('${packageInfo!.version}-${packageInfo!.buildNumber} (sha: $gitSha)'),
+                content: _buildText(gitIsTaggedRelease ? '$gitTag ($gitSha)' : gitTag),
+              ),
+              ConfigItem(
+                label: Text('Store version'),
+                labelWidth: 150,
+                content: _buildText('${packageInfo!.version}-${packageInfo!.buildNumber}'),
               ),
               ConfigItem(
                 label: Text('Nebula version'),
@@ -85,10 +90,9 @@ class AboutScreenState extends State<AboutScreen> {
               ConfigPageItem(
                 label: Text('Licenses'),
                 labelWidth: 300,
-                onPressed:
-                    () => Utils.openPage(context, (context) {
-                      return LicensesScreen();
-                    }),
+                onPressed: () => Utils.openPage(context, (context) {
+                  return LicensesScreen();
+                }),
               ),
             ],
           ),
@@ -101,7 +105,7 @@ class AboutScreenState extends State<AboutScreen> {
     );
   }
 
-  _buildText(String str) {
+  Align _buildText(String str) {
     return Align(alignment: AlignmentDirectional.centerEnd, child: SelectableText(str));
   }
 }

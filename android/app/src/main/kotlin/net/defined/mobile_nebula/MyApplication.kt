@@ -13,6 +13,7 @@ class MyApplication : Application() {
         // we must explicitly initialize this rather than using the default initializer.
         val myConfig = Configuration.Builder().build()
         WorkManager.initialize(this, myConfig)
+        //TODO: change to https://developer.android.com/develop/background-work/background-tasks/persistent/configuration/custom-configuration#implement-configuration-provider
 
         FlutterLoader().startInitialization(applicationContext)
     }

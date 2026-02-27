@@ -81,7 +81,10 @@ class AddCertificateScreenState extends State<AddCertificateScreen> {
     items.add(_buildKey());
     items.addAll(_buildLoadCert());
 
-    return SimplePage(title: Text('Certificate'), child: Column(children: items));
+    return SimplePage(
+      title: Text('Certificate'),
+      child: Column(children: items),
+    );
   }
 
   List<Widget> _buildShare() {
@@ -157,12 +160,11 @@ class AddCertificateScreenState extends State<AddCertificateScreen> {
           width: double.infinity,
           child: PrimaryButton(
             child: Text('Show/Import Private Key'),
-            onPressed:
-                () => Utils.confirmDelete(context, 'Show/Import Private Key?', () {
-                  setState(() {
-                    showKey = true;
-                  });
-                }, deleteLabel: 'Yes'),
+            onPressed: () => Utils.confirmDelete(context, 'Show/Import Private Key?', () {
+              setState(() {
+                showKey = true;
+              });
+            }, deleteLabel: 'Yes'),
           ),
         ),
       );
@@ -170,7 +172,12 @@ class AddCertificateScreenState extends State<AddCertificateScreen> {
 
     return ConfigSection(
       label: 'Import a private key generated on another device',
-      children: [ConfigTextItem(controller: keyController, style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14))],
+      children: [
+        ConfigTextItem(
+          controller: keyController,
+          style: TextStyle(fontFamily: 'RobotoMono', fontSize: 14),
+        ),
+      ],
     );
   }
 
@@ -235,11 +242,12 @@ class AddCertificateScreenState extends State<AddCertificateScreen> {
     ];
   }
 
-  _addCertEntry(String rawCert) async {
+  Future<void> _addCertEntry(String rawCert) async {
     // Allow for app store review testing cert to override the generated key
     if (rawCert.trim() == _testCert) {
       keyController.text = _testKey;
     }
+    final mainContext = context;
 
     try {
       var rawCerts = await platform.invokeMethod("nebula.parseCerts", <String, String>{"certs": rawCert});
@@ -270,16 +278,18 @@ class AddCertificateScreenState extends State<AddCertificateScreen> {
 
         if (widget.onReplace != null) {
           // If we are replacing we just return the results now
-          Navigator.pop(context);
+          if (mainContext.mounted) {
+            Navigator.pop(mainContext);
+          }
           widget.onReplace!(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
           return;
-        } else if (widget.onSave != null) {
+        } else if (widget.onSave != null && mainContext.mounted) {
           // We have a cert, pop the details screen where they can hit save
-          Utils.openPage(context, (context) {
+          Utils.openPage(mainContext, (context) {
             return CertificateDetailsScreen(
               certInfo: tryCertInfo,
               onSave: () {
-                Navigator.pop(context);
+                Navigator.pop(mainContext);
                 widget.onSave!(CertificateResult(certInfo: tryCertInfo, key: keyController.text));
               },
               supportsQRScanning: widget.supportsQRScanning,

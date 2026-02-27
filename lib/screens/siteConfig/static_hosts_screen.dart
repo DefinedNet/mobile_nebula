@@ -59,7 +59,7 @@ class StaticHostsScreenState extends State<StaticHostsScreen> {
     );
   }
 
-  _onSave() {
+  void _onSave() {
     Navigator.pop(context);
     if (widget.onSave != null) {
       Map<String, StaticHost> map = {};
@@ -97,26 +97,24 @@ class StaticHostsScreenState extends State<StaticHostsScreen> {
                 nebulaIp: host.nebulaIp,
                 destinations: host.destinations,
                 lighthouse: host.lighthouse,
-                onSave:
-                    widget.onSave == null
-                        ? null
-                        : (map) {
-                          setState(() {
-                            changed = true;
-                            host.nebulaIp = map.nebulaIp;
-                            host.destinations = map.destinations;
-                            host.lighthouse = map.lighthouse;
-                          });
-                        },
-                onDelete:
-                    widget.onSave == null
-                        ? null
-                        : () {
-                          setState(() {
-                            changed = true;
-                            _hostmap.remove(key);
-                          });
-                        },
+                onSave: widget.onSave == null
+                    ? null
+                    : (map) {
+                        setState(() {
+                          changed = true;
+                          host.nebulaIp = map.nebulaIp;
+                          host.destinations = map.destinations;
+                          host.lighthouse = map.lighthouse;
+                        });
+                      },
+                onDelete: widget.onSave == null
+                    ? null
+                    : () {
+                        setState(() {
+                          changed = true;
+                          _hostmap.remove(key);
+                        });
+                      },
               );
             });
           },
@@ -147,7 +145,7 @@ class StaticHostsScreenState extends State<StaticHostsScreen> {
     return items;
   }
 
-  _addHostmap(Hostmap map) {
+  void _addHostmap(Hostmap map) {
     _hostmap[UniqueKey()] = (_Hostmap(
       focusNode: FocusNode(),
       nebulaIp: map.nebulaIp,

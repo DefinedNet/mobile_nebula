@@ -82,7 +82,6 @@ class SiteUpdater: NSObject, FlutterStreamHandler {
   private var eventSink: FlutterEventSink?
   private var eventChannel: FlutterEventChannel
   private var site: Site
-  private var notification: Any?
   public var startFunc: (() -> Void)?
   private var configFd: Int32? = nil
   private var configObserver: (any DispatchSourceFileSystemObject)? = nil
@@ -137,31 +136,38 @@ class SiteUpdater: NSObject, FlutterStreamHandler {
           code: "Internal Error", message: "Flutter manager was not present", details: nil)
       }
 
-      self.notification = NotificationCenter.default.addObserver(
-        forName: NSNotification.Name.NEVPNStatusDidChange, object: site.manager!.connection,
-        queue: nil
-      ) { n in
-        let oldConnected = self.site.connected
-        self.site.status = statusString[self.site.manager!.connection.status]
-        self.site.connected = statusMap[self.site.manager!.connection.status]
-
-        // Check to see if we just moved to connected and if we have a start function to call when that happens
-        if self.site.connected! && oldConnected != self.site.connected && self.startFunc != nil {
-          self.startFunc!()
-          self.startFunc = nil
-        }
-
-        self.update(connected: self.site.connected!)
-      }
+      NotificationCenter.default.addObserver(
+        self, selector: #selector(onNotification),
+        name: NSNotification.Name.NEVPNConfigurationChange, object: site.manager)
+      NotificationCenter.default.addObserver(
+        self, selector: #selector(onNotification), name: NSNotification.Name.NEVPNStatusDidChange,
+        object: site.manager!.connection)
     #endif
     return nil
   }
 
+  @objc func onNotification(n: Notification) {
+    let oldConnected = self.site.connected
+
+    self.site.status = statusString[self.site.manager!.connection.status]
+    self.site.connected = statusMap[self.site.manager!.connection.status]
+    self.site.alwaysOn = self.site.manager?.isOnDemandEnabled == true
+
+    // Check to see if we just moved to connected and if we have a start function to call when that happens
+    if self.site.connected! && oldConnected != self.site.connected && self.startFunc != nil {
+      self.startFunc!()
+      self.startFunc = nil
+    }
+
+    self.update(connected: self.site.connected!)
+  }
+
   /// onCancel is called when the flutter listener stops listening
   func onCancel(withArguments arguments: Any?) -> FlutterError? {
-    if self.notification != nil {
-      NotificationCenter.default.removeObserver(self.notification!)
-    }
+    NotificationCenter.default.removeObserver(
+      self, name: NSNotification.Name.NEVPNConfigurationChange, object: nil)
+    NotificationCenter.default.removeObserver(
+      self, name: NSNotification.Name.NEVPNStatusDidChange, object: nil)
     return nil
   }
 

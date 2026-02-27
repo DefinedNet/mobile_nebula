@@ -1,6 +1,5 @@
 package net.defined.mobile_nebula
 
-import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -10,6 +9,7 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.net.VpnService
 import android.os.*
+import android.provider.Settings
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.work.*
@@ -45,8 +45,9 @@ class MainActivity: FlutterActivity() {
     private var startingSiteContainer: SiteContainer? = null
 
     private var activeSiteId: String? = null
+    private var onStopCallback: (() -> Unit)? = null
 
-    private val workManager = WorkManager.getInstance(application)
+    private lateinit var workManager: WorkManager
     private val refreshReceiver: BroadcastReceiver = RefreshReceiver()
 
     companion object {
@@ -67,6 +68,7 @@ class MainActivity: FlutterActivity() {
             when(call.method) {
                 "android.registerActiveSite" -> registerActiveSite(result)
                 "android.deviceHasCamera" -> deviceHasCamera(result)
+                "android.openVpnSettings" -> openVpnSettings(result)
 
                 "nebula.parseCerts" -> nebulaParseCerts(call, result)
                 "nebula.generateKeyPair" -> nebulaGenerateKeyPair(result)
@@ -100,6 +102,7 @@ class MainActivity: FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        workManager = WorkManager.getInstance(application) //TODO: this got moved probably because our AndroidManifest isn't good enough anymore to initialize it for us. Fix initializing
         apiClient = APIClient(context)
 
         ContextCompat.registerReceiver(context, refreshReceiver, IntentFilter(ACTION_REFRESH_SITES), ContextCompat.RECEIVER_NOT_EXPORTED)
@@ -134,6 +137,12 @@ class MainActivity: FlutterActivity() {
 
     private fun deviceHasCamera(result: MethodChannel.Result) {
         result.success(context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY))
+    }
+
+    private fun openVpnSettings(result: MethodChannel.Result) {
+        val intent = Intent(Settings.ACTION_VPN_SETTINGS)
+        startActivity(intent)
+        result.success(null)
     }
 
     private fun nebulaParseCerts(call: MethodCall, result: MethodChannel.Result) {
@@ -235,7 +244,16 @@ class MainActivity: FlutterActivity() {
             return result.error("failure", "Site config was incomplete, please review and try again", null)
         }
 
-        sites?.refreshSites()
+        if (site.alwaysOn == true) {
+            if (activeSiteId != null && activeSiteId != site.id) {
+                stopSite { sites?.getSite(site.id)?.let { startSiteDirectly(it) } }
+            } else if (activeSiteId != site.id) {
+                sites?.getSite(site.id)?.let { startSiteDirectly(it) }
+            }
+        }
+
+        sites?.refreshSites(activeSiteId)
+        sites?.updateAll()
 
         result.success(null)
     }
@@ -244,7 +262,7 @@ class MainActivity: FlutterActivity() {
         try {
             // Try to render a full site, if this fails the config was bad somehow
             Site(context, siteDir)
-        } catch(err: java.io.FileNotFoundException) {
+        } catch(_: java.io.FileNotFoundException) {
             Log.e(TAG, "Site not found at $siteDir")
             return false
         } catch(err: Exception) {
@@ -253,6 +271,22 @@ class MainActivity: FlutterActivity() {
             return false
         }
         return true
+    }
+
+    private fun startSiteDirectly(siteContainer: SiteContainer) {
+        if (VpnService.prepare(this) != null) {
+            // VPN permission not granted; cannot start without user interaction
+            return
+        }
+        siteContainer.updater.setState(true, "Initializing...")
+        val intent = Intent(this, NebulaVpnService::class.java).apply {
+            putExtra("path", siteContainer.site.path)
+            putExtra("id", siteContainer.site.id)
+        }
+        startService(intent)
+        if (outMessenger == null) {
+            bindService(intent, connection, 0)
+        }
     }
 
     private fun startSite(call: MethodCall, result: MethodChannel.Result) {
@@ -269,11 +303,12 @@ class MainActivity: FlutterActivity() {
         if (intent != null) {
             startActivityForResult(intent, VPN_START_CODE)
         } else {
-            onActivityResult(VPN_START_CODE, Activity.RESULT_OK, null)
+            onActivityResult(VPN_START_CODE, RESULT_OK, null)
         }
     }
 
-    private fun stopSite() {
+    private fun stopSite(onStopped: (() -> Unit)? = null) {
+        onStopCallback = onStopped
         val intent = Intent(this, NebulaVpnService::class.java).apply {
             action = NebulaVpnService.ACTION_STOP
         }
@@ -438,7 +473,7 @@ class MainActivity: FlutterActivity() {
             val siteContainer = startingSiteContainer!!
             startResult = null
             startingSiteContainer = null
-            if (resultCode != Activity.RESULT_OK) {
+            if (resultCode != RESULT_OK) {
                 // The user did not grant permissions
                 siteContainer.updater.setState(false, "Disconnected")
                 return result.error("permissions", "Please grant VPN permissions to the app when requested. (If another VPN is running, please disable it now.)", null)
@@ -474,7 +509,7 @@ class MainActivity: FlutterActivity() {
                 msg.replyTo = inMessenger
                 outMessenger!!.send(msg)
 
-            } catch (e: RemoteException) {
+            } catch (_: RemoteException) {
                 // In this case the service has crashed before we could even
                 // do anything with it; we can count on soon being
                 // disconnected (and then reconnected if it can be restarted)
@@ -491,6 +526,7 @@ class MainActivity: FlutterActivity() {
             isServiceBound = false
             if (activeSiteId != null) {
                 //TODO: this indicates the service died, notify that it is disconnected
+                Log.e(TAG, "Active site appeared to disconnect, we should notify the ui")
             }
             activeSiteId = null
         }
@@ -500,9 +536,13 @@ class MainActivity: FlutterActivity() {
     inner class IncomingHandler: Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             val id = msg.data.getString("id")
+            if (id == null) {
+                Log.i(TAG, "got a message without an id from the vpn service")
+                return
+            }
 
             //TODO: If the elvis hits then we had a deleted site running, which shouldn't happen
-            val site = sites!!.getSite(id!!) ?: return
+            val site = sites!!.getSite(id) ?: return
 
             when (msg.what) {
                 NebulaVpnService.MSG_IS_RUNNING -> isRunning(site, msg)
@@ -531,6 +571,8 @@ class MainActivity: FlutterActivity() {
                 // a site while another is actively running.
                 activeSiteId = null
                 unbindVpnService()
+                onStopCallback?.invoke()
+                onStopCallback = null
             }
         }
     }

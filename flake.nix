@@ -146,10 +146,18 @@
             # update FLUTTER_ROOT or else nix store flutter rewrites its own sdk path in local.properties
             export FLUTTER_ROOT="$TMPDIR/flutter-sdk"
 
+            # Create cmake directory with NixOS-compatible binaries.
+            # The Android SDK's bundled cmake/ninja may fail on NixOS
+            # (posix_spawn errors), so use nixpkgs' patched versions instead.
+            mkdir -p "$TMPDIR/cmake-sdk/bin"
+            ln -sf ${pkgs.cmake}/bin/cmake "$TMPDIR/cmake-sdk/bin/cmake"
+            ln -sf ${pkgs.ninja}/bin/ninja "$TMPDIR/cmake-sdk/bin/ninja"
+
             cat <<EOF > android/local.properties
             sdk.dir=$ANDROID_SDK_ROOT
             ndk.dir=$ANDROID_NDK_ROOT
             flutter.sdk=$TMPDIR/flutter-sdk
+            cmake.dir=$TMPDIR/cmake-sdk
             EOF
             cat android/local.properties
           '';
@@ -180,7 +188,7 @@
 
             src = ./nebula;
 
-            vendorHash = "sha256-Dp/JnJ8nIvULBVath2l03FFF1rLOQTciAqoNLuMpR+Y=";
+            vendorHash = "sha256-iG8Tpehy2QyyLHqlONDqOSwMQ0r5QuSrOR27ZRttZw4=";
 
             proxyVendor = true;
             overrideModAttrs = (final: prev: {
@@ -200,7 +208,7 @@
 
             buildPhase = ''
               chmod -c u+w .dart_tool/package_config.json
-              flutter pub run flutter_oss_licenses:generate.dart --output $out
+              flutter pub run dart_pubspec_licenses:generate --output $out
               cat $out
             '';
 
@@ -210,7 +218,7 @@
             dontDartInstall = true;
             dontDartInstallCache = true;
 
-            outputHash = "sha256-eqjUAkZR6XWAC20O+U8w4JoEhsaXgxVPpAP0XCA9Lkc=";
+            outputHash = "sha256-+ietfnzCPtF1UEG+rWqZ55mXkDif80yPxdHtEzUpMIM=";
             outputHashAlgo = "sha256";
             outputHashMode = "flat";
           }).overrideAttrs (prev: {
@@ -233,7 +241,7 @@
                   'git rev-parse --short HEAD' \
                   'echo ${self.shortRev or self.dirtyShortRev}' \
                 --replace-fail \
-                  'flutter pub run flutter_oss_licenses:generate.dart' \
+                  'dart run dart_pubspec_licenses:generate' \
                   'cat ${oss_licenses} > lib/oss_licenses.dart'
 
               ${lib.getExe pkgs.sd} \
@@ -266,11 +274,7 @@
               gradle
 
               clang
-              (
-                # needs to match cmake version in android/app/build.gradle
-                assert cmake.version == "4.1.2";
-                cmake
-              )
+              cmake
               dart
               gcc
               go

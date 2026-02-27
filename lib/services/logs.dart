@@ -12,7 +12,7 @@ class LogsNotifier extends ChangeNotifier {
 
   LogsNotifier();
 
-  loadLogs({required String logFile}) async {
+  Future<void> loadLogs({required String logFile}) async {
     final file = File(logFile);
     try {
       logsResult = Result.ok(await file.readAsString());

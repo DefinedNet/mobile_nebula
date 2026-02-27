@@ -1,6 +1,6 @@
 // Inspired by https://github.com/suragch/string_validator/blob/master/lib/src/validator.dart
 
-bool dnsValidator(str, {requireTld = true, allowUnderscore = false}) {
+bool dnsValidator(String? str, {bool requireTld = true, bool allowUnderscore = false}) {
   if (str == null) {
     return false;
   }
@@ -13,10 +13,11 @@ bool dnsValidator(str, {requireTld = true, allowUnderscore = false}) {
     }
   }
 
-  for (var part, i = 0; i < parts.length; i++) {
+  String part;
+  for (var i = 0; i < parts.length; i++) {
     part = parts[i];
     if (allowUnderscore) {
-      if (part.indexOf('__') >= 0) {
+      if (part.contains('__')) {
         return false;
       }
     }
@@ -25,7 +26,7 @@ bool dnsValidator(str, {requireTld = true, allowUnderscore = false}) {
       return false;
     }
 
-    if (part[0] == '-' || part[part.length - 1] == '-' || part.indexOf('---') >= 0) {
+    if (part[0] == '-' || part[part.length - 1] == '-' || part.contains('---')) {
       return false;
     }
   }

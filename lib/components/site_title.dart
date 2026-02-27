@@ -10,8 +10,9 @@ class SiteTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dnIcon =
-        Theme.of(context).brightness == Brightness.dark ? 'images/dn-logo-dark.svg' : 'images/dn-logo-light.svg';
+    final dnIcon = Theme.of(context).brightness == Brightness.dark
+        ? 'images/dn-logo-dark.svg'
+        : 'images/dn-logo-light.svg';
 
     return IntrinsicWidth(
       child: Padding(
