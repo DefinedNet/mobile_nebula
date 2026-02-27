@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 // This is a button that pushes the bare minimum onto you, it doesn't even respect button themes - unless you tell it to
@@ -32,9 +31,9 @@ class SpecialButtonState extends State<SpecialButton> with SingleTickerProviderS
   }
 
   Widget _buildAndroid() {
-    TextStyle? textStyle;
+    var textStyle = Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.normal);
     if (widget.useButtonTheme) {
-      textStyle = Theme.of(context).textTheme.labelLarge;
+      textStyle = Theme.of(context).textTheme.labelLarge!;
     }
 
     return Material(
@@ -48,9 +47,9 @@ class SpecialButtonState extends State<SpecialButton> with SingleTickerProviderS
   }
 
   Widget _buildGeneric() {
-    var textStyle = CupertinoTheme.of(context).textTheme.textStyle;
+    var textStyle = Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.normal);
     if (widget.useButtonTheme) {
-      textStyle = CupertinoTheme.of(context).textTheme.actionTextStyle;
+      textStyle = Theme.of(context).textTheme.labelLarge!;
     }
 
     return Container(
