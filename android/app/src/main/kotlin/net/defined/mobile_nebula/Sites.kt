@@ -228,6 +228,9 @@ class Site(context: Context, siteDir: File) {
     val rawConfig: String?
     val lastManagedUpdate: String?
     val alwaysOn: Boolean
+    val inboundRules: List<FirewallRule>
+    val outboundRules: List<FirewallRule>
+    var configVersion: Int
 
     // Path to this site on disk
     @Transient
@@ -240,7 +243,8 @@ class Site(context: Context, siteDir: File) {
      init {
         val gson = Gson()
         config = siteDir.resolve("config.json").readText()
-        val incomingSite = gson.fromJson(config, IncomingSite::class.java)
+        val incomingSite = ConfigMigrator.migrate(
+            gson.fromJson(config, IncomingSite::class.java), siteDir, errors)
 
         path = siteDir.absolutePath
         name = incomingSite.name
@@ -258,6 +262,9 @@ class Site(context: Context, siteDir: File) {
         dnsResolvers = incomingSite.dnsResolvers ?: emptyList();
         managed = incomingSite.managed ?: false
         lastManagedUpdate = incomingSite.lastManagedUpdate
+        configVersion = incomingSite.configVersion ?: 0
+        inboundRules = incomingSite.inboundRules ?: emptyList()
+        outboundRules = incomingSite.outboundRules ?: emptyList()
 
         connected = false
         status = "Disconnected"
@@ -350,7 +357,25 @@ data class UnsafeRoute(
     val mtu: Int?
 )
 
-class IncomingSite(
+data class FirewallRule(
+    val protocol: String? = null,
+    val startPort: Int? = null,
+    val endPort: Int? = null,
+    val fragment: Boolean? = null,
+    val host: String? = null,
+    val groups: List<String>? = null,
+    val localCidr: String? = null,
+    val remoteCidr: String? = null,
+    val caName: String? = null,
+    val caSha: String? = null,
+)
+
+data class ParsedFirewallRules(
+    val inboundRules: List<FirewallRule>?,
+    val outboundRules: List<FirewallRule>?
+)
+
+data class IncomingSite(
     val name: String,
     val id: String,
     val staticHostmap: HashMap<String, StaticHosts>,
@@ -371,6 +396,9 @@ class IncomingSite(
     val rawConfig: String?,
     var dnCredentials: DNCredentials?,
     val alwaysOn: Boolean?,
+    val inboundRules: List<FirewallRule>?,
+    val outboundRules: List<FirewallRule>?,
+    val configVersion: Int?,
 ) {
     fun save(context: Context): File {
         // Don't allow backups of DN-managed sites

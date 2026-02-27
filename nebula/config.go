@@ -1,5 +1,10 @@
 package mobileNebula
 
+import (
+	"strconv"
+	"strings"
+)
+
 type config struct {
 	PKI           configPKI           `yaml:"pki"`
 	StaticHostmap map[string][]string `yaml:"static_host_map"`
@@ -76,14 +81,8 @@ func newConfig() *config {
 				DefaultTimeout: "10m",
 				MaxConnections: 100000,
 			},
-			Outbound: []configFirewallRule{
-				{
-					Port:  "any",
-					Proto: "any",
-					Host:  "any",
-				},
-			},
-			Inbound: []configFirewallRule{},
+			Outbound: []configFirewallRule{},
+			Inbound:  []configFirewallRule{},
 		},
 	}
 }
@@ -204,19 +203,116 @@ type configConntrack struct {
 }
 
 type configFirewallRule struct {
-	Port   string   `yaml:"port,omitempty"`
-	Code   string   `yaml:"code,omitempty"`
-	Proto  string   `yaml:"proto,omitempty"`
-	Host   string   `yaml:"host,omitempty"`
-	Group  string   `yaml:"group,omitempty"`
-	Groups []string `yaml:"groups,omitempty"`
-	CIDR   string   `yaml:"cidr,omitempty"`
-	CASha  string   `yaml:"ca_sha,omitempty"`
-	CAName string   `yaml:"ca_name,omitempty"`
+	Port      string   `yaml:"port,omitempty"`
+	Code      string   `yaml:"code,omitempty"`
+	Proto     string   `yaml:"proto,omitempty"`
+	Host      string   `yaml:"host,omitempty"`
+	Group     string   `yaml:"group,omitempty"`
+	Groups    []string `yaml:"groups,omitempty"`
+	CIDR      string   `yaml:"cidr,omitempty"`
+	LocalCIDR string   `yaml:"local_cidr,omitempty"`
+	CASha     string   `yaml:"ca_sha,omitempty"`
+	CAName    string   `yaml:"ca_name,omitempty"`
 }
 
 type configRelay struct {
 	AmRelay   bool     `yaml:"am_relay,omitempty"`
 	UseRelays bool     `yaml:"use_relays"`
 	relays    []string `yaml:"relays,omitempty"`
+}
+
+// jsonFirewallRule is the JSON representation sent to/from Flutter.
+// Field names match the Dart FirewallRule model.
+type jsonFirewallRule struct {
+	Protocol   string   `json:"protocol"`
+	StartPort  int      `json:"startPort"`
+	EndPort    int      `json:"endPort"`
+	Fragment   bool     `json:"fragment,omitempty"`
+	Host       string   `json:"host,omitempty"`
+	Groups     []string `json:"groups,omitempty"`
+	LocalCIDR  string   `json:"localCidr,omitempty"`
+	RemoteCIDR string   `json:"remoteCidr,omitempty"`
+	CAName     string   `json:"caName,omitempty"`
+	CASha      string   `json:"caSha,omitempty"`
+}
+
+// toJSON converts a configFirewallRule to a jsonFirewallRule.
+func (r configFirewallRule) toJSON() jsonFirewallRule {
+	jr := jsonFirewallRule{
+		Protocol:   r.Proto,
+		Host:       r.Host,
+		LocalCIDR:  r.LocalCIDR,
+		RemoteCIDR: r.CIDR,
+		CAName:     r.CAName,
+		CASha:      r.CASha,
+	}
+
+	// Convert groups: configFirewallRule has both Group (singular) and Groups (plural)
+	if len(r.Groups) > 0 {
+		jr.Groups = r.Groups
+	} else if r.Group != "" {
+		jr.Groups = []string{r.Group}
+	}
+
+	// Convert port string to startPort/endPort/fragment
+	port := r.Port
+	switch {
+	case port == "fragment":
+		jr.Fragment = true
+	case port == "" || port == "any":
+		jr.StartPort = 0
+		jr.EndPort = 0
+	default:
+		if idx := strings.Index(port, "-"); idx >= 0 {
+			jr.StartPort, _ = strconv.Atoi(port[:idx])
+			jr.EndPort, _ = strconv.Atoi(port[idx+1:])
+		} else {
+			p, _ := strconv.Atoi(port)
+			jr.StartPort = p
+			jr.EndPort = p
+		}
+	}
+
+	return jr
+}
+
+// toConfig converts a jsonFirewallRule to a configFirewallRule.
+func (r jsonFirewallRule) toConfig() configFirewallRule {
+	cr := configFirewallRule{
+		Proto:     r.Protocol,
+		Host:      r.Host,
+		LocalCIDR: r.LocalCIDR,
+		CIDR:      r.RemoteCIDR,
+		CAName:    r.CAName,
+		CASha:     r.CASha,
+	}
+
+	// Convert groups
+	if len(r.Groups) == 1 {
+		cr.Group = r.Groups[0]
+	} else if len(r.Groups) > 1 {
+		cr.Groups = r.Groups
+	}
+
+	// Convert port
+	switch {
+	case r.Fragment:
+		cr.Port = "fragment"
+	case r.StartPort == 0 && r.EndPort == 0:
+		cr.Port = "any"
+	case r.StartPort == r.EndPort:
+		cr.Port = strconv.Itoa(r.StartPort)
+	default:
+		cr.Port = strconv.Itoa(r.StartPort) + "-" + strconv.Itoa(r.EndPort)
+	}
+
+	return cr
+}
+
+func toConfigRules(rules []jsonFirewallRule) []configFirewallRule {
+	out := make([]configFirewallRule, len(rules))
+	for i, r := range rules {
+		out[i] = r.toConfig()
+	}
+	return out
 }

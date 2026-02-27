@@ -71,6 +71,7 @@ class MainActivity: FlutterActivity() {
                 "android.openVpnSettings" -> openVpnSettings(result)
 
                 "nebula.parseCerts" -> nebulaParseCerts(call, result)
+                "nebula.parseFirewallRules" -> nebulaParseFirewallRules(call, result)
                 "nebula.generateKeyPair" -> nebulaGenerateKeyPair(result)
                 "nebula.renderConfig" -> nebulaRenderConfig(call, result)
                 "nebula.verifyCertAndKey" -> nebulaVerifyCertAndKey(call, result)
@@ -151,6 +152,20 @@ class MainActivity: FlutterActivity() {
 
         return try {
             val json = mobileNebula.MobileNebula.parseCerts(certs)
+            result.success(json)
+        } catch (err: Exception) {
+            result.error("unhandled_error", err.message, null)
+        }
+    }
+
+    private fun nebulaParseFirewallRules(call: MethodCall, result: MethodChannel.Result) {
+        val config = call.argument<String>("config")
+        if (config == null || config == "") {
+            return result.error("required_argument", "config is a required argument", null)
+        }
+
+        return try {
+            val json = mobileNebula.MobileNebula.parseFirewallRules(config)
             result.success(json)
         } catch (err: Exception) {
             result.error("unhandled_error", err.message, null)

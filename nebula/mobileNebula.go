@@ -118,6 +118,18 @@ func RenderConfig(configData string, key string) (string, error) {
 		}
 	}
 
+	var siteFirewall struct {
+		InboundRules  []jsonFirewallRule `json:"inboundRules"`
+		OutboundRules []jsonFirewallRule `json:"outboundRules"`
+	}
+	_ = json.Unmarshal([]byte(configData), &siteFirewall)
+	if siteFirewall.InboundRules != nil {
+		cfg.Firewall.Inbound = toConfigRules(siteFirewall.InboundRules)
+	}
+	if siteFirewall.OutboundRules != nil {
+		cfg.Firewall.Outbound = toConfigRules(siteFirewall.OutboundRules)
+	}
+
 	finalConfig, err := yaml.Marshal(cfg)
 	if err != nil {
 		return "", err
@@ -168,6 +180,29 @@ func GetConfigSetting(configData string, setting string) string {
 	c := nc.NewC(l)
 	c.LoadString(configData)
 	return c.GetString(setting, "")
+}
+
+// ParseFirewallRules takes a raw YAML nebula config and returns JSON-encoded firewall rules.
+// Used during config migration and to hydrate firewall rules for managed sites from their rawConfig.
+func ParseFirewallRules(rawYamlConfig string) (string, error) {
+	inbound, outbound, err := collectFirewallRules(rawYamlConfig)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse firewall rules: %w", err)
+	}
+
+	result := struct {
+		InboundRules  []jsonFirewallRule `json:"inboundRules"`
+		OutboundRules []jsonFirewallRule `json:"outboundRules"`
+	}{
+		InboundRules:  inbound,
+		OutboundRules: outbound,
+	}
+
+	j, err := json.Marshal(result)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal rules: %w", err)
+	}
+	return string(j), nil
 }
 
 func ParseCIDR(cidr string) (*CIDR, error) {

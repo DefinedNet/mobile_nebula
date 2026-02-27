@@ -33,6 +33,8 @@
 		BE5BC106291C41E600B6FE5B /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5BC105291C41E600B6FE5B /* APIClient.swift */; };
 		BEC5939E291C502F00709118 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5BC105291C41E600B6FE5B /* APIClient.swift */; };
 		BEC5939F291C503D00709118 /* PackageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE45F625291AEAB300902884 /* PackageInfo.swift */; };
+		CA0F1G012A00000000000001 /* ConfigMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0F1G002A00000000000000 /* ConfigMigrator.swift */; };
+		CA0F1G022A00000000000002 /* ConfigMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0F1G002A00000000000000 /* ConfigMigrator.swift */; };
 		E91B9DAD4A83866D0AF1DAE1 /* Pods_NebulaNetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C0A96949A0B117C4ACE752C /* Pods_NebulaNetworkExtension.framework */; };
 /* End PBXBuildFile section */
 
@@ -109,6 +111,7 @@
 		BE45F625291AEAB300902884 /* PackageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageInfo.swift; sourceTree = "<group>"; };
 		BE5BC105291C41E600B6FE5B /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		C2D5198CF6975BF93E8A6F93 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
+		CA0F1G002A00000000000000 /* ConfigMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigMigrator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -158,6 +161,7 @@
 				437F72582469AAC500A0C4B9 /* Site.swift */,
 				436DE7A226EFF18500BB2950 /* CtlInfo.h */,
 				432D0E3D291C562200752563 /* SiteList.swift */,
+				CA0F1G002A00000000000000 /* ConfigMigrator.swift */,
 			);
 			path = NebulaNetworkExtension;
 			sourceTree = "<group>";
@@ -354,6 +358,7 @@
 				"${BUILT_PRODUCTS_DIR}/Sentry/Sentry.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
 				"${BUILT_PRODUCTS_DIR}/file_picker/file_picker.framework",
+				"${BUILT_PRODUCTS_DIR}/integration_test/integration_test.framework",
 				"${BUILT_PRODUCTS_DIR}/mobile_scanner/mobile_scanner.framework",
 				"${BUILT_PRODUCTS_DIR}/package_info_plus/package_info_plus.framework",
 				"${BUILT_PRODUCTS_DIR}/path_provider_foundation/path_provider_foundation.framework",
@@ -366,6 +371,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sentry.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/file_picker.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/integration_test.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/mobile_scanner.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/package_info_plus.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/path_provider_foundation.framework",
@@ -467,6 +473,7 @@
 				BEC5939E291C502F00709118 /* APIClient.swift in Sources */,
 				BEC5939F291C503D00709118 /* PackageInfo.swift in Sources */,
 				437F725E2469AC5700A0C4B9 /* Keychain.swift in Sources */,
+				CA0F1G012A00000000000001 /* ConfigMigrator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -483,6 +490,7 @@
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				437F72602469B4B300A0C4B9 /* Keychain.swift in Sources */,
 				43ED87842912D0DD004DAFC5 /* DNUpdate.swift in Sources */,
+				CA0F1G022A00000000000002 /* ConfigMigrator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
