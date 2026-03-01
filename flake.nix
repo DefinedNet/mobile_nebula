@@ -218,7 +218,7 @@
             dontDartInstall = true;
             dontDartInstallCache = true;
 
-            outputHash = "sha256-+ietfnzCPtF1UEG+rWqZ55mXkDif80yPxdHtEzUpMIM=";
+            outputHash = "sha256-mWB42iabCmsWFOzvOCTPX4eVOKqR61H8rMvBwz2mQCI=";
             outputHashAlgo = "sha256";
             outputHashMode = "flat";
           }).overrideAttrs (prev: {
