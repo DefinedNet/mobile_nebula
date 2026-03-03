@@ -6,7 +6,6 @@ enum APIClientError: Error {
 
 class APIClient {
   let apiClient: MobileNebulaAPIClient
-  let json = JSONDecoder()
 
   init() {
     let packageInfo = PackageInfo()
@@ -14,14 +13,14 @@ class APIClient {
       "MobileNebula/\(packageInfo.getVersion()) (iOS \(packageInfo.getSystemVersion()))")!
   }
 
-  func enroll(code: String) throws -> IncomingSite {
+  func enroll(code: String) throws -> String {
     let res = try apiClient.enroll(code)
-    return try decodeIncomingSite(jsonSite: res.site)
+    return res.site
   }
 
   func tryUpdate(
     siteName: String, hostID: String, privateKey: String, counter: Int, trustedKeys: String
-  ) throws -> IncomingSite? {
+  ) throws -> String? {
     let res: MobileNebulaTryUpdateResult
     do {
       res = try apiClient.tryUpdate(
@@ -40,18 +39,9 @@ class APIClient {
     }
 
     if res.fetchedUpdate {
-      return try decodeIncomingSite(jsonSite: res.site)
+      return res.site
     }
 
     return nil
-  }
-
-  private func decodeIncomingSite(jsonSite: String) throws -> IncomingSite {
-    do {
-      return try json.decode(IncomingSite.self, from: jsonSite.data(using: .utf8)!)
-    } catch {
-      print("decodeIncomingSite: \(error)")
-      throw error
-    }
   }
 }

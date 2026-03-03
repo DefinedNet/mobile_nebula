@@ -144,42 +144,190 @@ let statusString: [NEVPNStatus: String] = [
   NEVPNStatus.disconnecting: "Disconnecting...",
 ]
 
+// UnsafeRoute is used by the VPN service to configure routing
+class UnsafeRoute: Codable {
+  var route: String
+  var via: String
+  var mtu: Int?
+
+  init(route: String, via: String, mtu: Int? = nil) {
+    self.route = route
+    self.via = via
+    self.mtu = mtu
+  }
+}
+
+/// Saves a site JSON string to disk. Extracts key and dnCredentials into
+/// encrypted storage and writes the remaining config to config.json.
+func saveSiteToDisk(jsonString: String) throws {
+  guard let jsonData = jsonString.data(using: .utf8),
+    let obj = try? JSONSerialization.jsonObject(with: jsonData),
+    var map = obj as? [String: Any]
+  else {
+    throw SiteError.nonConforming(site: nil)
+  }
+
+  guard let id = map["id"] as? String else {
+    throw SiteError.nonConforming(site: map)
+  }
+
+  let managed = map["managed"] as? Bool ?? false
+
+  // Extract and encrypt key
+  if let key = map["key"] as? String {
+    let keyData = key.data(using: .utf8)!
+    if !KeyChain.save(key: "\(id).key", data: keyData, managed: managed) {
+      throw SiteError.keySave
+    }
+  }
+  map.removeValue(forKey: "key")
+
+  // Extract and encrypt dnCredentials
+  if let dnCreds = map["dnCredentials"] {
+    let credsData = try JSONSerialization.data(withJSONObject: dnCreds)
+    let creds = try JSONDecoder().decode(DNCredentials.self, from: credsData)
+    if !(try creds.save(siteID: id)) {
+      throw SiteError.dnCredentialSave
+    }
+  }
+  map.removeValue(forKey: "dnCredentials")
+
+  // Strip alwaysOn (not stored in config.json)
+  map.removeValue(forKey: "alwaysOn")
+
+  // Write the remaining config to disk
+  let configPath = try SiteList.getSiteConfigFile(id: id, createDir: true)
+  log.notice("Saving to \(configPath, privacy: .public)")
+  let configData = try JSONSerialization.data(withJSONObject: map)
+  try configData.write(to: configPath)
+}
+
+/// Saves a site to disk and optionally to the system VPN profile.
+func saveSite(
+  jsonString: String,
+  manager: NETunnelProviderManager?,
+  saveToManager: Bool = true,
+  callback: @escaping ((any Error)?) -> Void
+) {
+  do {
+    try saveSiteToDisk(jsonString: jsonString)
+  } catch {
+    return callback(error)
+  }
+
+  #if targetEnvironment(simulator)
+    callback(nil)
+  #else
+    if saveToManager {
+      // Parse metadata needed for manager save
+      guard let data = jsonString.data(using: .utf8),
+        let obj = try? JSONSerialization.jsonObject(with: data),
+        let map = obj as? [String: Any]
+      else {
+        return callback(SiteError.nonConforming(site: nil))
+      }
+
+      let id = map["id"] as? String ?? ""
+      let name = map["name"] as? String ?? ""
+      let alwaysOn = map["alwaysOn"] as? Bool ?? false
+
+      doSaveToManager(
+        id: id, name: name, alwaysOn: alwaysOn, manager: manager, callback: callback)
+    } else {
+      callback(nil)
+    }
+  #endif
+}
+
+func doSaveToManager(
+  id: String,
+  name: String,
+  alwaysOn: Bool,
+  manager: NETunnelProviderManager?,
+  callback: @escaping ((any Error)?) -> Void
+) {
+  if let manager = manager {
+    // We need to refresh our settings to properly update config
+    manager.loadFromPreferences { error in
+      if error != nil {
+        return callback(error)
+      }
+      finishSaveToManager(
+        id: id, name: name, alwaysOn: alwaysOn, manager: manager, callback: callback)
+    }
+    return
+  }
+
+  finishSaveToManager(
+    id: id, name: name, alwaysOn: alwaysOn, manager: NETunnelProviderManager(), callback: callback)
+}
+
+private func finishSaveToManager(
+  id: String,
+  name: String,
+  alwaysOn: Bool,
+  manager: NETunnelProviderManager,
+  callback: @escaping ((any Error)?) -> Void
+) {
+  // Stuff our details in the protocol
+  let proto =
+    manager.protocolConfiguration as? NETunnelProviderProtocol ?? NETunnelProviderProtocol()
+  proto.providerBundleIdentifier = "net.defined.mobileNebula.NebulaNetworkExtension"
+  // WARN: If we stop setting providerConfiguration["id"] here, we'll need to use something else to match
+  // managers in PacketTunnelProvider.findManager
+  proto.providerConfiguration = ["id": id]
+  proto.serverAddress = "Nebula"
+
+  // Finish up the manager, this is what stores everything at the system level
+  manager.protocolConfiguration = proto
+  //TODO: cert name?        manager.protocolConfiguration?.username
+
+  //TODO: This is what is shown on the vpn page. We should add more identifying details in
+  manager.localizedDescription = name
+  manager.isEnabled = true
+
+  manager.isOnDemandEnabled = alwaysOn
+  let rule = NEOnDemandRuleConnect()
+  rule.interfaceTypeMatch = .any
+  manager.onDemandRules = [rule]
+
+  manager.saveToPreferences { error in
+    return callback(error)
+  }
+}
+
 // Represents a site that was pulled out of the system configuration
-class Site: Codable {
-  // Stored in manager
+class Site: Encodable {
+  // Core fields (stored in config.json)
   var name: String
   var id: String
+  var sortKey: Int
+  var managed: Bool
+  var lastManagedUpdate: String?
+  var rawConfig: String  // JSON string of nebula config (no private key)
+  var configVersion: Int
 
-  // Stored in proto
-  var staticHostmap: [String: StaticHosts]
-  var unsafeRoutes: [UnsafeRoute]
+  // Display-only fields (parsed from rawConfig during init)
   var cert: CertificateInfo?
   var ca: [CertificateInfo]
-  var lhDuration: Int
-  var port: Int
-  var mtu: Int
-  var cipher: String
-  var sortKey: Int
-  var logVerbosity: String
   var connected: Bool?  //TODO: active is a better name
   var status: String?
   var logFile: String?
   var alwaysOn: Bool
-  var managed: Bool
+  var errors: [String]
+
+  // Fields parsed from rawConfig for VPN service use (not encoded to Flutter)
+  var mtu: Int
+  var unsafeRoutes: [UnsafeRoute]
   var dnsResolvers: [String]
-  // The following fields are present if managed = true
-  var lastManagedUpdate: String?
-  var rawConfig: String?
 
   /// If true then this site needs to be migrated to the filesystem. Should be handled by the initiator of the site
   var needsToMigrateToFS: Bool = false
 
-  // A list of error encountered when trying to rehydrate a site from config
-  var errors: [String]
-
   var manager: NETunnelProviderManager?
 
-  var incomingSite: IncomingSite?
+  // The config.json content (no key/dnCredentials), used by getConfig()
+  private var configData: Data
 
   /// Creates a new site from a vpn manager instance. Mainly used by the UI. A manager is required to be able to edit the system profile
   convenience init(manager: NETunnelProviderManager) throws {
@@ -196,99 +344,167 @@ class Site: Codable {
     let dict = proto.providerConfiguration
 
     if dict?["config"] != nil {
+      // Legacy: site config stored directly in VPN profile, save to filesystem
       let config = dict?["config"] as? Data ?? Data()
-      let decoder = JSONDecoder()
-      let incoming = try decoder.decode(IncomingSite.self, from: config)
-      self.init(incoming: incoming)
+      let jsonString = String(data: config, encoding: .utf8) ?? "{}"
+
+      try saveSiteToDisk(jsonString: jsonString)
+
+      guard let obj = try? JSONSerialization.jsonObject(with: config),
+        let map = obj as? [String: Any],
+        let id = map["id"] as? String
+      else {
+        throw SiteError.nonConforming(site: nil)
+      }
+
+      try self.init(path: SiteList.getSiteConfigFile(id: id, createDir: false))
       self.needsToMigrateToFS = true
       return
     }
 
-    let id = dict?["id"] as? String ?? nil
-    if id == nil {
+    guard let id = dict?["id"] as? String else {
       throw SiteError.nonConforming(site: dict)
     }
 
-    try self.init(path: SiteList.getSiteConfigFile(id: id!, createDir: false))
+    try self.init(path: SiteList.getSiteConfigFile(id: id, createDir: false))
   }
 
-  /// Creates a new site from a path on the filesystem. Mainly ussed by the VPN process or when in simulator where we lack a NEVPNManager
+  /// Creates a new site from a path on the filesystem. Mainly used by the VPN process or when in simulator where we lack a NEVPNManager
   convenience init(path: URL) throws {
-    let config = try Data(contentsOf: path)
-    let decoder = JSONDecoder()
-    let incoming = try decoder.decode(IncomingSite.self, from: config)
-    self.init(incoming: incoming)
+    let configData = try ConfigMigrator.migrate(
+      configData: Data(contentsOf: path), path: path)
+    self.init(configData: configData)
   }
 
-  init(incoming: IncomingSite) {
+  init(configData: Data) {
     var err: NSError?
 
-    incomingSite = incoming
+    self.configData = configData
     errors = []
-    name = incoming.name
-    id = incoming.id
-    staticHostmap = incoming.staticHostmap
-    unsafeRoutes = incoming.unsafeRoutes ?? []
-    lhDuration = incoming.lhDuration
-    port = incoming.port
-    cipher = incoming.cipher
-    sortKey = incoming.sortKey ?? 0
-    logVerbosity = incoming.logVerbosity ?? "info"
-    mtu = incoming.mtu ?? 1300
-    managed = incoming.managed ?? false
-    lastManagedUpdate = incoming.lastManagedUpdate
-    dnsResolvers = incoming.dnsResolvers ?? []
-    rawConfig = incoming.rawConfig
-    alwaysOn = incoming.alwaysOn ?? false
+
+    // Parse config JSON
+    let configMap: [String: Any]
+    if let obj = try? JSONSerialization.jsonObject(with: configData),
+      let parsed = obj as? [String: Any]
+    {
+      configMap = parsed
+    } else {
+      configMap = [:]
+    }
+
+    name = configMap["name"] as? String ?? ""
+    id = configMap["id"] as? String ?? ""
+    sortKey = (configMap["sortKey"] as? NSNumber)?.intValue ?? 0
+    managed = configMap["managed"] as? Bool ?? false
+    lastManagedUpdate = configMap["lastManagedUpdate"] as? String
+    rawConfig = configMap["rawConfig"] as? String ?? "{}"
+    configVersion = (configMap["configVersion"] as? NSNumber)?.intValue ?? 1
+    alwaysOn = false  // Overridden by init(manager:) if applicable
 
     // Default these to disconnected for the UI
     status = statusString[.disconnected]
     connected = false
 
-    do {
-      let rawCert = incoming.cert
-      let rawDetails = MobileNebulaParseCerts(rawCert, &err)
-      if err != nil {
-        throw err!
-      }
-
-      var certs: [CertificateInfo]
-
-      certs = try JSONDecoder().decode([CertificateInfo].self, from: rawDetails.data(using: .utf8)!)
-      if certs.count == 0 {
-        throw SiteError.noCertificate
-      }
-      cert = certs[0]
-      if !cert!.validity.valid {
-        errors.append("Certificate is invalid: \(cert!.validity.reason)")
-      }
-
-    } catch {
-      errors.append("Error while loading certificate: \(error.localizedDescription)")
+    // Parse rawConfig JSON to extract fields
+    let rawConfigMap: [String: Any]
+    if let data = rawConfig.data(using: .utf8),
+      let parsed = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+    {
+      rawConfigMap = parsed
+    } else {
+      rawConfigMap = [:]
     }
 
-    do {
-      let rawCa = incoming.ca
-      let rawCaDetails = MobileNebulaParseCerts(rawCa, &err)
-      if err != nil {
-        throw err!
-      }
-      ca = try JSONDecoder().decode([CertificateInfo].self, from: rawCaDetails.data(using: .utf8)!)
+    // Parse mtu from rawConfig
+    let tun = rawConfigMap["tun"] as? [String: Any]
+    mtu = tun?["mtu"] as? Int ?? 1300
 
-      var hasErrors = false
-      ca.forEach { cert in
-        if !cert.validity.valid {
-          hasErrors = true
+    // Parse unsafeRoutes from rawConfig
+    if let routes = tun?["unsafe_routes"] as? [[String: Any]] {
+      unsafeRoutes = routes.compactMap { routeMap in
+        guard let route = routeMap["route"] as? String,
+          let via = routeMap["via"] as? String
+        else {
+          return nil
         }
+        return UnsafeRoute(route: route, via: via, mtu: routeMap["mtu"] as? Int)
       }
+    } else {
+      unsafeRoutes = []
+    }
 
-      if hasErrors && !managed {
-        errors.append("There are issues with 1 or more ca certificates")
+    // Parse dnsResolvers from rawConfig
+    if let resolvers = rawConfigMap["dns_resolvers"] as? [String] {
+      dnsResolvers = resolvers
+    } else {
+      dnsResolvers = []
+    }
+
+    // Parse cert from rawConfig's pki.cert
+    let pki = rawConfigMap["pki"] as? [String: Any]
+    let certPem = pki?["cert"] as? String
+
+    if let certPem = certPem, !certPem.isEmpty {
+      do {
+        let rawDetails = MobileNebulaParseCerts(certPem, &err)
+        if err != nil {
+          throw err!
+        }
+
+        var certs: [CertificateInfo]
+
+        certs = try JSONDecoder().decode(
+          [CertificateInfo].self, from: rawDetails.data(using: .utf8)!)
+        if certs.count == 0 {
+          throw SiteError.noCertificate
+        }
+        cert = certs[0]
+        if !cert!.validity.valid {
+          errors.append("Certificate is invalid: \(cert!.validity.reason)")
+        }
+
+      } catch {
+        errors.append("Error while loading certificate: \(error.localizedDescription)")
       }
+    } else {
+      cert = nil
+      errors.append("Error while loading certificate: no certificate found in config")
+    }
 
-    } catch {
+    // Parse ca from rawConfig's pki.ca
+    let caPem = pki?["ca"] as? String
+
+    if let caPem = caPem, !caPem.isEmpty {
+      do {
+        err = nil
+        let rawCaDetails = MobileNebulaParseCerts(caPem, &err)
+        if err != nil {
+          throw err!
+        }
+        ca = try JSONDecoder().decode(
+          [CertificateInfo].self, from: rawCaDetails.data(using: .utf8)!)
+
+        var hasErrors = false
+        ca.forEach { cert in
+          if !cert.validity.valid {
+            hasErrors = true
+          }
+        }
+
+        if hasErrors && !managed {
+          errors.append("There are issues with 1 or more ca certificates")
+        }
+
+      } catch {
+        ca = []
+        errors.append("Error while loading certificate authorities: \(error.localizedDescription)")
+      }
+    } else {
       ca = []
-      errors.append("Error while loading certificate authorities: \(error.localizedDescription)")
+      if !managed {
+        errors.append(
+          "Error while loading certificate authorities: no CA found in config")
+      }
     }
 
     do {
@@ -304,15 +520,13 @@ class Site: Codable {
 
     if errors.isEmpty {
       do {
-        let encoder = JSONEncoder()
-        let rawConfig = try encoder.encode(incoming)
         let key = try getKey()
-        let strConfig = String(data: rawConfig, encoding: .utf8)
-        var err: NSError?
+        let strConfig = String(data: configData, encoding: .utf8)
+        var testErr: NSError?
 
-        MobileNebulaTestConfig(strConfig, key, &err)
-        if err != nil {
-          throw err!
+        MobileNebulaTestConfig(strConfig, key, &testErr)
+        if testErr != nil {
+          throw testErr!
         }
       } catch {
         errors.append("Config test error: \(error.localizedDescription)")
@@ -362,45 +576,27 @@ class Site: Codable {
     }
   }
 
-  func getConfig() throws -> Data {
-    return try self.incomingSite!.getConfig()
+  func getConfig() -> Data {
+    return configData
   }
 
   // Limits what we export to the UI
   private enum CodingKeys: String, CodingKey {
     case name
     case id
-    case staticHostmap
+    case sortKey
+    case managed
+    case lastManagedUpdate
+    case rawConfig
+    case configVersion
     case cert
     case ca
-    case lhDuration
-    case port
-    case cipher
-    case sortKey
     case connected
     case status
     case logFile
-    case unsafeRoutes
-    case logVerbosity
-    case errors
-    case mtu
-    case managed
-    case lastManagedUpdate
-    case dnsResolvers
-    case rawConfig
     case alwaysOn
+    case errors
   }
-}
-
-class StaticHosts: Codable {
-  var lighthouse: Bool
-  var destinations: [String]
-}
-
-class UnsafeRoute: Codable {
-  var route: String
-  var via: String
-  var mtu: Int?
 }
 
 class DNCredentials: Codable {
@@ -428,136 +624,5 @@ class DNCredentials: Codable {
     case counter
     case trustedKeys
     case _invalid = "invalid"
-  }
-}
-
-// This class represents a site coming in from flutter, meant only to be saved and re-loaded as a proper Site
-struct IncomingSite: Codable {
-  var name: String
-  var id: String
-  var staticHostmap: [String: StaticHosts]
-  var unsafeRoutes: [UnsafeRoute]?
-  var cert: String?
-  var ca: String?
-  var lhDuration: Int
-  var port: Int
-  var mtu: Int?
-  var cipher: String
-  var sortKey: Int?
-  var logVerbosity: String?
-  var key: String?
-  var managed: Bool?
-  var dnsResolvers: [String]?
-  var alwaysOn: Bool?
-  // The following fields are present if managed = true
-  var dnCredentials: DNCredentials?
-  var lastManagedUpdate: String?
-  var rawConfig: String?
-
-  func getConfig() throws -> Data {
-    let encoder = JSONEncoder()
-    var config = self
-
-    config.key = nil
-    config.dnCredentials = nil
-
-    return try encoder.encode(config)
-  }
-
-  func save(
-    manager: NETunnelProviderManager?, saveToManager: Bool = true,
-    callback: @escaping ((any Error)?) -> Void
-  ) {
-    let configPath: URL
-
-    do {
-      configPath = try SiteList.getSiteConfigFile(id: self.id, createDir: true)
-
-    } catch {
-      callback(error)
-      return
-    }
-
-    log.notice("Saving to \(configPath, privacy: .public)")
-    do {
-      if self.key != nil {
-        let data = self.key!.data(using: .utf8)
-        if !KeyChain.save(key: "\(self.id).key", data: data!, managed: self.managed ?? false) {
-          return callback(SiteError.keySave)
-        }
-      }
-
-      do {
-        if (try self.dnCredentials?.save(siteID: self.id)) == false {
-          return callback(SiteError.dnCredentialSave)
-        }
-      } catch {
-        return callback(error)
-      }
-
-      try self.getConfig().write(to: configPath)
-
-    } catch {
-      return callback(error)
-    }
-
-    #if targetEnvironment(simulator)
-      // We are on a simulator and there is no NEVPNManager for us to interact with
-      callback(nil)
-    #else
-      if saveToManager {
-        self.saveToManager(manager: manager, callback: callback)
-      } else {
-        callback(nil)
-      }
-    #endif
-  }
-
-  private func saveToManager(
-    manager: NETunnelProviderManager?, callback: @escaping ((any Error)?) -> Void
-  ) {
-    if manager != nil {
-      // We need to refresh our settings to properly update config
-      manager?.loadFromPreferences { error in
-        if error != nil {
-          return callback(error)
-        }
-
-        return self.finishSaveToManager(manager: manager!, callback: callback)
-      }
-      return
-    }
-
-    return finishSaveToManager(manager: NETunnelProviderManager(), callback: callback)
-  }
-
-  private func finishSaveToManager(
-    manager: NETunnelProviderManager, callback: @escaping ((any Error)?) -> Void
-  ) {
-    // Stuff our details in the protocol
-    let proto =
-      manager.protocolConfiguration as? NETunnelProviderProtocol ?? NETunnelProviderProtocol()
-    proto.providerBundleIdentifier = "net.defined.mobileNebula.NebulaNetworkExtension"
-    // WARN: If we stop setting providerConfiguration["id"] here, we'll need to use something else to match
-    // managers in PacketTunnelProvider.findManager
-    proto.providerConfiguration = ["id": self.id]
-    proto.serverAddress = "Nebula"
-
-    // Finish up the manager, this is what stores everything at the system level
-    manager.protocolConfiguration = proto
-    //TODO: cert name?        manager.protocolConfiguration?.username
-
-    //TODO: This is what is shown on the vpn page. We should add more identifying details in
-    manager.localizedDescription = self.name
-    manager.isEnabled = true
-
-    manager.isOnDemandEnabled = self.alwaysOn == true
-    let rule = NEOnDemandRuleConnect()
-    rule.interfaceTypeMatch = .any
-    manager.onDemandRules = [rule]
-
-    manager.saveToPreferences { error in
-      return callback(error)
-    }
   }
 }

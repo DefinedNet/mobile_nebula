@@ -1,10 +1,10 @@
 package net.defined.mobile_nebula
 
 import android.content.Context
-import android.provider.Settings
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import com.google.gson.reflect.TypeToken
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
 import java.io.File
@@ -205,59 +205,119 @@ data class DNCredentials(
     }
 }
 
+// UnsafeRoute is used by the VPN service to configure routing
+data class UnsafeRoute(
+    val route: String,
+    val via: String,
+    val mtu: Int?
+)
+
+/**
+ * Saves a site JSON string to disk. Extracts key and dnCredentials into
+ * encrypted storage, handles the always-on file, and writes the remaining
+ * config to config.json. Returns the site directory.
+ */
+fun saveSite(context: Context, jsonString: String): File {
+    val gson = Gson()
+    val map: MutableMap<String, Any?> = gson.fromJson(jsonString, object : TypeToken<MutableMap<String, Any?>>() {}.type)
+
+    val id = map["id"] as String
+    val managed = map["managed"] as? Boolean ?: false
+    val alwaysOn = map["alwaysOn"] as? Boolean
+
+    // Don't allow backups of DN-managed sites
+    val baseDir = if (managed) context.noBackupFilesDir else context.filesDir
+    val siteDir = baseDir.resolve("sites").resolve(id)
+    if (!siteDir.exists()) {
+        siteDir.mkdir()
+    }
+
+    // Extract and encrypt key
+    val key = map["key"] as? String
+    if (key != null) {
+        val keyFile = siteDir.resolve("key")
+        keyFile.delete()
+        val encFile = EncFile(context).openWrite(keyFile)
+        encFile.use { it.write(key) }
+        encFile.close()
+    }
+    map.remove("key")
+
+    // Extract and encrypt dnCredentials
+    val dnCredentials = map["dnCredentials"]
+    if (dnCredentials != null) {
+        val creds = gson.fromJson(gson.toJson(dnCredentials), DNCredentials::class.java)
+        creds.save(context, siteDir)
+    }
+    map.remove("dnCredentials")
+
+    // Handle always-on file
+    val alwaysOnFile = context.filesDir.resolve("always-on-site")
+    when (alwaysOn) {
+        true -> alwaysOnFile.writeText(siteDir.absolutePath)
+        false -> if (alwaysOnFile.exists() && alwaysOnFile.readText() == siteDir.absolutePath) {
+            alwaysOnFile.delete()
+        }
+        null -> {}
+    }
+    map.remove("alwaysOn")
+
+    // Write the remaining config to disk
+    val confFile = siteDir.resolve("config.json")
+    confFile.writeText(gson.toJson(map))
+
+    return siteDir
+}
+
 class Site(context: Context, siteDir: File) {
     val name: String
     val id: String
-    val staticHostmap: HashMap<String, StaticHosts>
-    val unsafeRoutes: List<UnsafeRoute>
+    val sortKey: Int
+    val managed: Boolean
+    val lastManagedUpdate: String?
+    val rawConfig: String  // JSON string of nebula config (no private key)
+    val configVersion: Int
+
+    // Display-only fields (parsed from rawConfig during init)
     var cert: CertificateInfo? = null
     var ca: Array<CertificateInfo>
-    val lhDuration: Int
-    val port: Int
-    val mtu: Int
-    val cipher: String
-    val sortKey: Int
-    val logVerbosity: String
     var connected: Boolean?
     var status: String?
     val logFile: String?
     var errors: ArrayList<String> = ArrayList()
-    var dnsResolvers: List<String> = ArrayList()
-    val managed: Boolean
-    // The following fields are present when managed = true
-    val rawConfig: String?
-    val lastManagedUpdate: String?
     val alwaysOn: Boolean
+
+    // Fields parsed from rawConfig for VPN service use
+    val mtu: Int
+    val unsafeRoutes: List<UnsafeRoute>
+    val dnsResolvers: List<String>
 
     // Path to this site on disk
     @Transient
     val path: String
 
-    // Strong representation of the site config
+    // Full site JSON (passed to RenderConfig/TestConfig)
     @Transient
     val config: String
 
      init {
         val gson = Gson()
-        config = siteDir.resolve("config.json").readText()
-        val incomingSite = gson.fromJson(config, IncomingSite::class.java)
+        val configJson = ConfigMigrator.migrate(context, siteDir, siteDir.resolve("config.json").readText())
+
+        config = configJson
+
+        // Parse site metadata directly from the JSON map
+        val siteMap: Map<String, Any?> = gson.fromJson(configJson, object : TypeToken<Map<String, Any?>>() {}.type)
 
         path = siteDir.absolutePath
-        name = incomingSite.name
-        id = incomingSite.id
-        staticHostmap = incomingSite.staticHostmap
-        unsafeRoutes = incomingSite.unsafeRoutes ?: ArrayList()
-        lhDuration = incomingSite.lhDuration
-        port = incomingSite.port
-        mtu = incomingSite.mtu ?: 1300
-        cipher = incomingSite.cipher
-        sortKey = incomingSite.sortKey ?: 0
+        name = siteMap["name"] as? String ?: ""
+        id = siteMap["id"] as? String ?: ""
+        sortKey = (siteMap["sortKey"] as? Number)?.toInt() ?: 0
+        managed = siteMap["managed"] as? Boolean ?: false
+        lastManagedUpdate = siteMap["lastManagedUpdate"] as? String
+        rawConfig = siteMap["rawConfig"] as? String ?: "{}"
+        configVersion = (siteMap["configVersion"] as? Number)?.toInt() ?: 1
         logFile = siteDir.resolve("log").absolutePath
-        logVerbosity = incomingSite.logVerbosity ?: "info"
-        rawConfig = incomingSite.rawConfig
-        dnsResolvers = incomingSite.dnsResolvers ?: emptyList();
-        managed = incomingSite.managed ?: false
-        lastManagedUpdate = incomingSite.lastManagedUpdate
 
         connected = false
         status = "Disconnected"
@@ -265,38 +325,79 @@ class Site(context: Context, siteDir: File) {
         val alwaysOnPath = try { context.filesDir.resolve("always-on-site").readText() } catch (_: Exception) { null }
         alwaysOn = alwaysOnPath == path
 
-        try {
-            val rawDetails = mobileNebula.MobileNebula.parseCerts(incomingSite.cert)
-            val certs = gson.fromJson(rawDetails, Array<CertificateInfo>::class.java)
-            if (certs.isEmpty()) {
-                throw IllegalArgumentException("No certificate found")
-            }
-            cert = certs[0]
-            if (!cert!!.validity.valid) {
-                errors.add("Certificate is invalid: ${cert!!.validity.reason}")
-            }
+        // Parse rawConfig JSON to extract fields needed by VPN service and display
+        val rawConfigMap: Map<String, Any?> = try {
+            gson.fromJson(rawConfig, object : TypeToken<Map<String, Any?>>() {}.type) ?: emptyMap()
+        } catch (_: Exception) { emptyMap() }
 
-        } catch (err: Exception) {
-            errors.add("Error while loading certificate: ${err.message}")
+        // Parse mtu from rawConfig
+        mtu = getConfigInt(rawConfigMap, listOf("tun", "mtu")) ?: 1300
+
+        // Parse unsafeRoutes from rawConfig
+        unsafeRoutes = try {
+            val tun = rawConfigMap["tun"] as? Map<*, *>
+            val routes = tun?.get("unsafe_routes") as? List<*>
+            routes?.mapNotNull { r ->
+                val routeMap = r as? Map<*, *> ?: return@mapNotNull null
+                val route = routeMap["route"] as? String ?: return@mapNotNull null
+                val via = routeMap["via"] as? String ?: return@mapNotNull null
+                val routeMtu = (routeMap["mtu"] as? Number)?.toInt()
+                UnsafeRoute(route, via, routeMtu)
+            } ?: emptyList()
+        } catch (_: Exception) { emptyList() }
+
+        // Parse dnsResolvers from rawConfig
+        dnsResolvers = try {
+            val resolvers = rawConfigMap["dns_resolvers"] as? List<*>
+            resolvers?.mapNotNull { it?.toString() } ?: emptyList()
+        } catch (_: Exception) { emptyList() }
+
+        // Parse cert from rawConfig's pki.cert
+        val pki = rawConfigMap["pki"] as? Map<*, *>
+        val certPem = pki?.get("cert") as? String
+        if (certPem != null && certPem.isNotEmpty()) {
+            try {
+                val rawDetails = mobileNebula.MobileNebula.parseCerts(certPem)
+                val certs = gson.fromJson(rawDetails, Array<CertificateInfo>::class.java)
+                if (certs.isEmpty()) {
+                    throw IllegalArgumentException("No certificate found")
+                }
+                cert = certs[0]
+                if (!cert!!.validity.valid) {
+                    errors.add("Certificate is invalid: ${cert!!.validity.reason}")
+                }
+            } catch (err: Exception) {
+                errors.add("Error while loading certificate: ${err.message}")
+            }
+        } else {
+            errors.add("Error while loading certificate: no certificate found in config")
         }
 
-        try {
-            val rawCa = mobileNebula.MobileNebula.parseCerts(incomingSite.ca)
-            ca = gson.fromJson(rawCa, Array<CertificateInfo>::class.java)
-            var hasErrors = false
-            ca.forEach {
-                if (!it.validity.valid) {
-                    hasErrors = true
+        // Parse ca from rawConfig's pki.ca
+        val caPem = pki?.get("ca") as? String
+        if (caPem != null && caPem.isNotEmpty()) {
+            try {
+                val rawCa = mobileNebula.MobileNebula.parseCerts(caPem)
+                ca = gson.fromJson(rawCa, Array<CertificateInfo>::class.java)
+                var hasErrors = false
+                ca.forEach {
+                    if (!it.validity.valid) {
+                        hasErrors = true
+                    }
                 }
-            }
 
-            if (hasErrors && !managed) {
-                errors.add("There are issues with 1 or more ca certificates")
+                if (hasErrors && !managed) {
+                    errors.add("There are issues with 1 or more ca certificates")
+                }
+            } catch (err: Exception) {
+                ca = arrayOf()
+                errors.add("Error while loading certificate authorities: ${err.message}")
             }
-
-        } catch (err: Exception) {
+        } else {
             ca = arrayOf()
-            errors.add("Error while loading certificate authorities: ${err.message}")
+            if (!managed) {
+                errors.add("Error while loading certificate authorities: no CA found in config")
+            }
         }
 
         if (managed && getDNCredentials(context).invalid) {
@@ -337,73 +438,16 @@ class Site(context: Context, siteDir: File) {
         creds.invalid = false
         creds.save(context, File(path))
     }
-}
 
-data class StaticHosts(
-    val lighthouse: Boolean,
-    val destinations: List<String>
-)
-
-data class UnsafeRoute(
-    val route: String,
-    val via: String,
-    val mtu: Int?
-)
-
-class IncomingSite(
-    val name: String,
-    val id: String,
-    val staticHostmap: HashMap<String, StaticHosts>,
-    val unsafeRoutes: List<UnsafeRoute>?,
-    val cert: String,
-    val ca: String,
-    val lhDuration: Int,
-    val port: Int,
-    val mtu: Int?,
-    val cipher: String,
-    val sortKey: Int?,
-    val logVerbosity: String?,
-    var key: String?,
-    var dnsResolvers: List<String>?,
-    val managed: Boolean?,
-    // The following fields are present when managed = true
-    val lastManagedUpdate: String?,
-    val rawConfig: String?,
-    var dnCredentials: DNCredentials?,
-    val alwaysOn: Boolean?,
-) {
-    fun save(context: Context): File {
-        // Don't allow backups of DN-managed sites
-        val baseDir = if(managed == true) context.noBackupFilesDir else context.filesDir
-        val siteDir = baseDir.resolve("sites").resolve(id)
-        if (!siteDir.exists()) {
-            siteDir.mkdir()
-        }
-
-        if (key != null) {
-            val keyFile = siteDir.resolve("key")
-            keyFile.delete()
-            val encFile = EncFile(context).openWrite(keyFile)
-            encFile.use { it.write(key) }
-            encFile.close()
-        }
-        key = null
-
-        dnCredentials?.save(context, siteDir)
-        dnCredentials = null
-
-        val alwaysOnFile = context.filesDir.resolve("always-on-site")
-        when (alwaysOn) {
-            true -> alwaysOnFile.writeText(siteDir.absolutePath)
-            false -> if (alwaysOnFile.exists() && alwaysOnFile.readText() == siteDir.absolutePath) {
-                alwaysOnFile.delete()
+    companion object {
+        /** Navigate a nested map by a list of keys and return an Int if found. */
+        fun getConfigInt(config: Map<String, Any?>, path: List<String>): Int? {
+            var current: Any? = config
+            for (key in path.dropLast(1)) {
+                current = (current as? Map<*, *>)?.get(key) ?: return null
             }
-            null -> {}
+            val value = (current as? Map<*, *>)?.get(path.last())
+            return (value as? Number)?.toInt()
         }
-
-        val confFile = siteDir.resolve("config.json")
-        confFile.writeText(Gson().toJson(this))
-
-        return siteDir
     }
 }

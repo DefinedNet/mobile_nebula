@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:mobile_nebula/components/config/config_page_item.dart';
 import 'package:mobile_nebula/components/config/config_section.dart';
 import 'package:mobile_nebula/components/simple_page.dart';
-import 'package:mobile_nebula/models/hostinfo.dart';
 import 'package:mobile_nebula/models/site.dart';
 import 'package:mobile_nebula/screens/hostinfo_screen.dart';
 import 'package:mobile_nebula/services/utils.dart';

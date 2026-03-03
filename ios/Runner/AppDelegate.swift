@@ -150,10 +150,19 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     guard let code = call.arguments as? String else { return result(NoArgumentsError()) }
 
     do {
-      let site = try apiClient.enroll(code: code)
+      let json = try apiClient.enroll(code: code)
 
-      let oldSite = self.sites?.getSite(id: site.id)
-      site.save(manager: oldSite?.manager) { error in
+      // Parse to get the site ID for finding existing manager
+      guard let data = json.data(using: .utf8),
+        let obj = try? JSONSerialization.jsonObject(with: data),
+        let map = obj as? [String: Any],
+        let id = map["id"] as? String
+      else {
+        return result(CallFailedError(message: "Failed to parse enrollment response"))
+      }
+
+      let oldSite = self.sites?.getSite(id: id)
+      saveSite(jsonString: json, manager: oldSite?.manager) { error in
         if error != nil {
           return result(
             CallFailedError(message: "Failed to enroll", details: error!.localizedDescription))
@@ -196,14 +205,18 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
 
   func saveSite(call: FlutterMethodCall, result: @escaping FlutterResult) {
     guard let json = call.arguments as? String else { return result(NoArgumentsError()) }
-    guard let data = json.data(using: .utf8) else { return result(NoArgumentsError()) }
 
-    guard let site = try? JSONDecoder().decode(IncomingSite.self, from: data) else {
+    // Parse to get the site ID for finding existing manager
+    guard let data = json.data(using: .utf8),
+      let obj = try? JSONSerialization.jsonObject(with: data),
+      let map = obj as? [String: Any],
+      let id = map["id"] as? String
+    else {
       return result(NoArgumentsError())
     }
 
-    let oldSite = self.sites?.getSite(id: site.id)
-    site.save(manager: oldSite?.manager) { error in
+    let oldSite = self.sites?.getSite(id: id)
+    saveSite(jsonString: json, manager: oldSite?.manager) { error in
       if error != nil {
         return result(
           CallFailedError(message: "Failed to save site", details: error!.localizedDescription))

@@ -9,8 +9,10 @@
 /* Begin PBXBuildFile section */
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		03CE434FF6868F03D8DCDCC6 /* ConfigMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895AEA5D3A4D420F2ABE1FCE /* ConfigMigrator.swift */; };
 		432D0E3E291C562200752563 /* SiteList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 432D0E3D291C562200752563 /* SiteList.swift */; };
 		432D0E3F291C562200752563 /* SiteList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 432D0E3D291C562200752563 /* SiteList.swift */; };
+		6AE347E7AD7CA6011881A848 /* ConfigMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895AEA5D3A4D420F2ABE1FCE /* ConfigMigrator.swift */; };
 		43498725289B484C00476B19 /* MobileNebula.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43498724289B484C00476B19 /* MobileNebula.xcframework */; };
 		43498726289B484C00476B19 /* MobileNebula.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43498724289B484C00476B19 /* MobileNebula.xcframework */; };
 		437F72592469AAC500A0C4B9 /* Site.swift in Sources */ = {isa = PBXBuildFile; fileRef = 437F72582469AAC500A0C4B9 /* Site.swift */; };
@@ -77,6 +79,7 @@
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		41927814D2E140A347A01067 /* Pods-NebulaNetworkExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NebulaNetworkExtension.debug.xcconfig"; path = "Target Support Files/Pods-NebulaNetworkExtension/Pods-NebulaNetworkExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		432D0E3D291C562200752563 /* SiteList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteList.swift; sourceTree = "<group>"; };
+		895AEA5D3A4D420F2ABE1FCE /* ConfigMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigMigrator.swift; sourceTree = "<group>"; };
 		43498724289B484C00476B19 /* MobileNebula.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = MobileNebula.xcframework; sourceTree = SOURCE_ROOT; };
 		436DE7A226EFF18500BB2950 /* CtlInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CtlInfo.h; sourceTree = "<group>"; };
 		437F72582469AAC500A0C4B9 /* Site.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Site.swift; sourceTree = "<group>"; };
@@ -157,6 +160,7 @@
 				43AA89592444DA6500EDC39C /* NebulaNetworkExtension.entitlements */,
 				437F72582469AAC500A0C4B9 /* Site.swift */,
 				436DE7A226EFF18500BB2950 /* CtlInfo.h */,
+				895AEA5D3A4D420F2ABE1FCE /* ConfigMigrator.swift */,
 				432D0E3D291C562200752563 /* SiteList.swift */,
 			);
 			path = NebulaNetworkExtension;
@@ -458,6 +462,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6AE347E7AD7CA6011881A848 /* ConfigMigrator.swift in Sources */,
 				432D0E3F291C562200752563 /* SiteList.swift in Sources */,
 				43AA89572444DA6500EDC39C /* PacketTunnelProvider.swift in Sources */,
 				437F72592469AAC500A0C4B9 /* Site.swift in Sources */,
@@ -473,6 +478,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
+				03CE434FF6868F03D8DCDCC6 /* ConfigMigrator.swift in Sources */,
 				432D0E3E291C562200752563 /* SiteList.swift in Sources */,
 				43871C9D2444E2EC004F9075 /* Sites.swift in Sources */,
 				BE5BC106291C41E600B6FE5B /* APIClient.swift in Sources */,
