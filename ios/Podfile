@@ -36,11 +36,13 @@ target 'Runner' do
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   pod 'SwiftyJSON', '~> 5.0'
+  pod 'MobileNebula', :path => './'
 end
 
 target 'NebulaNetworkExtension' do
   use_frameworks!
   pod 'SwiftyJSON', '~> 5.0'
+  pod 'MobileNebula', :path => './'
 end
 
 post_install do |installer|

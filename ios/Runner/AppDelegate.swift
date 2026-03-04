@@ -45,7 +45,7 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
 
       case "listSites": return self.listSites(result: result)
       case "deleteSite": return self.deleteSite(call: call, result: result)
-      case "saveSite": return self.saveSite(call: call, result: result)
+      case "saveSite": return self.saveSiteFromCall(call: call, result: result)
       case "startSite": return self.startSite(call: call, result: result)
       case "stopSite": return self.stopSite(call: call, result: result)
 
@@ -203,7 +203,7 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     }
   }
 
-  func saveSite(call: FlutterMethodCall, result: @escaping FlutterResult) {
+  func saveSiteFromCall(call: FlutterMethodCall, result: @escaping FlutterResult) {
     guard let json = call.arguments as? String else { return result(NoArgumentsError()) }
 
     // Parse to get the site ID for finding existing manager
