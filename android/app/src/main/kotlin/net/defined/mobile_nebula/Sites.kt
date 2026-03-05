@@ -223,6 +223,7 @@ class Site(context: Context, siteDir: File) {
     val logFile: String?
     var errors: ArrayList<String> = ArrayList()
     var dnsResolvers: List<String> = ArrayList()
+    var excludedApps: List<String> = ArrayList()
     val managed: Boolean
     // The following fields are present when managed = true
     val rawConfig: String?
@@ -255,7 +256,8 @@ class Site(context: Context, siteDir: File) {
         logFile = siteDir.resolve("log").absolutePath
         logVerbosity = incomingSite.logVerbosity ?: "info"
         rawConfig = incomingSite.rawConfig
-        dnsResolvers = incomingSite.dnsResolvers ?: emptyList();
+        dnsResolvers = incomingSite.dnsResolvers ?: emptyList()
+        excludedApps = incomingSite.excludedApps ?: emptyList()
         managed = incomingSite.managed ?: false
         lastManagedUpdate = incomingSite.lastManagedUpdate
 
@@ -365,6 +367,7 @@ class IncomingSite(
     val logVerbosity: String?,
     var key: String?,
     var dnsResolvers: List<String>?,
+    var excludedApps: List<String>?,
     val managed: Boolean?,
     // The following fields are present when managed = true
     val lastManagedUpdate: String?,

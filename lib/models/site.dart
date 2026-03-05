@@ -57,6 +57,7 @@ class Site {
   late String logVerbosity;
   late bool alwaysOn;
   late List<String> dnsResolvers;
+  late List<String> excludedApps;
 
   late bool managed;
   // The following fields are present when managed = true
@@ -88,6 +89,7 @@ class Site {
     this.lastManagedUpdate,
     this.alwaysOn = false,
     List<String>? dnsResolvers,
+    List<String>? excludedApps,
   }) {
     this.id = id ?? uuid.v4();
     this.staticHostmap = staticHostmap ?? {};
@@ -95,6 +97,7 @@ class Site {
     this.errors = errors ?? [];
     this.unsafeRoutes = unsafeRoutes ?? [];
     this.dnsResolvers = dnsResolvers ?? [];
+    this.excludedApps = excludedApps ?? [];
 
     //TODO: I think this plays well with new saved sites because we should be recreating it on the main screen
     // However it might not work on the site details page with the logs button.
@@ -144,6 +147,7 @@ class Site {
       lastManagedUpdate: decoded['lastManagedUpdate'],
       dnsResolvers: decoded['dnsResolvers'],
       alwaysOn: decoded['alwaysOn'],
+      excludedApps: decoded['excludedApps'],
     );
   }
 
@@ -190,6 +194,7 @@ class Site {
     lastManagedUpdate = decoded['lastManagedUpdate'];
     dnsResolvers = decoded['dnsResolvers'];
     alwaysOn = decoded['alwaysOn'];
+    excludedApps = decoded['excludedApps'];
   }
 
   static Map<String, dynamic> _fromJson(Map<String, dynamic> json) {
@@ -209,6 +214,12 @@ class Site {
     List<String> dnsResolvers = [];
     for (var val in rawDnsResolvers) {
       dnsResolvers.add(val.toString());
+    }
+
+    List<dynamic> rawExcludedApps = json['excludedApps'] ?? [];
+    List<String> excludedApps = [];
+    for (var val in rawExcludedApps) {
+      excludedApps.add(val.toString());
     }
 
     List<dynamic> rawCA = json['ca'];
@@ -250,6 +261,7 @@ class Site {
       "lastManagedUpdate": json["lastManagedUpdate"] == null ? null : DateTime.parse(json["lastManagedUpdate"]),
       "dnsResolvers": dnsResolvers,
       "alwaysOn": json['alwaysOn'] ?? false,
+      "excludedApps": excludedApps,
     };
   }
 
@@ -280,6 +292,7 @@ class Site {
       'rawConfig': rawConfig,
       'dnsResolvers': dnsResolvers,
       'alwaysOn': alwaysOn,
+      'excludedApps': excludedApps,
     };
   }
 
