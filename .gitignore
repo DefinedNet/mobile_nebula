@@ -57,3 +57,5 @@ lib/generated_plugin_registrant.dart
 /android/build/reports/problems/problems-report.html
 /.fvm/
 /.fvmrc
+/.claude/
+/CLAUDE.md
