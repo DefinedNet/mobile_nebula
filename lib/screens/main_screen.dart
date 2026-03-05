@@ -309,8 +309,11 @@ class MainScreenState extends State<MainScreen> {
         title: Text('Enroll with defined.net'),
         subtitle: Text('Join your organizations network'),
         trailing: arrowIcon,
-        onTap: () =>
-            Utils.openPage(context, (context) => EnrollmentScreen(stream: widget.dnEnrollStream, allowCodeEntry: true)),
+        onTap: () {
+          // Remove the modal
+          Navigator.pop(context);
+          Utils.openPage(context, (context) => EnrollmentScreen(stream: widget.dnEnrollStream, allowCodeEntry: true));
+        },
       ),
     ];
 
