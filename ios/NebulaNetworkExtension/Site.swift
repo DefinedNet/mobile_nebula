@@ -195,6 +195,9 @@ func saveSiteToDisk(jsonString: String) throws {
   // Strip alwaysOn (not stored in config.json)
   map.removeValue(forKey: "alwaysOn")
 
+  // Stamp the current config version
+  map["configVersion"] = 1
+
   // Write the remaining config to disk
   let configPath = try SiteList.getSiteConfigFile(id: id, createDir: true)
   log.notice("Saving to \(configPath, privacy: .public)")

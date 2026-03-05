@@ -262,6 +262,9 @@ fun saveSite(context: Context, jsonString: String): File {
     }
     map.remove("alwaysOn")
 
+    // Stamp the current config version
+    map["configVersion"] = 1
+
     // Write the remaining config to disk
     val confFile = siteDir.resolve("config.json")
     confFile.writeText(gson.toJson(map))

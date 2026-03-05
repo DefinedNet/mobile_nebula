@@ -59,7 +59,7 @@ class Site {
     List<CertificateInfo>? ca,
     this.certInfo,
     this.sortKey = 0,
-    this.configVersion = 1,
+    this.configVersion = 0,
     this.connected = false,
     this.status = '',
     this.logFile = '',
