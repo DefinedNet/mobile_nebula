@@ -13,7 +13,7 @@ type site struct {
 	Name              string         `json:"name"`
 	ID                string         `json:"id"`
 	SortKey           *int           `json:"sortKey"`
-	Managed           jsonTrue       `json:"managed"`
+	Managed           bool           `json:"managed"`
 	LastManagedUpdate *time.Time     `json:"lastManagedUpdate"`
 	RawConfig         string         `json:"rawConfig"`
 	Key               *string        `json:"key"`
@@ -26,13 +26,6 @@ type dnCredentials struct {
 	PrivateKey  string `json:"privateKey"`
 	Counter     int    `json:"counter"`
 	TrustedKeys string `json:"trustedKeys"`
-}
-
-// jsonTrue always marshals to true.
-type jsonTrue bool
-
-func (f jsonTrue) MarshalJSON() ([]byte, error) {
-	return json.Marshal(true)
 }
 
 func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials) (*site, error) {

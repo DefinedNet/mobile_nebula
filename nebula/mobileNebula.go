@@ -199,7 +199,7 @@ func MigrateConfig(oldConfigJSON string, key string) (string, error) {
 		Name:              old.Name,
 		ID:                old.ID,
 		SortKey:           old.SortKey,
-		Managed:           jsonTrue(managed),
+		Managed:           managed,
 		LastManagedUpdate: old.LastManagedUpdate,
 		RawConfig:         string(rawConfigBytes),
 		Key:               nil, // Key is stored separately, not in config.json
