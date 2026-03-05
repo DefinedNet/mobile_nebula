@@ -24,7 +24,12 @@ class _SiteItemState extends State<SiteItem> {
 
   Widget _siteNameWidget(BuildContext context) {
     final badgeTheme = Theme.of(context).badgeTheme;
-    final nameStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 16, height: 1.6);
+    final nameStyle = TextStyle(
+      fontWeight: FontWeight.w500,
+      fontSize: 16,
+      height: 1.6,
+      color: Theme.of(context).textTheme.bodyLarge?.color,
+    );
     List<InlineSpan> children = [];
 
     // Add the name

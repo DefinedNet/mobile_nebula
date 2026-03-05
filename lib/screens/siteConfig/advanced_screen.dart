@@ -229,7 +229,7 @@ class AdvancedScreenState extends State<AdvancedScreen> {
           ConfigSection(
             children: <Widget>[
               ConfigPageItem(
-                content: Text('View rendered config'),
+                label: Text('View rendered config'),
                 onPressed: () async {
                   try {
                     var config = await widget.site.renderConfig();

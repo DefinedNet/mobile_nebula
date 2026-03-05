@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart' show CupertinoThemeData, DefaultCupertinoLocalizations;
+import 'package:flutter/cupertino.dart' show DefaultCupertinoLocalizations;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart'
     show DefaultMaterialLocalizations, MaterialBasedCupertinoThemeData, TextTheme, ThemeMode;
@@ -118,7 +118,11 @@ class AppState extends State<App> {
               theme: brightness == Brightness.light ? theme.light() : theme.dark(),
             );
           },
-          cupertino: (_, _) => CupertinoAppData(theme: CupertinoThemeData(brightness: brightness)),
+          cupertino: (_, _) => CupertinoAppData(
+            theme: MaterialBasedCupertinoThemeData(
+              materialTheme: brightness == Brightness.light ? theme.light() : theme.dark(),
+            ),
+          ),
           onGenerateRoute: (settings) {
             if (settings.name == '/') {
               return platformPageRoute(context: context, builder: (context) => MainScreen(dnEnrolled));
