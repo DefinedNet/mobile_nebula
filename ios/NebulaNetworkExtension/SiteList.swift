@@ -117,8 +117,9 @@ class SiteList {
           if site.needsToMigrateToFS {
             dispatchGroup.enter()
             // Disk save already happened in init(proto:), just update the VPN profile
-            doSaveToManager(
-              id: site.id, name: site.name, alwaysOn: site.alwaysOn, manager: manager
+            saveSite(
+              jsonString: String(data: site.configData, encoding: .utf8)!, manager: manager,
+              saveToManager: true
             ) { error in
               if error != nil {
                 print("Error while migrating site to fs: \(error!.localizedDescription)")

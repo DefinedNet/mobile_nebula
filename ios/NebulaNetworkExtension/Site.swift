@@ -327,7 +327,7 @@ class Site: Encodable {
   var manager: NETunnelProviderManager?
 
   // The config.json content (no key/dnCredentials), used by getConfig()
-  private var configData: Data
+  private(set) var configData: Data
 
   /// Creates a new site from a vpn manager instance. Mainly used by the UI. A manager is required to be able to edit the system profile
   convenience init(manager: NETunnelProviderManager) throws {

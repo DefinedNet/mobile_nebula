@@ -57,7 +57,7 @@ SPEC CHECKSUMS:
   file_picker: 9e4c55a49b5bec4a3cc3c01410ce11348811c551
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   mobile_scanner: 77265f3dc8d580810e91849d4a0811a90467ed5e
-  MobileNebula: 831d30e63989ea6cb4b9c4f46f7744adb60d680d
+  MobileNebula: 8d150cb7b0901c22ca7581c1a0cecdcf97007d01
   package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
   Sentry: b53951377b78e21a734f5dc8318e333dbfc682d7
   sentry_flutter: a9f60d84bfddcae9a0ebf834547702f8854766a1
@@ -65,6 +65,6 @@ SPEC CHECKSUMS:
   SwiftyJSON: f5b1bf1cd8dd53cd25887ac0eabcfd92301c6a5a
   url_launcher_ios: bb13df5870e8c4234ca12609d04010a21be43dfa
 
-PODFILE CHECKSUM: a9afcd8a7f92b41b53909b437c4508f7e00d74ee
+PODFILE CHECKSUM: d24150fdd0477a748e74f984720b78a7afad23f0
 
 COCOAPODS: 1.16.2
