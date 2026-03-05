@@ -7,7 +7,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 
 class Utils {
   /// Minimum size (width or height) of a interactive component
-  static const double minInteractiveSize = 44;
+  static const double minInteractiveSize = 48;
 
   /// The top and bottom border color of a config section
   static Color configSectionBorder(BuildContext context) {

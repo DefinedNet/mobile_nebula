@@ -28,6 +28,8 @@ class AppTextFormField extends FormField<String> {
     String? placeholder,
     FormFieldValidator<String>? validator,
     super.onSaved,
+    bool enabled = true,
+    TextStyle? style,
   }) : super(
          initialValue: controller != null ? controller.text : (initialValue ?? ''),
          validator: (str) {
@@ -69,6 +71,8 @@ class AppTextFormField extends FormField<String> {
                  placeholder: placeholder,
                  inputFormatters: inputFormatters,
                  suffix: suffix,
+                 enabled: enabled,
+                 style: style,
                ),
                field.hasError
                    ? Text(

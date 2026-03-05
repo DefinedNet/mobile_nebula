@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
 import 'package:mobile_nebula/models/hostinfo.dart';
+import 'package:mobile_nebula/models/firewall_rule.dart';
 import 'package:mobile_nebula/models/unsafe_route.dart';
 import 'package:uuid/uuid.dart';
 import 'package:yaml/yaml.dart';
@@ -337,6 +338,26 @@ class Site {
 
   set dnsResolvers(List<String> resolvers) {
     _setConfig(['mobile_nebula', 'dns_resolvers'], resolvers);
+  }
+
+  List<FirewallRule> get inboundFirewallRules {
+    final rules = _getConfig<List<dynamic>>(['firewall', 'inbound']);
+    if (rules == null) return [];
+    return rules.map((r) => FirewallRule.fromJson(Map<String, dynamic>.from(r))).toList();
+  }
+
+  set inboundFirewallRules(List<FirewallRule> rules) {
+    _setConfig(['firewall', 'inbound'], rules.map((r) => r.toJson()).toList());
+  }
+
+  List<FirewallRule> get outboundFirewallRules {
+    final rules = _getConfig<List<dynamic>>(['firewall', 'outbound']);
+    if (rules == null) return [];
+    return rules.map((r) => FirewallRule.fromJson(Map<String, dynamic>.from(r))).toList();
+  }
+
+  set outboundFirewallRules(List<FirewallRule> rules) {
+    _setConfig(['firewall', 'outbound'], rules.map((r) => r.toJson()).toList());
   }
 
   set staticHostmap(Map<String, StaticHost> hostmap) {
