@@ -96,9 +96,9 @@ class DNSiteUpdater(
 
         val credentials = site.getDNCredentials(context)
 
-        val newSite: IncomingSite?
+        val newSiteJson: String?
         try {
-            newSite = apiClient.tryUpdate(
+            newSiteJson = apiClient.tryUpdate(
                     site.name,
                     credentials.hostID,
                     credentials.privateKey,
@@ -114,8 +114,8 @@ class DNSiteUpdater(
             return Result.NOOP
         }
 
-        if (newSite != null) {
-            newSite.save(context)
+        if (newSiteJson != null) {
+            saveSite(context, newSiteJson)
             Log.d(TAG, "Updated site ${site.id}: ${site.name}")
             return Result.CONFIG_UPDATED
         }

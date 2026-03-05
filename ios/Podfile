@@ -36,11 +36,21 @@ target 'Runner' do
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   pod 'SwiftyJSON', '~> 5.0'
+  pod 'MobileNebula', :path => './'
 end
 
 target 'NebulaNetworkExtension' do
   use_frameworks!
   pod 'SwiftyJSON', '~> 5.0'
+  pod 'MobileNebula', :path => './'
+end
+
+# Build MobileNebula.xcframework if it doesn't exist (e.g. fresh CI checkout)
+# This ensures Xcode can find the vendored framework during build planning.
+pre_install do |installer|
+  unless File.exist?(File.join(__dir__, 'MobileNebula.xcframework', 'Info.plist'))
+    system("cd #{File.join(__dir__, '..')} && ./gen-artifacts.sh ios") || abort("Failed to build MobileNebula.xcframework")
+  end
 end
 
 post_install do |installer|

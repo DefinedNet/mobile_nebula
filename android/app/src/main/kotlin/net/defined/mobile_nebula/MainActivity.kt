@@ -193,11 +193,10 @@ class MainActivity: FlutterActivity() {
             return result.error("required_argument", "code is a required argument", null)
         }
 
-        val site: IncomingSite
         val siteDir: File
         try {
-            site = apiClient!!.enroll(code)
-            siteDir = site.save(context)
+            val json = apiClient!!.enroll(code)
+            siteDir = saveSite(context, json)
         } catch (err: Exception) {
             return result.error("unhandled_error", err.message, null)
         }
@@ -227,12 +226,10 @@ class MainActivity: FlutterActivity() {
     }
 
     private fun saveSite(call: MethodCall, result: MethodChannel.Result) {
-        val site: IncomingSite
+        val json = call.arguments as String
         val siteDir: File
         try {
-            val gson = Gson()
-            site = gson.fromJson(call.arguments as String, IncomingSite::class.java)
-            siteDir = site.save(context)
+            siteDir = saveSite(context, json)
         } catch (err: Exception) {
             //TODO: is toString the best or .message?
             return result.error("failure", err.toString(), null)
@@ -242,11 +239,17 @@ class MainActivity: FlutterActivity() {
             return result.error("failure", "Site config was incomplete, please review and try again", null)
         }
 
-        if (site.alwaysOn == true) {
-            if (activeSiteId != null && activeSiteId != site.id) {
-                stopSite { sites?.getSite(site.id)?.let { startSiteDirectly(it) } }
-            } else if (activeSiteId != site.id) {
-                sites?.getSite(site.id)?.let { startSiteDirectly(it) }
+        // Check if we need to start/restart for always-on
+        val gson = Gson()
+        val map: Map<String, Any?> = gson.fromJson(json, object : com.google.gson.reflect.TypeToken<Map<String, Any?>>() {}.type)
+        val alwaysOn = map["alwaysOn"] as? Boolean ?: false
+        val id = map["id"] as? String
+
+        if (alwaysOn && id != null) {
+            if (activeSiteId != null && activeSiteId != id) {
+                stopSite { sites?.getSite(id)?.let { startSiteDirectly(it) } }
+            } else if (activeSiteId != id) {
+                sites?.getSite(id)?.let { startSiteDirectly(it) }
             }
         }
 

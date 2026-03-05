@@ -1,25 +1,21 @@
 package net.defined.mobile_nebula
 
-import android.content.Context
-import com.google.gson.Gson
-
 class InvalidCredentialsException: Exception("Invalid credentials")
 
-class APIClient(context: Context) {
+class APIClient(context: android.content.Context) {
     private val packageInfo = PackageInfo(context)
     private val client = mobileNebula.MobileNebula.newAPIClient(
         "MobileNebula/%s (Android %s)".format(
                 packageInfo.getVersion(),
                 packageInfo.getSystemVersion(),
         ))
-    private val gson = Gson()
 
-    fun enroll(code: String): IncomingSite {
+    fun enroll(code: String): String {
         val res = client.enroll(code)
-        return decodeIncomingSite(res.site)
+        return res.site
     }
 
-    fun tryUpdate(siteName: String, hostID: String, privateKey: String, counter: Long, trustedKeys: String): IncomingSite? {
+    fun tryUpdate(siteName: String, hostID: String, privateKey: String, counter: Long, trustedKeys: String): String? {
         val res: mobileNebula.TryUpdateResult
         try {
             res = client.tryUpdate(siteName, hostID, privateKey, counter, trustedKeys)
@@ -33,13 +29,9 @@ class APIClient(context: Context) {
         }
 
         if (res.fetchedUpdate) {
-            return decodeIncomingSite(res.site)
+            return res.site
         }
 
         return null
-    }
-
-    private fun decodeIncomingSite(jsonSite: String): IncomingSite {
-        return gson.fromJson(jsonSite, IncomingSite::class.java)
     }
 }

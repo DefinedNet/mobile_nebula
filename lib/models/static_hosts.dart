@@ -6,6 +6,11 @@ class StaticHost {
 
   StaticHost({required this.lighthouse, required this.destinations});
 
+  /// Creates a StaticHost from raw config format (string destinations)
+  factory StaticHost.fromRawConfig({required List<String> destinations, required bool lighthouse}) {
+    return StaticHost(lighthouse: lighthouse, destinations: destinations.map((d) => IPAndPort.fromString(d)).toList());
+  }
+
   factory StaticHost.fromJson(Map<String, dynamic> json) {
     var list = json['destinations'] as List<dynamic>;
     var result = <IPAndPort>[];

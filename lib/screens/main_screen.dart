@@ -20,9 +20,6 @@ import 'package:uuid/uuid.dart';
 import 'package:yaml/yaml.dart';
 
 import '../models/certificate.dart';
-import '../models/ip_and_port.dart';
-import '../models/static_hosts.dart';
-import '../models/unsafe_route.dart';
 import 'enrollment_screen.dart';
 
 final _log = Logger('main_screen');
@@ -390,15 +387,27 @@ class MainScreenState extends State<MainScreen> {
         var s = Site(
           name: siteConfig['name']!,
           id: uuid.v4(),
-          staticHostmap: {
-            "10.1.0.1": StaticHost(
-              lighthouse: true,
-              destinations: [IPAndPort('10.1.1.53', 4242), IPAndPort('1::1', 4242)],
-            ),
+          rawConfig: {
+            'pki': {'ca': siteConfig['ca'], 'cert': siteConfig['cert']},
+            'static_host_map': {
+              '10.1.0.1': ['10.1.1.53:4242', '[1::1]:4242'],
+            },
+            'lighthouse': {
+              'hosts': ['10.1.0.1'],
+              'interval': 60,
+            },
+            'listen': {'host': '[::]', 'port': 4242},
+            'tun': {
+              'mtu': 1300,
+              'unsafe_routes': [
+                {'route': '10.3.3.3/32', 'via': '10.1.0.1'},
+              ],
+            },
+            'cipher': 'aes',
+            'logging': {'level': 'info'},
           },
           ca: [CertificateInfo.debug(rawCert: siteConfig['ca'])],
           certInfo: CertificateInfo.debug(rawCert: siteConfig['cert']),
-          unsafeRoutes: [UnsafeRoute(route: '10.3.3.3/32', via: '10.1.0.1')],
         );
 
         s.key = siteConfig['key'];

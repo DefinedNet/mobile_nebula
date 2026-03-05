@@ -116,7 +116,11 @@ class SiteList {
           let site = try Site(manager: manager)
           if site.needsToMigrateToFS {
             dispatchGroup.enter()
-            site.incomingSite?.save(manager: manager) { error in
+            // Disk save already happened in init(proto:), just update the VPN profile
+            saveSite(
+              jsonString: String(data: site.configData, encoding: .utf8)!, manager: manager,
+              saveToManager: true
+            ) { error in
               if error != nil {
                 print("Error while migrating site to fs: \(error!.localizedDescription)")
               }

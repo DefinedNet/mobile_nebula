@@ -67,7 +67,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         // vpn profile name when updates happen (rare).
         self.site = try Site(proto: self.protocolConfiguration as! NETunnelProviderProtocol)
       }
-      config = try self.site!.getConfig()
+      config = self.site!.getConfig()
     } catch {
       //TODO: need a way to notify the app
       self.log.error("Failed to render config from vpn object")
