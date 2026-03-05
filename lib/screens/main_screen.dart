@@ -95,14 +95,7 @@ class MainScreenState extends State<MainScreen> {
       leadingAction: PlatformIconButton(
         padding: EdgeInsets.zero,
         icon: Icon(Icons.add, size: 28.0),
-        onPressed: () => showModalBottomSheet(
-          context: context,
-          useRootNavigator: true,
-          useSafeArea: true,
-          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-          isScrollControlled: true,
-          builder: _buildAddSite,
-        ),
+        onPressed: () => _showAddSiteSheet(context),
       ),
       refreshController: refreshController,
       onRefresh: () {
@@ -226,6 +219,33 @@ class MainScreenState extends State<MainScreen> {
     );
   }
 
+  void _showAddSiteSheet(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
+
+    if (isTablet) {
+      showDialog(
+        context: context,
+        useRootNavigator: true,
+        builder: (dialogContext) => Dialog(
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 400),
+            child: _buildAddSite(dialogContext),
+          ),
+        ),
+      );
+    } else {
+      showModalBottomSheet(
+        context: context,
+        useRootNavigator: true,
+        useSafeArea: true,
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        isScrollControlled: true,
+        builder: _buildAddSite,
+      );
+    }
+  }
+
   Widget _buildAddSite(BuildContext context) {
     final arrowIcon = Icon(
       Icons.arrow_forward_ios,
@@ -307,66 +327,60 @@ class MainScreenState extends State<MainScreen> {
 
     final borderColor = Theme.of(context).colorScheme.outlineVariant;
 
-    return DraggableScrollableSheet(
-      expand: false,
-      builder: (context, scrollController) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: EdgeInsetsGeometry.all(32),
-              child: Text('Add Site', style: Theme.of(context).listTileTheme.titleTextStyle!.copyWith(fontSize: 18)),
-            ),
-            Flexible(
-              child: SafeArea(
-                child: ListView(
-                  controller: scrollController,
-                  padding: EdgeInsetsGeometry.fromLTRB(32, 0, 32, 32),
-                  children: List.generate(children.length, (index) {
-                    final borderSide = BorderSide(color: borderColor);
-                    if (index == 0) {
-                      return Container(
-                        clipBehavior: Clip.antiAlias,
-                        decoration: BoxDecoration(
-                          border: Border(top: borderSide, left: borderSide, right: borderSide),
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(8),
-                            topRight: Radius.circular(8),
-                          ),
-                        ),
-                        child: children[index],
-                      );
-                    }
-
-                    if (index == children.length - 1) {
-                      return Container(
-                        clipBehavior: Clip.antiAlias,
-                        decoration: BoxDecoration(
-                          border: Border.fromBorderSide(borderSide),
-                          borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(8),
-                            bottomRight: Radius.circular(8),
-                          ),
-                        ),
-                        child: children[index],
-                      );
-                    }
-
-                    // return children[index];
-                    return Container(
-                      clipBehavior: Clip.antiAlias, // and here
-                      decoration: BoxDecoration(
-                        border: Border(top: borderSide, left: borderSide, right: borderSide),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: EdgeInsetsGeometry.all(32),
+          child: Text('Add Site', style: Theme.of(context).listTileTheme.titleTextStyle!.copyWith(fontSize: 18)),
+        ),
+        Flexible(
+          child: SafeArea(
+            child: ListView(
+              shrinkWrap: true,
+              padding: EdgeInsetsGeometry.fromLTRB(32, 0, 32, 32),
+              children: List.generate(children.length, (index) {
+                final borderSide = BorderSide(color: borderColor);
+                if (index == 0) {
+                  return Container(
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      border: Border(top: borderSide, left: borderSide, right: borderSide),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(8),
+                        topRight: Radius.circular(8),
                       ),
-                      child: children[index],
-                    );
-                  }),
-                ),
-              ),
+                    ),
+                    child: children[index],
+                  );
+                }
+
+                if (index == children.length - 1) {
+                  return Container(
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      border: Border.fromBorderSide(borderSide),
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(8),
+                        bottomRight: Radius.circular(8),
+                      ),
+                    ),
+                    child: children[index],
+                  );
+                }
+
+                return Container(
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    border: Border(top: borderSide, left: borderSide, right: borderSide),
+                  ),
+                  child: children[index],
+                );
+              }),
             ),
-          ],
-        );
-      },
+          ),
+        ),
+      ],
     );
   }
 
