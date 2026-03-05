@@ -271,7 +271,7 @@ class Site {
   }
 
   List<String> get dnsResolvers {
-    final resolvers = _getConfig<List<dynamic>>(['dns_resolvers']);
+    final resolvers = _getConfig<List<dynamic>>(['mobile_nebula', 'dns_resolvers']);
     if (resolvers == null) return [];
     return resolvers.map((r) => r.toString()).toList();
   }
@@ -312,7 +312,7 @@ class Site {
   }
 
   set dnsResolvers(List<String> resolvers) {
-    _setConfig(['dns_resolvers'], resolvers);
+    _setConfig(['mobile_nebula', 'dns_resolvers'], resolvers);
   }
 
   set staticHostmap(Map<String, StaticHost> hostmap) {

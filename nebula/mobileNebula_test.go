@@ -247,6 +247,78 @@ func TestMigrateConfig_KeyStripped(t *testing.T) {
 	}
 }
 
+func TestMigrateConfig_DnsResolvers(t *testing.T) {
+	// Old-format site with dnsResolvers — should be preserved under mobile_nebula.dns_resolvers
+	oldConfig := `{
+  "name": "DNS Test",
+  "id": "dns-test-id",
+  "staticHostmap": {},
+  "unsafeRoutes": [],
+  "ca": "ca",
+  "cert": "cert",
+  "lhDuration": 60,
+  "port": 4242,
+  "mtu": 1300,
+  "cipher": "aes",
+  "sortKey": 0,
+  "logVerbosity": "info",
+  "dnsResolvers": ["1.1.1.1", "8.8.8.8"]
+}`
+
+	newConfig, err := MigrateConfig(oldConfig, "key")
+	require.NoError(t, err)
+
+	var newSite map[string]interface{}
+	err = json.Unmarshal([]byte(newConfig), &newSite)
+	require.NoError(t, err)
+
+	var rawConfig map[string]interface{}
+	err = json.Unmarshal([]byte(newSite["rawConfig"].(string)), &rawConfig)
+	require.NoError(t, err)
+
+	// dnsResolvers should be under mobile_nebula namespace
+	mobileNebula, ok := rawConfig["mobile_nebula"].(map[string]interface{})
+	require.True(t, ok, "rawConfig should have mobile_nebula key")
+
+	resolvers, ok := mobileNebula["dns_resolvers"].([]interface{})
+	require.True(t, ok, "mobile_nebula should have dns_resolvers")
+	assert.Equal(t, []interface{}{"1.1.1.1", "8.8.8.8"}, resolvers)
+
+	// dnsResolvers should NOT be at the top level of rawConfig
+	assert.NotContains(t, rawConfig, "dnsResolvers", "dnsResolvers should not be at rawConfig top level")
+}
+
+func TestMigrateConfig_NoDnsResolvers(t *testing.T) {
+	// Old-format site without dnsResolvers — mobile_nebula key should not be created
+	oldConfig := `{
+  "name": "No DNS Test",
+  "id": "no-dns-test-id",
+  "staticHostmap": {},
+  "unsafeRoutes": [],
+  "ca": "ca",
+  "cert": "cert",
+  "lhDuration": 60,
+  "port": 4242,
+  "mtu": 1300,
+  "cipher": "aes",
+  "sortKey": 0,
+  "logVerbosity": "info"
+}`
+
+	newConfig, err := MigrateConfig(oldConfig, "key")
+	require.NoError(t, err)
+
+	var newSite map[string]interface{}
+	err = json.Unmarshal([]byte(newConfig), &newSite)
+	require.NoError(t, err)
+
+	var rawConfig map[string]interface{}
+	err = json.Unmarshal([]byte(newSite["rawConfig"].(string)), &rawConfig)
+	require.NoError(t, err)
+
+	assert.NotContains(t, rawConfig, "mobile_nebula", "mobile_nebula key should not exist when no dnsResolvers")
+}
+
 func TestMigrateConfig_ManagedWithRawConfig(t *testing.T) {
 	// Old managed site that already has a rawConfig (YAML) from DN enrollment
 	oldConfig := `{

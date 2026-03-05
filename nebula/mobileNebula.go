@@ -188,6 +188,16 @@ func MigrateConfig(oldConfigJSON string, key string) (string, error) {
 		delete(pki, "key")
 	}
 
+	// Preserve dnsResolvers from legacy config under the mobile_nebula namespace
+	if old.DnsResolvers != nil && len(*old.DnsResolvers) > 0 {
+		mobileNebula, ok := rawConfigJSON["mobile_nebula"].(map[string]interface{})
+		if !ok {
+			mobileNebula = map[string]interface{}{}
+		}
+		mobileNebula["dns_resolvers"] = *old.DnsResolvers
+		rawConfigJSON["mobile_nebula"] = mobileNebula
+	}
+
 	rawConfigBytes, err := json.Marshal(rawConfigJSON)
 	if err != nil {
 		return "", err
