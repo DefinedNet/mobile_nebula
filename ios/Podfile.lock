@@ -7,11 +7,8 @@ PODS:
     - FlutterMacOS
   - package_info_plus (0.4.5):
     - Flutter
-  - path_provider_foundation (0.0.1):
-    - Flutter
-    - FlutterMacOS
   - Sentry/HybridSDK (8.56.2)
-  - sentry_flutter (9.12.0):
+  - sentry_flutter (9.14.0):
     - Flutter
     - FlutterMacOS
     - Sentry/HybridSDK (= 8.56.2)
@@ -26,7 +23,6 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - mobile_scanner (from `.symlinks/plugins/mobile_scanner/darwin`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
-  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - SwiftyJSON (~> 5.0)
@@ -46,8 +42,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/mobile_scanner/darwin"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
-  path_provider_foundation:
-    :path: ".symlinks/plugins/path_provider_foundation/darwin"
   sentry_flutter:
     :path: ".symlinks/plugins/sentry_flutter/ios"
   share_plus:
@@ -60,12 +54,11 @@ SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   mobile_scanner: 77265f3dc8d580810e91849d4a0811a90467ed5e
   package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
-  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   Sentry: b53951377b78e21a734f5dc8318e333dbfc682d7
-  sentry_flutter: 31f669b138780f222e60ffb79da14ce94ef59d9c
+  sentry_flutter: a9f60d84bfddcae9a0ebf834547702f8854766a1
   share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
   SwiftyJSON: f5b1bf1cd8dd53cd25887ac0eabcfd92301c6a5a
-  url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
+  url_launcher_ios: bb13df5870e8c4234ca12609d04010a21be43dfa
 
 PODFILE CHECKSUM: b44d9de9944d89118a4ff4bfffe1c2dab91de156
 

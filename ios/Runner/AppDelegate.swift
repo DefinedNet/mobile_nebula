@@ -13,7 +13,7 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
 }
 
 @main
-@objc class AppDelegate: FlutterAppDelegate {
+@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   private let dnUpdater = DNUpdater()
   private let apiClient = APIClient()
   private var sites: Sites?
@@ -23,27 +23,16 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    GeneratedPluginRegistrant.register(with: self)
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
 
-    dnUpdater.updateAllLoop { site in
-      // Signal the site has changed in case the current site details screen is active
-      let container = self.sites?.getContainer(id: site.id)
-      if container != nil {
-        // Update references to the site with the new site config
-        container!.site = site
-        container!.updater.update(connected: site.connected ?? false, replaceSite: site)
-      }
+  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+    GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
 
-      // Signal to the main screen to reload
-      self.ui?.invokeMethod("refreshSites", arguments: nil)
-    }
+    let messenger = engineBridge.applicationRegistrar.messenger()
 
-    guard let controller = window?.rootViewController as? FlutterViewController else {
-      fatalError("rootViewController is not type FlutterViewController")
-    }
-
-    sites = Sites(messenger: controller.binaryMessenger)
-    ui = FlutterMethodChannel(name: ChannelName.vpn, binaryMessenger: controller.binaryMessenger)
+    sites = Sites(messenger: messenger)
+    ui = FlutterMethodChannel(name: ChannelName.vpn, binaryMessenger: messenger)
 
     ui!.setMethodCallHandler({ (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
       switch call.method {
@@ -78,7 +67,18 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
       }
     })
 
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    dnUpdater.updateAllLoop { site in
+      // Signal the site has changed in case the current site details screen is active
+      let container = self.sites?.getContainer(id: site.id)
+      if container != nil {
+        // Update references to the site with the new site config
+        container!.site = site
+        container!.updater.update(connected: site.connected ?? false, replaceSite: site)
+      }
+
+      // Signal to the main screen to reload
+      self.ui?.invokeMethod("refreshSites", arguments: nil)
+    }
   }
 
   func nebulaParseCerts(call: FlutterMethodCall, result: FlutterResult) {
