@@ -331,7 +331,10 @@ class Site(context: Context, siteDir: File) {
         // Parse rawConfig JSON to extract fields needed by VPN service and display
         val rawConfigMap: Map<String, Any?> = try {
             gson.fromJson(rawConfig, object : TypeToken<Map<String, Any?>>() {}.type) ?: emptyMap()
-        } catch (_: Exception) { emptyMap() }
+        } catch (err: Exception) {
+            errors.add("Failed to parse rawConfig: ${err.message}")
+            emptyMap()
+        }
 
         // Parse mtu from rawConfig
         mtu = getConfigInt(rawConfigMap, listOf("tun", "mtu")) ?: 1300

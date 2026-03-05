@@ -415,6 +415,7 @@ class Site: Encodable {
     {
       rawConfigMap = parsed
     } else {
+      errors.append("Failed to parse rawConfig")
       rawConfigMap = [:]
     }
 

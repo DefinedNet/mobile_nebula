@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:mobile_nebula/models/site.dart';
 import 'package:test/test.dart';
 import 'package:yaml/yaml.dart';
@@ -340,6 +341,58 @@ listen:
       final site = Site(managed: false);
       final json = site.toJson();
       expect(json['managed'], false);
+    });
+  });
+
+  // Site.parseJson exercises the same _fromJson path as Site.fromJson
+  // but avoids the EventChannel setup that requires Flutter bindings.
+  group('rawConfig parse errors', () {
+    test('invalid rawConfig JSON produces error', () {
+      final parsed = Site.parseJson({
+        'name': 'bad site',
+        'id': 'bad-id',
+        'rawConfig': '{invalid json!!!',
+        'configVersion': 1,
+      });
+      final errors = parsed['errors'] as List<String>;
+      expect(errors, isNotEmpty);
+      expect(errors.first, contains('Failed to parse rawConfig'));
+      expect(parsed['rawConfig'], isEmpty);
+    });
+
+    test('empty rawConfig string produces no error', () {
+      final parsed = Site.parseJson({
+        'name': 'empty config',
+        'id': 'empty-id',
+        'rawConfig': '',
+        'configVersion': 1,
+      });
+      final errors = parsed['errors'] as List<String>;
+      expect(errors, isEmpty);
+      expect(parsed['rawConfig'], isEmpty);
+    });
+
+    test('missing rawConfig produces no error', () {
+      final parsed = Site.parseJson({
+        'name': 'no config',
+        'id': 'no-id',
+        'configVersion': 1,
+      });
+      final errors = parsed['errors'] as List<String>;
+      expect(errors, isEmpty);
+    });
+
+    test('valid rawConfig produces no error', () {
+      final parsed = Site.parseJson({
+        'name': 'good site',
+        'id': 'good-id',
+        'rawConfig': '{"cipher":"aes","listen":{"port":4242}}',
+        'configVersion': 1,
+      });
+      final errors = parsed['errors'] as List<String>;
+      expect(errors, isEmpty);
+      final rawConfig = parsed['rawConfig'] as Map<String, dynamic>;
+      expect(rawConfig['cipher'], 'aes');
     });
   });
 }

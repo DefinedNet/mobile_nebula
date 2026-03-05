@@ -93,6 +93,10 @@ class Site {
     }
   }
 
+  /// Parses site JSON without constructing a full Site (no EventChannel).
+  /// Useful for testing the parse/error logic.
+  static Map<String, dynamic> parseJson(Map<String, dynamic> json) => _fromJson(json);
+
   factory Site.fromJson(Map<String, dynamic> json) {
     var decoded = Site._fromJson(json);
     return Site(
@@ -201,8 +205,13 @@ class Site {
   static Map<String, dynamic> _fromJson(Map<String, dynamic> json) {
     // Parse rawConfig from JSON string to map
     Map<String, dynamic> rawConfig = {};
+    List<String> rawConfigErrors = [];
     if (json['rawConfig'] is String && (json['rawConfig'] as String).isNotEmpty) {
-      rawConfig = Map<String, dynamic>.from(jsonDecode(json['rawConfig']));
+      try {
+        rawConfig = Map<String, dynamic>.from(jsonDecode(json['rawConfig']));
+      } catch (err) {
+        rawConfigErrors.add('Failed to parse rawConfig: $err');
+      }
     }
 
     List<dynamic> rawCA = json['ca'] ?? [];
@@ -217,7 +226,7 @@ class Site {
     }
 
     List<dynamic> rawErrors = json["errors"] ?? [];
-    List<String> errors = [];
+    List<String> errors = List<String>.from(rawConfigErrors);
     for (var error in rawErrors) {
       errors.add(error);
     }
