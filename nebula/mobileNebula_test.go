@@ -112,7 +112,7 @@ func TestRenderConfigLegacy(t *testing.T) {
 }
 
 func TestMigrateConfig(t *testing.T) {
-	// Old-format site JSON
+	// Old-format site JSON — unmanaged
 	oldConfig := `{
   "name": "Test Site",
   "id": "test-id-123",
@@ -145,7 +145,9 @@ func TestMigrateConfig(t *testing.T) {
 	assert.Equal(t, "Test Site", newSite["name"])
 	assert.Equal(t, "test-id-123", newSite["id"])
 	assert.NotEmpty(t, newSite["rawConfig"])
-	assert.Equal(t, float64(1), newSite["configVersion"])
+
+	// Unmanaged sites must remain unmanaged after migration (was a bug: jsonTrue forced true)
+	assert.Equal(t, false, newSite["managed"], "unmanaged site should stay unmanaged after migration")
 
 	// Verify rawConfig contains the expected fields
 	var rawConfig map[string]interface{}
@@ -153,8 +155,135 @@ func TestMigrateConfig(t *testing.T) {
 	require.NoError(t, err, "Failed to parse rawConfig")
 
 	assert.Equal(t, "aes", rawConfig["cipher"])
+}
 
-	// Verify pki.key was stripped from rawConfig
+func TestMigrateConfig_ManagedSite(t *testing.T) {
+	// Old-format managed site
+	oldConfig := `{
+  "name": "Managed Site",
+  "id": "managed-id-456",
+  "staticHostmap": {},
+  "unsafeRoutes": [],
+  "ca": "test-ca",
+  "cert": "test-cert",
+  "lhDuration": 60,
+  "port": 4242,
+  "mtu": 1300,
+  "cipher": "aes",
+  "sortKey": 0,
+  "logVerbosity": "info",
+  "managed": true
+}`
+
+	newConfig, err := MigrateConfig(oldConfig, "test-key")
+	require.NoError(t, err)
+
+	var newSite map[string]interface{}
+	err = json.Unmarshal([]byte(newConfig), &newSite)
+	require.NoError(t, err)
+
+	assert.Equal(t, true, newSite["managed"], "managed site should stay managed after migration")
+}
+
+func TestMigrateConfig_ConfigVersion(t *testing.T) {
+	oldConfig := `{
+  "name": "Test",
+  "id": "test-id",
+  "staticHostmap": {},
+  "unsafeRoutes": [],
+  "ca": "ca",
+  "cert": "cert",
+  "lhDuration": 60,
+  "port": 4242,
+  "mtu": 1300,
+  "cipher": "aes",
+  "sortKey": 0,
+  "logVerbosity": "info"
+}`
+
+	newConfig, err := MigrateConfig(oldConfig, "key")
+	require.NoError(t, err)
+
+	var newSite map[string]interface{}
+	err = json.Unmarshal([]byte(newConfig), &newSite)
+	require.NoError(t, err)
+
+	assert.Equal(t, float64(1), newSite["configVersion"], "migrated config should have configVersion 1")
+}
+
+func TestMigrateConfig_KeyStripped(t *testing.T) {
+	oldConfig := `{
+  "name": "Test",
+  "id": "test-id",
+  "staticHostmap": {},
+  "unsafeRoutes": [],
+  "ca": "ca",
+  "cert": "cert",
+  "lhDuration": 60,
+  "port": 4242,
+  "mtu": 1300,
+  "cipher": "aes",
+  "sortKey": 0,
+  "logVerbosity": "info"
+}`
+
+	newConfig, err := MigrateConfig(oldConfig, "my-secret-key")
+	require.NoError(t, err)
+
+	var newSite map[string]interface{}
+	err = json.Unmarshal([]byte(newConfig), &newSite)
+	require.NoError(t, err)
+
+	// Key should not be in the top-level site JSON (stored separately)
+	assert.Nil(t, newSite["key"], "key should be nil in migrated config")
+
+	// pki.key should be stripped from rawConfig
+	var rawConfig map[string]interface{}
+	err = json.Unmarshal([]byte(newSite["rawConfig"].(string)), &rawConfig)
+	require.NoError(t, err)
+
+	if pki, ok := rawConfig["pki"].(map[string]interface{}); ok {
+		assert.NotContains(t, pki, "key", "pki.key should be stripped from rawConfig")
+	}
+}
+
+func TestMigrateConfig_ManagedWithRawConfig(t *testing.T) {
+	// Old managed site that already has a rawConfig (YAML) from DN enrollment
+	oldConfig := `{
+  "name": "DN Site",
+  "id": "dn-id-789",
+  "staticHostmap": {},
+  "unsafeRoutes": [],
+  "ca": "ca",
+  "cert": "cert",
+  "lhDuration": 60,
+  "port": 4242,
+  "mtu": 1300,
+  "cipher": "aes",
+  "sortKey": 0,
+  "logVerbosity": "info",
+  "managed": true,
+  "rawConfig": "pki:\n  ca: dn-ca\n  cert: dn-cert\n  key: dn-key\ncipher: aes\nlisten:\n  port: 4242\n"
+}`
+
+	newConfig, err := MigrateConfig(oldConfig, "key")
+	require.NoError(t, err)
+
+	var newSite map[string]interface{}
+	err = json.Unmarshal([]byte(newConfig), &newSite)
+	require.NoError(t, err)
+
+	assert.Equal(t, true, newSite["managed"])
+	assert.Equal(t, float64(1), newSite["configVersion"])
+
+	// rawConfig should be JSON (converted from old YAML)
+	var rawConfig map[string]interface{}
+	err = json.Unmarshal([]byte(newSite["rawConfig"].(string)), &rawConfig)
+	require.NoError(t, err, "rawConfig should be valid JSON after migration")
+
+	assert.Equal(t, "aes", rawConfig["cipher"])
+
+	// pki.key should be stripped
 	if pki, ok := rawConfig["pki"].(map[string]interface{}); ok {
 		assert.NotContains(t, pki, "key", "pki.key should be stripped from rawConfig")
 	}

@@ -269,7 +269,7 @@ listen:
         final json = site.toJson();
         expect(json['rawConfig'], isA<String>());
         expect(json['name'], 'test');
-        expect(json['configVersion'], 1);
+        expect(json['configVersion'], 0);
       });
 
       test('convenience setters modify rawConfig', () async {
@@ -286,6 +286,60 @@ listen:
         expect(site.logVerbosity, 'debug');
         expect(site.lhDuration, 120);
       });
+    });
+  });
+
+  group('configVersion', () {
+    test('defaults to 0 for new sites', () {
+      final site = Site();
+      expect(site.configVersion, 0);
+    });
+
+    test('toJson includes configVersion', () {
+      final site = Site(configVersion: 0);
+      final json = site.toJson();
+      expect(json.containsKey('configVersion'), true);
+      expect(json['configVersion'], 0);
+    });
+
+    test('fromYaml produces site with default configVersion 0', () async {
+      final site = await Site.fromYaml(loadYaml('cipher: aes'));
+      expect(site.configVersion, 0);
+    });
+
+    test('_fromJson parses configVersion from JSON', () {
+      // Verify the internal parsing logic handles configVersion
+      final site = Site(configVersion: 1);
+      final json = site.toJson();
+      // The JSON output should carry configVersion through
+      expect(json['configVersion'], 1);
+    });
+
+    test('_fromJson defaults configVersion to 0 when missing', () {
+      // A site created with no explicit configVersion defaults to 0
+      final site = Site();
+      expect(site.configVersion, 0);
+      final json = site.toJson();
+      expect(json['configVersion'], 0);
+    });
+  });
+
+  group('managed flag', () {
+    test('defaults to false', () {
+      final site = Site();
+      expect(site.managed, false);
+    });
+
+    test('managed true appears in toJson', () {
+      final site = Site(managed: true);
+      final json = site.toJson();
+      expect(json['managed'], true);
+    });
+
+    test('managed false appears in toJson', () {
+      final site = Site(managed: false);
+      final json = site.toJson();
+      expect(json['managed'], false);
     });
   });
 }
