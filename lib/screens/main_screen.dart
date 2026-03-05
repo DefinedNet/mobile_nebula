@@ -228,10 +228,7 @@ class MainScreenState extends State<MainScreen> {
         useRootNavigator: true,
         builder: (dialogContext) => Dialog(
           backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 400),
-            child: _buildAddSite(dialogContext),
-          ),
+          child: ConstrainedBox(constraints: BoxConstraints(maxWidth: 400), child: _buildAddSite(dialogContext)),
         ),
       );
     } else {
@@ -346,10 +343,7 @@ class MainScreenState extends State<MainScreen> {
                     clipBehavior: Clip.antiAlias,
                     decoration: BoxDecoration(
                       border: Border(top: borderSide, left: borderSide, right: borderSide),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(8),
-                        topRight: Radius.circular(8),
-                      ),
+                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
                     ),
                     child: children[index],
                   );
