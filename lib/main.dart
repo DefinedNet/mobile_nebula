@@ -90,7 +90,7 @@ class AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    TextTheme textTheme = Utils.createTextTheme("Inter", "Inter");
+    TextTheme textTheme = Utils.createTextTheme();
     MaterialTheme theme = MaterialTheme(textTheme);
 
     return MaterialApp(

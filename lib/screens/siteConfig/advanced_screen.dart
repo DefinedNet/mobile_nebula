@@ -3,17 +3,17 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:mobile_nebula/components/app_text_form_field.dart';
 import 'package:mobile_nebula/components/config/config_item.dart';
 import 'package:mobile_nebula/components/config/config_page_item.dart';
 import 'package:mobile_nebula/components/config/config_section.dart';
 import 'package:mobile_nebula/components/form_page.dart';
-import 'package:mobile_nebula/components/app_text_form_field.dart';
 import 'package:mobile_nebula/models/site.dart';
 import 'package:mobile_nebula/models/unsafe_route.dart';
 import 'package:mobile_nebula/screens/siteConfig/cipher_screen.dart';
 import 'package:mobile_nebula/screens/siteConfig/dns_lookup_screen.dart';
-import 'package:mobile_nebula/screens/siteConfig/excluded_apps_screen.dart';
 import 'package:mobile_nebula/screens/siteConfig/dns_resolvers_screen.dart';
+import 'package:mobile_nebula/screens/siteConfig/excluded_apps_screen.dart';
 import 'package:mobile_nebula/screens/siteConfig/log_verbosity_screen.dart';
 import 'package:mobile_nebula/screens/siteConfig/rendered_config_screen.dart';
 import 'package:mobile_nebula/services/utils.dart';
@@ -214,25 +214,6 @@ class AdvancedScreenState extends State<AdvancedScreen> {
                 },
               ),
               ConfigPageItem(
-                disabled: widget.site.managed,
-                label: Text('DNS lookup mode'),
-                labelWidth: 150,
-                content: Text(settings.staticMapNetwork, textAlign: TextAlign.end),
-                onPressed: () {
-                  Utils.openPage(context, (context) {
-                    return DnsLookupScreen(
-                      staticMapNetwork: settings.staticMapNetwork,
-                      onSave: (staticMapNetwork) {
-                        setState(() {
-                          settings.staticMapNetwork = staticMapNetwork;
-                          changed = true;
-                        });
-                      },
-                    );
-                  });
-                },
-              ),
-              ConfigPageItem(
                 label: Text('DNS resolvers'),
                 labelWidth: 150,
                 content: Text(Utils.itemCountFormat(settings.dnsResolvers.length), textAlign: TextAlign.end),
@@ -248,6 +229,25 @@ class AdvancedScreenState extends State<AdvancedScreen> {
                                 changed = true;
                               });
                             },
+                    );
+                  });
+                },
+              ),
+              ConfigPageItem(
+                disabled: widget.site.managed,
+                label: Text('DNS lookup mode'),
+                labelWidth: 150,
+                content: Text(settings.staticMapNetwork, textAlign: TextAlign.end),
+                onPressed: () {
+                  Utils.openPage(context, (context) {
+                    return DnsLookupScreen(
+                      staticMapNetwork: settings.staticMapNetwork,
+                      onSave: (staticMapNetwork) {
+                        setState(() {
+                          settings.staticMapNetwork = staticMapNetwork;
+                          changed = true;
+                        });
+                      },
                     );
                   });
                 },

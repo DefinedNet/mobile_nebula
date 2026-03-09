@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_nebula/main.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -138,22 +137,14 @@ class Utils {
     return file.readAsString();
   }
 
-  static TextTheme createTextTheme(String bodyFontString, String displayFontString) {
+  static TextTheme createTextTheme() {
     // Use Android's Material text geometry as the base so font sizes are
-    // consistent across iOS and Android.
+    // consistent across iOS and Android (avoids iOS 17px default).
     final typography = Typography.material2021(platform: TargetPlatform.android);
     TextTheme baseTextTheme = typography.englishLike.merge(typography.black);
-    TextTheme bodyTextTheme = GoogleFonts.getTextTheme(bodyFontString, baseTextTheme);
-    TextTheme displayTextTheme = GoogleFonts.getTextTheme(displayFontString, baseTextTheme);
-    TextTheme textTheme = displayTextTheme.copyWith(
-      bodyLarge: bodyTextTheme.bodyLarge,
-      bodyMedium: bodyTextTheme.bodyMedium,
-      bodySmall: bodyTextTheme.bodySmall,
-      labelLarge: bodyTextTheme.labelLarge,
-      labelMedium: bodyTextTheme.labelMedium,
-      labelSmall: bodyTextTheme.labelSmall,
-    );
-    return textTheme;
+    // Apply Inter font family to all styles. The font files are bundled
+    // in fonts/ and declared in pubspec.yaml — no HTTP fetching needed.
+    return baseTextTheme.apply(fontFamily: 'Inter');
   }
 
   static (int, bool) dynamicToInt(dynamic d) {
