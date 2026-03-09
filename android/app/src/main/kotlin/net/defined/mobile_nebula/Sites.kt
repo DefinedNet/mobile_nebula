@@ -288,6 +288,7 @@ class Site(context: Context, siteDir: File) {
     var status: String?
     val logFile: String?
     var errors: ArrayList<String> = ArrayList()
+    var excludedApps: List<String> = ArrayList()
     val alwaysOn: Boolean
 
     // Fields parsed from rawConfig for VPN service use
@@ -321,6 +322,10 @@ class Site(context: Context, siteDir: File) {
         rawConfig = siteMap["rawConfig"] as? String ?: "{}"
         configVersion = (siteMap["configVersion"] as? Number)?.toInt() ?: 1
         logFile = siteDir.resolve("log").absolutePath
+
+        // Parse excludedApps from site config
+        @Suppress("UNCHECKED_CAST")
+        excludedApps = (siteMap["excludedApps"] as? List<String>) ?: emptyList()
 
         connected = false
         status = "Disconnected"
