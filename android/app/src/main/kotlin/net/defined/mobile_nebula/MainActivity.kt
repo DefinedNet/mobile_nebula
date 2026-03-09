@@ -183,7 +183,9 @@ class MainActivity: FlutterActivity() {
 
                 Gson().toJson(apps)
             }
-            result.success(json)
+            try {
+                result.success(json)
+            } catch(_: Exception) {}
         }
     }
 
@@ -214,7 +216,9 @@ class MainActivity: FlutterActivity() {
 
                 Gson().toJson(icons)
             }
-            result.success(json)
+            try {
+                result.success(json)
+            } catch(_: Exception) {}
         }
     }
 
