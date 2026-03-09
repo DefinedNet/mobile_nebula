@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:mobile_nebula/components/danger_button.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_nebula/components/config/config_item.dart';
 import 'package:mobile_nebula/components/config/config_page_item.dart';
@@ -14,7 +15,6 @@ import 'package:mobile_nebula/screens/site_tunnels_screen.dart';
 import 'package:mobile_nebula/services/utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-import '../components/danger_button.dart';
 import '../components/site_title.dart';
 
 //TODO: If the site isn't active, don't respond to reloads on hostmaps

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_nebula/components/danger_button.dart';
 import 'package:mobile_nebula/components/config/config_button_item.dart';
 import 'package:mobile_nebula/components/config/config_item.dart';
 import 'package:mobile_nebula/components/config/config_section.dart';
-import 'package:mobile_nebula/components/danger_button.dart';
 import 'package:mobile_nebula/components/form_page.dart';
 import 'package:mobile_nebula/components/ip_and_port_form_field.dart';
 import 'package:mobile_nebula/components/ip_form_field.dart';

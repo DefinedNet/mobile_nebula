@@ -23,7 +23,6 @@ class SpecialTextField extends StatefulWidget {
     this.autofocus,
     this.onChanged,
     this.enabled,
-    this.expands,
     this.keyboardAppearance,
     this.textAlignVertical,
     this.inputFormatters,
@@ -52,7 +51,6 @@ class SpecialTextField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final bool? enabled;
   final List<TextInputFormatter>? inputFormatters;
-  final bool? expands;
 
   @override
   SpecialTextFieldState createState() => SpecialTextFieldState();
@@ -76,8 +74,8 @@ class SpecialTextFieldState extends State<SpecialTextField> {
   Widget build(BuildContext context) {
     return TextField(
       autocorrect: widget.autocorrect ?? true,
-      minLines: widget.expands == true ? null : widget.minLines,
-      maxLines: widget.expands == true ? null : widget.maxLines,
+      minLines: widget.minLines,
+      maxLines: widget.maxLines,
       maxLength: widget.maxLength,
       maxLengthEnforcement: widget.maxLengthEnforcement,
       keyboardType: widget.keyboardType,
@@ -95,7 +93,6 @@ class SpecialTextFieldState extends State<SpecialTextField> {
           FocusScope.of(context).requestFocus(widget.nextFocusNode);
         }
       },
-      expands: widget.expands ?? false,
       inputFormatters: formatters,
       decoration: InputDecoration(
         border: InputBorder.none,

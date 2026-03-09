@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-TextStyle basicTextStyle(BuildContext context) => Theme.of(context).textTheme.titleMedium!;
-
 const double _headerFontSize = 13.0;
 
 class ConfigHeader extends StatelessWidget {
@@ -16,7 +14,7 @@ class ConfigHeader extends StatelessWidget {
       padding: const EdgeInsets.only(left: 10.0, top: 30.0, bottom: 5.0, right: 10.0),
       child: Text(
         label,
-        style: basicTextStyle(context).copyWith(
+        style: Theme.of(context).textTheme.titleMedium!.copyWith(
           color: color ?? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.6),
           fontSize: _headerFontSize,
         ),

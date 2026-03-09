@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:mobile_nebula/components/simple_page.dart';
@@ -104,52 +103,40 @@ class SiteLogsScreenState extends State<SiteLogsScreen> {
   }
 
   Widget _buildBottomBar() {
-    var borderSide = BorderSide(color: Theme.of(context).dividerColor, style: BorderStyle.solid, width: 0.0);
-
-    var padding = EdgeInsets.all(10);
-
-    final barChild = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      spacing: 8,
-      children: <Widget>[
-        Tooltip(
-          message: "Share logs",
-          child: IconButton(
-            icon: Icon(Icons.share),
-            onPressed: () {
-              Share.shareFile(
-                context,
-                title: '${widget.site.name} logs',
-                filePath: widget.site.logFile,
-                filename: '${widget.site.name}.log',
-              );
-            },
+    return BottomAppBar(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        spacing: 8,
+        children: <Widget>[
+          Tooltip(
+            message: "Share logs",
+            child: IconButton(
+              icon: Icon(Icons.share),
+              onPressed: () {
+                Share.shareFile(
+                  context,
+                  title: '${widget.site.name} logs',
+                  filePath: widget.site.logFile,
+                  filename: '${widget.site.name}.log',
+                );
+              },
+            ),
           ),
-        ),
-        Tooltip(
-          message: 'Go to latest',
-          child: IconButton(
-            icon: Icon(Icons.arrow_downward),
-            onPressed: () async {
-              controller.animateTo(
-                controller.position.maxScrollExtent,
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.linearToEaseOut,
-              );
-            },
+          Tooltip(
+            message: 'Go to latest',
+            child: IconButton(
+              icon: Icon(Icons.arrow_downward),
+              onPressed: () async {
+                controller.animateTo(
+                  controller.position.maxScrollExtent,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.linearToEaseOut,
+                );
+              },
+            ),
           ),
-        ),
-      ],
-    );
-
-    if (Platform.isAndroid) {
-      return BottomAppBar(child: barChild);
-    }
-
-    return Container(
-      decoration: BoxDecoration(border: Border(top: borderSide)),
-      padding: padding,
-      child: barChild,
+        ],
+      ),
     );
   }
 
