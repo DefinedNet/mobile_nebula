@@ -12,12 +12,13 @@ import 'package:mobile_nebula/components/platform_text_form_field.dart';
 import 'package:mobile_nebula/models/site.dart';
 import 'package:mobile_nebula/models/unsafe_route.dart';
 import 'package:mobile_nebula/screens/siteConfig/cipher_screen.dart';
+import 'package:mobile_nebula/screens/siteConfig/dns_lookup_screen.dart';
 import 'package:mobile_nebula/screens/siteConfig/dns_resolvers_screen.dart';
+import 'package:mobile_nebula/screens/siteConfig/excluded_apps_screen.dart';
 import 'package:mobile_nebula/screens/siteConfig/log_verbosity_screen.dart';
 import 'package:mobile_nebula/screens/siteConfig/rendered_config_screen.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
-import 'package:mobile_nebula/screens/siteConfig/excluded_apps_screen.dart';
 import 'unsafe_routes_screen.dart';
 
 //TODO: form validation (seconds and port)
@@ -34,6 +35,7 @@ class Advanced {
   int mtu;
   List<String> dnsResolvers;
   List<String> excludedApps;
+  String staticMapNetwork;
 
   Advanced({
     required this.lhDuration,
@@ -44,6 +46,7 @@ class Advanced {
     required this.mtu,
     required this.dnsResolvers,
     required this.excludedApps,
+    required this.staticMapNetwork,
   });
 }
 
@@ -72,6 +75,7 @@ class AdvancedScreenState extends State<AdvancedScreen> {
       mtu: widget.site.mtu,
       dnsResolvers: widget.site.dnsResolvers,
       excludedApps: widget.site.excludedApps,
+      staticMapNetwork: widget.site.staticMapNetwork,
     );
     super.initState();
   }
@@ -183,6 +187,25 @@ class AdvancedScreenState extends State<AdvancedScreen> {
                       onSave: (verbosity) {
                         setState(() {
                           settings.verbosity = verbosity;
+                          changed = true;
+                        });
+                      },
+                    );
+                  });
+                },
+              ),
+              ConfigPageItem(
+                disabled: widget.site.managed,
+                label: Text('DNS lookup mode'),
+                labelWidth: 150,
+                content: Text(settings.staticMapNetwork, textAlign: TextAlign.end),
+                onPressed: () {
+                  Utils.openPage(context, (context) {
+                    return DnsLookupScreen(
+                      staticMapNetwork: settings.staticMapNetwork,
+                      onSave: (staticMapNetwork) {
+                        setState(() {
+                          settings.staticMapNetwork = staticMapNetwork;
                           changed = true;
                         });
                       },

@@ -361,23 +361,14 @@ listen:
     });
 
     test('empty rawConfig string produces no error', () {
-      final parsed = Site.parseJson({
-        'name': 'empty config',
-        'id': 'empty-id',
-        'rawConfig': '',
-        'configVersion': 1,
-      });
+      final parsed = Site.parseJson({'name': 'empty config', 'id': 'empty-id', 'rawConfig': '', 'configVersion': 1});
       final errors = parsed['errors'] as List<String>;
       expect(errors, isEmpty);
       expect(parsed['rawConfig'], isEmpty);
     });
 
     test('missing rawConfig produces no error', () {
-      final parsed = Site.parseJson({
-        'name': 'no config',
-        'id': 'no-id',
-        'configVersion': 1,
-      });
+      final parsed = Site.parseJson({'name': 'no config', 'id': 'no-id', 'configVersion': 1});
       final errors = parsed['errors'] as List<String>;
       expect(errors, isEmpty);
     });

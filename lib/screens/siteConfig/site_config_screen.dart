@@ -360,6 +360,7 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
                     site.dnsResolvers = settings.dnsResolvers;
                     site.mtu = settings.mtu;
                     site.excludedApps = settings.excludedApps;
+                    site.staticMapNetwork = settings.staticMapNetwork;
                   });
                 },
               );
