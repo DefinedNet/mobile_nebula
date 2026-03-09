@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:mobile_nebula/validators/dns_validator.dart';
 import 'package:mobile_nebula/validators/ip_validator.dart';
 
@@ -66,7 +66,7 @@ class IPFormField extends FormField<String> {
                field.hasError
                    ? Text(
                        field.errorText!,
-                       style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
+                       style: TextStyle(color: Theme.of(field.context).colorScheme.error, fontSize: 13),
                        textAlign: textAlign,
                      )
                    : Container(height: 0),

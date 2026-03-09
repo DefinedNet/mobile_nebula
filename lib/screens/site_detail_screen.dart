@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/config/config_item.dart';
 import 'package:mobile_nebula/components/config/config_page_item.dart';
 import 'package:mobile_nebula/components/config/config_section.dart';
@@ -129,8 +127,8 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
 
     return ConfigSection(
       label: 'ERRORS',
-      borderColor: CupertinoColors.systemRed.resolveFrom(context),
-      labelColor: CupertinoColors.systemRed.resolveFrom(context),
+      borderColor: Theme.of(context).colorScheme.error,
+      labelColor: Theme.of(context).colorScheme.error,
       children: items,
     );
   }
@@ -158,10 +156,7 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.only(right: 5),
-                child: Text(
-                  widget.site.status,
-                  style: TextStyle(color: CupertinoColors.secondaryLabel.resolveFrom(context)),
-                ),
+                child: Text(widget.site.status, style: TextStyle(color: Theme.of(context).hintColor)),
               ),
               Switch.adaptive(
                 value: widget.site.connected,
@@ -187,13 +182,13 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
     Widget active, pending;
 
     if (activeHosts == null) {
-      active = SizedBox(height: 20, width: 20, child: PlatformCircularProgressIndicator());
+      active = SizedBox(height: 20, width: 20, child: CircularProgressIndicator.adaptive());
     } else {
       active = Text(Utils.itemCountFormat(activeHosts!.length, singleSuffix: "tunnel", multiSuffix: "tunnels"));
     }
 
     if (pendingHosts == null) {
-      pending = SizedBox(height: 20, width: 20, child: PlatformCircularProgressIndicator());
+      pending = SizedBox(height: 20, width: 20, child: CircularProgressIndicator.adaptive());
     } else {
       pending = Text(Utils.itemCountFormat(pendingHosts!.length, singleSuffix: "tunnel", multiSuffix: "tunnels"));
     }

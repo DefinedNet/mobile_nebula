@@ -2,11 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:logging/logging.dart';
 import 'package:mobile_nebula/components/simple_page.dart';
 import 'package:mobile_nebula/components/site_item.dart';
@@ -89,7 +87,7 @@ class MainScreenState extends State<MainScreen> {
     return SimplePage(
       title: Text('Nebula'),
       scrollable: SimpleScrollable.vertical,
-      leadingAction: PlatformIconButton(
+      leadingAction: IconButton(
         padding: EdgeInsets.zero,
         icon: Icon(Icons.add, size: 28.0),
         onPressed: () => _showAddSiteSheet(context),
@@ -100,7 +98,7 @@ class MainScreenState extends State<MainScreen> {
         refreshController.refreshCompleted();
       },
       trailingActions: <Widget>[
-        PlatformIconButton(
+        IconButton(
           padding: EdgeInsets.zero,
           icon: Icon(Icons.adaptive.more, size: 28.0),
           onPressed: () => Utils.openPage(context, (_) => SettingsScreen()),
@@ -204,10 +202,6 @@ class MainScreenState extends State<MainScreen> {
         _loadSites();
       },
     );
-
-    if (Platform.isIOS) {
-      child = CupertinoTheme(data: CupertinoTheme.of(context), child: child);
-    }
 
     // The theme here is to remove the hardcoded canvas border reordering forces on us
     return Theme(

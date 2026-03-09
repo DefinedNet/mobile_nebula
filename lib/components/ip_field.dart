@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_nebula/components/special_text_field.dart';
 
@@ -34,7 +34,7 @@ class IPField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var textStyle = CupertinoTheme.of(context).textTheme.textStyle;
+    var textStyle = Theme.of(context).textTheme.labelLarge!;
     final double? ipWidth = ipOnly ? Utils.textSize("000000000000000", textStyle).width + 12 : null;
 
     final child = SpecialTextField(

@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_nebula/components/special_text_field.dart';
 import 'package:mobile_nebula/models/ip_and_port.dart';
@@ -57,7 +57,7 @@ class IPAndPortFieldState extends State<IPAndPortField> {
 
   @override
   Widget build(BuildContext context) {
-    var textStyle = CupertinoTheme.of(context).textTheme.textStyle;
+    var textStyle = Theme.of(context).textTheme.labelLarge!;
 
     return Row(
       children: <Widget>[

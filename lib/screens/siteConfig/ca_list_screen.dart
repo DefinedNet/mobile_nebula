@@ -1,8 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:mobile_nebula/components/config/config_button_item.dart';
 import 'package:mobile_nebula/components/config/config_page_item.dart';
@@ -149,16 +148,14 @@ class CAListScreenState extends State<CAListScreen> {
     List<Widget> items = [
       Padding(
         padding: EdgeInsets.fromLTRB(10, 25, 10, 0),
-        child: CupertinoSlidingSegmentedControl(
-          groupValue: inputType,
-          onValueChanged: (v) {
-            if (v != null) {
-              setState(() {
-                inputType = v;
-              });
-            }
+        child: SegmentedButton<String>(
+          selected: {inputType},
+          onSelectionChanged: (v) {
+            setState(() {
+              inputType = v.first;
+            });
           },
-          children: children,
+          segments: children.entries.map((e) => ButtonSegment<String>(value: e.key, label: e.value)).toList(),
         ),
       ),
     ];
@@ -236,10 +233,7 @@ class CAListScreenState extends State<CAListScreen> {
           ConfigButtonItem(
             content: Text('Scan a QR code'),
             onPressed: () async {
-              var result = await Navigator.push(
-                context,
-                platformPageRoute(context: context, builder: (context) => ScanQRScreen()),
-              );
+              var result = await Navigator.push(context, MaterialPageRoute(builder: (context) => ScanQRScreen()));
               if (result != null) {
                 _addCAEntry(result, (err) {
                   if (err != null) {

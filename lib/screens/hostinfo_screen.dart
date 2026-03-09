@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_nebula/components/config/config_checkbox_item.dart';
 import 'package:mobile_nebula/components/config/config_item.dart';
@@ -124,10 +123,7 @@ class HostInfoScreenState extends State<HostInfoScreen> {
   Widget _buildEditRemotes() {
     List<Widget> items = [];
     final currentRemote = hostInfo.currentRemote.toString();
-    final double ipWidth = Utils.textSize(
-      "000.000.000.000:000000",
-      CupertinoTheme.of(context).textTheme.textStyle,
-    ).width;
+    final double ipWidth = Utils.textSize("000.000.000.000:000000", Theme.of(context).textTheme.labelLarge!).width;
 
     for (var remoteObj in hostInfo.remoteAddresses) {
       String remote = remoteObj.toString();
@@ -161,10 +157,7 @@ class HostInfoScreenState extends State<HostInfoScreen> {
   Widget _buildStaticRemotes() {
     List<Widget> items = [];
     final currentRemote = hostInfo.currentRemote.toString();
-    final double ipWidth = Utils.textSize(
-      "000.000.000.000:000000",
-      CupertinoTheme.of(context).textTheme.textStyle,
-    ).width;
+    final double ipWidth = Utils.textSize("000.000.000.000:000000", Theme.of(context).textTheme.labelLarge!).width;
 
     for (var remoteObj in hostInfo.remoteAddresses) {
       String remote = remoteObj.toString();

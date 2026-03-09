@@ -1,16 +1,14 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart' as fpw;
 import 'package:intl/intl.dart';
 import 'package:mobile_nebula/components/config/config_item.dart';
 import 'package:mobile_nebula/components/config/config_page_item.dart';
 import 'package:mobile_nebula/components/config/config_section.dart';
 import 'package:mobile_nebula/components/form_page.dart';
-import 'package:mobile_nebula/components/platform_text_form_field.dart';
+import 'package:mobile_nebula/components/app_text_form_field.dart';
 import 'package:mobile_nebula/models/site.dart';
 import 'package:mobile_nebula/screens/siteConfig/add_certificate_screen.dart';
 import 'package:mobile_nebula/screens/siteConfig/advanced_screen.dart';
@@ -74,13 +72,7 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
   @override
   Widget build(BuildContext context) {
     if (pubKey == null || privKey == null) {
-      return Center(
-        child: fpw.PlatformCircularProgressIndicator(
-          cupertino: (_, _) {
-            return fpw.CupertinoProgressIndicatorData(radius: 50);
-          },
-        ),
-      );
+      return Center(child: CircularProgressIndicator.adaptive());
     }
 
     return FormPage(
@@ -145,8 +137,8 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
 
     return ConfigSection(
       label: 'ERRORS',
-      borderColor: CupertinoColors.systemRed.resolveFrom(context),
-      labelColor: CupertinoColors.systemRed.resolveFrom(context),
+      borderColor: Theme.of(context).colorScheme.error,
+      labelColor: Theme.of(context).colorScheme.error,
       children: items,
     );
   }
@@ -156,7 +148,7 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
       children: <Widget>[
         ConfigItem(
           label: Text("Name"),
-          content: PlatformTextFormField(
+          content: AppTextFormField(
             placeholder: 'Required',
             controller: nameController,
             validator: (name) {
@@ -221,7 +213,7 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
               certError
                   ? Padding(
                       padding: EdgeInsets.only(right: 5),
-                      child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
+                      child: Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 20),
                     )
                   : Container(),
               certError ? Text('Needs attention') : Text(site.certInfo?.cert.name ?? 'Unknown certificate'),
@@ -271,7 +263,7 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
               caError
                   ? Padding(
                       padding: EdgeInsets.only(right: 5),
-                      child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
+                      child: Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 20),
                     )
                   : Container(),
               caError ? Text('Needs attention') : Text(Utils.itemCountFormat(site.ca.length)),
@@ -311,7 +303,7 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
               site.staticHostmap.isEmpty
                   ? Padding(
                       padding: EdgeInsets.only(right: 5),
-                      child: Icon(Icons.error, color: CupertinoColors.systemRed.resolveFrom(context), size: 20),
+                      child: Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 20),
                     )
                   : Container(),
               site.staticHostmap.isEmpty

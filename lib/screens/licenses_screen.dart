@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/simple_page.dart';
 import 'package:mobile_nebula/services/utils.dart';
 
@@ -24,13 +22,13 @@ class LicensesScreen extends StatelessWidget {
           var dep = allDependencies[index];
           return Padding(
             padding: const EdgeInsets.all(8),
-            child: PlatformListTile(
+            child: ListTile(
               onTap: () {
                 Utils.openPage(context, (_) => LicenceDetailPage(title: capitalize(dep.name), licence: dep.license!));
               },
               title: Text(capitalize(dep.name)),
               subtitle: Text(dep.description),
-              trailing: Icon(context.platformIcons.forward, size: 18),
+              trailing: Icon(Icons.chevron_right, size: 18),
             ),
           );
         },

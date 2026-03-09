@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
-/// A normal TextField or CupertinoTextField that looks the same on all platforms
+/// A normal TextField that looks the same on all platforms
 class SpecialTextField extends StatefulWidget {
   const SpecialTextField({
     super.key,
@@ -75,19 +74,19 @@ class SpecialTextFieldState extends State<SpecialTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return PlatformTextField(
-      autocorrect: widget.autocorrect,
-      minLines: widget.minLines,
-      maxLines: widget.maxLines,
+    return TextField(
+      autocorrect: widget.autocorrect ?? true,
+      minLines: widget.expands == true ? null : widget.minLines,
+      maxLines: widget.expands == true ? null : widget.maxLines,
       maxLength: widget.maxLength,
       maxLengthEnforcement: widget.maxLengthEnforcement,
       keyboardType: widget.keyboardType,
       keyboardAppearance: widget.keyboardAppearance,
       textInputAction: widget.textInputAction,
-      textCapitalization: widget.textCapitalization,
-      textAlign: widget.textAlign,
+      textCapitalization: widget.textCapitalization ?? TextCapitalization.none,
+      textAlign: widget.textAlign ?? TextAlign.start,
       textAlignVertical: widget.textAlignVertical,
-      autofocus: widget.autofocus,
+      autofocus: widget.autofocus ?? false,
       focusNode: widget.focusNode,
       onChanged: widget.onChanged,
       enabled: widget.enabled ?? true,
@@ -96,22 +95,14 @@ class SpecialTextFieldState extends State<SpecialTextField> {
           FocusScope.of(context).requestFocus(widget.nextFocusNode);
         }
       },
-      expands: widget.expands,
+      expands: widget.expands ?? false,
       inputFormatters: formatters,
-      material: (_, _) => MaterialTextFieldData(
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.zero,
-          isDense: true,
-          hintText: widget.placeholder,
-          counterText: '',
-          suffix: widget.suffix,
-        ),
-      ),
-      cupertino: (_, _) => CupertinoTextFieldData(
-        decoration: BoxDecoration(),
-        padding: EdgeInsets.zero,
-        placeholder: widget.placeholder,
+      decoration: InputDecoration(
+        border: InputBorder.none,
+        contentPadding: EdgeInsets.zero,
+        isDense: true,
+        hintText: widget.placeholder,
+        counterText: '',
         suffix: widget.suffix,
       ),
       style: widget.style ?? Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.normal),

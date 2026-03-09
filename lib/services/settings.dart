@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:mobile_nebula/services/storage.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';

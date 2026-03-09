@@ -1,11 +1,11 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_nebula/components/special_text_field.dart';
 //TODO: reset doesn't update the ui but clears the field
 
-class PlatformTextFormField extends FormField<String> {
+class AppTextFormField extends FormField<String> {
   //TODO: auto-validate, enabled?
-  PlatformTextFormField({
+  AppTextFormField({
     super.key,
     widgetKey,
     this.controller,
@@ -39,7 +39,7 @@ class PlatformTextFormField extends FormField<String> {
            return null;
          },
          builder: (FormFieldState<String> field) {
-           final PlatformTextFormFieldState state = field as PlatformTextFormFieldState;
+           final AppTextFormFieldState state = field as AppTextFormFieldState;
 
            void onChangedHandler(String value) {
              if (onChanged != null) {
@@ -75,7 +75,7 @@ class PlatformTextFormField extends FormField<String> {
                field.hasError
                    ? Text(
                        field.errorText!,
-                       style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(field.context), fontSize: 13),
+                       style: TextStyle(color: Theme.of(field.context).colorScheme.error, fontSize: 13),
                        textAlign: textAlign,
                      )
                    : Container(height: 0),
@@ -87,16 +87,16 @@ class PlatformTextFormField extends FormField<String> {
   final TextEditingController? controller;
 
   @override
-  PlatformTextFormFieldState createState() => PlatformTextFormFieldState();
+  AppTextFormFieldState createState() => AppTextFormFieldState();
 }
 
-class PlatformTextFormFieldState extends FormFieldState<String> {
+class AppTextFormFieldState extends FormFieldState<String> {
   TextEditingController? _controller;
 
   TextEditingController get _effectiveController => widget.controller ?? _controller!;
 
   @override
-  PlatformTextFormField get widget => super.widget as PlatformTextFormField;
+  AppTextFormField get widget => super.widget as AppTextFormField;
 
   @override
   void initState() {
@@ -109,7 +109,7 @@ class PlatformTextFormFieldState extends FormFieldState<String> {
   }
 
   @override
-  void didUpdateWidget(PlatformTextFormField oldWidget) {
+  void didUpdateWidget(AppTextFormField oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.controller != oldWidget.controller) {
       oldWidget.controller?.removeListener(_handleControllerChanged);

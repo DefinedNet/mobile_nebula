@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_nebula/components/config/config_item.dart';
 import 'package:mobile_nebula/components/config/config_section.dart';
@@ -97,7 +96,7 @@ class CertificateDetailsScreenState extends State<CertificateDetailsScreen> {
     if (certInfo.validity != null && !certInfo.validity!.valid) {
       valid = Text(
         certInfo.validity!.valid ? 'yes' : certInfo.validity!.reason,
-        style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(context)),
+        style: TextStyle(color: Theme.of(context).colorScheme.error),
       );
     }
     return ConfigSection(

@@ -49,7 +49,7 @@ class SpecialButtonState extends State<SpecialButton> with SingleTickerProviderS
   Widget _buildGeneric() {
     var textStyle = Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.normal);
     if (widget.useButtonTheme) {
-      textStyle = Theme.of(context).textTheme.labelLarge!;
+      textStyle = Theme.of(context).textTheme.labelLarge!.copyWith(color: Theme.of(context).colorScheme.primary);
     }
 
     return Container(

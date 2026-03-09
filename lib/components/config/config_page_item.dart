@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_nebula/components/special_button.dart';
 import 'package:mobile_nebula/services/utils.dart';
@@ -52,9 +51,7 @@ class ConfigPageItem extends StatelessWidget {
                   ? Container(padding: EdgeInsets.only(right: 10), child: content)
                   : DefaultTextStyle(style: textStyle, child: label ?? Container()),
             ),
-            disabled
-                ? Container()
-                : Icon(Icons.arrow_forward_ios, color: CupertinoColors.placeholderText.resolveFrom(context), size: 18),
+            disabled ? Container() : Icon(Icons.arrow_forward_ios, color: Theme.of(context).hintColor, size: 18),
           ],
         ),
       ),

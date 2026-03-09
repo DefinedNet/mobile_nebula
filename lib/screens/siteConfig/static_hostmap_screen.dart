@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/config/config_button_item.dart';
 import 'package:mobile_nebula/components/config/config_item.dart';
 import 'package:mobile_nebula/components/config/config_section.dart';
@@ -163,9 +161,9 @@ class StaticHostmapScreenState extends State<StaticHostmapScreen> {
             alignment: Alignment.centerLeft,
             child: widget.onSave == null
                 ? Container()
-                : PlatformIconButton(
+                : IconButton(
                     padding: EdgeInsets.zero,
-                    icon: Icon(Icons.remove_circle, color: CupertinoColors.systemRed.resolveFrom(context)),
+                    icon: Icon(Icons.remove_circle, color: Theme.of(context).colorScheme.error),
                     onPressed: () => setState(() {
                       _removeDestination(key);
                       _dismissKeyboard();

@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class ConfigTextItem extends StatelessWidget {
   const ConfigTextItem({
@@ -14,11 +14,15 @@ class ConfigTextItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoTextFormFieldRow(
+    return TextFormField(
       autocorrect: false,
       minLines: 3,
       maxLines: 10,
-      placeholder: placeholder,
+      decoration: InputDecoration(
+        hintText: placeholder,
+        border: InputBorder.none,
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      ),
       style: style,
       controller: controller,
     );

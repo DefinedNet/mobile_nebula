@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:mobile_nebula/components/config/config_button_item.dart';
 import 'package:mobile_nebula/components/config/config_page_item.dart';
 import 'package:mobile_nebula/components/config/config_section.dart';
@@ -49,7 +49,7 @@ class UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
   }
 
   List<Widget> _buildRoutes() {
-    final double ipWidth = Utils.textSize("000.000.000.000/00", CupertinoTheme.of(context).textTheme.textStyle).width;
+    final double ipWidth = Utils.textSize("000.000.000.000/00", Theme.of(context).textTheme.labelLarge!).width;
     List<Widget> items = [];
     unsafeRoutes.forEach((key, route) {
       items.add(
