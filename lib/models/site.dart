@@ -284,6 +284,7 @@ class Site {
   int get mtu => _getConfigInt(['tun', 'mtu']) ?? 1300;
   String get cipher => _getConfigString(['cipher']) ?? 'aes';
   String get logVerbosity => _getConfigString(['logging', 'level']) ?? 'info';
+  String get staticMapNetwork => _getConfigString(['static_map', 'network']) ?? 'ip4';
   int get lhDuration => _getConfigInt(['lighthouse', 'interval']) ?? 0;
 
   List<UnsafeRoute> get unsafeRoutes {
@@ -327,6 +328,7 @@ class Site {
   set mtu(int value) => _setConfig(['tun', 'mtu'], value);
   set cipher(String value) => _setConfig(['cipher'], value);
   set logVerbosity(String value) => _setConfig(['logging', 'level'], value);
+  set staticMapNetwork(String value) => _setConfig(['static_map', 'network'], value);
   set lhDuration(int value) => _setConfig(['lighthouse', 'interval'], value);
 
   set unsafeRoutes(List<UnsafeRoute> routes) {
