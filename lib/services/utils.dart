@@ -1,10 +1,7 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_nebula/main.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -14,7 +11,7 @@ class Utils {
 
   /// The top and bottom border color of a config section
   static Color configSectionBorder(BuildContext context) {
-    return CupertinoColors.secondarySystemFill.resolveFrom(context);
+    return Theme.of(context).colorScheme.surfaceContainerHighest;
   }
 
   static Size textSize(String text, TextStyle style) {
@@ -27,7 +24,7 @@ class Utils {
   }
 
   static void openPage(BuildContext context, WidgetBuilder pageToDisplayBuilder) {
-    Navigator.push(context, platformPageRoute(context: context, builder: pageToDisplayBuilder));
+    Navigator.push(context, MaterialPageRoute(builder: pageToDisplayBuilder));
   }
 
   static String itemCountFormat(int items, {String singleSuffix = "item", String multiSuffix = "items"}) {
@@ -41,22 +38,9 @@ class Utils {
   /// Builds a simple leading widget that pops the current screen.
   /// Provide your own onPressed to override that behavior, just remember you have to pop
   static Widget leadingBackWidget(BuildContext context, {label = 'Back', Function? onPressed}) {
-    if (Platform.isIOS) {
-      return CupertinoNavigationBarBackButton(
-        previousPageTitle: label,
-        onPressed: () {
-          if (onPressed == null) {
-            Navigator.pop(context);
-          } else {
-            onPressed();
-          }
-        },
-      );
-    }
-
     return IconButton(
       padding: EdgeInsets.zero,
-      icon: Icon(context.platformIcons.back),
+      icon: Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back),
       tooltip: label,
       onPressed: () {
         if (onPressed == null) {
@@ -69,11 +53,7 @@ class Utils {
   }
 
   static Widget trailingSaveWidget(BuildContext context, Function onPressed) {
-    return PlatformTextButton(
-      padding: Platform.isAndroid ? null : EdgeInsets.zero,
-      onPressed: () => onPressed(),
-      child: Text('Save'),
-    );
+    return TextButton(onPressed: () => onPressed(), child: Text('Save'));
   }
 
   /// Simple cross platform delete confirmation dialog - can also be used to confirm throwing away a change by swapping the deleteLabel
@@ -88,20 +68,20 @@ class Utils {
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        return PlatformAlertDialog(
+        return AlertDialog(
           title: Text(title),
           actions: <Widget>[
-            PlatformDialogAction(
+            TextButton(
               child: Text(
                 deleteLabel,
-                style: TextStyle(fontWeight: FontWeight.bold, color: CupertinoColors.systemRed.resolveFrom(context)),
+                style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.error),
               ),
               onPressed: () {
                 Navigator.pop(context);
                 onConfirm();
               },
             ),
-            PlatformDialogAction(
+            TextButton(
               child: Text(cancelLabel),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -122,26 +102,11 @@ class Utils {
       context: navigatorKey.currentContext!,
       barrierDismissible: false,
       builder: (context) {
-        if (Platform.isAndroid) {
-          return AlertDialog(
-            title: Text(title),
-            content: Text(error),
-            actions: <Widget>[
-              TextButton(
-                child: Text('Ok'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        }
-
-        return CupertinoAlertDialog(
+        return AlertDialog(
           title: Text(title),
           content: Text(error),
           actions: <Widget>[
-            CupertinoDialogAction(
+            TextButton(
               child: Text('Ok'),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -172,19 +137,14 @@ class Utils {
     return file.readAsString();
   }
 
-  static TextTheme createTextTheme(BuildContext context, String bodyFontString, String displayFontString) {
-    TextTheme baseTextTheme = Theme.of(context).textTheme;
-    TextTheme bodyTextTheme = GoogleFonts.getTextTheme(bodyFontString, baseTextTheme);
-    TextTheme displayTextTheme = GoogleFonts.getTextTheme(displayFontString, baseTextTheme);
-    TextTheme textTheme = displayTextTheme.copyWith(
-      bodyLarge: bodyTextTheme.bodyLarge,
-      bodyMedium: bodyTextTheme.bodyMedium,
-      bodySmall: bodyTextTheme.bodySmall,
-      labelLarge: bodyTextTheme.labelLarge,
-      labelMedium: bodyTextTheme.labelMedium,
-      labelSmall: bodyTextTheme.labelSmall,
-    );
-    return textTheme;
+  static TextTheme createTextTheme() {
+    // Use Android's Material text geometry as the base so font sizes are
+    // consistent across iOS and Android (avoids iOS 17px default).
+    final typography = Typography.material2021(platform: TargetPlatform.android);
+    TextTheme baseTextTheme = typography.englishLike.merge(typography.black);
+    // Apply Inter font family to all styles. The font files are bundled
+    // in fonts/ and declared in pubspec.yaml — no HTTP fetching needed.
+    return baseTextTheme.apply(fontFamily: 'Inter');
   }
 
   static (int, bool) dynamicToInt(dynamic d) {

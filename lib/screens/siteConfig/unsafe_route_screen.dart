@@ -1,8 +1,8 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:mobile_nebula/components/danger_button.dart';
 import 'package:mobile_nebula/components/cidr_form_field.dart';
 import 'package:mobile_nebula/components/config/config_item.dart';
 import 'package:mobile_nebula/components/config/config_section.dart';
-import 'package:mobile_nebula/components/danger_button.dart';
 import 'package:mobile_nebula/components/form_page.dart';
 import 'package:mobile_nebula/components/ip_form_field.dart';
 import 'package:mobile_nebula/models/cidr.dart';
@@ -79,7 +79,7 @@ class UnsafeRouteScreenState extends State<UnsafeRouteScreen> {
               //TODO: Android doesn't appear to support route based MTU, figure this out
               //            ConfigItem(
               //                label: Text('MTU'),
-              //                content: PlatformTextFormField(
+              //                content: AppTextFormField(
               //                    placeholder: "",
               //                    validator: mtuValidator(false),
               //                    keyboardType: TextInputType.number,

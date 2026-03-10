@@ -1,13 +1,10 @@
 import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_nebula/components/form_page.dart';
 import 'package:mobile_nebula/components/simple_page.dart';
-import 'package:mobile_nebula/services/utils.dart';
 
 class ExcludedAppsScreen extends StatefulWidget {
   const ExcludedAppsScreen({super.key, required this.excludedApps, required this.onSave});
@@ -158,9 +155,14 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(10),
-            child: CupertinoSearchTextField(
+            child: TextField(
               controller: searchController,
-              placeholder: 'Search apps...',
+              decoration: InputDecoration(
+                hintText: 'Search apps...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                contentPadding: EdgeInsets.symmetric(horizontal: 12),
+              ),
               onChanged: (value) {
                 setState(() {
                   searchQuery = value;
@@ -195,7 +197,7 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
       opacity: isAlwaysExcluded ? 0.6 : 1.0,
       child: Container(
         decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: CupertinoColors.separator.resolveFrom(context), width: 0.5)),
+          border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor, width: 0.5)),
         ),
         child: ListTile(
           leading: _buildAppIcon(app),
@@ -210,11 +212,11 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
                 : app.isUninstalled
                 ? '${app.packageName} (not installed)'
                 : app.packageName,
-            style: TextStyle(fontSize: 11, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+            style: TextStyle(fontSize: 11, color: Theme.of(context).hintColor),
             overflow: TextOverflow.ellipsis,
           ),
           trailing: isReadOnly
-              ? (isSelected ? const Icon(Icons.check, color: CupertinoColors.activeBlue) : null)
+              ? (isSelected ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary) : null)
               : Checkbox.adaptive(
                   value: isSelected,
                   onChanged: isAlwaysExcluded
@@ -253,10 +255,10 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: CupertinoColors.systemGrey5.resolveFrom(context),
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(Icons.remove_circle_outline, size: 24, color: CupertinoColors.systemGrey.resolveFrom(context)),
+        child: Icon(Icons.remove_circle_outline, size: 24, color: Theme.of(context).hintColor),
       );
     }
     final bytes = iconCache[app.packageName];
@@ -282,7 +284,7 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: CupertinoColors.systemGrey5.resolveFrom(context),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
       ),
       child: const Icon(Icons.android, size: 24),

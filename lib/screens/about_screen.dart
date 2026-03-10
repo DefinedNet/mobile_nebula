@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/config/config_item.dart';
 import 'package:mobile_nebula/components/config/config_page_item.dart';
 import 'package:mobile_nebula/components/config/config_section.dart';
@@ -36,13 +35,7 @@ class AboutScreenState extends State<AboutScreen> {
   Widget build(BuildContext context) {
     // packageInfo is null until ready is true
     if (!ready) {
-      return Center(
-        child: PlatformCircularProgressIndicator(
-          cupertino: (_, _) {
-            return CupertinoProgressIndicatorData(radius: 50);
-          },
-        ),
-      );
+      return Center(child: CircularProgressIndicator.adaptive());
     }
 
     return SimplePage(

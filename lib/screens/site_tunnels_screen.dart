@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_nebula/components/config/config_page_item.dart';
 import 'package:mobile_nebula/components/config/config_section.dart';
@@ -53,8 +52,8 @@ class SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
     final List<ConfigPageItem> children = tunnels.map((hostInfo) {
       final isLh = _isLighthouse(hostInfo.vpnAddrs);
       final icon = switch (isLh) {
-        true => Icon(Icons.lightbulb_outline, color: CupertinoColors.placeholderText.resolveFrom(context)),
-        false => Icon(Icons.computer, color: CupertinoColors.placeholderText.resolveFrom(context)),
+        true => Icon(Icons.lightbulb_outline, color: Theme.of(context).hintColor),
+        false => Icon(Icons.computer, color: Theme.of(context).hintColor),
       };
 
       return (ConfigPageItem(

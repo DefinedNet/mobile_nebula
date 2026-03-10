@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_nebula/components/config/config_button_item.dart';
 import 'package:mobile_nebula/components/config/config_page_item.dart';
@@ -72,7 +71,7 @@ class StaticHostsScreenState extends State<StaticHostsScreen> {
   }
 
   List<Widget> _buildHosts() {
-    final double ipWidth = Utils.textSize("000.000.000.000", CupertinoTheme.of(context).textTheme.textStyle).width + 32;
+    final double ipWidth = Utils.textSize("000.000.000.000", Theme.of(context).textTheme.labelLarge!).width + 32;
     List<Widget> items = [];
     _hostmap.forEach((key, host) {
       items.add(
@@ -83,7 +82,7 @@ class StaticHostsScreenState extends State<StaticHostsScreen> {
                 padding: EdgeInsets.only(right: 10),
                 child: Icon(
                   host.lighthouse ? Icons.lightbulb_outline : Icons.computer,
-                  color: CupertinoColors.placeholderText.resolveFrom(context),
+                  color: Theme.of(context).hintColor,
                 ),
               ),
               Expanded(child: Text(host.nebulaIp)),

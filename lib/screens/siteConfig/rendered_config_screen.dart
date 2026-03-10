@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:mobile_nebula/components/simple_page.dart';
 import 'package:mobile_nebula/services/share.dart';
 
@@ -17,9 +16,9 @@ class RenderedConfigScreen extends StatelessWidget {
       trailingActions: <Widget>[
         Builder(
           builder: (BuildContext context) {
-            return PlatformIconButton(
+            return IconButton(
               padding: EdgeInsets.zero,
-              icon: Icon(context.platformIcons.share, size: 28.0),
+              icon: Icon(Icons.share, size: 28.0),
               onPressed: () => Share.share(context, title: '$name.yaml', text: config, filename: '$name.yaml'),
             );
           },

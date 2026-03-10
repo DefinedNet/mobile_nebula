@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_nebula/components/special_text_field.dart';
 import 'package:mobile_nebula/models/cidr.dart';
@@ -51,7 +51,7 @@ class CIDRFieldState extends State<CIDRField> {
 
   @override
   Widget build(BuildContext context) {
-    var textStyle = CupertinoTheme.of(context).textTheme.textStyle;
+    var textStyle = Theme.of(context).textTheme.labelLarge!;
 
     return Row(
       children: <Widget>[

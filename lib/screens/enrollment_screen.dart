@@ -4,9 +4,8 @@ import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:logging/logging.dart';
-import 'package:mobile_nebula/components/buttons/primary_button.dart';
+
 import 'package:mobile_nebula/components/simple_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -163,11 +162,7 @@ class EnrollmentScreenState extends State<EnrollmentScreen> {
         child: Column(
           children: [
             Padding(padding: EdgeInsets.only(bottom: 25), child: Text('Contacting DN for enrollment')),
-            PlatformCircularProgressIndicator(
-              cupertino: (_, _) {
-                return CupertinoProgressIndicatorData(radius: 50);
-              },
-            ),
+            CircularProgressIndicator.adaptive(),
           ],
         ),
       );
@@ -201,12 +196,10 @@ class EnrollmentScreenState extends State<EnrollmentScreen> {
 
     final input = Padding(
       padding: EdgeInsets.symmetric(horizontal: 16),
-      child: PlatformTextFormField(
+      child: TextFormField(
         controller: enrollInput,
         validator: validator,
-        hintText: 'from admin.defined.net',
-        cupertino: (_, _) => CupertinoTextFormFieldData(prefix: Text("Code or link")),
-        material: (_, _) => MaterialTextFormFieldData(decoration: const InputDecoration(labelText: 'Code or link')),
+        decoration: InputDecoration(labelText: 'Code or link', hintText: 'from admin.defined.net'),
       ),
     );
 
@@ -223,7 +216,7 @@ class EnrollmentScreenState extends State<EnrollmentScreen> {
           child: Row(
             children: [
               Expanded(
-                child: PrimaryButton(onPressed: onSubmit, child: Text('Submit')),
+                child: FilledButton(onPressed: onSubmit, child: Text('Submit')),
               ),
             ],
           ),

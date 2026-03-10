@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 enum SimpleScrollable { none, vertical, horizontal, both }
@@ -95,19 +94,9 @@ class SimplePage extends StatelessWidget {
       );
     }
 
-    return PlatformScaffold(
+    return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: PlatformAppBar(
-        title: title,
-        leading: leadingAction,
-        trailingActions: trailingActions,
-        cupertino: (_, _) => CupertinoNavigationBarData(
-          transitionBetweenRoutes: false,
-          // TODO: set title on route, show here instead of just "Back"
-          previousPageTitle: 'Back',
-          padding: EdgeInsetsDirectional.only(end: 8.0),
-        ),
-      ),
+      appBar: AppBar(title: title, leading: leadingAction, actions: trailingActions),
       body: SafeArea(child: realChild),
     );
   }

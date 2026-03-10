@@ -1,14 +1,13 @@
-import 'dart:io';
+import 'dart:io' show Platform;
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:mobile_nebula/components/app_text_form_field.dart';
 import 'package:mobile_nebula/components/config/config_item.dart';
 import 'package:mobile_nebula/components/config/config_page_item.dart';
 import 'package:mobile_nebula/components/config/config_section.dart';
 import 'package:mobile_nebula/components/form_page.dart';
-import 'package:mobile_nebula/components/platform_text_form_field.dart';
 import 'package:mobile_nebula/models/site.dart';
 import 'package:mobile_nebula/models/unsafe_route.dart';
 import 'package:mobile_nebula/screens/siteConfig/cipher_screen.dart';
@@ -99,7 +98,7 @@ class AdvancedScreenState extends State<AdvancedScreen> {
                 //TODO: Auto select on focus?
                 content: widget.site.managed
                     ? Text("${settings.lhDuration} seconds", textAlign: TextAlign.right)
-                    : PlatformTextFormField(
+                    : AppTextFormField(
                         initialValue: settings.lhDuration.toString(),
                         keyboardType: TextInputType.number,
                         suffix: Text("seconds"),
@@ -121,7 +120,7 @@ class AdvancedScreenState extends State<AdvancedScreen> {
                 //TODO: Auto select on focus?
                 content: widget.site.managed
                     ? Text(settings.port.toString(), textAlign: TextAlign.right)
-                    : PlatformTextFormField(
+                    : AppTextFormField(
                         initialValue: settings.port.toString(),
                         keyboardType: TextInputType.number,
                         textAlign: TextAlign.right,
@@ -141,7 +140,7 @@ class AdvancedScreenState extends State<AdvancedScreen> {
                 labelWidth: 150,
                 content: widget.site.managed
                     ? Text(settings.mtu.toString(), textAlign: TextAlign.right)
-                    : PlatformTextFormField(
+                    : AppTextFormField(
                         initialValue: settings.mtu.toString(),
                         keyboardType: TextInputType.number,
                         textAlign: TextAlign.right,
@@ -195,25 +194,6 @@ class AdvancedScreenState extends State<AdvancedScreen> {
                 },
               ),
               ConfigPageItem(
-                disabled: widget.site.managed,
-                label: Text('DNS lookup mode'),
-                labelWidth: 150,
-                content: Text(settings.staticMapNetwork, textAlign: TextAlign.end),
-                onPressed: () {
-                  Utils.openPage(context, (context) {
-                    return DnsLookupScreen(
-                      staticMapNetwork: settings.staticMapNetwork,
-                      onSave: (staticMapNetwork) {
-                        setState(() {
-                          settings.staticMapNetwork = staticMapNetwork;
-                          changed = true;
-                        });
-                      },
-                    );
-                  });
-                },
-              ),
-              ConfigPageItem(
                 label: Text('Unsafe routes'),
                 labelWidth: 150,
                 content: Text(Utils.itemCountFormat(settings.unsafeRoutes.length), textAlign: TextAlign.end),
@@ -249,6 +229,25 @@ class AdvancedScreenState extends State<AdvancedScreen> {
                                 changed = true;
                               });
                             },
+                    );
+                  });
+                },
+              ),
+              ConfigPageItem(
+                disabled: widget.site.managed,
+                label: Text('DNS lookup mode'),
+                labelWidth: 150,
+                content: Text(settings.staticMapNetwork, textAlign: TextAlign.end),
+                onPressed: () {
+                  Utils.openPage(context, (context) {
+                    return DnsLookupScreen(
+                      staticMapNetwork: settings.staticMapNetwork,
+                      onSave: (staticMapNetwork) {
+                        setState(() {
+                          settings.staticMapNetwork = staticMapNetwork;
+                          changed = true;
+                        });
+                      },
                     );
                   });
                 },

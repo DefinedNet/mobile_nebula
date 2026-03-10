@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobile_nebula/components/simple_page.dart';
 import 'package:mobile_nebula/services/utils.dart';

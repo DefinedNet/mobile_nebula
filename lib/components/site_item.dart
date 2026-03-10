@@ -24,12 +24,7 @@ class _SiteItemState extends State<SiteItem> {
 
   Widget _siteNameWidget(BuildContext context) {
     final badgeTheme = Theme.of(context).badgeTheme;
-    final nameStyle = TextStyle(
-      fontWeight: FontWeight.w500,
-      fontSize: 16,
-      height: 1.6,
-      color: Theme.of(context).textTheme.bodyLarge?.color,
-    );
+    final nameStyle = Theme.of(context).textTheme.titleLarge!;
     List<InlineSpan> children = [];
 
     // Add the name
@@ -58,25 +53,22 @@ class _SiteItemState extends State<SiteItem> {
   }
 
   Widget _siteStatusWidget(BuildContext context) {
-    final grayTextColor = Theme.of(context).colorScheme.onSecondaryContainer;
-    var fontStyle = TextStyle(color: grayTextColor, fontSize: 14, fontWeight: FontWeight.w500);
+    final textStyle = Theme.of(context).textTheme.titleMedium!;
     if (widget.site.errors.isNotEmpty) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(Icons.warning_rounded, size: 16, color: grayTextColor),
+          Icon(Icons.warning_rounded, size: 16, color: textStyle.color),
           Text(' '),
-          Text('Resolve errors', style: fontStyle),
+          Text('Resolve errors', style: textStyle),
         ],
       );
     }
 
-    return Text(widget.site.status, style: fontStyle);
+    return Text(widget.site.status, style: textStyle);
   }
 
   Widget _buildContent(BuildContext context) {
-    final grayTextColor = Theme.of(context).colorScheme.onSecondaryContainer;
-
     List<Widget> children = [];
     children.add(
       ConfigItem(
@@ -104,10 +96,7 @@ class _SiteItemState extends State<SiteItem> {
     children.add(
       ConfigPageItem(
         padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
-        label: Text(
-          'Details',
-          style: TextStyle(color: grayTextColor, fontSize: 14, fontWeight: FontWeight.w500),
-        ),
+        label: Text('Details', style: Theme.of(context).textTheme.titleMedium!),
         onPressed: widget.onPressed,
       ),
     );

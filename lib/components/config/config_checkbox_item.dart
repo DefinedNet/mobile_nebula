@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_nebula/components/special_button.dart';
 import 'package:mobile_nebula/services/utils.dart';
@@ -31,9 +30,7 @@ class ConfigCheckboxItem extends StatelessWidget {
           Expanded(
             child: Container(padding: EdgeInsets.only(right: 10), child: content),
           ),
-          checked
-              ? Icon(CupertinoIcons.check_mark, color: CupertinoColors.systemBlue.resolveFrom(context))
-              : Container(),
+          checked ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary) : Container(),
         ],
       ),
     );

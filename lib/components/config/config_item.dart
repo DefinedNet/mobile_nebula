@@ -21,10 +21,7 @@ class ConfigItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = Theme.of(context).textTheme.labelLarge!.copyWith(
-      fontWeight: FontWeight.normal,
-      color: Theme.of(context).colorScheme.onSecondaryContainer,
-    );
+    final textStyle = Theme.of(context).textTheme.titleMedium!;
 
     return Container(
       color: Theme.of(context).colorScheme.primaryContainer,
