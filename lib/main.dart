@@ -95,6 +95,7 @@ class AppState extends State<App> {
 
     return MaterialApp(
       navigatorKey: navigatorKey,
+      scrollBehavior: const MaterialScrollBehavior().copyWith(physics: const ClampingScrollPhysics()),
       debugShowCheckedModeBanner: false,
       localizationsDelegates: <LocalizationsDelegate<dynamic>>[
         DefaultMaterialLocalizations.delegate,

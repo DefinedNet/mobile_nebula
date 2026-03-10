@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:mobile_nebula/components/simple_page.dart';
 import 'package:mobile_nebula/models/site.dart';

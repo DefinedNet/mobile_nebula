@@ -1,12 +1,10 @@
 import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_nebula/components/form_page.dart';
 import 'package:mobile_nebula/components/simple_page.dart';
-import 'package:mobile_nebula/services/utils.dart';
 
 class ExcludedAppsScreen extends StatefulWidget {
   const ExcludedAppsScreen({super.key, required this.excludedApps, required this.onSave});

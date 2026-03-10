@@ -26,10 +26,7 @@ class ConfigPageItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = Theme.of(context).textTheme.labelLarge!.copyWith(
-      fontWeight: FontWeight.normal,
-      color: Theme.of(context).colorScheme.onSecondaryContainer,
-    );
+    final textStyle = Theme.of(context).textTheme.titleMedium!;
 
     return SpecialButton(
       onPressed: disabled ? null : onPressed,
@@ -51,7 +48,7 @@ class ConfigPageItem extends StatelessWidget {
                   ? Container(padding: EdgeInsets.only(right: 10), child: content)
                   : DefaultTextStyle(style: textStyle, child: label ?? Container()),
             ),
-            disabled ? Container() : Icon(Icons.arrow_forward_ios, color: Theme.of(context).hintColor, size: 18),
+            disabled ? Container() : Icon(Icons.arrow_forward_ios, color: textStyle.color, size: 18),
           ],
         ),
       ),

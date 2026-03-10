@@ -15,7 +15,7 @@ class ConfigHeader extends StatelessWidget {
       child: Text(
         label,
         style: Theme.of(context).textTheme.titleMedium!.copyWith(
-          color: color ?? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.6),
+          color: color ?? Theme.of(context).colorScheme.onSurfaceVariant,
           fontSize: _headerFontSize,
         ),
       ),

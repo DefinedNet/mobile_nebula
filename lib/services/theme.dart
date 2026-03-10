@@ -25,13 +25,13 @@ class MaterialTheme {
       onTertiary: Color(4294967295),
       tertiaryContainer: Color(4294957540),
       onTertiaryContainer: Color(4284693322),
-      error: Color(4290386458),
-      onError: Color(4294967295),
+      error: Color.fromRGBO(181, 52, 23, 1),
+      onError: Color.fromRGBO(255, 255, 255, 1),
       errorContainer: Color(4294957782),
       onErrorContainer: Color(4287823882),
       surface: Color.fromRGBO(226, 229, 233, 1),
       onSurface: Colors.black,
-      onSurfaceVariant: Color.fromRGBO(138, 151, 168, 1),
+      onSurfaceVariant: Color.fromRGBO(108, 125, 147, 1),
       outline: Color(4286150015),
       outlineVariant: Color.fromRGBO(226, 229, 233, 1),
       shadow: Color(4278190080),
@@ -56,7 +56,7 @@ class MaterialTheme {
       surfaceContainerLow: Color(4294439674),
       surfaceContainer: Color(4294110452),
       surfaceContainerHigh: Color(4293715694),
-      surfaceContainerHighest: Color(4293321193),
+      surfaceContainerHighest: Color.fromRGBO(226, 229, 233, 1),
     );
   }
 
@@ -84,13 +84,13 @@ class MaterialTheme {
       onTertiary: Color(4294967295),
       tertiaryContainer: Color(4287455344),
       onTertiaryContainer: Color(4294967295),
-      error: Color(4285792262),
-      onError: Color(4294967295),
+      error: Color.fromRGBO(181, 52, 23, 1),
+      onError: Color.fromRGBO(255, 255, 255, 1),
       errorContainer: Color(4291767335),
       onErrorContainer: Color(4294967295),
       surface: Color.fromRGBO(226, 229, 233, 1),
       onSurface: Colors.black,
-      onSurfaceVariant: Color.fromRGBO(138, 151, 168, 1),
+      onSurfaceVariant: Color.fromRGBO(108, 125, 147, 1),
       outline: Color(4283715930),
       outlineVariant: Color.fromRGBO(226, 229, 233, 1),
       shadow: Color(4278190080),
@@ -115,7 +115,7 @@ class MaterialTheme {
       surfaceContainerLow: Color(4294439674),
       surfaceContainer: Color(4293715694),
       surfaceContainerHigh: Color(4292926435),
-      surfaceContainerHighest: Color(4292202712),
+      surfaceContainerHighest: Color.fromRGBO(226, 229, 233, 1),
     );
   }
 
@@ -143,13 +143,13 @@ class MaterialTheme {
       onTertiary: Color(4294967295),
       tertiaryContainer: Color(4284824908),
       onTertiaryContainer: Color(4294967295),
-      error: Color(4284481540),
-      onError: Color(4294967295),
+      error: Color.fromRGBO(181, 52, 23, 1),
+      onError: Color.fromRGBO(255, 255, 255, 1),
       errorContainer: Color(4288151562),
       onErrorContainer: Color(4294967295),
       surface: Color.fromRGBO(226, 229, 233, 1),
       onSurface: Colors.black,
-      onSurfaceVariant: Color.fromRGBO(138, 151, 168, 1),
+      onSurfaceVariant: Color.fromRGBO(108, 125, 147, 1),
       outline: Color(4281150259),
       outlineVariant: Color.fromRGBO(226, 229, 233, 1),
       shadow: Color(4278190080),
@@ -174,7 +174,7 @@ class MaterialTheme {
       surfaceContainerLow: Color(4294242295),
       surfaceContainer: Color(4293321193),
       surfaceContainerHigh: Color(4292400090),
-      surfaceContainerHighest: Color(4291478989),
+      surfaceContainerHighest: Color.fromRGBO(226, 229, 233, 1),
     );
   }
 
@@ -202,13 +202,13 @@ class MaterialTheme {
       onTertiary: Color(4282983731),
       tertiaryContainer: Color(4284693322),
       onTertiaryContainer: Color(4294957540),
-      error: Color(4294948011),
-      onError: Color(4285071365),
+      error: Color.fromRGBO(181, 52, 23, 1),
+      onError: Color.fromRGBO(255, 255, 255, 1),
       errorContainer: Color(4287823882),
       onErrorContainer: Color(4294957782),
       surface: Color.fromRGBO(22, 25, 29, 1),
       onSurface: Colors.white,
-      onSurfaceVariant: Color.fromRGBO(138, 151, 168, 1),
+      onSurfaceVariant: Color.fromRGBO(108, 125, 147, 1),
       outline: Color(4287860633),
       outlineVariant: Color.fromRGBO(65, 75, 88, 1),
       shadow: Color(4278190080),
@@ -233,7 +233,7 @@ class MaterialTheme {
       surfaceContainerLow: Color(4280032032),
       surfaceContainer: Color(4280295204),
       surfaceContainerHigh: Color(4281018671),
-      surfaceContainerHighest: Color(4281742394),
+      surfaceContainerHighest: Color.fromRGBO(65, 75, 88, 1),
     );
   }
 
@@ -261,13 +261,13 @@ class MaterialTheme {
       onTertiary: Color(4282194472),
       tertiaryContainer: Color(4290020244),
       onTertiaryContainer: Color(4278190080),
-      error: Color(4294955724),
-      onError: Color(4283695107),
+      error: Color.fromRGBO(181, 52, 23, 1),
+      onError: Color.fromRGBO(255, 255, 255, 1),
       errorContainer: Color(4294923337),
       onErrorContainer: Color(4278190080),
       surface: Color(4279505688),
       onSurface: Colors.white,
-      onSurfaceVariant: Color.fromRGBO(138, 151, 168, 1),
+      onSurfaceVariant: Color.fromRGBO(108, 125, 147, 1),
       outline: Color(4290097339),
       outlineVariant: Color.fromRGBO(65, 75, 88, 1),
       shadow: Color(4278190080),
@@ -292,7 +292,7 @@ class MaterialTheme {
       surfaceContainerLow: Color(4280163618),
       surfaceContainer: Color(4280887085),
       surfaceContainerHigh: Color(4281610808),
-      surfaceContainerHighest: Color(4282334531),
+      surfaceContainerHighest: Color.fromRGBO(65, 75, 88, 1),
     );
   }
 
@@ -320,13 +320,13 @@ class MaterialTheme {
       onTertiary: Color(4278190080),
       tertiaryContainer: Color(4293571782),
       onTertiaryContainer: Color(4280091150),
-      error: Color(4294962409),
-      onError: Color(4278190080),
+      error: Color.fromRGBO(181, 52, 23, 1),
+      onError: Color.fromRGBO(255, 255, 255, 1),
       errorContainer: Color(4294946468),
       onErrorContainer: Color(4280418305),
       surface: Color.fromRGBO(22, 25, 29, 1),
       onSurface: Colors.white,
-      onSurfaceVariant: Color.fromRGBO(138, 151, 168, 1),
+      onSurfaceVariant: Color.fromRGBO(108, 125, 147, 1),
       outline: Color(4294242041),
       outlineVariant: Color.fromRGBO(65, 75, 88, 1),
       shadow: Color(4278190080),
@@ -351,7 +351,7 @@ class MaterialTheme {
       surfaceContainerLow: Color(4280295204),
       surfaceContainer: Color(4281478965),
       surfaceContainerHigh: Color(4282202689),
-      surfaceContainerHighest: Color(4282926668),
+      surfaceContainerHighest: Color.fromRGBO(65, 75, 88, 1),
     );
   }
 
@@ -373,7 +373,21 @@ class MaterialTheme {
     colorScheme: colorScheme,
     textTheme: textTheme
         .apply(bodyColor: colorScheme.onSurface, displayColor: colorScheme.onSurface)
-        .copyWith(labelLarge: textTheme.labelLarge!.copyWith(color: colorScheme.onSurface, height: 1.6)),
+        .copyWith(labelLarge: textTheme.labelLarge!.copyWith(color: colorScheme.onSurface, height: 1.6))
+        .copyWith(
+          titleLarge: textTheme.titleLarge!.copyWith(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: colorScheme.onSurface,
+            height: 1.8,
+          ),
+          titleMedium: textTheme.titleMedium!.copyWith(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: colorScheme.onSecondaryContainer,
+            height: 1.6,
+          ),
+        ),
     scaffoldBackgroundColor: colorScheme.surface,
     canvasColor: colorScheme.surface,
     pageTransitionsTheme: PageTransitionsTheme(
@@ -399,9 +413,9 @@ class MaterialTheme {
     ),
     listTileTheme: ListTileThemeData(
       titleTextStyle: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w500, fontSize: 16),
-      subtitleTextStyle: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500, fontSize: 14),
+      subtitleTextStyle: TextStyle(color: colorScheme.onSecondaryContainer, fontWeight: FontWeight.w500, fontSize: 14),
       leadingAndTrailingTextStyle: TextStyle(
-        color: colorScheme.onSurfaceVariant,
+        color: colorScheme.onSecondaryContainer,
         fontWeight: FontWeight.w500,
         fontSize: 16,
       ),

@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:mobile_nebula/components/danger_button.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_nebula/components/config/config_item.dart';
 import 'package:mobile_nebula/components/config/config_page_item.dart';
 import 'package:mobile_nebula/components/config/config_section.dart';
+import 'package:mobile_nebula/components/danger_button.dart';
 import 'package:mobile_nebula/components/simple_page.dart';
 import 'package:mobile_nebula/models/site.dart';
 import 'package:mobile_nebula/screens/siteConfig/site_config_screen.dart';
@@ -156,7 +156,7 @@ class SiteDetailScreenState extends State<SiteDetailScreen> {
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.only(right: 5),
-                child: Text(widget.site.status, style: TextStyle(color: Theme.of(context).hintColor)),
+                child: Text(widget.site.status, style: Theme.of(context).textTheme.titleMedium!),
               ),
               Switch.adaptive(
                 value: widget.site.connected,
