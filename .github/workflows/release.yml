@@ -190,3 +190,13 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+
+      - name: Notify api of new mobile release
+        env:
+          TOKEN: ${{ secrets.MACHINE_USER_PAT }}
+        run: |
+          curl -sSf -X POST \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/DefinedNet/api/dispatches" \
+            -d "{\"event_type\":\"mobile-release\",\"client_payload\":{\"version\":\"${BUILD_NAME}\"}}"
