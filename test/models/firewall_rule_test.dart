@@ -64,11 +64,7 @@ void main() {
     });
 
     test('handles groups as a single string', () {
-      final rule = FirewallRule.fromJson({
-        'port': 'any',
-        'proto': 'any',
-        'groups': 'web',
-      });
+      final rule = FirewallRule.fromJson({'port': 'any', 'proto': 'any', 'groups': 'web'});
 
       expect(rule.groups, ['web']);
     });
