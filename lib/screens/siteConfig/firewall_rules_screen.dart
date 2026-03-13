@@ -93,35 +93,16 @@ class _FirewallRulesScreenState extends State<FirewallRulesScreen> {
   }
 
   String _ruleTitle(FirewallRule rule) {
+    if (rule.description != null && rule.description!.isNotEmpty) {
+      return rule.description!;
+    }
+    return 'No description';
+  }
+
+  String _ruleSummary(FirewallRule rule) {
     final protocol = rule.proto == 'any' ? 'Any' : rule.proto.toUpperCase();
     final port = rule.port == 'any' ? 'any' : rule.port;
     return '$protocol:$port';
-  }
-
-  String _ruleSubtitle(FirewallRule rule) {
-    final parts = <String>[];
-
-    if (rule.groups != null && rule.groups!.isNotEmpty) {
-      parts.add(rule.groups!.join(' + '));
-    }
-
-    if (rule.host != null && rule.host!.isNotEmpty && rule.host != 'any') {
-      parts.add(rule.host!);
-    }
-
-    if (rule.cidr != null && rule.cidr!.isNotEmpty) {
-      parts.add(rule.cidr!);
-    }
-
-    if (parts.isEmpty) {
-      return 'Any source allowed';
-    }
-
-    return parts.join(' \u2022 ');
-  }
-
-  bool _hasAdvancedSettings(FirewallRule rule) {
-    return rule.caName != null || rule.caSha != null || rule.localCidr != null || rule.port == 'fragment';
   }
 
   List<Widget> _buildRules() {
@@ -162,28 +143,14 @@ class _FirewallRulesScreenState extends State<FirewallRulesScreen> {
   }
 
   Widget _buildRuleContent(BuildContext context, FirewallRule rule) {
-    final hasAdvanced = _hasAdvancedSettings(rule);
     final secondaryColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(_ruleTitle(rule), style: const TextStyle(fontWeight: FontWeight.bold)),
-            if (hasAdvanced)
-              Padding(
-                padding: const EdgeInsets.only(left: 6),
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, shape: BoxShape.circle),
-                ),
-              ),
-          ],
-        ),
+        Text(_ruleTitle(rule), style: const TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 2),
-        Text(_ruleSubtitle(rule), style: TextStyle(color: secondaryColor, fontSize: 14)),
+        Text(_ruleSummary(rule), style: TextStyle(color: secondaryColor, fontSize: 14)),
       ],
     );
   }

@@ -60,7 +60,7 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
       newSite = true;
       site = Site();
       // Seed default outbound rule: allow all traffic
-      site.outboundFirewallRules = [FirewallRule(port: 'any', proto: 'any', host: 'any')];
+      site.outboundFirewallRules = [FirewallRule(port: 'any', proto: 'any', host: 'any', description: 'Allow all outbound')];
     } else {
       site = widget.site!;
       nameController.text = site.name;
@@ -236,8 +236,7 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
                       : (result) {
                           setState(() {
                             changed = true;
-                            site.certInfo = result.certInfo;
-                            site.key = result.key;
+                            site.setCertificate(result.certInfo, result.key);
                           });
                         },
                   supportsQRScanning: widget.supportsQRScanning,
@@ -250,8 +249,7 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
                 onSave: (result) {
                   setState(() {
                     changed = true;
-                    site.certInfo = result.certInfo;
-                    site.key = result.key;
+                    site.setCertificate(result.certInfo, result.key);
                   });
                 },
                 supportsQRScanning: widget.supportsQRScanning,
@@ -283,7 +281,7 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
                     : (ca) {
                         setState(() {
                           changed = true;
-                          site.ca = ca;
+                          site.setCertificateAuthorities(ca);
                         });
                       },
                 supportsQRScanning: widget.supportsQRScanning,

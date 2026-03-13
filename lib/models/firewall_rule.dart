@@ -1,6 +1,7 @@
 class FirewallRule {
   String port;
   String proto;
+  String? description;
   String? host;
   List<String>? groups;
   String? cidr;
@@ -11,6 +12,7 @@ class FirewallRule {
   FirewallRule({
     this.port = 'any',
     this.proto = 'any',
+    this.description,
     this.host,
     this.groups,
     this.cidr,
@@ -40,6 +42,7 @@ class FirewallRule {
     return FirewallRule(
       port: port,
       proto: (json['proto'] ?? 'any').toString(),
+      description: json['description'] as String?,
       host: json['host'] as String?,
       groups: groups,
       cidr: json['cidr'] as String?,
@@ -53,6 +56,7 @@ class FirewallRule {
     return {
       'port': port,
       'proto': proto,
+      if (description != null && description!.isNotEmpty) 'description': description,
       if (host != null) 'host': host,
       if (groups != null && groups!.isNotEmpty) 'groups': groups,
       if (cidr != null) 'cidr': cidr,

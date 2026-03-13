@@ -285,6 +285,24 @@ class Site {
   int get mtu => _getConfigInt(['tun', 'mtu']) ?? 1300;
   String get cipher => _getConfigString(['cipher']) ?? 'aes';
   String get logVerbosity => _getConfigString(['logging', 'level']) ?? 'info';
+  /// Updates the certificate and private key, syncing the raw PEM into rawConfig.
+  void setCertificate(CertificateInfo info, String privateKey) {
+    certInfo = info;
+    key = privateKey;
+    if (info.rawCert != null) {
+      _setConfig(['pki', 'cert'], info.rawCert);
+    }
+  }
+
+  /// Updates the CA list, syncing the raw PEM strings into rawConfig.
+  void setCertificateAuthorities(List<CertificateInfo> cas) {
+    ca = cas;
+    final pem = cas.where((c) => c.rawCert != null).map((c) => c.rawCert!).join('\n');
+    if (pem.isNotEmpty) {
+      _setConfig(['pki', 'ca'], pem);
+    }
+  }
+
   String get staticMapNetwork => _getConfigString(['static_map', 'network']) ?? 'ip4';
   int get lhDuration => _getConfigInt(['lighthouse', 'interval']) ?? 0;
 

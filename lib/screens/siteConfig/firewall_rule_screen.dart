@@ -43,6 +43,7 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
   bool _addingGroup = false;
   final TextEditingController _newGroupController = TextEditingController();
   late final TextEditingController _hostController;
+  late final TextEditingController _descriptionController;
   late TextStyle _labelStyle;
 
   @override
@@ -64,6 +65,7 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
     _endPort = _initialEndPort();
     _host = widget.rule.host ?? '';
     _hostController = TextEditingController(text: _host);
+    _descriptionController = TextEditingController(text: widget.rule.description ?? '');
     _remoteCidr = _parseCidr(widget.rule.cidr);
     _localCidr = _parseCidr(widget.rule.localCidr);
     _caName = widget.rule.caName ?? '';
@@ -80,6 +82,7 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
   void dispose() {
     _newGroupController.dispose();
     _hostController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -125,12 +128,36 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
       onSave: _onSave,
       child: Column(
         children: [
+          _buildDescriptionSection(),
           _buildTrafficSection(),
           _buildAllowedHostsSection(),
           _buildCertificateAuthoritySection(),
           _buildDeleteButton(),
         ],
       ),
+    );
+  }
+
+  Widget _buildDescriptionSection() {
+    final readOnly = widget.onSave == null;
+    return ConfigSection(
+      label: 'Description',
+      children: [
+        ConfigItem(
+          content: TextField(
+            controller: _descriptionController,
+            enabled: !readOnly,
+            style: Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.normal),
+            decoration: InputDecoration(
+              hintText: 'e.g. Allow HTTPS traffic',
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              border: InputBorder.none,
+              isDense: true,
+            ),
+            onChanged: (_) => setState(() { changed = true; }),
+          ),
+        ),
+      ],
     );
   }
 
@@ -237,6 +264,14 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
                     onSelectionChanged: (v) => setState(() {
                       changed = true;
                       _matchBy = v.first;
+                      // Reset the other match fields to indicate only one is used
+                      if (_matchBy != 'host') _hostController.clear();
+                      if (_matchBy != 'group') {
+                        _groups.clear();
+                        _addingGroup = false;
+                        _newGroupController.clear();
+                      }
+                      if (_matchBy != 'cidr') _remoteCidr = null;
                     }),
                   ),
                 ),
@@ -498,7 +533,8 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
       }
     }
 
-    final rule = FirewallRule(port: port, proto: _protocol);
+    final desc = _descriptionController.text.trim();
+    final rule = FirewallRule(port: port, proto: _protocol, description: desc.isEmpty ? null : desc);
 
     // Source
     switch (_matchBy) {
