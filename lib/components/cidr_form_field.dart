@@ -18,10 +18,16 @@ class CIDRFormField extends FormField<CIDR> {
     super.initialValue,
     this.ipController,
     this.bitsController,
+    bool required = true,
+    bool enabled = true,
   }) : super(
          validator: (cidr) {
            if (cidr == null) {
-             return "Please fill out this field";
+             return required ? "Please fill out this field" : null;
+           }
+
+           if (!required && cidr.ip.isEmpty && cidr.bits == 0) {
+             return null;
            }
 
            var (valid, type) = ipValidator(cidr.ip);
@@ -60,6 +66,7 @@ class CIDRFormField extends FormField<CIDR> {
                  textInputAction: textInputAction,
                  ipController: state._effectiveIPController,
                  bitsController: state._effectiveBitsController,
+                 enabled: enabled,
                ),
                field.hasError
                    ? Text(
