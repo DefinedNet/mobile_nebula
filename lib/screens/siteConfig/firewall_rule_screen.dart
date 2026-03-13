@@ -154,7 +154,9 @@ class FirewallRuleScreenState extends State<FirewallRuleScreen> {
               border: InputBorder.none,
               isDense: true,
             ),
-            onChanged: (_) => setState(() { changed = true; }),
+            onChanged: (_) => setState(() {
+              changed = true;
+            }),
           ),
         ),
       ],

@@ -60,7 +60,9 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
       newSite = true;
       site = Site();
       // Seed default outbound rule: allow all traffic
-      site.outboundFirewallRules = [FirewallRule(port: 'any', proto: 'any', host: 'any', description: 'Allow all outbound')];
+      site.outboundFirewallRules = [
+        FirewallRule(port: 'any', proto: 'any', host: 'any', description: 'Allow all outbound'),
+      ];
     } else {
       site = widget.site!;
       nameController.text = site.name;

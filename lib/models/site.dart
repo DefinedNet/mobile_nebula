@@ -285,6 +285,7 @@ class Site {
   int get mtu => _getConfigInt(['tun', 'mtu']) ?? 1300;
   String get cipher => _getConfigString(['cipher']) ?? 'aes';
   String get logVerbosity => _getConfigString(['logging', 'level']) ?? 'info';
+
   /// Updates the certificate and private key, syncing the raw PEM into rawConfig.
   void setCertificate(CertificateInfo info, String privateKey) {
     certInfo = info;
