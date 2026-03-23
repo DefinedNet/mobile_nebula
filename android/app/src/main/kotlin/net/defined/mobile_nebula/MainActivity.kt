@@ -363,7 +363,7 @@ class MainActivity: FlutterActivity() {
             putExtra("path", siteContainer.site.path)
             putExtra("id", siteContainer.site.id)
         }
-        startService(intent)
+        startForegroundService(intent)
         if (outMessenger == null) {
             bindService(intent, connection, 0)
         }
@@ -564,7 +564,7 @@ class MainActivity: FlutterActivity() {
                 putExtra("path", siteContainer.site.path)
                 putExtra("id", siteContainer.site.id)
             }
-            startService(intent)
+            startForegroundService(intent)
             if (outMessenger == null) {
                 bindService(intent, connection, 0)
             }

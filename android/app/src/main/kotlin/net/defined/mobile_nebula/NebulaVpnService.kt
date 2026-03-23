@@ -1,15 +1,18 @@
 package net.defined.mobile_nebula
 
+import android.app.PendingIntent
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo
 import android.net.*
 import android.os.*
 import android.system.OsConstants
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.work.*
 import java.io.File
@@ -22,6 +25,7 @@ class NebulaVpnService : VpnService() {
 
     companion object {
         const val TAG = "NebulaVpnService"
+        const val NOTIFICATION_ID = 1
 
         const val ACTION_STOP = "net.defined.mobile_nebula.STOP"
         const val ACTION_RELOAD = "net.defined.mobile_nebula.RELOAD"
@@ -66,11 +70,43 @@ class NebulaVpnService : VpnService() {
         super.onCreate()
     }
 
+    private fun startForegroundWithNotification(siteName: String) {
+        val tapIntent = packageManager.getLaunchIntentForPackage(packageName)
+        val tapPending = PendingIntent.getActivity(
+            this, 0, tapIntent, PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val stopIntent = Intent(this, NebulaVpnService::class.java).apply {
+            action = ACTION_STOP
+        }
+        val stopPending = PendingIntent.getService(
+            this, 0, stopIntent, PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(this, MyApplication.VPN_CHANNEL_ID)
+            .setContentTitle("Nebula")
+            .setContentText("Connected to $siteName")
+            .setSmallIcon(R.drawable.ic_vpn_notification)
+            .setOngoing(true)
+            .setContentIntent(tapPending)
+            .addAction(0, "Disconnect", stopPending)
+            .build()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED)
+        } else {
+            startForeground(NOTIFICATION_ID, notification)
+        }
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
             stopVpn()
             return START_NOT_STICKY
         }
+
+        // Satisfy the 5-second foreground contract from startForegroundService()
+        startForegroundWithNotification("Nebula")
 
         var autoStart = false
         var sitePath: String? = null
@@ -86,6 +122,7 @@ class NebulaVpnService : VpnService() {
         }
         if (sitePath.isNullOrEmpty()) {
             Log.e(TAG, "Could not find site path in intent or always-on-site file")
+            stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf(startId)
             return START_NOT_STICKY
         }
@@ -98,6 +135,7 @@ class NebulaVpnService : VpnService() {
         }
         if (startSite == null) {
             Log.e(TAG, "Could not get site details from: $sitePath")
+            stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf(startId)
             return START_NOT_STICKY
         }
@@ -115,12 +153,14 @@ class NebulaVpnService : VpnService() {
         // Make sure we don't accept commands for a different site id
         if (site != null && site!!.id != startSite.id) {
             announceExit(startSite.id, "Command received for a site id that is different from the current active site")
+            stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf(startId)
             return START_NOT_STICKY
         }
 
         if (startSite.cert == null) {
             announceExit(startSite.id, "Site is missing a certificate")
+            stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf(startId)
             return START_NOT_STICKY
         }
@@ -226,6 +266,7 @@ class NebulaVpnService : VpnService() {
         //TODO: There is an open discussion around sleep killing tunnels or just changing mobile to tear down stale tunnels
         //registerSleep()
 
+        startForegroundWithNotification(site!!.name)
         nebula!!.start()
         running = true
         sendSimple(MSG_IS_RUNNING, 1)
@@ -303,6 +344,7 @@ class NebulaVpnService : VpnService() {
 
     private fun stopVpn() {
         if (nebula == null) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
             return stopSelf()
         }
 
@@ -312,6 +354,7 @@ class NebulaVpnService : VpnService() {
         nebula = null
         running = false
         announceExit(site?.id, null)
+        stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
