@@ -16,6 +16,7 @@ class IPField extends StatelessWidget {
   final TextEditingController? controller;
   final TextAlign textAlign;
   final bool autoSize;
+  final bool enabled;
 
   const IPField({
     super.key,
@@ -30,6 +31,7 @@ class IPField extends StatelessWidget {
     this.controller,
     this.textAlign = TextAlign.center,
     this.autoSize = true,
+    this.enabled = true,
   });
 
   @override
@@ -51,6 +53,7 @@ class IPField extends StatelessWidget {
           : [FilteringTextInputFormatter.allow(RegExp(r'[^\s]+'))],
       textInputAction: textInputAction,
       placeholder: help,
+      enabled: enabled,
     );
 
     if (autoSize) {

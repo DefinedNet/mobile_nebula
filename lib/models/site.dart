@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
 import 'package:mobile_nebula/models/hostinfo.dart';
+import 'package:mobile_nebula/models/firewall_rule.dart';
 import 'package:mobile_nebula/models/unsafe_route.dart';
 import 'package:uuid/uuid.dart';
 import 'package:yaml/yaml.dart';
@@ -284,6 +285,25 @@ class Site {
   int get mtu => _getConfigInt(['tun', 'mtu']) ?? 1300;
   String get cipher => _getConfigString(['cipher']) ?? 'aes';
   String get logVerbosity => _getConfigString(['logging', 'level']) ?? 'info';
+
+  /// Updates the certificate and private key, syncing the raw PEM into rawConfig.
+  void setCertificate(CertificateInfo info, String privateKey) {
+    certInfo = info;
+    key = privateKey;
+    if (info.rawCert != null) {
+      _setConfig(['pki', 'cert'], info.rawCert);
+    }
+  }
+
+  /// Updates the CA list, syncing the raw PEM strings into rawConfig.
+  void setCertificateAuthorities(List<CertificateInfo> cas) {
+    ca = cas;
+    final pem = cas.where((c) => c.rawCert != null).map((c) => c.rawCert!).join('\n');
+    if (pem.isNotEmpty) {
+      _setConfig(['pki', 'ca'], pem);
+    }
+  }
+
   String get staticMapNetwork => _getConfigString(['static_map', 'network']) ?? 'ip4';
   int get lhDuration => _getConfigInt(['lighthouse', 'interval']) ?? 0;
 
@@ -337,6 +357,26 @@ class Site {
 
   set dnsResolvers(List<String> resolvers) {
     _setConfig(['mobile_nebula', 'dns_resolvers'], resolvers);
+  }
+
+  List<FirewallRule> get inboundFirewallRules {
+    final rules = _getConfig<List<dynamic>>(['firewall', 'inbound']);
+    if (rules == null) return [];
+    return rules.map((r) => FirewallRule.fromJson(Map<String, dynamic>.from(r))).toList();
+  }
+
+  set inboundFirewallRules(List<FirewallRule> rules) {
+    _setConfig(['firewall', 'inbound'], rules.map((r) => r.toJson()).toList());
+  }
+
+  List<FirewallRule> get outboundFirewallRules {
+    final rules = _getConfig<List<dynamic>>(['firewall', 'outbound']);
+    if (rules == null) return [];
+    return rules.map((r) => FirewallRule.fromJson(Map<String, dynamic>.from(r))).toList();
+  }
+
+  set outboundFirewallRules(List<FirewallRule> rules) {
+    _setConfig(['firewall', 'outbound'], rules.map((r) => r.toJson()).toList());
   }
 
   set staticHostmap(Map<String, StaticHost> hostmap) {
