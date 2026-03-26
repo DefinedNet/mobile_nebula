@@ -437,7 +437,7 @@ class Site: Encodable {
       unsafeRoutes = []
     }
 
-    // Parse dnsResolvers from rawConfig (stored under mobile_nebula.dns_resolvers by the UI)
+    // Parse dnsResolvers from rawConfig
     let mobileNebulaConfig = rawConfigMap["mobile_nebula"] as? [String: Any]
     if let resolvers = mobileNebulaConfig?["dns_resolvers"] as? [String] {
       dnsResolvers = resolvers
