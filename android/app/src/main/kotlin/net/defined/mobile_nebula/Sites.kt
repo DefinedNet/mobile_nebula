@@ -357,9 +357,10 @@ class Site(context: Context, siteDir: File) {
             } ?: emptyList()
         } catch (_: Exception) { emptyList() }
 
-        // Parse dnsResolvers from rawConfig
+        // Parse dnsResolvers from rawConfig (stored under mobile_nebula.dns_resolvers by the UI)
         dnsResolvers = try {
-            val resolvers = rawConfigMap["dns_resolvers"] as? List<*>
+            val mobileNebulaConfig = rawConfigMap["mobile_nebula"] as? Map<*, *>
+            val resolvers = mobileNebulaConfig?.get("dns_resolvers") as? List<*>
             resolvers?.mapNotNull { it?.toString() } ?: emptyList()
         } catch (_: Exception) { emptyList() }
 
