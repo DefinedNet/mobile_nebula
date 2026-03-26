@@ -438,7 +438,8 @@ class Site: Encodable {
     }
 
     // Parse dnsResolvers from rawConfig
-    if let resolvers = rawConfigMap["dns_resolvers"] as? [String] {
+    let mobileNebulaConfig = rawConfigMap["mobile_nebula"] as? [String: Any]
+    if let resolvers = mobileNebulaConfig?["dns_resolvers"] as? [String] {
       dnsResolvers = resolvers
     } else {
       dnsResolvers = []
