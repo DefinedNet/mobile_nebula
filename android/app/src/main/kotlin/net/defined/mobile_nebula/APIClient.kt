@@ -15,10 +15,10 @@ class APIClient(context: android.content.Context) {
         return res.site
     }
 
-    fun tryUpdate(siteName: String, hostID: String, privateKey: String, counter: Long, trustedKeys: String): String? {
+    fun tryUpdate(siteName: String, hostID: String, privateKey: String, counter: Long, trustedKeys: String, nebulaCert: String, nebulaKey: String): String? {
         val res: mobileNebula.TryUpdateResult
         try {
-            res = client.tryUpdate(siteName, hostID, privateKey, counter, trustedKeys)
+            res = client.tryUpdate(siteName, hostID, privateKey, counter, trustedKeys, nebulaCert, nebulaKey)
         } catch (e: Exception) {
             // type information from Go is not available, use string matching instead
             if (e.message == "invalid credentials") {

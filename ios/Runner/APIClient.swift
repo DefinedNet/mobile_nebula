@@ -19,7 +19,8 @@ class APIClient {
   }
 
   func tryUpdate(
-    siteName: String, hostID: String, privateKey: String, counter: Int, trustedKeys: String
+    siteName: String, hostID: String, privateKey: String, counter: Int, trustedKeys: String,
+    nebulaCert: String, nebulaKey: String
   ) throws -> String? {
     let res: MobileNebulaTryUpdateResult
     do {
@@ -28,7 +29,9 @@ class APIClient {
         hostID: hostID,
         privateKey: privateKey,
         counter: counter,
-        trustedKeys: trustedKeys)
+        trustedKeys: trustedKeys,
+        nebulaCert: nebulaCert,
+        nebulaKey: nebulaKey)
     } catch {
       // type information from Go is not available, use string matching instead
       if error.localizedDescription == "invalid credentials" {
