@@ -45,6 +45,12 @@ class DNUpdater {
 
       let credentials = try site.getDNCredentials()
 
+      guard let nebulaCert = site.cert?.rawCert else {
+        throw SiteError.noCertificate
+      }
+
+      let nebulaKey = try site.getKey()
+
       let newSiteJson: String?
       do {
         newSiteJson = try apiClient.tryUpdate(
@@ -52,7 +58,9 @@ class DNUpdater {
           hostID: credentials.hostID,
           privateKey: credentials.privateKey,
           counter: credentials.counter,
-          trustedKeys: credentials.trustedKeys
+          trustedKeys: credentials.trustedKeys,
+          nebulaCert: nebulaCert,
+          nebulaKey: nebulaKey
         )
       } catch APIClientError.invalidCredentials {
         if !credentials.invalid {

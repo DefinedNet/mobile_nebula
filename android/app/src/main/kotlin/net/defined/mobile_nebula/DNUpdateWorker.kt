@@ -96,6 +96,11 @@ class DNSiteUpdater(
 
         val credentials = site.getDNCredentials(context)
 
+        val nebulaCert = site.cert?.rawCert
+                ?: throw IllegalStateException("Site ${site.name} has no nebula certificate")
+
+        val nebulaKey = site.getKey(context)
+
         val newSiteJson: String?
         try {
             newSiteJson = apiClient.tryUpdate(
@@ -104,6 +109,8 @@ class DNSiteUpdater(
                     credentials.privateKey,
                     credentials.counter.toLong(),
                     credentials.trustedKeys,
+                    nebulaCert,
+                    nebulaKey,
             )
         } catch (e: InvalidCredentialsException) {
             if (!credentials.invalid) {

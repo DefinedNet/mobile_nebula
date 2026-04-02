@@ -41,12 +41,13 @@ require (
 	github.com/vishvananda/netns v0.0.5 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/mod v0.33.0 // indirect
-	golang.org/x/net v0.51.0 // indirect
-	golang.org/x/sync v0.19.0 // indirect
+	golang.org/x/mobile v0.0.0-20260312152759-81488f6aeb60 // indirect
+	golang.org/x/mod v0.34.0 // indirect
+	golang.org/x/net v0.52.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.42.0 // indirect
 	golang.org/x/term v0.41.0 // indirect
-	golang.org/x/tools v0.42.0 // indirect
+	golang.org/x/tools v0.43.0 // indirect
 	golang.zx2c4.com/wintun v0.0.0-20230126152724-0fa3db229ce2 // indirect
 	golang.zx2c4.com/wireguard v0.0.0-20250521234502-f333402bd9cb // indirect
 	golang.zx2c4.com/wireguard/windows v0.5.3 // indirect
