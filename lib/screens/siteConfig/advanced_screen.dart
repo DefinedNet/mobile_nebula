@@ -33,6 +33,7 @@ class Advanced {
   List<UnsafeRoute> unsafeRoutes;
   int mtu;
   List<String> dnsResolvers;
+  List<String> matchDomains;
   List<String> excludedApps;
   String staticMapNetwork;
 
@@ -44,6 +45,7 @@ class Advanced {
     required this.unsafeRoutes,
     required this.mtu,
     required this.dnsResolvers,
+    required this.matchDomains,
     required this.excludedApps,
     required this.staticMapNetwork,
   });
@@ -73,6 +75,7 @@ class AdvancedScreenState extends State<AdvancedScreen> {
       unsafeRoutes: widget.site.unsafeRoutes,
       mtu: widget.site.mtu,
       dnsResolvers: widget.site.dnsResolvers,
+      matchDomains: widget.site.matchDomains,
       excludedApps: widget.site.excludedApps,
       staticMapNetwork: widget.site.staticMapNetwork,
     );
@@ -221,11 +224,20 @@ class AdvancedScreenState extends State<AdvancedScreen> {
                   Utils.openPage(context, (context) {
                     return DnsResolversScreen(
                       dnsResolvers: settings.dnsResolvers,
+                      matchDomains: settings.matchDomains,
                       onSave: widget.site.managed
                           ? null
                           : (resolvers) {
                               setState(() {
                                 settings.dnsResolvers = resolvers;
+                                changed = true;
+                              });
+                            },
+                      onSaveMatchDomains: widget.site.managed
+                          ? null
+                          : (domains) {
+                              setState(() {
+                                settings.matchDomains = domains;
                                 changed = true;
                               });
                             },

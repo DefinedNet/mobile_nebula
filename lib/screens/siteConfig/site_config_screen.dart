@@ -411,6 +411,7 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
                     site.logVerbosity = settings.verbosity;
                     site.unsafeRoutes = settings.unsafeRoutes;
                     site.dnsResolvers = settings.dnsResolvers;
+                    site.matchDomains = settings.matchDomains;
                     site.mtu = settings.mtu;
                     site.excludedApps = settings.excludedApps;
                     site.staticMapNetwork = settings.staticMapNetwork;

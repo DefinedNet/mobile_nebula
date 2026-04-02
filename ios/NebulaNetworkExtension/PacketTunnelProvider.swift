@@ -94,9 +94,13 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     if !_site.dnsResolvers.isEmpty {
       self.log.info("Assigning dns resolvers: \(_site.dnsResolvers, privacy: .public)")
       let dnsSettings = NEDNSSettings(servers: _site.dnsResolvers)
-      // An empty string in matchDomains means "match all domains", which tells iOS to
-      // actually route DNS queries through these servers. Without this, iOS ignores them.
-      dnsSettings.matchDomains = [""]
+      if _site.matchDomains.isEmpty {
+        // An empty string in matchDomains means "match all domains", which tells iOS to
+        // actually route DNS queries through these servers. Without this, iOS ignores them.
+        dnsSettings.matchDomains = [""]
+      } else {
+        dnsSettings.matchDomains = _site.matchDomains
+      }
       tunnelNetworkSettings.dnsSettings = dnsSettings
     }
 
