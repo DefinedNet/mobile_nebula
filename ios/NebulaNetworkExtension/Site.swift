@@ -323,6 +323,7 @@ class Site: Encodable {
   var mtu: Int
   var unsafeRoutes: [UnsafeRoute]
   var dnsResolvers: [String]
+  var matchDomains: [String]
 
   /// If true then this site needs to be migrated to the filesystem. Should be handled by the initiator of the site
   var needsToMigrateToFS: Bool = false
@@ -443,6 +444,12 @@ class Site: Encodable {
       dnsResolvers = resolvers
     } else {
       dnsResolvers = []
+    }
+
+    if let domains = mobileNebulaConfig?["match_domains"] as? [String] {
+      matchDomains = domains
+    } else {
+      matchDomains = []
     }
 
     // Parse cert from rawConfig's pki.cert

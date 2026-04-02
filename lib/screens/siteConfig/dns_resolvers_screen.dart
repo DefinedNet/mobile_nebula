@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_nebula/components/config/config_button_item.dart';
 import 'package:mobile_nebula/components/config/config_item.dart';
@@ -12,11 +14,22 @@ class _Resolver {
   _Resolver({required this.focusNode, required this.address});
 }
 
+class _Domain {
+  final FocusNode focusNode;
+  String domain;
+
+  _Domain({required this.focusNode, required this.domain});
+}
+
 class DnsResolversScreen extends StatefulWidget {
-  DnsResolversScreen({super.key, dnsResolvers, required this.onSave}) : dnsResolvers = dnsResolvers ?? [];
+  DnsResolversScreen({super.key, dnsResolvers, matchDomains, required this.onSave, this.onSaveMatchDomains})
+    : dnsResolvers = dnsResolvers ?? [],
+      matchDomains = matchDomains ?? [];
 
   final List<String> dnsResolvers;
+  final List<String> matchDomains;
   final ValueChanged<List<String>>? onSave;
+  final ValueChanged<List<String>>? onSaveMatchDomains;
 
   @override
   DnsResolversScreenState createState() => DnsResolversScreenState();
@@ -24,6 +37,7 @@ class DnsResolversScreen extends StatefulWidget {
 
 class DnsResolversScreenState extends State<DnsResolversScreen> {
   late Map<Key, _Resolver> _dnsResolvers;
+  late Map<Key, _Domain> _matchDomains;
   bool changed = false;
 
   @override
@@ -35,6 +49,11 @@ class DnsResolversScreenState extends State<DnsResolversScreen> {
 
     if (_dnsResolvers.isEmpty) {
       _addResolver();
+    }
+
+    _matchDomains = {};
+    for (var domain in widget.matchDomains) {
+      _matchDomains[UniqueKey()] = _Domain(focusNode: FocusNode(), domain: domain);
     }
 
     // _addResolver() above sets us to changed, set it back to false since we are at the default state
@@ -55,6 +74,12 @@ class DnsResolversScreenState extends State<DnsResolversScreen> {
                 'List of dns resolvers to use for lookups.\nAny resolver that isn\'t in your networks or unsafe networks will be routed in plaintext.',
             children: _buildHosts(),
           ),
+          if (Platform.isIOS)
+            ConfigSection(
+              label:
+                  'Domains to route through the VPN\'s DNS resolvers.\nWhen empty, all DNS queries are routed through the VPN.',
+              children: _buildDomains(),
+            ),
         ],
       ),
     );
@@ -72,6 +97,18 @@ class DnsResolversScreenState extends State<DnsResolversScreen> {
       });
 
       widget.onSave!(resolvers);
+    }
+
+    if (widget.onSaveMatchDomains != null) {
+      List<String> domains = [];
+      _matchDomains.forEach((_, domain) {
+        final value = domain.domain.trim();
+        if (value.isNotEmpty) {
+          domains.add(value);
+        }
+      });
+
+      widget.onSaveMatchDomains!(domains);
     }
   }
 
@@ -155,10 +192,83 @@ class DnsResolversScreenState extends State<DnsResolversScreen> {
     }
   }
 
+  List<Widget> _buildDomains() {
+    List<Widget> items = [];
+
+    _matchDomains.forEach((key, domain) {
+      items.add(
+        ConfigItem(
+          key: key,
+          label: Align(
+            alignment: Alignment.centerLeft,
+            child: widget.onSaveMatchDomains == null
+                ? Container()
+                : IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: Icon(Icons.remove_circle, color: Theme.of(context).colorScheme.error),
+                    onPressed: () => setState(() {
+                      _removeDomain(key);
+                      _dismissKeyboard();
+                    }),
+                  ),
+          ),
+          labelWidth: 70,
+          content: Row(
+            children: <Widget>[
+              Expanded(
+                child: widget.onSaveMatchDomains == null
+                    ? Text(domain.domain, textAlign: TextAlign.end)
+                    : TextFormField(
+                        initialValue: domain.domain,
+                        textAlign: TextAlign.end,
+                        autocorrect: false,
+                        keyboardType: TextInputType.url,
+                        decoration: InputDecoration(border: InputBorder.none, hintText: 'example.com'),
+                        onSaved: (v) {
+                          if (v != null) {
+                            domain.domain = v;
+                          }
+                        },
+                      ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+
+    if (widget.onSaveMatchDomains != null) {
+      items.add(
+        ConfigButtonItem(
+          content: Text('Add another'),
+          onPressed: () => setState(() {
+            _addDomain();
+            _dismissKeyboard();
+          }),
+        ),
+      );
+    }
+
+    return items;
+  }
+
+  void _addDomain() {
+    changed = true;
+    _matchDomains[UniqueKey()] = _Domain(focusNode: FocusNode(), domain: "");
+  }
+
+  void _removeDomain(Key key) {
+    changed = true;
+    _matchDomains.remove(key);
+  }
+
   @override
   void dispose() {
     _dnsResolvers.forEach((key, resolver) {
       resolver.focusNode.dispose();
+    });
+    _matchDomains.forEach((key, domain) {
+      domain.focusNode.dispose();
     });
 
     super.dispose();

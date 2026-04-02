@@ -359,6 +359,16 @@ class Site {
     _setConfig(['mobile_nebula', 'dns_resolvers'], resolvers);
   }
 
+  List<String> get matchDomains {
+    final domains = _getConfig<List<dynamic>>(['mobile_nebula', 'match_domains']);
+    if (domains == null) return [];
+    return domains.map((d) => d.toString()).toList();
+  }
+
+  set matchDomains(List<String> domains) {
+    _setConfig(['mobile_nebula', 'match_domains'], domains);
+  }
+
   List<FirewallRule> get inboundFirewallRules {
     final rules = _getConfig<List<dynamic>>(['firewall', 'inbound']);
     if (rules == null) return [];
