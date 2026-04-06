@@ -5,6 +5,8 @@ import android.content.Intent
 import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.io.Closeable
 import java.nio.channels.FileChannel
 import java.nio.file.Paths
@@ -122,7 +124,7 @@ class DNSiteUpdater(
         }
 
         if (newSiteJson != null) {
-            saveSite(context, newSiteJson)
+            saveSite(context, preserveClientFields(site, newSiteJson))
             Log.d(TAG, "Updated site ${site.id}: ${site.name}")
             return Result.CONFIG_UPDATED
         }
@@ -135,4 +137,26 @@ class DNSiteUpdater(
 
         return Result.NOOP
     }
+}
+
+/**
+ * Injects client-only fields from the existing site into the new site JSON returned by a DN
+ * update. The server doesn't know about these fields, so without this they would be lost.
+ */
+private fun preserveClientFields(site: Site, newSiteJson: String): String {
+    val gson = Gson()
+    val map: MutableMap<String, Any?> = try {
+        gson.fromJson(newSiteJson, object : TypeToken<MutableMap<String, Any?>>() {}.type)
+    } catch (_: Exception) {
+        return newSiteJson
+    }
+
+    if (!map.containsKey("sortKey")) {
+        map["sortKey"] = site.sortKey
+    }
+    if (!map.containsKey("excludedApps")) {
+        map["excludedApps"] = site.excludedApps
+    }
+
+    return gson.toJson(map)
 }
