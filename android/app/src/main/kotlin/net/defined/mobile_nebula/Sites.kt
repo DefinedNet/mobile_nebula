@@ -216,8 +216,9 @@ data class UnsafeRoute(
  * Saves a site JSON string to disk. Extracts key and dnCredentials into
  * encrypted storage, handles the always-on file, and writes the remaining
  * config to config.json. Returns the site directory.
+ * If existingSite is provided, client-only fields (sortKey, excludedApps) will be preserved from it.
  */
-fun saveSite(context: Context, jsonString: String): File {
+fun saveSite(context: Context, jsonString: String, existingSite: Site? = null): File {
     val gson = Gson()
     val map: MutableMap<String, Any?> = gson.fromJson(jsonString, object : TypeToken<MutableMap<String, Any?>>() {}.type)
 
@@ -261,6 +262,16 @@ fun saveSite(context: Context, jsonString: String): File {
         null -> {}
     }
     map.remove("alwaysOn")
+
+    // Preserve client-only fields from the existing site
+    if (existingSite != null) {
+        if (!map.containsKey("sortKey")) {
+            map["sortKey"] = existingSite.sortKey
+        }
+        if (!map.containsKey("excludedApps")) {
+            map["excludedApps"] = existingSite.excludedApps
+        }
+    }
 
     // Stamp the current config version
     map["configVersion"] = 1

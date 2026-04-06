@@ -159,7 +159,8 @@ class UnsafeRoute: Codable {
 
 /// Saves a site JSON string to disk. Extracts key and dnCredentials into
 /// encrypted storage and writes the remaining config to config.json.
-func saveSiteToDisk(jsonString: String) throws {
+/// If existingSite is provided, client-only fields (sortKey) will be preserved from it.
+func saveSiteToDisk(jsonString: String, existingSite: Site? = nil) throws {
   guard let jsonData = jsonString.data(using: .utf8),
     let obj = try? JSONSerialization.jsonObject(with: jsonData),
     var map = obj as? [String: Any]
@@ -195,6 +196,13 @@ func saveSiteToDisk(jsonString: String) throws {
   // Strip alwaysOn (not stored in config.json)
   map.removeValue(forKey: "alwaysOn")
 
+  // Preserve client-only fields from the existing site
+  if let existingSite = existingSite {
+    if map["sortKey"] == nil {
+      map["sortKey"] = existingSite.sortKey
+    }
+  }
+
   // Stamp the current config version
   map["configVersion"] = 1
 
@@ -206,14 +214,16 @@ func saveSiteToDisk(jsonString: String) throws {
 }
 
 /// Saves a site to disk and optionally to the system VPN profile.
+/// If existingSite is provided, client-only fields will be preserved from it.
 func saveSite(
   jsonString: String,
   manager: NETunnelProviderManager?,
+  existingSite: Site? = nil,
   saveToManager: Bool = true,
   callback: @escaping ((any Error)?) -> Void
 ) {
   do {
-    try saveSiteToDisk(jsonString: jsonString)
+    try saveSiteToDisk(jsonString: jsonString, existingSite: existingSite)
   } catch {
     return callback(error)
   }
@@ -232,7 +242,7 @@ func saveSite(
 
       let id = map["id"] as? String ?? ""
       let name = map["name"] as? String ?? ""
-      let alwaysOn = map["alwaysOn"] as? Bool ?? false
+      let alwaysOn = map["alwaysOn"] as? Bool ?? existingSite?.alwaysOn ?? false
 
       doSaveToManager(
         id: id, name: name, alwaysOn: alwaysOn, manager: manager, callback: callback)

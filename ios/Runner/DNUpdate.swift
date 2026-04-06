@@ -71,18 +71,17 @@ class DNUpdater {
         return
       }
 
-      if var newSiteJson = newSiteJson {
-        // Preserve client-only fields that the server doesn't know about
-        newSiteJson = preserveClientFields(existingSite: site, newSiteJson: newSiteJson)
-
+      if let newSiteJson = newSiteJson {
         let siteManager = site.manager
         let shouldSaveToManager =
           siteManager != nil
           || ProcessInfo().isOperatingSystemAtLeast(
             OperatingSystemVersion(majorVersion: 17, minorVersion: 0, patchVersion: 0))
 
-        saveSite(jsonString: newSiteJson, manager: site.manager, saveToManager: shouldSaveToManager)
-        { error in
+        saveSite(
+          jsonString: newSiteJson, manager: site.manager, existingSite: site,
+          saveToManager: shouldSaveToManager
+        ) { error in
           if error != nil {
             self.log.error(
               "failed to save update: \(error!.localizedDescription, privacy: .public)")
@@ -111,32 +110,6 @@ class DNUpdater {
       )
     }
   }
-}
-
-/// Injects client-only fields from the existing site into the new site JSON returned by a DN
-/// update. The server doesn't know about these fields, so without this they would be lost.
-private func preserveClientFields(existingSite site: Site, newSiteJson: String) -> String {
-  guard let data = newSiteJson.data(using: .utf8),
-    let obj = try? JSONSerialization.jsonObject(with: data),
-    var map = obj as? [String: Any]
-  else {
-    return newSiteJson
-  }
-
-  if map["sortKey"] == nil {
-    map["sortKey"] = site.sortKey
-  }
-  if map["alwaysOn"] == nil {
-    map["alwaysOn"] = site.alwaysOn
-  }
-
-  guard let updatedData = try? JSONSerialization.data(withJSONObject: map),
-    let updatedJson = String(data: updatedData, encoding: .utf8)
-  else {
-    return newSiteJson
-  }
-
-  return updatedJson
 }
 
 // From https://medium.com/over-engineering/a-background-repeating-timer-in-swift-412cecfd2ef9
