@@ -91,6 +91,7 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
         return a.appName.toLowerCase().compareTo(b.appName.toLowerCase());
       });
 
+      if (!mounted) return;
       setState(() {
         allApps = loaded;
         _applyFilter();
@@ -100,6 +101,7 @@ class ExcludedAppsScreenState extends State<ExcludedAppsScreen> {
       // Phase 2: fetch icons in background, fill in when ready
       _loadIcons(loaded.map((a) => a.packageName).toList());
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         loading = false;
       });
