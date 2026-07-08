@@ -2,9 +2,9 @@ package mobileNebula
 
 import (
 	"encoding/json"
+	"log/slog"
 	"testing"
 
-	"github.com/sirupsen/logrus"
 	nebcfg "github.com/slackhq/nebula/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -60,7 +60,7 @@ func TestRenderConfig(t *testing.T) {
 	s, err := RenderConfig(string(configData), "")
 	require.NoError(t, err, "RenderConfig failed")
 
-	config := nebcfg.NewC(logrus.New())
+	config := nebcfg.NewC(slog.New(slog.DiscardHandler))
 	err = config.LoadString(s)
 	require.NoError(t, err, "LoadString failed")
 
@@ -106,7 +106,7 @@ func TestRenderConfigLegacy(t *testing.T) {
 	s, err := RenderConfig(jsonConfig, "")
 	require.NoError(t, err, "RenderConfig (legacy) failed")
 
-	config := nebcfg.NewC(logrus.New())
+	config := nebcfg.NewC(slog.New(slog.DiscardHandler))
 	err = config.LoadString(s)
 	require.NoError(t, err, "LoadString (legacy) failed")
 }
