@@ -1,6 +1,6 @@
 module github.com/DefinedNet/mobile_nebula/nebula
 
-go 1.25.0
+go 1.26.5
 
 // replace github.com/slackhq/nebula => /Volumes/T7/nate/src/github.com/slackhq/nebula
 
