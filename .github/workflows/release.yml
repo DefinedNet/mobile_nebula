@@ -17,11 +17,11 @@ jobs:
           show-progress: false
           fetch-depth: 75 # For sentry releases
 
-      # TODO: remove when https://go-review.googlesource.com/c/go/+/692935 lands in mainline go
-      - name: Patch Go
-        uses: DefinedNet/patch-go@c8e4a17c75eb242d34c212419d7d3d25e8d58949
+      - name: Set up Go
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 #6.5.0
         with:
-          patch-ref: '296be05a97eb526dc0e438b7387670d4cae4a935'
+          go-version-file: nebula/go.mod
+          cache-dependency-path: nebula/go.sum
 
       - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 #v5.2.0
         with:
