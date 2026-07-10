@@ -1,18 +1,16 @@
 package mobileNebula
 
 import (
-	"bytes"
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"log/slog"
 	"net"
 	"net/netip"
 	"strings"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"github.com/slackhq/nebula"
 	"github.com/slackhq/nebula/cert"
 	nc "github.com/slackhq/nebula/config"
@@ -284,8 +282,7 @@ func TestConfig(configData string, key string) error {
 	}
 
 	// We don't want to leak the config into the system logs
-	l := logrus.New()
-	l.SetOutput(bytes.NewBuffer([]byte{}))
+	l := slog.New(slog.DiscardHandler)
 
 	c := nc.NewC(l)
 	err = c.LoadString(yamlConfig)
@@ -307,8 +304,7 @@ func TestConfig(configData string, key string) error {
 
 func GetConfigSetting(configData string, setting string) string {
 	// We don't want to leak the config into the system logs
-	l := logrus.New()
-	l.SetOutput(ioutil.Discard)
+	l := slog.New(slog.DiscardHandler)
 
 	c := nc.NewC(l)
 	c.LoadString(configData)
