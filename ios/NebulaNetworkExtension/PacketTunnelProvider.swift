@@ -42,10 +42,38 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
   private var stopped = false
   private let stoppedLock = NSLock()
 
+  // start() can be entered twice on one provider: an out of band boot runs it from
+  // startTunnel, then the UI's connect flow sends the start IPC which runs it again.
+  // Without a single flight guard the second pass builds a second nebula over the
+  // same tun and orphans the first with its readers still running.
+  private var starting = false
+
   private func isStopped() -> Bool {
     stoppedLock.lock()
     defer { stoppedLock.unlock() }
     return stopped
+  }
+
+  // beginStart reports whether this caller owns the start attempt. False means a
+  // start is already in flight or has already succeeded, both are a no-op for the
+  // second caller, the tunnel is up or on its way up.
+  private func beginStart() -> Bool {
+    stoppedLock.lock()
+    defer { stoppedLock.unlock() }
+    if starting || nebula != nil {
+      return false
+    }
+    starting = true
+    return true
+  }
+
+  // endStart clears the in flight flag. After a successful start the nebula check
+  // in beginStart keeps later attempts out, after a failure the session is being
+  // cancelled anyway.
+  private func endStart() {
+    stoppedLock.lock()
+    defer { stoppedLock.unlock() }
+    starting = false
   }
 
   // Latch the stop and halt the network monitor in one critical section so a
@@ -87,6 +115,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
   }
 
   private func start() async throws {
+    guard beginStart() else {
+      // Another start owns the tunnel bring up, or it is already up
+      return
+    }
+    defer { endStart() }
+
     var manager: NETunnelProviderManager?
     var config: Data
     var key: String
