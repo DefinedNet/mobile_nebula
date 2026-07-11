@@ -67,6 +67,68 @@ func (e InvalidCredentialsError) Error() string {
 	return "invalid credentials"
 }
 
+// EndpointPreAuth starts an OIDC login flow. It returns a poll token and a
+// login URL; the platform side opens the URL in a browser (Custom Tab) and then
+// polls EndpointAuthPoll with the token until the login completes.
+func (c *APIClient) EndpointPreAuth() (*PreAuthResult, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	msg, err := c.c.EndpointPreAuth(ctx)
+	var apiError *dnapi.APIError
+	switch {
+	case errors.As(err, &apiError):
+		return nil, fmt.Errorf("%s (request ID: %s)", apiError, apiError.ReqID)
+	case errors.Is(err, context.DeadlineExceeded):
+		return nil, fmt.Errorf("request timed out - try again?")
+	case err != nil:
+		return nil, fmt.Errorf("unexpected failure: %s", err)
+	}
+
+	return &PreAuthResult{PollToken: msg.PollToken, LoginURL: msg.LoginURL}, nil
+}
+
+// EndpointAuthPoll checks the status of an in-progress OIDC login. The server
+// long-polls (~60s) so this call may block. On COMPLETED the returned
+// EnrollmentCode should be passed to Enroll immediately, as it is single-use.
+func (c *APIClient) EndpointAuthPoll(pollToken string) (*PollDataResult, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
+	defer cancel()
+	msg, err := c.c.EndpointAuthPoll(ctx, pollToken)
+	var apiError *dnapi.APIError
+	switch {
+	case errors.As(err, &apiError):
+		return nil, fmt.Errorf("%s (request ID: %s)", apiError, apiError.ReqID)
+	case errors.Is(err, context.DeadlineExceeded):
+		return nil, fmt.Errorf("request timed out - try again?")
+	case err != nil:
+		return nil, fmt.Errorf("unexpected failure: %s", err)
+	}
+
+	return &PollDataResult{Status: string(msg.Status), EnrollmentCode: msg.EnrollmentCode}, nil
+}
+
+// Reauthenticate renews an already-enrolled OIDC host in place. It is a signed
+// call using the host's own credentials, so the server renews THIS host (extends
+// its session) instead of creating a new one. Returns a login URL to open in a
+// browser; after the user signs in, the refreshed config arrives via TryUpdate.
+func (c *APIClient) Reauthenticate(hostID string, privateKey string, counter int, trustedKeys string) (string, error) {
+	creds, err := credsFromInputs(hostID, privateKey, counter, trustedKeys)
+	if err != nil {
+		return "", err
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	resp, err := c.c.Reauthenticate(ctx, *creds)
+	switch {
+	case errors.Is(err, dnapi.ErrInvalidCredentials):
+		return "", InvalidCredentialsError{}
+	case err != nil:
+		return "", fmt.Errorf("reauthenticate error: %s", err)
+	}
+
+	return resp.LoginURL, nil
+}
+
 func (c *APIClient) Enroll(code string) (*EnrollResult, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -81,7 +143,7 @@ func (c *APIClient) Enroll(code string) (*EnrollResult, error) {
 		return nil, fmt.Errorf("unexpected failure: %s", err)
 	}
 
-	site, err := newDNSite(meta.Org.Name, cfg, string(pkey), *creds)
+	site, err := newDNSite(meta.Org.Name, cfg, string(pkey), *creds, meta)
 	if err != nil {
 		return nil, fmt.Errorf("failure generating site: %s", err)
 	}
@@ -161,12 +223,20 @@ func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string,
 		return nil, fmt.Errorf("invalid trusted keys: %s", err)
 	}
 
-	creds := keys.Credentials{
+	return &keys.Credentials{
 		HostID:      hostID,
 		PrivateKey:  pk,
 		Counter:     uint(counter),
 		TrustedKeys: tk,
+	}, nil
+}
+
+func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string, counter int, trustedKeys string, nebulaCert string, nebulaKey string) (*TryUpdateResult, error) {
+	credsPtr, err := credsFromInputs(hostID, privateKey, counter, trustedKeys)
+	if err != nil {
+		return nil, err
 	}
+	creds := *credsPtr
 
 	// Check for update
 	msg, err := c.c.LongPollWait(context.Background(), creds, []string{message.DoUpdate, message.DoConfigUpdate})
@@ -195,7 +265,7 @@ func (c *APIClient) doUpdate(siteName string, creds keys.Credentials) (*TryUpdat
 	// Perform the update and return the new site object
 	updateCtx, updateCancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer updateCancel()
-	cfg, pkey, newCreds, _, err := c.c.DoUpdate(updateCtx, creds)
+	cfg, pkey, newCreds, meta, err := c.c.DoUpdate(updateCtx, creds)
 	switch {
 	case errors.Is(err, dnapi.ErrInvalidCredentials):
 		return nil, InvalidCredentialsError{}
@@ -203,7 +273,7 @@ func (c *APIClient) doUpdate(siteName string, creds keys.Credentials) (*TryUpdat
 		return nil, fmt.Errorf("DoUpdate error: %s", err)
 	}
 
-	site, err := newDNSite(siteName, cfg, string(pkey), *newCreds)
+	site, err := newDNSite(siteName, cfg, string(pkey), *newCreds, meta)
 	if err != nil {
 		return nil, fmt.Errorf("failure generating site: %s", err)
 	}
@@ -219,7 +289,7 @@ func (c *APIClient) doUpdate(siteName string, creds keys.Credentials) (*TryUpdat
 func (c *APIClient) doConfigUpdate(siteName string, creds keys.Credentials, nebulaCert, nebulaKey string) (*TryUpdateResult, error) {
 	updateCtx, updateCancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer updateCancel()
-	cfg, newCreds, _, err := c.c.DoConfigUpdate(updateCtx, creds)
+	cfg, newCreds, meta, err := c.c.DoConfigUpdate(updateCtx, creds)
 	switch {
 	case errors.Is(err, dnapi.ErrInvalidCredentials):
 		return nil, InvalidCredentialsError{}
@@ -233,7 +303,7 @@ func (c *APIClient) doConfigUpdate(siteName string, creds keys.Credentials, nebu
 		return nil, fmt.Errorf("failed to insert cert into config: %s", err)
 	}
 
-	site, err := newDNSite(siteName, cfg, nebulaKey, *newCreds)
+	site, err := newDNSite(siteName, cfg, nebulaKey, *newCreds, meta)
 	if err != nil {
 		return nil, fmt.Errorf("failure generating site: %s", err)
 	}

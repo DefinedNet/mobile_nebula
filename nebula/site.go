@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/DefinedNet/dnapi"
 	"github.com/DefinedNet/dnapi/keys"
 	"gopkg.in/yaml.v2"
 )
@@ -19,6 +20,10 @@ type site struct {
 	Key               *string        `json:"key"`
 	DNCredentials     *dnCredentials `json:"dnCredentials"`
 	ConfigVersion     int            `json:"configVersion"`
+	// OIDC session metadata, present only on hosts enrolled via SSO. Their presence
+	// marks a site as OIDC-managed (vs. code-enrolled) so it can be renewed in place.
+	ManagedOIDCEmail  *string    `json:"managedOIDCEmail"`
+	ManagedOIDCExpiry *time.Time `json:"managedOIDCExpiry"`
 }
 
 type dnCredentials struct {
@@ -28,7 +33,7 @@ type dnCredentials struct {
 	TrustedKeys string `json:"trustedKeys"`
 }
 
-func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials) (*site, error) {
+func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials, meta *dnapi.ConfigMeta) (*site, error) {
 	// Convert YAML Nebula config to a JSON rawConfig, stripping the private key
 	rawConfigJSON, err := yamlToJSONMap(rawCfg)
 	if err != nil {
@@ -57,6 +62,16 @@ func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials) (
 		return nil, err
 	}
 
+	// Carry OIDC session metadata through so the platform side can tell an SSO-enrolled
+	// host from a code-enrolled one and show/renew its session.
+	var oidcEmail *string
+	var oidcExpiry *time.Time
+	if meta != nil && meta.EndpointOIDC != nil {
+		email := meta.EndpointOIDC.Email
+		oidcEmail = &email
+		oidcExpiry = meta.EndpointOIDC.ExpiresAt
+	}
+
 	return &site{
 		Name:              name,
 		ID:                creds.HostID,
@@ -72,6 +87,8 @@ func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials) (
 			Counter:     int(creds.Counter),
 			TrustedKeys: string(tkm),
 		},
+		ManagedOIDCEmail:  oidcEmail,
+		ManagedOIDCExpiry: oidcExpiry,
 	}, nil
 }
 
