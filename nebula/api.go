@@ -204,8 +204,9 @@ func (c *APIClient) EndpointAuthPoll(pollToken string) (*PollDataResult, error) 
 	}, nil
 }
 
-func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string, counter int, trustedKeys string, nebulaCert string, nebulaKey string) (*TryUpdateResult, error) {
-	// Build dnapi.Credentials struct from inputs
+// credsFromInputs rebuilds a dnapi credentials struct from the fields the
+// platform side persists for a managed site.
+func credsFromInputs(hostID string, privateKey string, counter int, trustedKeys string) (*keys.Credentials, error) {
 	if counter < 0 {
 		return nil, fmt.Errorf("invalid counter value: must be unsigned")
 	}
