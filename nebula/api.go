@@ -32,6 +32,21 @@ type TryUpdateResult struct {
 	Site          string
 }
 
+// PreAuthResult is returned to the platform side to start an OIDC login: open
+// LoginURL in a browser, then poll EndpointAuthPoll with PollToken until COMPLETED.
+type PreAuthResult struct {
+	PollToken string
+	LoginURL  string
+}
+
+// PollDataResult mirrors dnapi's EndpointAuthPollData. Status is one of
+// WAITING, STARTED, COMPLETED; EnrollmentCode is only set once COMPLETED and is
+// single-use, so the platform side must enroll with it immediately.
+type PollDataResult struct {
+	Status         string
+	EnrollmentCode string
+}
+
 func NewAPIClient(useragent string) *APIClient {
 	// TODO Use a log file
 	l := logrus.New()
@@ -77,6 +92,54 @@ func (c *APIClient) Enroll(code string) (*EnrollResult, error) {
 	}
 
 	return &EnrollResult{Site: string(jsonSite)}, nil
+}
+
+// EndpointPreAuth starts an OIDC login flow. It returns a poll token and a
+// login URL; the platform side opens the URL in a browser (Custom Tab) and then
+// polls EndpointAuthPoll with the token until the login completes.
+func (c *APIClient) EndpointPreAuth() (*PreAuthResult, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	msg, err := c.c.EndpointPreAuth(ctx)
+	var apiError *dnapi.APIError
+	switch {
+	case errors.As(err, &apiError):
+		return nil, fmt.Errorf("%s (request ID: %s)", apiError, apiError.ReqID)
+	case errors.Is(err, context.DeadlineExceeded):
+		return nil, fmt.Errorf("request timed out - try again?")
+	case err != nil:
+		return nil, fmt.Errorf("unexpected failure: %s", err)
+	}
+
+	return &PreAuthResult{
+		PollToken: msg.PollToken,
+		LoginURL:  msg.LoginURL,
+	}, nil
+}
+
+// EndpointAuthPoll checks the status of an in-progress OIDC login. The server
+// long-polls (~60s) so this call may block; the platform side calls it in a
+// loop. On COMPLETED the returned EnrollmentCode should be passed to Enroll
+// immediately, as it is single-use.
+func (c *APIClient) EndpointAuthPoll(pollToken string) (*PollDataResult, error) {
+	// Slightly longer than the server's long-poll window so we don't cancel it early.
+	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
+	defer cancel()
+	msg, err := c.c.EndpointAuthPoll(ctx, pollToken)
+	var apiError *dnapi.APIError
+	switch {
+	case errors.As(err, &apiError):
+		return nil, fmt.Errorf("%s (request ID: %s)", apiError, apiError.ReqID)
+	case errors.Is(err, context.DeadlineExceeded):
+		return nil, fmt.Errorf("request timed out - try again?")
+	case err != nil:
+		return nil, fmt.Errorf("unexpected failure: %s", err)
+	}
+
+	return &PollDataResult{
+		Status:         string(msg.Status),
+		EnrollmentCode: msg.EnrollmentCode,
+	}, nil
 }
 
 func (c *APIClient) TryUpdate(siteName string, hostID string, privateKey string, counter int, trustedKeys string, nebulaCert string, nebulaKey string) (*TryUpdateResult, error) {
