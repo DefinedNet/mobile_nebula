@@ -27,6 +27,7 @@ Future<void> main() async {
       // Capture all traces.  May need to adjust if overwhelming
       options.tracesSampleRate = 1.0;
       // For each trace, capture all profiles
+      // ignore: experimental_member_use
       options.profilesSampleRate = 1.0;
     }, appRunner: () => runApp(Main()));
   } else {

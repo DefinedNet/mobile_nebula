@@ -1,3 +1,4 @@
+import "package:flutter/cupertino.dart" show CupertinoPageTransitionsBuilder;
 import "package:flutter/foundation.dart" show defaultTargetPlatform, TargetPlatform;
 import "package:flutter/material.dart";
 import "package:mobile_nebula/components/pill_chip.dart";
