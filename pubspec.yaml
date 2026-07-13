@@ -51,6 +51,11 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
+  config:
+    # Flutter 3.44 turns swift package manager on by default, we are staying on
+    # cocoapods until we do a deliberate SPM migration
+    enable-swift-package-manager: false
+
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

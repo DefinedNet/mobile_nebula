@@ -174,12 +174,7 @@ class MainScreenState extends State<MainScreen> {
       scrollController: scrollController,
       padding: EdgeInsets.symmetric(vertical: 5),
       children: items,
-      onReorder: (oldI, newI) async {
-        if (oldI < newI) {
-          // removing the item at oldIndex will shorten the list by 1.
-          newI -= 1;
-        }
-
+      onReorderItem: (oldI, newI) async {
         setState(() {
           final Site moved = sites.removeAt(oldI);
           sites.insert(newI, moved);

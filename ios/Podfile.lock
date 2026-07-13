@@ -8,11 +8,11 @@ PODS:
   - MobileNebula (0.0.1)
   - package_info_plus (0.4.5):
     - Flutter
-  - Sentry/HybridSDK (8.56.2)
-  - sentry_flutter (9.14.0):
+  - Sentry/HybridSDK (8.58.3)
+  - sentry_flutter (9.24.0):
     - Flutter
     - FlutterMacOS
-    - Sentry/HybridSDK (= 8.56.2)
+    - Sentry/HybridSDK (= 8.58.3)
   - share_plus (0.0.1):
     - Flutter
   - SwiftyJSON (5.0.2)
@@ -59,8 +59,8 @@ SPEC CHECKSUMS:
   mobile_scanner: 77265f3dc8d580810e91849d4a0811a90467ed5e
   MobileNebula: 8d150cb7b0901c22ca7581c1a0cecdcf97007d01
   package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
-  Sentry: b53951377b78e21a734f5dc8318e333dbfc682d7
-  sentry_flutter: a9f60d84bfddcae9a0ebf834547702f8854766a1
+  Sentry: 108fdbb76299c4189af12246bf0308c09c278922
+  sentry_flutter: b9c59bc3a9fe2272f74961586afc08bd7300c2c3
   share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
   SwiftyJSON: f5b1bf1cd8dd53cd25887ac0eabcfd92301c6a5a
   url_launcher_ios: bb13df5870e8c4234ca12609d04010a21be43dfa
