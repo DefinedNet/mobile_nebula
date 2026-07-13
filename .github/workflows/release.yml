@@ -93,8 +93,11 @@ jobs:
           TOKEN: ${{ secrets.MACHINE_USER_PAT }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
         run: |
+          ./ensure-mobile-nebula.sh
+          # config-only raises the generated plugin package deployment target to match
+          # the project, required before driving xcodebuild directly
+          flutter build ios --release --config-only --no-codesign
           cd ios
-          pod install
           fastlane build
           cd -
 

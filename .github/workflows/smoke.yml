@@ -131,8 +131,11 @@ jobs:
 
       - name: Build iOS
         run: |
+          ./ensure-mobile-nebula.sh
+          # config-only raises the generated plugin package deployment target to match
+          # the project, required before driving xcodebuild directly
+          flutter build ios --release --config-only --no-codesign
           cd ios
-          pod install
           xcodebuild -workspace Runner.xcworkspace -scheme Runner -configuration Release clean archive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO -archivePath "build/MobileNebula.xcarchive"
 
       - name: Collect iOS artifacts

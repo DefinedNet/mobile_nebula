@@ -127,8 +127,8 @@ class Utils {
   }
 
   static Future<String?> pickFile(BuildContext context) async {
-    await FilePicker.platform.clearTemporaryFiles();
-    final result = await FilePicker.platform.pickFiles(allowMultiple: false);
+    await FilePicker.clearTemporaryFiles();
+    final result = await FilePicker.pickFiles(allowMultiple: false);
     if (result == null) {
       return null;
     }

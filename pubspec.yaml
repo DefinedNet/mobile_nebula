@@ -23,14 +23,17 @@ dependencies:
     sdk: flutter
 
   path_provider: ^2.0.11
-  file_picker: ^10.3.10
+  # 12.0.0 drops the DKImagePickerController dependency chain on iOS in favor of
+  # PHPickerViewController, keeping photo library permissions out of our binary
+  file_picker: ^12.0.0-beta.7
   uuid: ^4.5.2
-  package_info_plus: ^9.0.0
+  package_info_plus: ^10.2.0
   url_launcher: ^6.3.2
   pull_to_refresh: ^2.0.0
   flutter_svg: ^2.2.3
   intl: ^0.20.2
-  share_plus: ^12.0.1
+  # 13.x is required to share the win32 constraint with file_picker 12
+  share_plus: ^13.2.0
   sentry_flutter: ^9.12.0
   sentry_dart_plugin: ^3.2.1
   mobile_scanner: ^7.1.4
@@ -51,11 +54,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
-  config:
-    # Flutter 3.44 turns swift package manager on by default, we are staying on
-    # cocoapods until we do a deliberate SPM migration
-    enable-swift-package-manager: false
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

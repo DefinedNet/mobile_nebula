@@ -28,7 +28,7 @@ Run `flutter doctor` and fix everything it complains before proceeding
 - Make sure you have `gem` installed with `sudo gem install`
 - If on MacOS arm, `sudo gem install ffi -- --enable-libffi-alloc`
 
-If you are having issues with iOS pods, try blowing it all away! `cd ios && rm -rf Pods/ Podfile.lock && pod install --repo-update`
+If the iOS build complains that MobileNebula.xcframework is stale or missing, run `./ensure-mobile-nebula.sh` from the repo root. It rebuilds the gomobile framework only when the Go code in `nebula/` changes, Xcode runs it automatically as a pre-build action on the Runner scheme.
 
 # Formatting
 
