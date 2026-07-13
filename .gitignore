@@ -53,7 +53,8 @@ lib/generated_plugin_registrant.dart
 /.gradle/
 *.keystore
 /nebula/MobileNebula.xcframework/
-/ios/MobileNebula.xcframework/
+/ios/MobileNebulaKit/Binaries/
+/ios/MobileNebulaKit/.build/
 /android/build/reports/problems/problems-report.html
 /.fvm/
 /.fvmrc

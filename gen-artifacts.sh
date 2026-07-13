@@ -2,16 +2,28 @@
 
 set -e
 
+# Callers are not always at the repo root, Xcode pre-actions in particular
+cd "$(dirname "$0")"
+
 . ./env.sh
 
 # Generate gomobile nebula bindings
 cd nebula
 
 if [ "$1" = "ios" ]; then
-  # Build for nebula for iOS
-  make MobileNebula.xcframework
-  rm -rf ../ios/MobileNebula.xcframework
-  cp -r MobileNebula.xcframework ../ios/
+  # Build for nebula for iOS. Unconditional (-B) because ensure-mobile-nebula.sh
+  # already decides when a rebuild is needed, and it knows about inputs make
+  # cannot see, like a go toolchain upgrade
+  make -B MobileNebula.xcframework
+  # Stage the copy and swap on success, a failed copy must not leave a half
+  # written framework where the MobileNebulaKit binary target can see it
+  BINARIES=../ios/MobileNebulaKit/Binaries
+  rm -rf "$BINARIES/.staging"
+  mkdir -p "$BINARIES/.staging"
+  cp -r MobileNebula.xcframework "$BINARIES/.staging/"
+  rm -rf "$BINARIES/MobileNebula.xcframework"
+  mv "$BINARIES/.staging/MobileNebula.xcframework" "$BINARIES/"
+  rm -rf "$BINARIES/.staging"
 
 elif [ "$1" = "android" ]; then
   # Build nebula for android

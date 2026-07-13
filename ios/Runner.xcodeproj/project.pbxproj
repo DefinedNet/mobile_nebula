@@ -23,9 +23,13 @@
 		43AA89622444DAA500EDC39C /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43AA894E2444D8BC00EDC39C /* NetworkExtension.framework */; };
 		43ED87842912D0DD004DAFC5 /* DNUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43ED87832912D0DD004DAFC5 /* DNUpdate.swift */; };
 		43ED87852912D0DD004DAFC5 /* DNUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43ED87832912D0DD004DAFC5 /* DNUpdate.swift */; };
-		4CF2F06A02A63B862C9F6F03 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 384887B4785D38431E800D3A /* Pods_Runner.framework */; };
 		6AE347E7AD7CA6011881A848 /* ConfigMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895AEA5D3A4D420F2ABE1FCE /* ConfigMigrator.swift */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
+		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
+		4D0B11E01F00000000000007 /* MobileNebula in Frameworks */ = {isa = PBXBuildFile; productRef = 4D0B11E01F00000000000003 /* MobileNebula */; };
+		4D0B11E01F00000000000008 /* MobileNebula in Frameworks */ = {isa = PBXBuildFile; productRef = 4D0B11E01F00000000000004 /* MobileNebula */; };
+		4D0B11E01F00000000000009 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = 4D0B11E01F00000000000005 /* SwiftyJSON */; };
+		4D0B11E01F0000000000000A /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = 4D0B11E01F00000000000006 /* SwiftyJSON */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
@@ -33,7 +37,6 @@
 		BE5BC106291C41E600B6FE5B /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5BC105291C41E600B6FE5B /* APIClient.swift */; };
 		BEC5939E291C502F00709118 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5BC105291C41E600B6FE5B /* APIClient.swift */; };
 		BEC5939F291C503D00709118 /* PackageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE45F625291AEAB300902884 /* PackageInfo.swift */; };
-		E91B9DAD4A83866D0AF1DAE1 /* Pods_NebulaNetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C0A96949A0B117C4ACE752C /* Pods_NebulaNetworkExtension.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,9 +76,7 @@
 /* Begin PBXFileReference section */
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
-		384887B4785D38431E800D3A /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
-		41927814D2E140A347A01067 /* Pods-NebulaNetworkExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NebulaNetworkExtension.debug.xcconfig"; path = "Target Support Files/Pods-NebulaNetworkExtension/Pods-NebulaNetworkExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		432D0E3D291C562200752563 /* SiteList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteList.swift; sourceTree = "<group>"; };
 		436DE7A226EFF18500BB2950 /* CtlInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CtlInfo.h; sourceTree = "<group>"; };
 		437F72582469AAC500A0C4B9 /* Site.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Site.swift; sourceTree = "<group>"; };
@@ -90,15 +91,11 @@
 		43B66ECA245A0C8400B18C36 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		43B66ECC245A146300B18C36 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		43ED87832912D0DD004DAFC5 /* DNUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNUpdate.swift; sourceTree = "<group>"; };
-		53C42258A2092B55937DCF53 /* Pods-NebulaNetworkExtension.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NebulaNetworkExtension.profile.xcconfig"; path = "Target Support Files/Pods-NebulaNetworkExtension/Pods-NebulaNetworkExtension.profile.xcconfig"; sourceTree = "<group>"; };
-		5C0A96949A0B117C4ACE752C /* Pods_NebulaNetworkExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NebulaNetworkExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		6E7A71D8C71BF965D042667D /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		78E0A7A72DC9AD7400C4905E /* FlutterGeneratedPluginSwiftPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = FlutterGeneratedPluginSwiftPackage; path = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
 		895AEA5D3A4D420F2ABE1FCE /* ConfigMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigMigrator.swift; sourceTree = "<group>"; };
-		8E4961BE2F06B97C8C693530 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
-		9169E2D0D49FAF5172A6E7B8 /* Pods-NebulaNetworkExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NebulaNetworkExtension.release.xcconfig"; path = "Target Support Files/Pods-NebulaNetworkExtension/Pods-NebulaNetworkExtension.release.xcconfig"; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
 		9740EEB31CF90195004384FC /* Generated.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Generated.xcconfig; path = Flutter/Generated.xcconfig; sourceTree = "<group>"; };
 		97C146EE1CF9000F007C117D /* Runner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Runner.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -108,7 +105,6 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BE45F625291AEAB300902884 /* PackageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageInfo.swift; sourceTree = "<group>"; };
 		BE5BC105291C41E600B6FE5B /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
-		C2D5198CF6975BF93E8A6F93 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,7 +113,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				43AA89622444DAA500EDC39C /* NetworkExtension.framework in Frameworks */,
-				E91B9DAD4A83866D0AF1DAE1 /* Pods_NebulaNetworkExtension.framework in Frameworks */,
+				4D0B11E01F00000000000008 /* MobileNebula in Frameworks */,
+				4D0B11E01F0000000000000A /* SwiftyJSON in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,8 +122,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */,
 				43AA894F2444D8BC00EDC39C /* NetworkExtension.framework in Frameworks */,
-				4CF2F06A02A63B862C9F6F03 /* Pods_Runner.framework in Frameworks */,
+				4D0B11E01F00000000000007 /* MobileNebula in Frameworks */,
+				4D0B11E01F00000000000009 /* SwiftyJSON in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -139,8 +138,6 @@
 				43B66ECC245A146300B18C36 /* Foundation.framework */,
 				43B66ECA245A0C8400B18C36 /* CoreFoundation.framework */,
 				43AA894E2444D8BC00EDC39C /* NetworkExtension.framework */,
-				384887B4785D38431E800D3A /* Pods_Runner.framework */,
-				5C0A96949A0B117C4ACE752C /* Pods_NebulaNetworkExtension.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -163,6 +160,7 @@
 		9740EEB11CF90186004384FC /* Flutter */ = {
 			isa = PBXGroup;
 			children = (
+				78E0A7A72DC9AD7400C4905E /* FlutterGeneratedPluginSwiftPackage */,
 				3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */,
 				9740EEB21CF90195004384FC /* Debug.xcconfig */,
 				7AFA3C8E1D35360C0083082E /* Release.xcconfig */,
@@ -223,12 +221,6 @@
 		9D19B3FACD187D51D2854929 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				C2D5198CF6975BF93E8A6F93 /* Pods-Runner.debug.xcconfig */,
-				6E7A71D8C71BF965D042667D /* Pods-Runner.release.xcconfig */,
-				8E4961BE2F06B97C8C693530 /* Pods-Runner.profile.xcconfig */,
-				41927814D2E140A347A01067 /* Pods-NebulaNetworkExtension.debug.xcconfig */,
-				9169E2D0D49FAF5172A6E7B8 /* Pods-NebulaNetworkExtension.release.xcconfig */,
-				53C42258A2092B55937DCF53 /* Pods-NebulaNetworkExtension.profile.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -240,7 +232,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 43AA895D2444DA6500EDC39C /* Build configuration list for PBXNativeTarget "NebulaNetworkExtension" */;
 			buildPhases = (
-				2C0A52E24BC9F327251CBAD2 /* [CP] Check Pods Manifest.lock */,
 				43AA89502444DA6500EDC39C /* Sources */,
 				43AA89512444DA6500EDC39C /* Frameworks */,
 				43AA89522444DA6500EDC39C /* Resources */,
@@ -250,6 +241,10 @@
 			dependencies = (
 			);
 			name = NebulaNetworkExtension;
+			packageProductDependencies = (
+				4D0B11E01F00000000000004 /* MobileNebula */,
+				4D0B11E01F00000000000006 /* SwiftyJSON */,
+			);
 			productName = NebulaNetworkExtension;
 			productReference = 43AA89542444DA6500EDC39C /* NebulaNetworkExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -258,14 +253,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "Runner" */;
 			buildPhases = (
-				FF0E0EB9A684F086443A8FBA /* [CP] Check Pods Manifest.lock */,
+				4D0B11E01F0000000000000B /* Verify MobileNebula freshness */,
 				9740EEB61CF901F6004384FC /* Run Script */,
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				43AA89612444DA6500EDC39C /* Embed Foundation Extensions */,
-				00C7A79AE88792090BDAC68B /* [CP] Embed Pods Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 			);
 			buildRules = (
@@ -274,6 +268,11 @@
 				43AA895B2444DA6500EDC39C /* PBXTargetDependency */,
 			);
 			name = Runner;
+			packageProductDependencies = (
+				78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */,
+				4D0B11E01F00000000000003 /* MobileNebula */,
+				4D0B11E01F00000000000005 /* SwiftyJSON */,
+			);
 			productName = Runner;
 			productReference = 97C146EE1CF9000F007C117D /* Runner.app */;
 			productType = "com.apple.product-type.application";
@@ -310,6 +309,11 @@
 				Base,
 			);
 			mainGroup = 97C146E51CF9000F007C117D;
+			packageReferences = (
+				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */,
+				4D0B11E01F00000000000001 /* XCLocalSwiftPackageReference "MobileNebulaKit" */,
+				4D0B11E01F00000000000002 /* XCRemoteSwiftPackageReference "SwiftyJSON" */,
+			);
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -342,59 +346,20 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		00C7A79AE88792090BDAC68B /* [CP] Embed Pods Frameworks */ = {
+		4D0B11E01F0000000000000B /* Verify MobileNebula freshness */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Sentry/Sentry.framework",
-				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
-				"${BUILT_PRODUCTS_DIR}/file_picker/file_picker.framework",
-				"${BUILT_PRODUCTS_DIR}/mobile_scanner/mobile_scanner.framework",
-				"${BUILT_PRODUCTS_DIR}/package_info_plus/package_info_plus.framework",
-				"${BUILT_PRODUCTS_DIR}/sentry_flutter/sentry_flutter.framework",
-				"${BUILT_PRODUCTS_DIR}/share_plus/share_plus.framework",
-				"${BUILT_PRODUCTS_DIR}/url_launcher_ios/url_launcher_ios.framework",
 			);
-			name = "[CP] Embed Pods Frameworks";
+			name = "Verify MobileNebula freshness";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sentry.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/file_picker.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/mobile_scanner.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/package_info_plus.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/sentry_flutter.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/share_plus.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/url_launcher_ios.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		2C0A52E24BC9F327251CBAD2 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-NebulaNetworkExtension-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
+			shellScript = "# The ensure-mobile-nebula.sh scheme pre-action rebuilds the framework when the Go code\n# changes, but Xcode ignores pre-action failures. This phase fails the build instead.\nMARKER=\"$SRCROOT/MobileNebulaKit/Binaries/MobileNebula.freshness\"\nSTATUS=\"$(cat \"$MARKER\" 2>/dev/null || echo missing)\"\nif [ \"$STATUS\" != \"fresh\" ]; then\n  echo \"error: MobileNebula.xcframework is not fresh ($STATUS). Run ./ensure-mobile-nebula.sh from the repo root.\" >&2\n  exit 1\nfi\n";
 		};
 		3B06AD1E1E4923F5004D2608 /* Thin Binary */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -426,28 +391,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build\n";
-		};
-		FF0E0EB9A684F086443A8FBA /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Runner-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -614,7 +557,6 @@
 		};
 		43AA895E2444DA6500EDC39C /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 41927814D2E140A347A01067 /* Pods-NebulaNetworkExtension.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -654,7 +596,6 @@
 		};
 		43AA895F2444DA6500EDC39C /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9169E2D0D49FAF5172A6E7B8 /* Pods-NebulaNetworkExtension.release.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -691,7 +632,6 @@
 		};
 		43AA89602444DA6500EDC39C /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 53C42258A2092B55937DCF53 /* Pods-NebulaNetworkExtension.profile.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -964,6 +904,53 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		4D0B11E01F00000000000001 /* XCLocalSwiftPackageReference "MobileNebulaKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = MobileNebulaKit;
+		};
+		781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4D0B11E01F00000000000002 /* XCRemoteSwiftPackageReference "SwiftyJSON" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwiftyJSON/SwiftyJSON.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4D0B11E01F00000000000003 /* MobileNebula */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MobileNebula;
+		};
+		4D0B11E01F00000000000004 /* MobileNebula */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MobileNebula;
+		};
+		4D0B11E01F00000000000005 /* SwiftyJSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4D0B11E01F00000000000002 /* XCRemoteSwiftPackageReference "SwiftyJSON" */;
+			productName = SwiftyJSON;
+		};
+		4D0B11E01F00000000000006 /* SwiftyJSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4D0B11E01F00000000000002 /* XCRemoteSwiftPackageReference "SwiftyJSON" */;
+			productName = SwiftyJSON;
+		};
+		78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FlutterGeneratedPluginSwiftPackage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 97C146E61CF9000F007C117D /* Project object */;
 }
