@@ -1,8 +1,10 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_nebula/main.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class Utils {
@@ -127,14 +129,52 @@ class Utils {
   }
 
   static Future<String?> pickFile(BuildContext context) async {
-    await FilePicker.clearTemporaryFiles();
-    final result = await FilePicker.pickFiles(allowMultiple: false);
-    if (result == null) {
+    final file = await openFile();
+    if (file == null) {
       return null;
     }
 
-    final file = File(result.files.first.path!);
-    return file.readAsString();
+    final content = await file.readAsString();
+
+    // We get a copy, not the original, so don't leave a plaintext key sitting around
+    try {
+      await File(file.path).delete();
+    } catch (err) {
+      // Ignoring file delete errors
+    }
+
+    return content;
+  }
+
+  /// Deletes copies left behind by file_picker, which we used to use. It only cleared
+  /// its cache on the next pick, so the last thing anyone imported is still in there.
+  static Future<void> clearLegacyPickedFiles() async {
+    try {
+      final cacheDir = await getTemporaryDirectory();
+      final legacyCache = Directory(p.join(cacheDir.path, 'file_picker'));
+      if (legacyCache.existsSync()) {
+        legacyCache.deleteSync(recursive: true);
+      }
+    } catch (err) {
+      // Ignoring cleanup errors
+    }
+
+    // iOS document imports land in <tmp>/<bundle id>-Inbox. systemTemp because
+    // path_provider points getTemporaryDirectory at Library/Caches, not tmp, and it
+    // is only our sandbox on iOS. Inboxes only, Share is using the rest of tmp.
+    if (!Platform.isIOS) {
+      return;
+    }
+
+    try {
+      for (final entry in Directory.systemTemp.listSync()) {
+        if (entry is Directory && entry.path.endsWith('-Inbox')) {
+          entry.deleteSync(recursive: true);
+        }
+      }
+    } catch (err) {
+      // Ignoring cleanup errors
+    }
   }
 
   static TextTheme createTextTheme() {
