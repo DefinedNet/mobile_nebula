@@ -7,7 +7,7 @@ go 1.26.5
 require (
 	github.com/DefinedNet/dnapi v0.0.0-20260313005402-c66f625d8dfd
 	github.com/sirupsen/logrus v1.9.4
-	github.com/slackhq/nebula v1.10.4-0.20260710170217-86733864fe7f
+	github.com/slackhq/nebula v1.11.0
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/crypto v0.54.0
 	golang.org/x/sys v0.47.0
