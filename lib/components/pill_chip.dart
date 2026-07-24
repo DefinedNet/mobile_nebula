@@ -133,7 +133,9 @@ class PillChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(label, style: resolvedTextStyle),
+          Flexible(
+            child: Text(label, style: resolvedTextStyle, overflow: TextOverflow.ellipsis),
+          ),
           if (trailingIcon != null) ...[const SizedBox(width: 4), Icon(trailingIcon, color: theme.textColor, size: 16)],
         ],
       ),
