@@ -98,10 +98,20 @@ enum PillChipBorder {
 /// Themed via [PillChipThemeData] (as a [ThemeExtension] or via
 /// [PillChipTheme] in the widget tree). Falls back to [ColorScheme] defaults.
 class PillChip extends StatelessWidget {
-  const PillChip({super.key, required this.label, this.trailingIcon, this.onTap, this.border = PillChipBorder.none});
+  const PillChip({
+    super.key,
+    required this.label,
+    this.trailingIcon,
+    this.onTap,
+    this.border = PillChipBorder.none,
+    this.maxLines = 3,
+  });
 
   /// The text label displayed inside the chip.
   final String label;
+
+  /// Maximum number of lines the label wraps to before it ellipsizes.
+  final int maxLines;
 
   /// Optional trailing icon (e.g. a close/remove icon).
   final IconData? trailingIcon;
@@ -134,7 +144,9 @@ class PillChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: Text(label, style: resolvedTextStyle, overflow: TextOverflow.ellipsis),
+            // A label wider than the chip's constraints wraps rather than running past the edge. Flutter breaks
+            // mid-token when there is no whitespace or hyphen to break on, so unseparated names still fit.
+            child: Text(label, style: resolvedTextStyle, maxLines: maxLines, overflow: TextOverflow.ellipsis),
           ),
           if (trailingIcon != null) ...[const SizedBox(width: 4), Icon(trailingIcon, color: theme.textColor, size: 16)],
         ],
