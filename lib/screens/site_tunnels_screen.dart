@@ -75,7 +75,7 @@ class SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
           child: Row(
             children: <Widget>[
               Padding(padding: EdgeInsets.only(right: 10), child: icon),
-              Text(hostInfo.cert?.name ?? hostInfo.vpnAddrs[0]),
+              Expanded(child: Text(hostInfo.cert?.name ?? hostInfo.vpnAddrs[0], overflow: TextOverflow.ellipsis)),
             ],
           ),
         ),
