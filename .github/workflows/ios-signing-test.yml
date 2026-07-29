@@ -1,0 +1,118 @@
+name: iOS signing test
+
+# Archives and signs the iOS app and stops. No TestFlight, no Android, no release,
+# so a failure costs a tag and nothing else.
+#
+# Tags, not branches: the signing role trusts refs/tags/v*, and a branch push
+# presents refs/heads/*. vtest* cannot match release.yml's
+# v[0-9]+.[0-9]+.[0-9]+-* filter, so tagging one does not cut a release.
+#
+#   git tag vtest1 && git push origin vtest1
+on:
+  push:
+    tags:
+      - "vtest*"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    name: Archive and sign, no upload
+    runs-on: macos-26
+    timeout-minutes: 60
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #6.0.2
+        with:
+          show-progress: false
+
+      - name: Set up Go
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 #6.5.0
+        with:
+          go-version-file: nebula/go.mod
+          cache-dependency-path: nebula/go.sum
+
+      - name: Install flutter
+        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e #v2.21.0
+        with:
+          flutter-version: '3.44.6'
+          cache: true
+
+      - name: Install dependencies
+        run: |
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          gomobile init
+          flutter pub get
+          touch env.sh
+          ./gen-artifacts.sh skip
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c #v6.2.3
+        with:
+          role-to-assume: ${{ secrets.APPLE_SIGNING_ROLE_ARN }}
+          aws-region: us-east-2
+
+      - name: Fetch signing credentials
+        uses: aws-actions/aws-secretsmanager-get-secrets@2cb1a461cbd4865ac4299648312e4704c646cd53 #v3.0.1
+        with:
+          parse-json-secrets: true
+          secret-ids: |
+            SIGNING,${{ secrets.APPLE_SIGNING_DISTRIBUTION_ARN }}
+            ASC,${{ secrets.APPLE_ASC_API_KEY_ARN }}
+
+      - name: Import certificates
+        uses: Apple-Actions/import-codesign-certs@5142e029c445c10ffc7149d172e540235a065466 #v7.0.0
+        with:
+          p12-file-base64: ${{ env.SIGNING_P12_BASE64 }}
+          p12-password: ${{ env.SIGNING_PASSWORD }}
+
+      - name: Check the identity is usable
+        run: |
+          : "${SIGNING_IDENTITY_SHA1:?empty, so the secret has no identity_sha1}"
+          identities=$(security find-identity -v -p codesigning signing_temp.keychain)
+          case "$identities" in
+          *"$SIGNING_IDENTITY_SHA1"*) ;;
+          *) printf '%s\n' "$identities" >&2; exit 1 ;;
+          esac
+
+      - name: Write the App Store Connect key
+        run: |
+          key_dir="$RUNNER_TEMP/asc"
+          mkdir -p "$key_dir"
+          chmod 700 "$key_dir"
+          key_path="$key_dir/AuthKey_${ASC_KEY_ID}.p8"
+          (umask 077; printf '%s\n' "$ASC_PRIVATE_KEY" > "$key_path")
+          {
+            echo "APP_STORE_CONNECT_API_KEY_KEY_FILEPATH=$key_path"
+            echo "APP_STORE_CONNECT_API_KEY_KEY_ID=$ASC_KEY_ID"
+            echo "APP_STORE_CONNECT_API_KEY_ISSUER_ID=$ASC_ISSUER_ID"
+          } >> "$GITHUB_ENV"
+
+      # Throwaway version and build number, nothing here reaches App Store Connect
+      - name: Build iOS
+        env:
+          BUILD_NAME: "0.0.1"
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          ./ensure-mobile-nebula.sh
+          flutter build ios --release --config-only --no-codesign
+          cd ios
+          fastlane build
+
+      - name: Collect the ipa
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #6.0.0
+        with:
+          name: MobileNebula.ipa
+          path: ios/MobileNebula.ipa
+          retention-days: 2
+          if-no-files-found: warn
+
+      - name: Drop the Apple credentials
+        if: always()
+        run: |
+          security delete-keychain signing_temp.keychain || true
+          rm -f "$APP_STORE_CONNECT_API_KEY_KEY_FILEPATH"
