@@ -21,18 +21,36 @@ platform :ios do
   desc "Archive and sign the App Store ipa"
   lane :build do
     # Signing identity comes from the keychain the release workflow imports into,
-    # provisioning profiles from App Store Connect during the build. Runbook is
+    # profiles from the PROFILE_* variables it sets. Runbook is
     # docs/apple-signing.md in the ansible repo.
     #
+    # Manual signing, not automatic: automatic will not use a profile we created,
+    # it wants a cloud managed one and Apple refuses that here.
+    #
     # No setup_ci: its keychain competes with the one already imported into.
+    app_profile = ENV.fetch("PROFILE_APP_NAME")
+    ext_profile = ENV.fetch("PROFILE_EXT_NAME")
 
-    # No code_sign_identity: naming one alongside automatic signing is a conflict
-    # Xcode refuses to build. It selects the identity for the action itself.
     update_code_signing_settings(
       path: "Runner.xcodeproj",
-      use_automatic_signing: true,
+      use_automatic_signing: false,
       team_id: "576H3XS7FP",
+      code_sign_identity: "Apple Distribution",
       build_configurations: ["Release"],
+    )
+
+    update_project_provisioning(
+      xcodeproj: "Runner.xcodeproj",
+      target_filter: "Runner",
+      profile: ENV.fetch("PROFILE_APP_PATH"),
+      build_configuration: "Release"
+    )
+
+    update_project_provisioning(
+      xcodeproj: "Runner.xcodeproj",
+      target_filter: "NebulaNetworkExtension",
+      profile: ENV.fetch("PROFILE_EXT_PATH"),
+      build_configuration: "Release"
     )
 
     increment_build_number(
@@ -45,20 +63,20 @@ platform :ios do
         version_number: ENV['BUILD_NAME']
     )
 
-    # Archive only. gym passes these to exportArchive itself, and xcodebuild
-    # rejects -authenticationKeyPath appearing twice in one invocation.
-    # fetch rather than [] so a missing one fails here, not inside xcodebuild.
+    # No -allowProvisioningUpdates: it is what sends the export to cloud signing.
+    # The export needs the mapping named, gym does not infer it.
     build_app(
       output_name: "MobileNebula.ipa",
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
       export_method: "app-store",
-      xcargs: [
-        "-allowProvisioningUpdates",
-        "-authenticationKeyPath #{ENV.fetch('APP_STORE_CONNECT_API_KEY_KEY_FILEPATH').shellescape}",
-        "-authenticationKeyID #{ENV.fetch('APP_STORE_CONNECT_API_KEY_KEY_ID').shellescape}",
-        "-authenticationKeyIssuerID #{ENV.fetch('APP_STORE_CONNECT_API_KEY_ISSUER_ID').shellescape}",
-      ].join(" "),
+      export_options: {
+        signingStyle: "manual",
+        provisioningProfiles: {
+          "net.defined.mobileNebula" => app_profile,
+          "net.defined.mobileNebula.NebulaNetworkExtension" => ext_profile,
+        },
+      },
     )
   end
 
