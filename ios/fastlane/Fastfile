@@ -26,14 +26,12 @@ platform :ios do
     #
     # No setup_ci: its keychain competes with the one already imported into.
 
-    # Both targets inherit CODE_SIGN_IDENTITY[sdk=iphoneos*] = "iPhone Developer"
-    # from the project's Release configuration, which is wrong for an App Store
-    # build. Automatic signing is what lets Xcode resolve the profiles.
+    # No code_sign_identity: naming one alongside automatic signing is a conflict
+    # Xcode refuses to build. It selects the identity for the action itself.
     update_code_signing_settings(
       path: "Runner.xcodeproj",
       use_automatic_signing: true,
       team_id: "576H3XS7FP",
-      code_sign_identity: "Apple Distribution",
       build_configurations: ["Release"],
     )
 
