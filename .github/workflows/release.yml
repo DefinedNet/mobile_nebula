@@ -5,6 +5,13 @@ on:
       # Only builds for tags with a meaningless build number suffix: v1.0.0-1
       - "v[0-9]+.[0-9]+.[0-9]+-*"
 
+permissions:
+  # Federating into AWS for the signing credentials; without it the failure blames
+  # credentials rather than the missing permission
+  id-token: write
+  # Creating the draft release
+  contents: write
+
 jobs:
   build:
     name: Build ios and android package
@@ -39,14 +46,6 @@ jobs:
         run: |
           curl -Lo bundletool.jar https://github.com/google/bundletool/releases/download/1.18.1/bundletool-all-1.18.1.jar
 
-      - name: Install the appstore connect key material
-        env:
-          AC_API_KEY_SECRET_BASE64: ${{ secrets.AC_API_KEY_SECRET_BASE64 }}
-        run: |
-          AC_API_KEY_SECRET_PATH="$RUNNER_TEMP/key.p8"
-          echo "APP_STORE_CONNECT_API_KEY_KEY_FILEPATH=$AC_API_KEY_SECRET_PATH" >> $GITHUB_ENV
-          echo -n "$AC_API_KEY_SECRET_BASE64" | base64 --decode --output "$AC_API_KEY_SECRET_PATH"
-
       - name: Install the google play key material
         env:
           GOOGLE_PLAY_API_JWT_BASE64: ${{ secrets.GOOGLE_PLAY_API_JWT_BASE64 }}
@@ -59,11 +58,6 @@ jobs:
           GOOGLE_PLAY_KEYSTORE_PATH="$RUNNER_TEMP/gp_signing.jks"
           echo "GOOGLE_PLAY_KEYSTORE_PATH=$GOOGLE_PLAY_KEYSTORE_PATH" >> $GITHUB_ENV
           echo -n "$GOOGLE_PLAY_KEYSTORE_BASE64" | base64 --decode --output "$GOOGLE_PLAY_KEYSTORE_PATH"
-
-      - name: Place Github token for fastlane match
-        env:
-          TOKEN: ${{ secrets.MACHINE_USER_PAT }}
-        run: echo "MATCH_GIT_BASIC_AUTHORIZATION=$(echo -n "defined-machine:${TOKEN}" | base64)" >> $GITHUB_ENV
 
       - name: Get build name and number, install dependencies
         env:
@@ -87,36 +81,6 @@ jobs:
         run: |
           ./gen-artifacts.sh skip
           flutter test
-
-      - name: Build iOS
-        env:
-          TOKEN: ${{ secrets.MACHINE_USER_PAT }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-        run: |
-          ./ensure-mobile-nebula.sh
-          # config-only raises the generated plugin package deployment target to match
-          # the project, required before driving xcodebuild directly
-          flutter build ios --release --config-only --no-codesign
-          cd ios
-          fastlane build
-          cd -
-
-          # verify that the github token didn't make it into the output
-          mkdir -p build/app/test-ios
-          cp ios/MobileNebula.ipa build/app/test-ios
-          cd build/app/test-ios
-          unzip MobileNebula.ipa
-          if find . | xargs strings 2>/dev/null | grep -qF "${TOKEN}" ; then
-            echo "Token found in iOS build"
-            exit 1
-          fi
-
-      - name: Collect iOS artifacts
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #6.0.0
-        with:
-          name: MobileNebula.ipa
-          path: ios/MobileNebula.ipa
-          retention-days: 5
 
       - name: Build Android
         env:
@@ -156,13 +120,107 @@ jobs:
           path: build/app/outputs/bundle/release/app-release.aab
           retention-days: 5
 
-      - name: Publish to iOS TestFlight
+      # Late on purpose. Everything above runs third party code, and the secrets
+      # action writes to GITHUB_ENV, which every later step in the job inherits.
+      # Android having already built means a gradle failure cannot publish iOS
+      # on its own.
+      #
+      # GitHub holds ARNs, not credentials. See ansible docs/apple-signing.md.
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c #v6.2.3
+        with:
+          role-to-assume: ${{ secrets.APPLE_SIGNING_ROLE_ARN }}
+          aws-region: us-east-2
+
+      # parse-json-secrets unpacks into SIGNING_* and ASC_*, masked on the way in
+      - name: Fetch signing credentials
+        uses: aws-actions/aws-secretsmanager-get-secrets@2cb1a461cbd4865ac4299648312e4704c646cd53 #v3.0.1
+        with:
+          parse-json-secrets: true
+          secret-ids: |
+            SIGNING,${{ secrets.APPLE_SIGNING_DISTRIBUTION_ARN }}
+            ASC,${{ secrets.APPLE_ASC_API_KEY_ARN }}
+
+      - name: Import certificates
+        uses: Apple-Actions/import-codesign-certs@5142e029c445c10ffc7149d172e540235a065466 #v7.0.0
+        with:
+          p12-file-base64: ${{ env.SIGNING_P12_BASE64 }}
+          p12-password: ${{ env.SIGNING_PASSWORD }}
+
+      # The action imports but does not check the chain validates, which is how a p12
+      # missing its intermediate reaches a failing codesign
+      - name: Check the identity is usable
+        run: |
+          : "${SIGNING_IDENTITY_SHA1:?empty, so the secret has no identity_sha1}"
+          identities=$(security find-identity -v -p codesigning signing_temp.keychain)
+          case "$identities" in
+          *"$SIGNING_IDENTITY_SHA1"*) ;;
+          *) printf '%s\n' "$identities" >&2; exit 1 ;;
+          esac
+
+      # Under the names fastlane's app_store_connect_api_key and xcodebuild's
+      # -authenticationKeyPath expect.
+      - name: Write the App Store Connect key
+        run: |
+          key_dir="$RUNNER_TEMP/asc"
+          mkdir -p "$key_dir"
+          chmod 700 "$key_dir"
+          key_path="$key_dir/AuthKey_${ASC_KEY_ID}.p8"
+          (umask 077; printf '%s\n' "$ASC_PRIVATE_KEY" > "$key_path")
+          {
+            echo "APP_STORE_CONNECT_API_KEY_KEY_FILEPATH=$key_path"
+            echo "APP_STORE_CONNECT_API_KEY_KEY_ID=$ASC_KEY_ID"
+            echo "APP_STORE_CONNECT_API_KEY_ISSUER_ID=$ASC_ISSUER_ID"
+          } >> "$GITHUB_ENV"
+
+      - name: Build iOS
         env:
-          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.AC_API_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.AC_API_KEY_ISSUER_ID }}
+          TOKEN: ${{ secrets.MACHINE_USER_PAT }}
+        run: |
+          ./ensure-mobile-nebula.sh
+          # config-only raises the generated plugin package deployment target to match
+          # the project, required before driving xcodebuild directly
+          flutter build ios --release --config-only --no-codesign
+          cd ios
+          fastlane build
+          cd -
+
+          # verify that the github token didn't make it into the output
+          mkdir -p build/app/test-ios
+          cp ios/MobileNebula.ipa build/app/test-ios
+          cd build/app/test-ios
+          unzip MobileNebula.ipa
+          if find . | xargs strings 2>/dev/null | grep -qF "${TOKEN}" ; then
+            echo "Token found in iOS build"
+            exit 1
+          fi
+
+      - name: Collect iOS artifacts
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #6.0.0
+        with:
+          name: MobileNebula.ipa
+          path: ios/MobileNebula.ipa
+          retention-days: 5
+
+      # Both platforms are built by now and neither publish has happened, so a
+      # failure above this line still publishes nothing anywhere. Keep these two
+      # adjacent and keep them last.
+      - name: Publish to iOS TestFlight
         run: |
           cd ios
           fastlane release
+
+      # Nothing below needs them, and the Sentry upload runs code we do not own
+      - name: Drop the Apple credentials
+        run: |
+          security delete-keychain signing_temp.keychain || true
+          rm -f "$APP_STORE_CONNECT_API_KEY_KEY_FILEPATH"
+          {
+            echo "SIGNING_P12_BASE64="
+            echo "SIGNING_PASSWORD="
+            echo "ASC_PRIVATE_KEY="
+            echo "APP_STORE_CONNECT_API_KEY_KEY_FILEPATH="
+          } >> "$GITHUB_ENV"
 
       - name: Publish to Android internal track
         run: |
