@@ -120,11 +120,10 @@ jobs:
           path: build/app/outputs/bundle/release/app-release.aab
           retention-days: 5
 
-      # Deliberately this late, for two reasons. Everything above runs third party
-      # code, gomobile, pub, gradle, bundletool, fastlane's own gems, and the
-      # secrets action writes to GITHUB_ENV, which every later step in the job
-      # inherits. And the Android build having already succeeded means a gradle
-      # failure never reaches the point of publishing iOS on its own.
+      # Late on purpose. Everything above runs third party code, and the secrets
+      # action writes to GITHUB_ENV, which every later step in the job inherits.
+      # Android having already built means a gradle failure cannot publish iOS
+      # on its own.
       #
       # GitHub holds ARNs, not credentials. See ansible docs/apple-signing.md.
       - name: Configure AWS credentials
@@ -152,6 +151,7 @@ jobs:
       # missing its intermediate reaches a failing codesign
       - name: Check the identity is usable
         run: |
+          : "${SIGNING_IDENTITY_SHA1:?empty, so the secret has no identity_sha1}"
           identities=$(security find-identity -v -p codesigning signing_temp.keychain)
           case "$identities" in
           *"$SIGNING_IDENTITY_SHA1"*) ;;
@@ -159,12 +159,14 @@ jobs:
           esac
 
       # Under the names fastlane's app_store_connect_api_key and xcodebuild's
-      # -authenticationKeyPath expect. Replaces the AC_API_KEY_* GitHub secrets.
+      # -authenticationKeyPath expect.
       - name: Write the App Store Connect key
         run: |
-          key_path="$RUNNER_TEMP/AuthKey_${ASC_KEY_ID}.p8"
-          printf '%s\n' "$ASC_PRIVATE_KEY" > "$key_path"
-          chmod 600 "$key_path"
+          key_dir="$RUNNER_TEMP/asc"
+          mkdir -p "$key_dir"
+          chmod 700 "$key_dir"
+          key_path="$key_dir/AuthKey_${ASC_KEY_ID}.p8"
+          (umask 077; printf '%s\n' "$ASC_PRIVATE_KEY" > "$key_path")
           {
             echo "APP_STORE_CONNECT_API_KEY_KEY_FILEPATH=$key_path"
             echo "APP_STORE_CONNECT_API_KEY_KEY_ID=$ASC_KEY_ID"
@@ -211,6 +213,7 @@ jobs:
       # Nothing below needs them, and the Sentry upload runs code we do not own
       - name: Drop the Apple credentials
         run: |
+          security delete-keychain signing_temp.keychain || true
           rm -f "$APP_STORE_CONNECT_API_KEY_KEY_FILEPATH"
           {
             echo "SIGNING_P12_BASE64="

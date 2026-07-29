@@ -13,24 +13,22 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
+require "shellwords"
+
 default_platform(:ios)
 
 platform :ios do
   desc "Archive and sign the App Store ipa"
   lane :build do
-    # The signing identity comes from apple-signing/distribution in Secrets Manager,
-    # imported into a keychain by the release workflow. Provisioning profiles are
-    # fetched from App Store Connect during the build, so there is no longer a match
-    # repository holding a second copy of the certificate and the profiles. The
-    # runbook is docs/apple-signing.md in the ansible repo.
+    # Signing identity comes from the keychain the release workflow imports into,
+    # provisioning profiles from App Store Connect during the build. Runbook is
+    # docs/apple-signing.md in the ansible repo.
     #
-    # No setup_ci: it exists to give match a keychain to install into, and its
-    # keychain would only compete with the one the workflow imported into.
+    # No setup_ci: its keychain competes with the one already imported into.
 
     # Both targets inherit CODE_SIGN_IDENTITY[sdk=iphoneos*] = "iPhone Developer"
     # from the project's Release configuration, which is wrong for an App Store
-    # build, so it still has to be overridden. What changed is the signing style:
-    # automatic is what lets Xcode resolve the profiles itself.
+    # build. Automatic signing is what lets Xcode resolve the profiles.
     update_code_signing_settings(
       path: "Runner.xcodeproj",
       use_automatic_signing: true,
@@ -53,9 +51,9 @@ platform :ios do
     # fetch rather than [] so a missing one fails here, not inside xcodebuild.
     asc = [
       "-allowProvisioningUpdates",
-      "-authenticationKeyPath #{ENV.fetch('APP_STORE_CONNECT_API_KEY_KEY_FILEPATH')}",
-      "-authenticationKeyID #{ENV.fetch('APP_STORE_CONNECT_API_KEY_KEY_ID')}",
-      "-authenticationKeyIssuerID #{ENV.fetch('APP_STORE_CONNECT_API_KEY_ISSUER_ID')}",
+      "-authenticationKeyPath #{ENV.fetch('APP_STORE_CONNECT_API_KEY_KEY_FILEPATH').shellescape}",
+      "-authenticationKeyID #{ENV.fetch('APP_STORE_CONNECT_API_KEY_KEY_ID').shellescape}",
+      "-authenticationKeyIssuerID #{ENV.fetch('APP_STORE_CONNECT_API_KEY_ISSUER_ID').shellescape}",
     ].join(" ")
 
     build_app(
@@ -71,8 +69,7 @@ platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :release do
     # Reads APP_STORE_CONNECT_API_KEY_KEY_ID, _ISSUER_ID and _KEY_FILEPATH, which
-    # the workflow writes out of apple-signing/asc-api-key. Uploading signs nothing,
-    # so there is no keychain to set up.
+    # the workflow writes out of apple-signing/asc-api-key.
     app_store_connect_api_key
 
     upload_to_testflight(skip_waiting_for_build_processing: true)
