@@ -59,7 +59,6 @@ class AppState extends State<App> {
 
   @override
   void initState() {
-    // Waits until here so the binding is up, main runs before anyone has made one
     unawaited(Utils.clearLegacyPickedFiles());
 
     //TODO: wait until settings is ready?

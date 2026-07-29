@@ -2,10 +2,13 @@ import 'dart:io';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 import 'package:mobile_nebula/main.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+
+final _log = Logger('utils');
 
 class Utils {
   /// Minimum size (width or height) of a interactive component
@@ -128,7 +131,7 @@ class Utils {
     }
   }
 
-  static Future<String?> pickFile(BuildContext context) async {
+  static Future<String?> pickFile() async {
     final file = await openFile();
     if (file == null) {
       return null;
@@ -136,44 +139,51 @@ class Utils {
 
     final content = await file.readAsString();
 
-    // We get a copy, not the original, so don't leave a plaintext key sitting around
+    // It is a copy, so don't leave a plaintext key around. Android puts each in its own
+    // <cacheDir>/<uuid>/, so drop the empty parent too; on iOS that throws into the catch.
     try {
-      await File(file.path).delete();
+      final copy = File(file.path);
+      await copy.delete();
+      await copy.parent.delete();
     } catch (err) {
-      // Ignoring file delete errors
+      _log.warning('Failed to delete imported file copy, plaintext may remain in temp', err);
     }
 
     return content;
   }
 
-  /// Deletes copies left behind by file_picker, which we used to use. It only cleared
-  /// its cache on the next pick, so the last thing anyone imported is still in there.
+  /// Removes copies the old file_picker left in temp; it only cleared them on the next
+  /// pick, so the last thing imported lingers.
   static Future<void> clearLegacyPickedFiles() async {
-    try {
-      final cacheDir = await getTemporaryDirectory();
-      final legacyCache = Directory(p.join(cacheDir.path, 'file_picker'));
-      if (legacyCache.existsSync()) {
-        legacyCache.deleteSync(recursive: true);
-      }
-    } catch (err) {
-      // Ignoring cleanup errors
-    }
-
-    // iOS document imports land in <tmp>/<bundle id>-Inbox. systemTemp because
-    // path_provider points getTemporaryDirectory at Library/Caches, not tmp, and it
-    // is only our sandbox on iOS. Inboxes only, Share is using the rest of tmp.
-    if (!Platform.isIOS) {
-      return;
-    }
-
-    try {
-      for (final entry in Directory.systemTemp.listSync()) {
-        if (entry is Directory && entry.path.endsWith('-Inbox')) {
-          entry.deleteSync(recursive: true);
+    if (Platform.isAndroid) {
+      // file_picker's copies live under getTemporaryDirectory()/file_picker/.
+      try {
+        final cacheDir = await getTemporaryDirectory();
+        final legacyCache = Directory(p.join(cacheDir.path, 'file_picker'));
+        if (await legacyCache.exists()) {
+          await legacyCache.delete(recursive: true);
         }
+      } catch (err) {
+        _log.warning('Failed to clear legacy file_picker cache', err);
       }
-    } catch (err) {
-      // Ignoring cleanup errors
+    } else if (Platform.isIOS) {
+      // Old file_picker left loose files at the top of tmp, file_selector leaves -Inbox
+      // stragglers; sweep both. systemTemp because getTemporaryDirectory is Caches on iOS, and
+      // nothing of ours is loose in tmp (Share also writes to Caches). Only safe because we
+      // register no document types, so nothing but our own picker ever creates an -Inbox.
+      try {
+        await for (final entry in Directory.systemTemp.list()) {
+          try {
+            if (entry is File || (entry is Directory && entry.path.endsWith('-Inbox'))) {
+              await entry.delete(recursive: true);
+            }
+          } catch (err) {
+            _log.warning('Failed to delete temp entry ${entry.path}', err);
+          }
+        }
+      } catch (err) {
+        _log.warning('Failed to list temp directory for cleanup', err);
+      }
     }
   }
 

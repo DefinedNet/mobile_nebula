@@ -266,7 +266,7 @@ class MainScreenState extends State<MainScreen> {
             // Remove the modal
             Navigator.pop(context);
 
-            final rawContent = await Utils.pickFile(context);
+            final rawContent = await Utils.pickFile();
             if (rawContent == null) {
               return Utils.popError('Load YAML config', 'File was empty');
             }
