@@ -173,6 +173,40 @@ jobs:
             echo "APP_STORE_CONNECT_API_KEY_ISSUER_ID=$ASC_ISSUER_ID"
           } >> "$GITHUB_ENV"
 
+      # Automatic signing wants a cloud managed profile, which Apple refuses here
+      - name: Download the app profile
+        uses: Apple-Actions/download-provisioning-profiles@473562c853e9f580367eeff7c180258653e416e0 #v6.1.0
+        with:
+          bundle-id: net.defined.mobileNebula
+          profile-type: IOS_APP_STORE
+          issuer-id: ${{ env.ASC_ISSUER_ID }}
+          api-key-id: ${{ env.ASC_KEY_ID }}
+          api-private-key: ${{ env.ASC_PRIVATE_KEY }}
+
+      - name: Download the extension profile
+        uses: Apple-Actions/download-provisioning-profiles@473562c853e9f580367eeff7c180258653e416e0 #v6.1.0
+        with:
+          bundle-id: net.defined.mobileNebula.NebulaNetworkExtension
+          profile-type: IOS_APP_STORE
+          issuer-id: ${{ env.ASC_ISSUER_ID }}
+          api-key-id: ${{ env.ASC_KEY_ID }}
+          api-private-key: ${{ env.ASC_PRIVATE_KEY }}
+
+      # The download action treats no profiles as success
+      - name: Check the profiles we need are installed
+        run: |
+          for want in "apple-signing net.defined.mobileNebula" \
+                      "apple-signing net.defined.mobileNebula.NebulaNetworkExtension"; do
+            found=""
+            for f in "$HOME/Library/MobileDevice/Provisioning Profiles"/*.mobileprovision; do
+              [ -e "$f" ] || continue
+              name=$(security cms -D -i "$f" 2>/dev/null | plutil -extract Name raw - 2>/dev/null) || continue
+              [ "$name" = "$want" ] && found=1 && break
+            done
+            [ -n "$found" ] || { echo "no installed profile named '$want'" >&2; exit 1; }
+            echo "found '$want'"
+          done
+
       - name: Build iOS
         env:
           TOKEN: ${{ secrets.MACHINE_USER_PAT }}
@@ -190,6 +224,21 @@ jobs:
           cp ios/MobileNebula.ipa build/app/test-ios
           cd build/app/test-ios
           unzip MobileNebula.ipa
+
+          # Importing a certificate does not constrain what Xcode picks
+          for app in Payload/Runner.app Payload/Runner.app/PlugIns/*.appex; do
+            [ -e "$app" ] || continue
+            rm -f codesign[0-9]
+            codesign -d --extract-certificates "$app" 2>/dev/null
+            signer=$(openssl x509 -inform DER -in codesign0 -noout -fingerprint -sha1 |
+              cut -d= -f2 | tr -d ':')
+            if [ "$signer" != "$SIGNING_IDENTITY_SHA1" ]; then
+              echo "$app signed by $signer, expected $SIGNING_IDENTITY_SHA1" >&2
+              exit 1
+            fi
+            echo "$app signed by $signer"
+          done
+          rm -f codesign[0-9]
           if find . | xargs strings 2>/dev/null | grep -qF "${TOKEN}" ; then
             echo "Token found in iOS build"
             exit 1
@@ -210,17 +259,22 @@ jobs:
           cd ios
           fastlane release
 
-      # Nothing below needs them, and the Sentry upload runs code we do not own
+      # Narrows what a later step inherits. id-token is job scoped, so a later step
+      # can still re-federate; only a separate job would bound that.
       - name: Drop the Apple credentials
+        if: always()
         run: |
-          security delete-keychain signing_temp.keychain || true
+          # Locked, not deleted: import-codesign-certs deletes it in its post step
+          security lock-keychain signing_temp.keychain || true
           rm -f "$APP_STORE_CONNECT_API_KEY_KEY_FILEPATH"
-          {
-            echo "SIGNING_P12_BASE64="
-            echo "SIGNING_PASSWORD="
-            echo "ASC_PRIVATE_KEY="
-            echo "APP_STORE_CONNECT_API_KEY_KEY_FILEPATH="
-          } >> "$GITHUB_ENV"
+          # SECRETS_LIST_CLEAN_UP is the action's own list, so this does not rot
+          python3 -c '
+          import json, os
+          names = json.loads(os.environ.get("SECRETS_LIST_CLEAN_UP") or "[]")
+          names += ["APP_STORE_CONNECT_API_KEY_KEY_FILEPATH",
+                    "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN"]
+          print("\n".join(f"{n}=" for n in dict.fromkeys(names)))
+          ' >> "$GITHUB_ENV"
 
       - name: Publish to Android internal track
         run: |
