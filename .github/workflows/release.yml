@@ -229,7 +229,7 @@ jobs:
           for app in Payload/Runner.app Payload/Runner.app/PlugIns/*.appex; do
             [ -e "$app" ] || continue
             rm -f codesign[0-9]
-            codesign -d --extract-certificates "$app" 2>/dev/null
+            codesign -d --extract-certificates "$app"
             signer=$(openssl x509 -inform DER -in codesign0 -noout -fingerprint -sha1 |
               cut -d= -f2 | tr -d ':')
             if [ "$signer" != "$SIGNING_IDENTITY_SHA1" ]; then
@@ -270,7 +270,12 @@ jobs:
           # SECRETS_LIST_CLEAN_UP is the action's own list, so this does not rot
           python3 -c '
           import json, os
-          names = json.loads(os.environ.get("SECRETS_LIST_CLEAN_UP") or "[]")
+          raw = os.environ.get("SECRETS_LIST_CLEAN_UP")
+          # Missing is normal when the job died before the secrets step, but not
+          # once they are fetched, and then the p12 outlives this step
+          if raw is None and os.environ.get("SIGNING_P12_BASE64"):
+              raise SystemExit("SECRETS_LIST_CLEAN_UP is gone, fetched secrets are not being scrubbed")
+          names = json.loads(raw or "[]")
           names += ["APP_STORE_CONNECT_API_KEY_KEY_FILEPATH",
                     "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN"]
           print("\n".join(f"{n}=" for n in dict.fromkeys(names)))
