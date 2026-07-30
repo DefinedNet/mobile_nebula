@@ -13,29 +13,32 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
-require "shellwords"
+APP_BUNDLE = "net.defined.mobileNebula"
+EXT_BUNDLE = "net.defined.mobileNebula.NebulaNetworkExtension"
 
 default_platform(:ios)
 
 platform :ios do
   desc "Archive and sign the App Store ipa"
   lane :build do
-    # Signing identity comes from the keychain the release workflow imports into,
-    # provisioning profiles from App Store Connect during the build. Runbook is
-    # docs/apple-signing.md in the ansible repo.
+    # Manual signing: automatic wants a cloud managed profile, which Apple refuses
+    # here. Runbook is docs/apple-signing.md in the ansible repo.
     #
     # No setup_ci: its keychain competes with the one already imported into.
+    app_profile = "apple-signing #{APP_BUNDLE}"
+    ext_profile = "apple-signing #{EXT_BUNDLE}"
 
-    # Both targets inherit CODE_SIGN_IDENTITY[sdk=iphoneos*] = "iPhone Developer"
-    # from the project's Release configuration, which is wrong for an App Store
-    # build. Automatic signing is what lets Xcode resolve the profiles.
-    update_code_signing_settings(
-      path: "Runner.xcodeproj",
-      use_automatic_signing: true,
-      team_id: "576H3XS7FP",
-      code_sign_identity: "Apple Distribution",
-      build_configurations: ["Release"],
-    )
+    [["Runner", app_profile], ["NebulaNetworkExtension", ext_profile]].each do |target, profile|
+      update_code_signing_settings(
+        path: "Runner.xcodeproj",
+        use_automatic_signing: false,
+        team_id: "576H3XS7FP",
+        code_sign_identity: "Apple Distribution",
+        build_configurations: ["Release"],
+        targets: [target],
+        profile_name: profile
+      )
+    end
 
     increment_build_number(
         xcodeproj: "Runner.xcodeproj",
@@ -47,22 +50,19 @@ platform :ios do
         version_number: ENV['BUILD_NAME']
     )
 
-    # Archiving and exporting each resolve provisioning, so both need the key.
-    # fetch rather than [] so a missing one fails here, not inside xcodebuild.
-    asc = [
-      "-allowProvisioningUpdates",
-      "-authenticationKeyPath #{ENV.fetch('APP_STORE_CONNECT_API_KEY_KEY_FILEPATH').shellescape}",
-      "-authenticationKeyID #{ENV.fetch('APP_STORE_CONNECT_API_KEY_KEY_ID').shellescape}",
-      "-authenticationKeyIssuerID #{ENV.fetch('APP_STORE_CONNECT_API_KEY_ISSUER_ID').shellescape}",
-    ].join(" ")
-
+    # No -allowProvisioningUpdates: it is what sends the export to cloud signing.
     build_app(
       output_name: "MobileNebula.ipa",
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
       export_method: "app-store",
-      xcargs: asc,
-      export_xcargs: asc,
+      export_options: {
+        signingStyle: "manual",
+        provisioningProfiles: {
+          APP_BUNDLE => app_profile,
+          EXT_BUNDLE => ext_profile,
+        },
+      },
     )
   end
 
