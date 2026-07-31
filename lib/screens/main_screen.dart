@@ -293,7 +293,7 @@ class MainScreenState extends State<MainScreen> {
       ),
       ListTile(
         title: Text('Enroll with defined.net'),
-        subtitle: Text('Join your organizations network'),
+        subtitle: Text('Join a Managed Nebula network'),
         trailing: arrowIcon,
         onTap: () {
           // Remove the modal
