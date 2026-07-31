@@ -9,7 +9,7 @@ HostInfo _host({UDPAddress? currentRemote, List<UDPAddress> remotes = const [], 
       vpnAddrs: ['10.88.88.2'],
       localIndex: 1,
       remoteIndex: 2,
-      // Growable, the screen sorts this in place the way fromJson's output allows
+      // growable, the screen sorts this in place
       remoteAddresses: List.of(remotes),
       messageCounter: 0,
       currentRemote: currentRemote,

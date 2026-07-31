@@ -9,10 +9,10 @@ class HostInfo {
   UDPAddress? currentRemote;
   int messageCounter;
 
-  /// The vpn addresses of the hosts we are using to relay to this host
+  /// Hosts we relay through to reach this one
   List<String> currentRelaysToMe;
 
-  /// The vpn addresses of the hosts we are relaying for through this host
+  /// Hosts we relay for through this one
   List<String> currentRelaysThroughMe;
 
   HostInfo({
@@ -27,7 +27,7 @@ class HostInfo {
     this.currentRelaysThroughMe = const [],
   });
 
-  /// True when we have no direct remote for this host and have to send through a relay
+  /// No direct remote, so traffic has to go through a relay
   bool get isRelayed => currentRemote == null && currentRelaysToMe.isNotEmpty;
 
   factory HostInfo.fromJson(Map<String, dynamic> json) {

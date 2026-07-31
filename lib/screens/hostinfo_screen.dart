@@ -115,9 +115,7 @@ class HostInfoScreenState extends State<HostInfoScreen> {
     );
   }
 
-  /// Only shown when the tunnel is actually going through a relay. A hostinfo can
-  /// hold relays it isn't using once a direct path exists, claiming "relayed" then
-  /// would be a lie.
+  /// A hostinfo can hold relays it isn't using once a direct path exists
   Widget _buildRelays() {
     if (!hostInfo.isRelayed) {
       return Container();

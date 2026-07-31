@@ -31,7 +31,7 @@ HostInfo _host(String vpnAddr, {String? certName, List<String> relays = const []
   currentRelaysToMe: relays,
 );
 
-// Longer than any real cert name, and unbroken so it cannot wrap
+// unbroken so it cannot wrap
 const longName =
     'a-very-long-hostname-that-someone-will-inevitably-use-in-production-'
     'because-naming-conventions-are-hard-and-nobody-tests-this-0123456789';
@@ -66,7 +66,7 @@ void main() {
       ], size: const Size(320, 640));
 
       expect(tester.takeException(), isNull);
-      // The relay icon survives, the name is what gives way
+      // the name gives way, not the icon
       expect(find.byIcon(Icons.alt_route), findsOneWidget);
     });
 

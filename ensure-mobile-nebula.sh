@@ -37,21 +37,28 @@ unset SDKROOT MACOSX_DEPLOYMENT_TARGET IPHONEOS_DEPLOYMENT_TARGET \
     TVOS_DEPLOYMENT_TARGET WATCHOS_DEPLOYMENT_TARGET XROS_DEPLOYMENT_TARGET \
     DRIVERKIT_DEPLOYMENT_TARGET
 
-# Flutter writes FlutterGeneratedPluginSwiftPackage with its own hardcoded minimum
-# (iOS 13 as of 3.44) and only raises it to the project's deployment target during a
-# CLI build. Xcode drives builds through flutter assemble, which skips that step, so
-# any pub get, clean or worktree switch leaves a manifest that SPM rejects for plugins
-# needing something newer, file_picker 12 wants iOS 14. Let flutter fix it, it reads
-# the real deployment target rather than us hardcoding it in a second place.
-# Runs before the freshness check below, the manifest can rot while the framework is fine.
+# Any flutter command regenerates FlutterGeneratedPluginSwiftPackage with flutter's own
+# iOS 13 minimum, and only a CLI build raises it to our target. file_picker 12 needs 14.
+# Xcode resolves packages before pre-actions, so this heals the next build, not this one.
+# See the README, run flutter build ios --config-only by hand to avoid burning one.
+normalize_version() {
+    # so a pbxproj "14" and a manifest "14.0" don't look different
+    [ -n "$1" ] || return 0
+    echo "$1" | awk -F. '{printf "%d.%d\n", $1, ($2 == "" ? 0 : $2)}'
+}
+
+# lowest numerically, a lexicographic min would pick 14.0 over 9.0
 project_ios_target() {
-    sed -n 's/.*IPHONEOS_DEPLOYMENT_TARGET = \([0-9.]*\);.*/\1/p' \
-        "$ROOT/ios/Runner.xcodeproj/project.pbxproj" | LC_ALL=C sort -u | head -1
+    normalize_version "$(
+        sed -n 's/.*IPHONEOS_DEPLOYMENT_TARGET = \([0-9.]*\);.*/\1/p' \
+            "$ROOT/ios/Runner.xcodeproj/project.pbxproj" |
+            LC_ALL=C sort -t. -k1,1n -k2,2n | head -1
+    )"
 }
 
 manifest_ios_target() {
     [ -f "$MANIFEST" ] || return 0
-    sed -n 's/.*\.iOS("\([0-9.]*\)").*/\1/p' "$MANIFEST" | head -1
+    normalize_version "$(sed -n 's/.*\.iOS("\([0-9.]*\)").*/\1/p' "$MANIFEST" | head -1)"
 }
 
 TARGET="$(project_ios_target)"
@@ -59,7 +66,8 @@ HAVE="$(manifest_ios_target)"
 
 if [ -n "$TARGET" ] && [ "$HAVE" != "$TARGET" ]; then
     echo "FlutterGeneratedPluginSwiftPackage is iOS ${HAVE:-absent}, project is $TARGET, running flutter config"
-    if flutter build ios --config-only > "$FLUTTER_LOG" 2>&1; then
+    # flutter has to run from the project root, pre-actions do not start there
+    if (cd "$ROOT" && flutter build ios --config-only > "$FLUTTER_LOG" 2>&1); then
         NOW="$(manifest_ios_target)"
         [ "$NOW" = "$TARGET" ] \
             || echo "warning: manifest is still iOS ${NOW:-absent}, expected $TARGET" >&2
