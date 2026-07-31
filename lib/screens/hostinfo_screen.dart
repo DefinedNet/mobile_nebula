@@ -58,7 +58,13 @@ class HostInfoScreenState extends State<HostInfoScreen> {
         refreshController.refreshCompleted();
       },
       child: Column(
-        children: [_buildMain(), _buildDetails(), _buildRemotes(), !widget.pending ? _buildClose() : Container()],
+        children: [
+          _buildMain(),
+          _buildDetails(),
+          _buildRelays(),
+          _buildRemotes(),
+          !widget.pending ? _buildClose() : Container(),
+        ],
       ),
     );
   }
@@ -106,6 +112,22 @@ class HostInfoScreenState extends State<HostInfoScreen> {
           content: SelectableText('${hostInfo.messageCounter}'),
         ),
       ],
+    );
+  }
+
+  /// Only shown when the tunnel is actually going through a relay. A hostinfo can
+  /// hold relays it isn't using once a direct path exists, claiming "relayed" then
+  /// would be a lie.
+  Widget _buildRelays() {
+    if (!hostInfo.isRelayed) {
+      return Container();
+    }
+
+    return ConfigSection(
+      label: 'RELAY',
+      children: hostInfo.currentRelaysToMe
+          .map((relay) => ConfigItem(labelWidth: 0, content: SelectableText(relay)))
+          .toList(),
     );
   }
 

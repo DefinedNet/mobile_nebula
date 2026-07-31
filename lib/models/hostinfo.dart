@@ -9,6 +9,12 @@ class HostInfo {
   UDPAddress? currentRemote;
   int messageCounter;
 
+  /// The vpn addresses of the hosts we are using to relay to this host
+  List<String> currentRelaysToMe;
+
+  /// The vpn addresses of the hosts we are relaying for through this host
+  List<String> currentRelaysThroughMe;
+
   HostInfo({
     required this.vpnAddrs,
     required this.localIndex,
@@ -17,7 +23,12 @@ class HostInfo {
     required this.messageCounter,
     this.cert,
     this.currentRemote,
+    this.currentRelaysToMe = const [],
+    this.currentRelaysThroughMe = const [],
   });
+
+  /// True when we have no direct remote for this host and have to send through a relay
+  bool get isRelayed => currentRemote == null && currentRelaysToMe.isNotEmpty;
 
   factory HostInfo.fromJson(Map<String, dynamic> json) {
     UDPAddress? currentRemote;
@@ -36,23 +47,30 @@ class HostInfo {
       remoteAddresses.add(UDPAddress.fromJson(val));
     });
 
-    addrs = json['vpnAddrs'];
-    List<String> vpnAddrs = [];
-    addrs?.forEach((val) {
-      if (val is String) {
-        vpnAddrs.add(val);
-      }
-    });
-
     return HostInfo(
-      vpnAddrs: vpnAddrs,
+      vpnAddrs: _stringList(json['vpnAddrs']),
       localIndex: json['localIndex'],
       remoteIndex: json['remoteIndex'],
       remoteAddresses: remoteAddresses,
       messageCounter: json['messageCounter'],
       cert: cert,
       currentRemote: currentRemote,
+      currentRelaysToMe: _stringList(json['currentRelaysToMe']),
+      currentRelaysThroughMe: _stringList(json['currentRelaysThroughMe']),
     );
+  }
+
+  static List<String> _stringList(dynamic json) {
+    List<String> out = [];
+    if (json is List<dynamic>) {
+      for (var val in json) {
+        if (val is String) {
+          out.add(val);
+        }
+      }
+    }
+
+    return out;
   }
 }
 

@@ -76,6 +76,14 @@ class SiteTunnelsScreenState extends State<SiteTunnelsScreen> {
             children: <Widget>[
               Padding(padding: EdgeInsets.only(right: 10), child: icon),
               Expanded(child: Text(hostInfo.cert?.name ?? hostInfo.vpnAddrs[0], overflow: TextOverflow.ellipsis)),
+              if (hostInfo.isRelayed)
+                Tooltip(
+                  message: 'Relayed through ${hostInfo.currentRelaysToMe.join(', ')}',
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 10),
+                    child: Icon(Icons.alt_route, size: 18, color: Theme.of(context).hintColor),
+                  ),
+                ),
             ],
           ),
         ),

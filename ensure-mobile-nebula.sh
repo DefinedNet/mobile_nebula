@@ -14,6 +14,8 @@ FRAMEWORK="$BINARIES/MobileNebula.xcframework"
 MARKER="$BINARIES/MobileNebula.freshness"
 STAMP="$BINARIES/MobileNebula.stamp"
 BUILD_LOG="$BINARIES/MobileNebula.build.log"
+FLUTTER_LOG="$BINARIES/flutter-config.log"
+MANIFEST="$ROOT/ios/Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage/Package.swift"
 
 mkdir -p "$BINARIES"
 
@@ -34,6 +36,38 @@ export PATH
 unset SDKROOT MACOSX_DEPLOYMENT_TARGET IPHONEOS_DEPLOYMENT_TARGET \
     TVOS_DEPLOYMENT_TARGET WATCHOS_DEPLOYMENT_TARGET XROS_DEPLOYMENT_TARGET \
     DRIVERKIT_DEPLOYMENT_TARGET
+
+# Flutter writes FlutterGeneratedPluginSwiftPackage with its own hardcoded minimum
+# (iOS 13 as of 3.44) and only raises it to the project's deployment target during a
+# CLI build. Xcode drives builds through flutter assemble, which skips that step, so
+# any pub get, clean or worktree switch leaves a manifest that SPM rejects for plugins
+# needing something newer, file_picker 12 wants iOS 14. Let flutter fix it, it reads
+# the real deployment target rather than us hardcoding it in a second place.
+# Runs before the freshness check below, the manifest can rot while the framework is fine.
+project_ios_target() {
+    sed -n 's/.*IPHONEOS_DEPLOYMENT_TARGET = \([0-9.]*\);.*/\1/p' \
+        "$ROOT/ios/Runner.xcodeproj/project.pbxproj" | LC_ALL=C sort -u | head -1
+}
+
+manifest_ios_target() {
+    [ -f "$MANIFEST" ] || return 0
+    sed -n 's/.*\.iOS("\([0-9.]*\)").*/\1/p' "$MANIFEST" | head -1
+}
+
+TARGET="$(project_ios_target)"
+HAVE="$(manifest_ios_target)"
+
+if [ -n "$TARGET" ] && [ "$HAVE" != "$TARGET" ]; then
+    echo "FlutterGeneratedPluginSwiftPackage is iOS ${HAVE:-absent}, project is $TARGET, running flutter config"
+    if flutter build ios --config-only > "$FLUTTER_LOG" 2>&1; then
+        NOW="$(manifest_ios_target)"
+        [ "$NOW" = "$TARGET" ] \
+            || echo "warning: manifest is still iOS ${NOW:-absent}, expected $TARGET" >&2
+    else
+        tail -20 "$FLUTTER_LOG" >&2
+        echo "warning: flutter build ios --config-only failed, see $FLUTTER_LOG" >&2
+    fi
+fi
 
 # Everything that shapes the built framework. Include-list only, the nebula dir
 # also collects build outputs (aar, sources jar) that must not affect the hash.
