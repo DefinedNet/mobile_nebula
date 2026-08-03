@@ -23,7 +23,20 @@ jobs:
         uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 #6.5.0
         with:
           go-version-file: nebula/go.mod
-          cache-dependency-path: nebula/go.sum
+          cache: false
+        id: go
+
+      - name: Restore Go caches
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: gotest-go-${{ steps.go.outputs.go-version }}-${{ hashFiles('nebula/go.sum') }}-${{ github.sha }}
+          restore-keys: |
+            gotest-go-${{ steps.go.outputs.go-version }}-${{ hashFiles('nebula/go.sum') }}-
+            gotest-go-${{ steps.go.outputs.go-version }}-
+            gotest-go-
 
       - name: Go tests
         run: cd nebula && go test ./...
