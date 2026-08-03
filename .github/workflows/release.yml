@@ -28,7 +28,7 @@ jobs:
         uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 #6.5.0
         with:
           go-version-file: nebula/go.mod
-          cache-dependency-path: nebula/go.sum
+          cache: false
 
       - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 #v5.2.0
         with:
