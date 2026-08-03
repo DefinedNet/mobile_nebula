@@ -30,6 +30,25 @@ Run `flutter doctor` and fix everything it complains before proceeding
 
 If the iOS build complains that MobileNebula.xcframework is stale or missing, run `./ensure-mobile-nebula.sh` from the repo root. It rebuilds the gomobile framework only when the Go code in `nebula/` changes, Xcode runs it automatically as a pre-build action on the Runner scheme.
 
+### Building from Xcode after a flutter command
+
+`flutter pub get`, `flutter test` and friends rewrite the generated plugin package with flutter's own iOS 13 minimum,
+which SPM then rejects because file_picker needs 14:
+
+```
+error: The package product 'file-picker' requires minimum platform version 14.0 for the iOS platform,
+but this target supports 13.0
+```
+
+Only a flutter CLI build puts it back, so run this before building in Xcode:
+
+```sh
+flutter build ios --config-only
+```
+
+`ensure-mobile-nebula.sh` also does it, but Xcode resolves packages before pre-actions run, so it only helps the next
+build. Skip the command and the first build fails, the second works.
+
 # Formatting
 
 `dart format` can be used to format the code in `lib` and `test`.  We use a line-length of 120 characters.

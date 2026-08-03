@@ -14,6 +14,8 @@ FRAMEWORK="$BINARIES/MobileNebula.xcframework"
 MARKER="$BINARIES/MobileNebula.freshness"
 STAMP="$BINARIES/MobileNebula.stamp"
 BUILD_LOG="$BINARIES/MobileNebula.build.log"
+FLUTTER_LOG="$BINARIES/flutter-config.log"
+MANIFEST="$ROOT/ios/Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage/Package.swift"
 
 mkdir -p "$BINARIES"
 
@@ -34,6 +36,46 @@ export PATH
 unset SDKROOT MACOSX_DEPLOYMENT_TARGET IPHONEOS_DEPLOYMENT_TARGET \
     TVOS_DEPLOYMENT_TARGET WATCHOS_DEPLOYMENT_TARGET XROS_DEPLOYMENT_TARGET \
     DRIVERKIT_DEPLOYMENT_TARGET
+
+# Any flutter command regenerates FlutterGeneratedPluginSwiftPackage with flutter's own
+# iOS 13 minimum, and only a CLI build raises it to our target. file_picker 12 needs 14.
+# Xcode resolves packages before pre-actions, so this heals the next build, not this one.
+# See the README, run flutter build ios --config-only by hand to avoid burning one.
+normalize_version() {
+    # so a pbxproj "14" and a manifest "14.0" don't look different
+    [ -n "$1" ] || return 0
+    echo "$1" | awk -F. '{printf "%d.%d\n", $1, ($2 == "" ? 0 : $2)}'
+}
+
+# lowest numerically, a lexicographic min would pick 14.0 over 9.0
+project_ios_target() {
+    normalize_version "$(
+        sed -n 's/.*IPHONEOS_DEPLOYMENT_TARGET = \([0-9.]*\);.*/\1/p' \
+            "$ROOT/ios/Runner.xcodeproj/project.pbxproj" |
+            LC_ALL=C sort -t. -k1,1n -k2,2n | head -1
+    )"
+}
+
+manifest_ios_target() {
+    [ -f "$MANIFEST" ] || return 0
+    normalize_version "$(sed -n 's/.*\.iOS("\([0-9.]*\)").*/\1/p' "$MANIFEST" | head -1)"
+}
+
+TARGET="$(project_ios_target)"
+HAVE="$(manifest_ios_target)"
+
+if [ -n "$TARGET" ] && [ "$HAVE" != "$TARGET" ]; then
+    echo "FlutterGeneratedPluginSwiftPackage is iOS ${HAVE:-absent}, project is $TARGET, running flutter config"
+    # flutter has to run from the project root, pre-actions do not start there
+    if (cd "$ROOT" && flutter build ios --config-only > "$FLUTTER_LOG" 2>&1); then
+        NOW="$(manifest_ios_target)"
+        [ "$NOW" = "$TARGET" ] \
+            || echo "warning: manifest is still iOS ${NOW:-absent}, expected $TARGET" >&2
+    else
+        tail -20 "$FLUTTER_LOG" >&2
+        echo "warning: flutter build ios --config-only failed, see $FLUTTER_LOG" >&2
+    fi
+fi
 
 # Everything that shapes the built framework. Include-list only, the nebula dir
 # also collects build outputs (aar, sources jar) that must not affect the hash.
