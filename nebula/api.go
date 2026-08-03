@@ -66,7 +66,14 @@ func (c *APIClient) Enroll(code string) (*EnrollResult, error) {
 		return nil, fmt.Errorf("unexpected failure: %s", err)
 	}
 
-	site, err := newDNSite(meta.Org.Name, cfg, string(pkey), *creds)
+	// Name the site after the network to match DNClient. Fall back to the org
+	// name in case the API returns an empty network name.
+	name := meta.Network.Name
+	if name == "" {
+		name = meta.Org.Name
+	}
+
+	site, err := newDNSite(name, cfg, string(pkey), *creds)
 	if err != nil {
 		return nil, fmt.Errorf("failure generating site: %s", err)
 	}
