@@ -385,4 +385,104 @@ listen:
       expect(rawConfig['cipher'], 'aes');
     });
   });
+
+  group('dns resolvers', () {
+    Site siteWith({List<String>? local, List<String>? managed, bool? allowOverride}) {
+      final mobileNebula = <String, dynamic>{};
+      if (managed != null) mobileNebula['dns_resolvers'] = managed;
+      if (allowOverride != null) mobileNebula['allow_local_dns_override'] = allowOverride;
+
+      return Site(rawConfig: mobileNebula.isEmpty ? {} : {'mobile_nebula': mobileNebula}, dnsResolvers: local);
+    }
+
+    test('local override wins over the admin list', () {
+      final site = siteWith(local: ['10.0.0.1'], managed: ['1.1.1.1']);
+      expect(site.effectiveDnsResolvers, ['10.0.0.1']);
+    });
+
+    test('falls back to the admin list when there is no local override', () {
+      final site = siteWith(managed: ['1.1.1.1']);
+      expect(site.dnsResolvers, isNull);
+      expect(site.effectiveDnsResolvers, ['1.1.1.1']);
+    });
+
+    test('an empty local list is an override, not an absent one', () {
+      // The user deliberately cleared what their admin handed them
+      final site = siteWith(local: [], managed: ['1.1.1.1']);
+      expect(site.effectiveDnsResolvers, isEmpty);
+    });
+
+    test('admin can lock local overrides off', () {
+      final site = siteWith(local: ['10.0.0.1'], managed: ['1.1.1.1'], allowOverride: false);
+      expect(site.allowLocalDnsOverride, isFalse);
+      expect(site.effectiveDnsResolvers, ['1.1.1.1']);
+    });
+
+    test('a locked site keeps the local value dormant rather than dropping it', () {
+      final site = siteWith(local: ['10.0.0.1'], managed: ['1.1.1.1'], allowOverride: false);
+      expect(site.dnsResolvers, ['10.0.0.1'], reason: 'must survive so unlocking restores it');
+    });
+
+    test('missing policy flag means overrides are allowed', () {
+      // Every config predates the flag, failing closed would lock every managed site on upgrade
+      final site = siteWith(local: ['10.0.0.1'], managed: ['1.1.1.1']);
+      expect(site.allowLocalDnsOverride, isTrue);
+      expect(site.effectiveDnsResolvers, ['10.0.0.1']);
+    });
+
+    test('nothing set anywhere resolves to empty', () {
+      expect(siteWith().effectiveDnsResolvers, isEmpty);
+      expect(siteWith().effectiveMatchDomains, isEmpty);
+    });
+
+    test('unmanaged sites go through the same rule', () {
+      final site = Site(dnsResolvers: ['10.0.0.1']);
+      expect(site.managed, isFalse);
+      expect(site.allowLocalDnsOverride, isTrue);
+      expect(site.effectiveDnsResolvers, ['10.0.0.1']);
+    });
+
+    test('round trips through toJson', () {
+      final site = Site(dnsResolvers: ['10.0.0.1'], matchDomains: ['example.com']);
+      final json = site.toJson();
+      expect(json['dnsResolvers'], ['10.0.0.1']);
+      expect(json['matchDomains'], ['example.com']);
+    });
+
+    test('toJson keeps null distinct from empty', () {
+      expect(Site().toJson()['dnsResolvers'], isNull);
+      expect(Site(dnsResolvers: []).toJson()['dnsResolvers'], isEmpty);
+    });
+
+    test('parseJson keeps null distinct from empty', () {
+      expect(Site.parseJson({'name': 'n', 'id': 'i'})['dnsResolvers'], isNull);
+      expect(Site.parseJson({'name': 'n', 'id': 'i', 'dnsResolvers': []})['dnsResolvers'], isEmpty);
+      expect(
+        Site.parseJson({
+          'name': 'n',
+          'id': 'i',
+          'dnsResolvers': ['1.1.1.1'],
+        })['dnsResolvers'],
+        ['1.1.1.1'],
+      );
+    });
+
+    test('fromYaml hoists dns settings to the local override', () async {
+      final site = await Site.fromYaml(
+        loadYaml('''
+mobile_nebula:
+  dns_resolvers:
+    - 10.0.0.1
+  match_domains:
+    - example.com
+'''),
+      );
+
+      expect(site.dnsResolvers, ['10.0.0.1']);
+      expect(site.matchDomains, ['example.com']);
+      // An imported yaml has no admin behind it, so nothing should look managed
+      expect(site.managedDnsResolvers, isEmpty);
+      expect(site.rawConfig.containsKey('mobile_nebula'), isFalse);
+    });
+  });
 }

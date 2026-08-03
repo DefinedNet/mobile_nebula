@@ -22,14 +22,24 @@ class _Domain {
 }
 
 class DnsResolversScreen extends StatefulWidget {
-  DnsResolversScreen({super.key, dnsResolvers, matchDomains, required this.onSave, this.onSaveMatchDomains})
-    : dnsResolvers = dnsResolvers ?? [],
-      matchDomains = matchDomains ?? [];
+  DnsResolversScreen({
+    super.key,
+    dnsResolvers,
+    matchDomains,
+    required this.onSave,
+    this.onSaveMatchDomains,
+    this.lockedByAdmin = false,
+  }) : dnsResolvers = dnsResolvers ?? [],
+       matchDomains = matchDomains ?? [];
 
   final List<String> dnsResolvers;
   final List<String> matchDomains;
   final ValueChanged<List<String>>? onSave;
   final ValueChanged<List<String>>? onSaveMatchDomains;
+
+  /// Read-only because an admin turned local overrides off, rather than because there is
+  /// nothing to edit. Worth telling the user which it is.
+  final bool lockedByAdmin;
 
   @override
   DnsResolversScreenState createState() => DnsResolversScreenState();
@@ -47,7 +57,8 @@ class DnsResolversScreenState extends State<DnsResolversScreen> {
       _dnsResolvers[UniqueKey()] = _Resolver(focusNode: FocusNode(), address: address);
     }
 
-    if (_dnsResolvers.isEmpty) {
+    // Only seed a blank row when there is something to type into
+    if (_dnsResolvers.isEmpty && widget.onSave != null) {
       _addResolver();
     }
 
@@ -70,14 +81,16 @@ class DnsResolversScreenState extends State<DnsResolversScreen> {
       child: Column(
         children: [
           ConfigSection(
-            label:
-                'List of dns resolvers to use for lookups.\nAny resolver that isn\'t in your networks or unsafe networks will be routed in plaintext.',
+            label: widget.lockedByAdmin
+                ? 'These resolvers are set by your administrator and can\'t be changed here.'
+                : 'List of dns resolvers to use for lookups.\nAny resolver that isn\'t in your networks or unsafe networks will be routed in plaintext.',
             children: _buildHosts(),
           ),
           if (Platform.isIOS)
             ConfigSection(
-              label:
-                  'Domains to route through the VPN\'s DNS resolvers.\nWhen empty, all DNS queries are routed through the VPN.',
+              label: widget.lockedByAdmin
+                  ? 'Match domains are set by your administrator and can\'t be changed here.'
+                  : 'Domains to route through the VPN\'s DNS resolvers.\nWhen empty, all DNS queries are routed through the VPN.',
               children: _buildDomains(),
             ),
         ],

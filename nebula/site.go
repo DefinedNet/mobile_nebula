@@ -8,6 +8,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// CurrentConfigVersion is the config.json schema version this build writes. Kotlin and Swift
+// stamp it on every save and run their migration chain up to it on every load.
+const CurrentConfigVersion = 2
+
 // site represents an IncomingSite in Kotlin/Swift.
 type site struct {
 	Name              string         `json:"name"`
@@ -65,7 +69,7 @@ func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials) (
 		LastManagedUpdate: &now,
 		RawConfig:         string(rawConfigBytes),
 		Key:               &key,
-		ConfigVersion:     1,
+		ConfigVersion:     CurrentConfigVersion,
 		DNCredentials: &dnCredentials{
 			HostID:      creds.HostID,
 			PrivateKey:  string(pkm),

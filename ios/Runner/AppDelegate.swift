@@ -161,8 +161,9 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
         return result(CallFailedError(message: "Failed to parse enrollment response"))
       }
 
+      // Re-enrolling an existing host keeps its client side settings
       let oldSite = self.sites?.getSite(id: id)
-      saveSite(jsonString: json, manager: oldSite?.manager) { error in
+      saveSite(jsonString: json, manager: oldSite?.manager, existingSite: oldSite) { error in
         if error != nil {
           return result(
             CallFailedError(message: "Failed to enroll", details: error!.localizedDescription))
@@ -216,7 +217,7 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
     }
 
     let oldSite = self.sites?.getSite(id: id)
-    saveSite(jsonString: json, manager: oldSite?.manager) { error in
+    saveSite(jsonString: json, manager: oldSite?.manager, existingSite: oldSite) { error in
       if error != nil {
         return result(
           CallFailedError(message: "Failed to save site", details: error!.localizedDescription))

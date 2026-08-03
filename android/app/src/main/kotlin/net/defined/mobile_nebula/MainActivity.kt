@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.work.*
 import com.google.gson.Gson
+import com.google.gson.JsonObject
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
@@ -275,7 +276,9 @@ class MainActivity: FlutterActivity() {
         val siteDir: File
         try {
             val json = apiClient!!.enroll(code)
-            siteDir = saveSite(context, json)
+            // Re-enrolling an existing host keeps its client side settings
+            val id = Gson().fromJson(json, JsonObject::class.java)?.get("id")?.asString
+            siteDir = saveSite(context, json, existingSite = id?.let { sites?.getSite(it)?.site })
         } catch (err: Exception) {
             return result.error("unhandled_error", err.message, null)
         }
@@ -306,9 +309,14 @@ class MainActivity: FlutterActivity() {
 
     private fun saveSite(call: MethodCall, result: MethodChannel.Result) {
         val json = call.arguments as String
+        val gson = Gson()
+        val map: Map<String, Any?> = gson.fromJson(json, object : com.google.gson.reflect.TypeToken<Map<String, Any?>>() {}.type)
+        val alwaysOn = map["alwaysOn"] as? Boolean ?: false
+        val id = map["id"] as? String
+
         val siteDir: File
         try {
-            siteDir = saveSite(context, json)
+            siteDir = saveSite(context, json, existingSite = id?.let { sites?.getSite(it)?.site })
         } catch (err: Exception) {
             //TODO: is toString the best or .message?
             return result.error("failure", err.toString(), null)
@@ -319,11 +327,6 @@ class MainActivity: FlutterActivity() {
         }
 
         // Check if we need to start/restart for always-on
-        val gson = Gson()
-        val map: Map<String, Any?> = gson.fromJson(json, object : com.google.gson.reflect.TypeToken<Map<String, Any?>>() {}.type)
-        val alwaysOn = map["alwaysOn"] as? Boolean ?: false
-        val id = map["id"] as? String
-
         if (alwaysOn && id != null) {
             if (activeSiteId != null && activeSiteId != id) {
                 stopSite { sites?.getSite(id)?.let { startSiteDirectly(it) } }

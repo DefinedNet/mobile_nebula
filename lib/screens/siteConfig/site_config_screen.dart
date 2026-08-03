@@ -405,16 +405,27 @@ class SiteConfigScreenState extends State<SiteConfigScreen> {
                 onSave: (settings) {
                   setState(() {
                     changed = true;
-                    site.cipher = settings.cipher;
-                    site.lhDuration = settings.lhDuration;
-                    site.port = settings.port;
-                    site.logVerbosity = settings.verbosity;
-                    site.unsafeRoutes = settings.unsafeRoutes;
-                    site.dnsResolvers = settings.dnsResolvers;
-                    site.matchDomains = settings.matchDomains;
-                    site.mtu = settings.mtu;
+
+                    // A managed site only gets to change the client side settings below, writing
+                    // the rest back would bake our defaults into the config DN handed us.
+                    if (!site.managed) {
+                      site.cipher = settings.cipher;
+                      site.lhDuration = settings.lhDuration;
+                      site.port = settings.port;
+                      site.logVerbosity = settings.verbosity;
+                      site.unsafeRoutes = settings.unsafeRoutes;
+                      site.mtu = settings.mtu;
+                      site.staticMapNetwork = settings.staticMapNetwork;
+                    }
+
+                    // Left null when untouched so the site keeps deferring to its admin
+                    if (settings.dnsResolvers != null) {
+                      site.dnsResolvers = settings.dnsResolvers;
+                    }
+                    if (settings.matchDomains != null) {
+                      site.matchDomains = settings.matchDomains;
+                    }
                     site.excludedApps = settings.excludedApps;
-                    site.staticMapNetwork = settings.staticMapNetwork;
                   });
                 },
               );

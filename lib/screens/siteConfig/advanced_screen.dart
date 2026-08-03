@@ -32,8 +32,8 @@ class Advanced {
   String verbosity;
   List<UnsafeRoute> unsafeRoutes;
   int mtu;
-  List<String> dnsResolvers;
-  List<String> matchDomains;
+  List<String>? dnsResolvers;
+  List<String>? matchDomains;
   List<String> excludedApps;
   String staticMapNetwork;
 
@@ -74,13 +74,18 @@ class AdvancedScreenState extends State<AdvancedScreen> {
       verbosity: widget.site.logVerbosity,
       unsafeRoutes: widget.site.unsafeRoutes,
       mtu: widget.site.mtu,
-      dnsResolvers: widget.site.dnsResolvers,
-      matchDomains: widget.site.matchDomains,
+      // Null until the user actually edits them, see _effectiveResolvers
+      dnsResolvers: null,
+      matchDomains: null,
       excludedApps: widget.site.excludedApps,
       staticMapNetwork: widget.site.staticMapNetwork,
     );
     super.initState();
   }
+
+  /// Unsaved edits win, otherwise fall back to whatever the site resolves to today.
+  List<String> get _effectiveResolvers => settings.dnsResolvers ?? widget.site.effectiveDnsResolvers;
+  List<String> get _effectiveMatchDomains => settings.matchDomains ?? widget.site.effectiveMatchDomains;
 
   @override
   Widget build(BuildContext context) {
@@ -219,13 +224,17 @@ class AdvancedScreenState extends State<AdvancedScreen> {
               ConfigPageItem(
                 label: Text('DNS resolvers'),
                 labelWidth: 150,
-                content: Text(Utils.itemCountFormat(settings.dnsResolvers.length), textAlign: TextAlign.end),
+                content: Text(Utils.itemCountFormat(_effectiveResolvers.length), textAlign: TextAlign.end),
                 onPressed: () {
                   Utils.openPage(context, (context) {
+                    // DNS resolvers are a client side setting. Managed sites get to change them
+                    // too, unless an admin has turned local overrides off.
+                    final locked = !widget.site.allowLocalDnsOverride;
                     return DnsResolversScreen(
-                      dnsResolvers: settings.dnsResolvers,
-                      matchDomains: settings.matchDomains,
-                      onSave: widget.site.managed
+                      dnsResolvers: _effectiveResolvers,
+                      matchDomains: _effectiveMatchDomains,
+                      lockedByAdmin: locked,
+                      onSave: locked
                           ? null
                           : (resolvers) {
                               setState(() {
@@ -233,7 +242,7 @@ class AdvancedScreenState extends State<AdvancedScreen> {
                                 changed = true;
                               });
                             },
-                      onSaveMatchDomains: widget.site.managed
+                      onSaveMatchDomains: locked
                           ? null
                           : (domains) {
                               setState(() {
