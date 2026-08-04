@@ -59,6 +59,8 @@ class AppState extends State<App> {
 
   @override
   void initState() {
+    unawaited(Utils.clearLegacyPickedFiles());
+
     //TODO: wait until settings is ready?
     settings.onChange().listen((_) {
       setState(() {

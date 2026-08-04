@@ -204,7 +204,7 @@ class CAListScreenState extends State<CAListScreen> {
             content: Text('Choose a file'),
             onPressed: () async {
               try {
-                final content = await Utils.pickFile(context);
+                final content = await Utils.pickFile();
                 if (content == null) {
                   return;
                 }

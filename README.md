@@ -28,7 +28,7 @@ Run `flutter doctor` and fix everything it complains before proceeding
 - Make sure you have `gem` installed with `sudo gem install`
 - If on MacOS arm, `sudo gem install ffi -- --enable-libffi-alloc`
 
-If the iOS build complains that MobileNebula.xcframework is stale or missing, run `./ensure-mobile-nebula.sh` from the repo root. It rebuilds the gomobile framework only when the Go code in `nebula/` changes, Xcode runs it automatically as a pre-build action on the Runner scheme.
+After a fresh checkout, run `./ensure-mobile-nebula.sh` once before building for iOS. Swift package resolution needs MobileNebula.xcframework to exist before the pre-build action that maintains it gets a chance to run. After that, Xcode keeps it fresh automatically, rebuilding only when the Go code in `nebula/` changes. If an iOS build ever complains the framework is stale or missing, run the script again by hand.
 
 ### Building from Xcode after a flutter command
 

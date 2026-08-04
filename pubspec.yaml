@@ -23,16 +23,15 @@ dependencies:
     sdk: flutter
 
   path_provider: ^2.0.11
-  # 12.0.0 drops the DKImagePickerController dependency chain on iOS in favor of
-  # PHPickerViewController, keeping photo library permissions out of our binary
-  file_picker: ^12.0.0-beta.7
+  # We only pick documents (certs, keys, configs). file_selector is first party and
+  # has no media picker code, so photo library permissions can never sneak into our binary
+  file_selector: ^1.1.0
   uuid: ^4.5.2
   package_info_plus: ^10.2.0
   url_launcher: ^6.3.2
   pull_to_refresh: ^2.0.0
   flutter_svg: ^2.2.3
   intl: ^0.20.2
-  # 13.x is required to share the win32 constraint with file_picker 12
   share_plus: ^13.2.0
   sentry_flutter: ^9.12.0
   sentry_dart_plugin: ^3.2.1

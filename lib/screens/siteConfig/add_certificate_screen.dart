@@ -200,7 +200,7 @@ class AddCertificateScreenState extends State<AddCertificateScreen> {
             content: Center(child: Text('Choose a file')),
             onPressed: () async {
               try {
-                final content = await Utils.pickFile(context);
+                final content = await Utils.pickFile();
                 if (content == null) {
                   return;
                 }
