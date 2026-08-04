@@ -159,7 +159,8 @@ class UnsafeRoute: Codable {
 
 /// Saves a site JSON string to disk. Extracts key and dnCredentials into
 /// encrypted storage and writes the remaining config to config.json.
-/// If existingSite is provided, client-only fields (sortKey) will be preserved from it.
+/// If existingSite is provided, client-only fields (sortKey, lastManagedUpdate, dnsResolvers and
+/// matchDomains) will be preserved from it.
 func saveSiteToDisk(jsonString: String, existingSite: Site? = nil) throws {
   guard let jsonData = jsonString.data(using: .utf8),
     let obj = try? JSONSerialization.jsonObject(with: jsonData),
@@ -201,10 +202,19 @@ func saveSiteToDisk(jsonString: String, existingSite: Site? = nil) throws {
     if map["sortKey"] == nil {
       map["sortKey"] = existingSite.sortKey
     }
+    if map["lastManagedUpdate"] == nil {
+      map["lastManagedUpdate"] = existingSite.lastManagedUpdate
+    }
+    if map["dnsResolvers"] == nil {
+      map["dnsResolvers"] = existingSite.localDnsResolvers
+    }
+    if map["matchDomains"] == nil {
+      map["matchDomains"] = existingSite.localMatchDomains
+    }
   }
 
   // Stamp the current config version
-  map["configVersion"] = 1
+  map["configVersion"] = MobileNebulaCurrentConfigVersion
 
   // Write the remaining config to disk
   let configPath = try SiteList.getSiteConfigFile(id: id, createDir: true)
@@ -329,11 +339,33 @@ class Site: Encodable {
   var alwaysOn: Bool
   var errors: [String]
 
+  // Client owned dns settings. nil means no local override, which is different from an empty
+  // list, that means the user deliberately cleared what their admin handed them.
+  var localDnsResolvers: [String]?
+  var localMatchDomains: [String]?
+
   // Fields parsed from rawConfig for VPN service use (not encoded to Flutter)
   var mtu: Int
   var unsafeRoutes: [UnsafeRoute]
-  var dnsResolvers: [String]
-  var matchDomains: [String]
+  var managedDnsResolvers: [String]
+  var managedMatchDomains: [String]
+  var allowLocalDnsOverride: Bool
+
+  /// The resolvers the tunnel should actually use. Note that managed never appears in this rule,
+  /// an unmanaged site simply has no admin values and nothing locking it.
+  var effectiveDnsResolvers: [String] {
+    if !allowLocalDnsOverride {
+      return managedDnsResolvers
+    }
+    return localDnsResolvers ?? managedDnsResolvers
+  }
+
+  var effectiveMatchDomains: [String] {
+    if !allowLocalDnsOverride {
+      return managedMatchDomains
+    }
+    return localMatchDomains ?? managedMatchDomains
+  }
 
   /// If true then this site needs to be migrated to the filesystem. Should be handled by the initiator of the site
   var needsToMigrateToFS: Bool = false
@@ -448,19 +480,22 @@ class Site: Encodable {
       unsafeRoutes = []
     }
 
-    // Parse dnsResolvers from rawConfig
-    let mobileNebulaConfig = rawConfigMap["mobile_nebula"] as? [String: Any]
-    if let resolvers = mobileNebulaConfig?["dns_resolvers"] as? [String] {
-      dnsResolvers = resolvers
-    } else {
-      dnsResolvers = []
-    }
+    // Client owned dns settings live at the top level, an absent key is not an empty list
+    localDnsResolvers = configMap["dnsResolvers"] as? [String]
+    localMatchDomains = configMap["matchDomains"] as? [String]
 
-    if let domains = mobileNebulaConfig?["match_domains"] as? [String] {
-      matchDomains = domains
-    } else {
-      matchDomains = []
-    }
+    // Admin supplied dns settings live in rawConfig, which belongs to DN.
+    //
+    // TODO: these key names are a placeholder, they have to match whatever dnclient settles on.
+    // The DN side of this does not exist in dnapi yet.
+    let mobileNebulaConfig = rawConfigMap["mobile_nebula"] as? [String: Any]
+    managedDnsResolvers = mobileNebulaConfig?["dns_resolvers"] as? [String] ?? []
+    managedMatchDomains = mobileNebulaConfig?["match_domains"] as? [String] ?? []
+
+    // Absent has to mean allowed. Every config written before this shipped lacks the flag, and so
+    // does every DN backend until the server side lands, so failing closed would lock dns
+    // resolvers on every managed site the moment someone takes the app update.
+    allowLocalDnsOverride = mobileNebulaConfig?["allow_local_dns_override"] as? Bool ?? true
 
     // Parse cert from rawConfig's pki.cert
     let pki = rawConfigMap["pki"] as? [String: Any]
@@ -618,6 +653,8 @@ class Site: Encodable {
     case logFile
     case alwaysOn
     case errors
+    case localDnsResolvers = "dnsResolvers"
+    case localMatchDomains = "matchDomains"
   }
 }
 

@@ -160,15 +160,16 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
       unsafeRoutes: _site.unsafeRoutes
     )
 
-    if !_site.dnsResolvers.isEmpty {
-      self.log.info("Assigning dns resolvers: \(_site.dnsResolvers, privacy: .public)")
-      let dnsSettings = NEDNSSettings(servers: _site.dnsResolvers)
-      if _site.matchDomains.isEmpty {
+    let resolvers = _site.effectiveDnsResolvers
+    if !resolvers.isEmpty {
+      self.log.info("Assigning dns resolvers: \(resolvers, privacy: .public)")
+      let dnsSettings = NEDNSSettings(servers: resolvers)
+      if _site.effectiveMatchDomains.isEmpty {
         // An empty string in matchDomains means "match all domains", which tells iOS to
         // actually route DNS queries through these servers. Without this, iOS ignores them.
         dnsSettings.matchDomains = [""]
       } else {
-        dnsSettings.matchDomains = _site.matchDomains
+        dnsSettings.matchDomains = _site.effectiveMatchDomains
       }
       tunnelNetworkSettings.dnsSettings = dnsSettings
     }

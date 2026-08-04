@@ -216,7 +216,8 @@ data class UnsafeRoute(
  * Saves a site JSON string to disk. Extracts key and dnCredentials into
  * encrypted storage, handles the always-on file, and writes the remaining
  * config to config.json. Returns the site directory.
- * If existingSite is provided, client-only fields (sortKey, excludedApps) will be preserved from it.
+ * If existingSite is provided, client-only fields (sortKey, excludedApps, lastManagedUpdate,
+ * dnsResolvers and matchDomains) will be preserved from it.
  */
 fun saveSite(context: Context, jsonString: String, existingSite: Site? = null): File {
     val gson = Gson()
@@ -271,10 +272,19 @@ fun saveSite(context: Context, jsonString: String, existingSite: Site? = null): 
         if (!map.containsKey("excludedApps")) {
             map["excludedApps"] = existingSite.excludedApps
         }
+        if (!map.containsKey("lastManagedUpdate")) {
+            map["lastManagedUpdate"] = existingSite.lastManagedUpdate
+        }
+        if (!map.containsKey("dnsResolvers")) {
+            map["dnsResolvers"] = existingSite.localDnsResolvers
+        }
+        if (!map.containsKey("matchDomains")) {
+            map["matchDomains"] = existingSite.localMatchDomains
+        }
     }
 
     // Stamp the current config version
-    map["configVersion"] = 1
+    map["configVersion"] = mobileNebula.MobileNebula.CurrentConfigVersion
 
     // Write the remaining config to disk
     val confFile = siteDir.resolve("config.json")
@@ -302,10 +312,28 @@ class Site(context: Context, siteDir: File) {
     var excludedApps: List<String> = ArrayList()
     val alwaysOn: Boolean
 
+    // Client owned dns settings. null means no local override, which is different from an empty
+    // list, that means the user deliberately cleared what their admin handed them.
+    @SerializedName("dnsResolvers")
+    val localDnsResolvers: List<String>?
+    @SerializedName("matchDomains")
+    val localMatchDomains: List<String>?
+
     // Fields parsed from rawConfig for VPN service use
     val mtu: Int
     val unsafeRoutes: List<UnsafeRoute>
-    val dnsResolvers: List<String>
+
+    @Transient
+    val managedDnsResolvers: List<String>
+    @Transient
+    val allowLocalDnsOverride: Boolean
+
+    /**
+     * The resolvers the tunnel should actually use. Note that managed never appears in this rule,
+     * an unmanaged site simply has no admin values and nothing locking it.
+     */
+    val effectiveDnsResolvers: List<String>
+        get() = if (!allowLocalDnsOverride) managedDnsResolvers else localDnsResolvers ?: managedDnsResolvers
 
     // Path to this site on disk
     @Transient
@@ -368,12 +396,27 @@ class Site(context: Context, siteDir: File) {
             } ?: emptyList()
         } catch (_: Exception) { emptyList() }
 
-        // Parse dnsResolvers from rawConfig
-        dnsResolvers = try {
-            val mobileNebulaConfig = rawConfigMap["mobile_nebula"] as? Map<*, *>
+        // Client owned dns settings live at the top level, an absent key is not an empty list
+        @Suppress("UNCHECKED_CAST")
+        localDnsResolvers = (siteMap["dnsResolvers"] as? List<*>)?.mapNotNull { it?.toString() }
+        @Suppress("UNCHECKED_CAST")
+        localMatchDomains = (siteMap["matchDomains"] as? List<*>)?.mapNotNull { it?.toString() }
+
+        // Admin supplied dns settings live in rawConfig, which belongs to DN.
+        //
+        // TODO: these key names are a placeholder, they have to match whatever dnclient settles
+        // on. The DN side of this does not exist in dnapi yet.
+        val mobileNebulaConfig = rawConfigMap["mobile_nebula"] as? Map<*, *>
+
+        managedDnsResolvers = try {
             val resolvers = mobileNebulaConfig?.get("dns_resolvers") as? List<*>
             resolvers?.mapNotNull { it?.toString() } ?: emptyList()
         } catch (_: Exception) { emptyList() }
+
+        // Absent has to mean allowed. Every config written before this shipped lacks the flag, and
+        // so does every DN backend until the server side lands, so failing closed would lock dns
+        // resolvers on every managed site the moment someone takes the app update.
+        allowLocalDnsOverride = mobileNebulaConfig?.get("allow_local_dns_override") as? Boolean ?: true
 
         // Parse cert from rawConfig's pki.cert
         val pki = rawConfigMap["pki"] as? Map<*, *>

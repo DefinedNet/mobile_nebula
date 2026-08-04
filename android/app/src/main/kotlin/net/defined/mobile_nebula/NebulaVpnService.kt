@@ -193,7 +193,7 @@ class NebulaVpnService : VpnService() {
         }
 
         var hasDnsResolvers = false
-        site!!.dnsResolvers.forEach {
+        site!!.effectiveDnsResolvers.forEach {
             hasDnsResolvers = true
             builder.addDnsServer(it)
             Log.i(TAG, "Adding dns resolver: $it")

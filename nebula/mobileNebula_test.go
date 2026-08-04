@@ -3,6 +3,7 @@ package mobileNebula
 import (
 	"encoding/json"
 	"log/slog"
+	"strconv"
 	"testing"
 
 	nebcfg "github.com/slackhq/nebula/config"
@@ -208,7 +209,8 @@ func TestMigrateConfig_ConfigVersion(t *testing.T) {
 	err = json.Unmarshal([]byte(newConfig), &newSite)
 	require.NoError(t, err)
 
-	assert.Equal(t, float64(1), newSite["configVersion"], "migrated config should have configVersion 1")
+	assert.Equal(t, float64(CurrentConfigVersion), newSite["configVersion"],
+		"MigrateConfig should run the whole chain, not stop at v1")
 }
 
 func TestMigrateConfig_KeyStripped(t *testing.T) {
@@ -248,7 +250,8 @@ func TestMigrateConfig_KeyStripped(t *testing.T) {
 }
 
 func TestMigrateConfig_DnsResolvers(t *testing.T) {
-	// Old-format site with dnsResolvers — should be preserved under mobile_nebula.dns_resolvers
+	// Old-format site with dnsResolvers. v1 parks them under mobile_nebula and v2 hoists them
+	// back to the top level, so a full chain run should land them there.
 	oldConfig := `{
   "name": "DNS Test",
   "id": "dns-test-id",
@@ -276,16 +279,9 @@ func TestMigrateConfig_DnsResolvers(t *testing.T) {
 	err = json.Unmarshal([]byte(newSite["rawConfig"].(string)), &rawConfig)
 	require.NoError(t, err)
 
-	// dnsResolvers should be under mobile_nebula namespace
-	mobileNebula, ok := rawConfig["mobile_nebula"].(map[string]interface{})
-	require.True(t, ok, "rawConfig should have mobile_nebula key")
-
-	resolvers, ok := mobileNebula["dns_resolvers"].([]interface{})
-	require.True(t, ok, "mobile_nebula should have dns_resolvers")
-	assert.Equal(t, []interface{}{"1.1.1.1", "8.8.8.8"}, resolvers)
-
-	// dnsResolvers should NOT be at the top level of rawConfig
-	assert.NotContains(t, rawConfig, "dnsResolvers", "dnsResolvers should not be at rawConfig top level")
+	// The local override is a first class field, rawConfig belongs to DN
+	assert.Equal(t, []interface{}{"1.1.1.1", "8.8.8.8"}, newSite["dnsResolvers"])
+	assert.NotContains(t, rawConfig, "mobile_nebula", "dns settings should not be left in rawConfig")
 }
 
 func TestMigrateConfig_NoDnsResolvers(t *testing.T) {
@@ -346,7 +342,7 @@ func TestMigrateConfig_ManagedWithRawConfig(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, true, newSite["managed"])
-	assert.Equal(t, float64(1), newSite["configVersion"])
+	assert.Equal(t, float64(CurrentConfigVersion), newSite["configVersion"])
 
 	// rawConfig should be JSON (converted from old YAML)
 	var rawConfig map[string]interface{}
@@ -398,4 +394,158 @@ cipher: aes
 	pki, ok := result["pki"].(map[string]interface{})
 	require.True(t, ok, "pki should be a map")
 	assert.Equal(t, "test-ca", pki["ca"])
+}
+
+// migrateV2 runs a v1 config through MigrateConfig and returns the site map plus its rawConfig.
+func migrateV2(t *testing.T, configJSON string) (map[string]interface{}, map[string]interface{}) {
+	t.Helper()
+
+	newConfig, err := MigrateConfig(configJSON, "")
+	require.NoError(t, err)
+
+	var site map[string]interface{}
+	require.NoError(t, json.Unmarshal([]byte(newConfig), &site))
+
+	rawConfig := map[string]interface{}{}
+	if s, ok := site["rawConfig"].(string); ok && s != "" {
+		require.NoError(t, json.Unmarshal([]byte(s), &rawConfig))
+	}
+
+	return site, rawConfig
+}
+
+func TestMigrateConfigV2_HoistsDnsSettings(t *testing.T) {
+	rawConfig := `{"pki":{"cert":"c"},"listen":{"port":4242},"mobile_nebula":{"dns_resolvers":["1.1.1.1","8.8.8.8"],"match_domains":["example.com"]}}`
+	configJSON := `{"name":"n","id":"i","configVersion":1,"rawConfig":` + strconv.Quote(rawConfig) + `}`
+
+	site, newRaw := migrateV2(t, configJSON)
+
+	assert.Equal(t, []interface{}{"1.1.1.1", "8.8.8.8"}, site["dnsResolvers"])
+	assert.Equal(t, []interface{}{"example.com"}, site["matchDomains"])
+	assert.Equal(t, float64(2), site["configVersion"])
+
+	// The values must move, not copy. A leftover would read back as an admin supplied list.
+	assert.NotContains(t, newRaw, "mobile_nebula", "empty mobile_nebula should be dropped")
+
+	// Everything else in rawConfig is untouched, including number types
+	listen, ok := newRaw["listen"].(map[string]interface{})
+	require.True(t, ok)
+	assert.Equal(t, float64(4242), listen["port"])
+}
+
+func TestMigrateConfigV2_KeepsOtherMobileNebulaKeys(t *testing.T) {
+	rawConfig := `{"mobile_nebula":{"dns_resolvers":["1.1.1.1"],"allow_local_dns_override":false}}`
+	configJSON := `{"name":"n","id":"i","configVersion":1,"rawConfig":` + strconv.Quote(rawConfig) + `}`
+
+	site, newRaw := migrateV2(t, configJSON)
+
+	assert.Equal(t, []interface{}{"1.1.1.1"}, site["dnsResolvers"])
+
+	mobileNebula, ok := newRaw["mobile_nebula"].(map[string]interface{})
+	require.True(t, ok, "mobile_nebula should survive when it still holds keys")
+	assert.Equal(t, false, mobileNebula["allow_local_dns_override"])
+	assert.NotContains(t, mobileNebula, "dns_resolvers")
+}
+
+func TestMigrateConfigV2_NoDnsSettings(t *testing.T) {
+	rawConfig := `{"pki":{"cert":"c"}}`
+	configJSON := `{"name":"n","id":"i","configVersion":1,"rawConfig":` + strconv.Quote(rawConfig) + `}`
+
+	site, newRaw := migrateV2(t, configJSON)
+
+	assert.NotContains(t, site, "dnsResolvers", "no local override should be invented")
+	assert.NotContains(t, site, "matchDomains")
+	assert.Equal(t, float64(2), site["configVersion"])
+	assert.Contains(t, newRaw, "pki")
+}
+
+func TestMigrateConfigV2_EmptyListIsPreserved(t *testing.T) {
+	// An empty list means the user explicitly cleared their resolvers, which is different from
+	// never having set any. Absent falls back to the admin's list, empty does not.
+	rawConfig := `{"mobile_nebula":{"dns_resolvers":[]}}`
+	configJSON := `{"name":"n","id":"i","configVersion":1,"rawConfig":` + strconv.Quote(rawConfig) + `}`
+
+	site, _ := migrateV2(t, configJSON)
+
+	require.Contains(t, site, "dnsResolvers")
+	assert.Equal(t, []interface{}{}, site["dnsResolvers"])
+}
+
+func TestMigrateConfigV2_IsIdempotent(t *testing.T) {
+	rawConfig := `{"mobile_nebula":{"dns_resolvers":["1.1.1.1"]}}`
+	configJSON := `{"name":"n","id":"i","configVersion":1,"rawConfig":` + strconv.Quote(rawConfig) + `}`
+
+	once, err := MigrateConfig(configJSON, "")
+	require.NoError(t, err)
+	twice, err := MigrateConfig(once, "")
+	require.NoError(t, err)
+
+	assert.JSONEq(t, once, twice)
+}
+
+func TestMigrateConfigV2_ChainsFromV0(t *testing.T) {
+	// A legacy site migrates v0 -> v1 -> v2 and lands with its resolvers at the top level
+	oldConfig := `{
+  "name": "Chained",
+  "id": "chained-id",
+  "staticHostmap": {},
+  "unsafeRoutes": [],
+  "ca": "ca",
+  "cert": "cert",
+  "lhDuration": 60,
+  "port": 4242,
+  "mtu": 1300,
+  "cipher": "aes",
+  "sortKey": 0,
+  "logVerbosity": "info",
+  "dnsResolvers": ["1.1.1.1", "8.8.8.8"]
+}`
+
+	site, newRaw := migrateV2(t, oldConfig)
+
+	assert.Equal(t, []interface{}{"1.1.1.1", "8.8.8.8"}, site["dnsResolvers"])
+	assert.NotContains(t, newRaw, "mobile_nebula")
+	assert.Equal(t, float64(2), site["configVersion"])
+}
+
+func TestMigrateConfigV2_BadRawConfigErrors(t *testing.T) {
+	configJSON := `{"name":"n","id":"i","configVersion":1,"rawConfig":"not json"}`
+
+	_, err := MigrateConfig(configJSON, "")
+	assert.Error(t, err, "a corrupt rawConfig should not be silently dropped")
+}
+
+func TestMigrateConfig_CurrentVersionIsVerbatim(t *testing.T) {
+	// Kotlin and Swift skip the disk write by comparing strings, so a no-op has to be byte
+	// identical rather than merely equivalent
+	configJSON := `{"name":"n","id":"i","configVersion":2,"rawConfig":"{}","dnsResolvers":["1.1.1.1"]}`
+
+	result, err := MigrateConfig(configJSON, "")
+	require.NoError(t, err)
+	assert.Equal(t, configJSON, result)
+}
+
+func TestMigrateConfig_FutureVersionIsLeftAlone(t *testing.T) {
+	// An older build should not mangle a config a newer one wrote
+	configJSON := `{"name":"n","id":"i","configVersion":99,"rawConfig":"{}"}`
+
+	result, err := MigrateConfig(configJSON, "")
+	require.NoError(t, err)
+	assert.Equal(t, configJSON, result)
+}
+
+func TestMigrateConfig_BadJsonErrors(t *testing.T) {
+	_, err := MigrateConfig("not json", "")
+	assert.Error(t, err)
+}
+
+func TestMigrationNeedsKey(t *testing.T) {
+	// Only the legacy format needs it, everything else avoids a keychain hit per site load
+	assert.True(t, MigrationNeedsKey(`{"name":"n","id":"i"}`), "a v0 config has no version stamp")
+	assert.True(t, MigrationNeedsKey(`{"name":"n","id":"i","configVersion":0}`))
+	assert.False(t, MigrationNeedsKey(`{"name":"n","id":"i","configVersion":1}`))
+	assert.False(t, MigrationNeedsKey(`{"name":"n","id":"i","configVersion":2}`))
+
+	// Unparseable falls back to asking for the key, MigrateConfig reports the real failure
+	assert.True(t, MigrationNeedsKey("not json"))
 }

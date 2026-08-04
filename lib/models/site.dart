@@ -47,6 +47,11 @@ class Site {
   late bool alwaysOn;
   late List<String> excludedApps;
 
+  // Client owned dns settings. null means no local override, which is different from an empty
+  // list, that means the user deliberately cleared what their admin handed them.
+  late List<String>? dnsResolvers;
+  late List<String>? matchDomains;
+
   // DN management
   late bool managed;
   late DateTime? lastManagedUpdate;
@@ -70,6 +75,8 @@ class Site {
     this.lastManagedUpdate,
     this.alwaysOn = false,
     List<String>? excludedApps,
+    this.dnsResolvers,
+    this.matchDomains,
   }) {
     this.id = id ?? uuid.v4();
     this.rawConfig = rawConfig ?? {};
@@ -119,6 +126,8 @@ class Site {
       lastManagedUpdate: decoded['lastManagedUpdate'],
       alwaysOn: decoded['alwaysOn'],
       excludedApps: decoded['excludedApps'],
+      dnsResolvers: decoded['dnsResolvers'],
+      matchDomains: decoded['matchDomains'],
     );
   }
 
@@ -128,6 +137,19 @@ class Site {
     }
 
     final rawConfig = _yamlToMap(yaml);
+
+    // An imported yaml has no admin behind it, so hoist any dns settings to the local override
+    // the same way the v2 migration does rather than leaving them looking managed.
+    List<String>? dnsResolvers;
+    List<String>? matchDomains;
+    if (rawConfig['mobile_nebula'] is Map<String, dynamic>) {
+      final mobileNebula = rawConfig['mobile_nebula'] as Map<String, dynamic>;
+      dnsResolvers = _optionalStringList(mobileNebula.remove('dns_resolvers'));
+      matchDomains = _optionalStringList(mobileNebula.remove('match_domains'));
+      if (mobileNebula.isEmpty) {
+        rawConfig.remove('mobile_nebula');
+      }
+    }
 
     // Extract and remove pki.key from rawConfig
     String? key;
@@ -186,7 +208,14 @@ class Site {
       }
     }
 
-    return Site(rawConfig: rawConfig, ca: ca, certInfo: certInfo, errors: errors)..key = key;
+    return Site(
+      rawConfig: rawConfig,
+      ca: ca,
+      certInfo: certInfo,
+      errors: errors,
+      dnsResolvers: dnsResolvers,
+      matchDomains: matchDomains,
+    )..key = key;
   }
 
   void _updateFromJson(String json) {
@@ -206,6 +235,8 @@ class Site {
     lastManagedUpdate = decoded['lastManagedUpdate'];
     alwaysOn = decoded['alwaysOn'];
     excludedApps = decoded['excludedApps'];
+    dnsResolvers = decoded['dnsResolvers'];
+    matchDomains = decoded['matchDomains'];
   }
 
   static Map<String, dynamic> _fromJson(Map<String, dynamic> json) {
@@ -259,7 +290,15 @@ class Site {
       "lastManagedUpdate": json["lastManagedUpdate"] == null ? null : DateTime.parse(json["lastManagedUpdate"]),
       "alwaysOn": json['alwaysOn'] ?? false,
       "excludedApps": excludedApps,
+      "dnsResolvers": _optionalStringList(json['dnsResolvers']),
+      "matchDomains": _optionalStringList(json['matchDomains']),
     };
+  }
+
+  /// Null and a list are meaningfully different here, so don't collapse a missing key to [].
+  static List<String>? _optionalStringList(dynamic raw) {
+    if (raw is! List) return null;
+    return raw.map((v) => v.toString()).toList();
   }
 
   Stream onChange() {
@@ -277,6 +316,8 @@ class Site {
       'key': key,
       'alwaysOn': alwaysOn,
       'excludedApps': excludedApps,
+      'dnsResolvers': dnsResolvers,
+      'matchDomains': matchDomains,
     };
   }
 
@@ -311,12 +352,6 @@ class Site {
     final routes = _getConfig<List<dynamic>>(['tun', 'unsafe_routes']);
     if (routes == null) return [];
     return routes.map((r) => UnsafeRoute.fromJson(Map<String, dynamic>.from(r))).toList();
-  }
-
-  List<String> get dnsResolvers {
-    final resolvers = _getConfig<List<dynamic>>(['mobile_nebula', 'dns_resolvers']);
-    if (resolvers == null) return [];
-    return resolvers.map((r) => r.toString()).toList();
   }
 
   Map<String, StaticHost> get staticHostmap {
@@ -355,18 +390,40 @@ class Site {
     _setConfig(['tun', 'unsafe_routes'], routes.map((r) => r.toJson()).toList());
   }
 
-  set dnsResolvers(List<String> resolvers) {
-    _setConfig(['mobile_nebula', 'dns_resolvers'], resolvers);
+  // Admin supplied dns settings live in rawConfig, which belongs to DN.
+  //
+  // TODO: these key names are a placeholder, they have to match whatever dnclient settles on.
+  // The DN side of this does not exist in dnapi yet.
+  static const _managedDnsResolversPath = ['mobile_nebula', 'dns_resolvers'];
+  static const _managedMatchDomainsPath = ['mobile_nebula', 'match_domains'];
+  static const _allowLocalDnsOverridePath = ['mobile_nebula', 'allow_local_dns_override'];
+
+  List<String> get managedDnsResolvers => _getStringList(_managedDnsResolversPath);
+  List<String> get managedMatchDomains => _getStringList(_managedMatchDomainsPath);
+
+  /// Whether an admin has left local dns overrides turned on.
+  ///
+  /// Absent has to mean allowed. Every config written before this shipped lacks the flag, and so
+  /// does every DN backend until the server side lands, so failing closed would lock dns
+  /// resolvers on every managed site the moment someone takes the app update.
+  bool get allowLocalDnsOverride => _getConfig<bool>(_allowLocalDnsOverridePath) ?? true;
+
+  /// The resolvers the tunnel should actually use. Note that managed never appears in this rule,
+  /// an unmanaged site simply has no admin values and nothing locking it.
+  List<String> get effectiveDnsResolvers {
+    if (!allowLocalDnsOverride) return managedDnsResolvers;
+    return dnsResolvers ?? managedDnsResolvers;
   }
 
-  List<String> get matchDomains {
-    final domains = _getConfig<List<dynamic>>(['mobile_nebula', 'match_domains']);
-    if (domains == null) return [];
-    return domains.map((d) => d.toString()).toList();
+  List<String> get effectiveMatchDomains {
+    if (!allowLocalDnsOverride) return managedMatchDomains;
+    return matchDomains ?? managedMatchDomains;
   }
 
-  set matchDomains(List<String> domains) {
-    _setConfig(['mobile_nebula', 'match_domains'], domains);
+  List<String> _getStringList(List<String> path) {
+    final values = _getConfig<List<dynamic>>(path);
+    if (values == null) return [];
+    return values.map((v) => v.toString()).toList();
   }
 
   List<FirewallRule> get inboundFirewallRules {

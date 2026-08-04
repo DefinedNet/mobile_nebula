@@ -5,35 +5,32 @@ import java.io.File
 
 object ConfigMigrator {
     /**
-     * Migrates a site's config to the latest version if needed.
-     * Writes the migrated config back to disk and returns the updated JSON.
+     * Brings a site config up to date and writes it back to disk if anything changed.
+     *
+     * The migrations themselves all live in Go. This knows nothing about individual versions, it
+     * only supplies the private key that Go can't reach and handles the file, so adding a
+     * migration should not need a change here.
      */
     fun migrate(context: Context, siteDir: File, configJson: String): String {
-        val configMap: Map<String, Any?> =
-            com.google.gson.Gson().fromJson(configJson, object : com.google.gson.reflect.TypeToken<Map<String, Any?>>() {}.type)
-        var version = (configMap["configVersion"] as? Number)?.toInt() ?: 0
-        var result = configJson
-
-        if (version < 1) {
-            result = migrateToV1(context, siteDir, result)
-            version = 1
+        // Only the legacy format needs the key, so don't pay to decrypt it on every site load
+        val key = if (mobileNebula.MobileNebula.migrationNeedsKey(configJson)) {
+            try {
+                val f = EncFile(context).openRead(siteDir.resolve("key"))
+                val k = f.readText()
+                f.close()
+                k
+            } catch (_: Exception) { "" }
+        } else {
+            ""
         }
 
-        // Future migrations go here
-
-        return result
-    }
-
-    /** Migrates from v0 (old decomposed format) to v1 (rawConfig format). */
-    private fun migrateToV1(context: Context, siteDir: File, configJson: String): String {
-        val key = try {
-            val f = EncFile(context).openRead(siteDir.resolve("key"))
-            val k = f.readText()
-            f.close()
-            k
-        } catch (_: Exception) { "" }
-
         val migrated = mobileNebula.MobileNebula.migrateConfig(configJson, key)
+
+        // Go hands back the input verbatim when there is nothing to do
+        if (migrated == configJson) {
+            return configJson
+        }
+
         siteDir.resolve("config.json").writeText(migrated)
         return migrated
     }

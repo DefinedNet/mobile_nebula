@@ -147,9 +147,74 @@ func renderConfigLegacy(d map[string]interface{}, key string) (string, error) {
 	return string(finalConfig), nil
 }
 
-// MigrateConfig takes an old-format site JSON (with decomposed fields) and returns a
-// new-format site JSON (with rawConfig). Used by Kotlin/Swift for migration.
-func MigrateConfig(oldConfigJSON string, key string) (string, error) {
+// MigrateConfig brings a site config up to CurrentConfigVersion, running whatever chain of
+// migrations that takes. Kotlin and Swift call this once per site load and know nothing about
+// individual versions, so adding a migration should not need any native changes.
+//
+// It returns configJSON verbatim when there is nothing to do, which lets callers skip the disk
+// write on a plain string comparison.
+//
+// key is only read when migrating a v0 config. Ask MigrationNeedsKey before going and fetching
+// it, on iOS that is a keychain hit we would otherwise take on every site load.
+func MigrateConfig(configJSON string, key string) (string, error) {
+	version, err := configVersion(configJSON)
+	if err != nil {
+		return "", err
+	}
+
+	if version >= CurrentConfigVersion {
+		return configJSON, nil
+	}
+
+	result := configJSON
+
+	if version < 1 {
+		if result, err = migrateToV1(result, key); err != nil {
+			return "", err
+		}
+	}
+
+	if version < 2 {
+		if result, err = migrateToV2(result); err != nil {
+			return "", err
+		}
+	}
+
+	return result, nil
+}
+
+// MigrationNeedsKey reports whether migrating this config requires the site's private key. Only
+// the v0 format does, since it has to render the legacy config to get a rawConfig.
+func MigrationNeedsKey(configJSON string) bool {
+	version, err := configVersion(configJSON)
+	if err != nil {
+		// Let MigrateConfig report the parse failure, meanwhile assume the key is wanted
+		return true
+	}
+
+	return version < 1
+}
+
+// configVersion reads configVersion off a site config. A config without one is a v0.
+func configVersion(configJSON string) (int, error) {
+	var probe struct {
+		ConfigVersion *int `json:"configVersion"`
+	}
+
+	if err := json.Unmarshal([]byte(configJSON), &probe); err != nil {
+		return 0, fmt.Errorf("failed to parse config: %s", err)
+	}
+
+	if probe.ConfigVersion == nil {
+		return 0, nil
+	}
+
+	return *probe.ConfigVersion, nil
+}
+
+// migrateToV1 takes an old-format site JSON (with decomposed fields) and returns a
+// new-format site JSON (with rawConfig).
+func migrateToV1(oldConfigJSON string, key string) (string, error) {
 	var old legacySite
 	if err := json.Unmarshal([]byte(oldConfigJSON), &old); err != nil {
 		return "", fmt.Errorf("failed to parse old config: %s", err)
@@ -216,6 +281,58 @@ func MigrateConfig(oldConfigJSON string, key string) (string, error) {
 	}
 
 	newJSON, err := json.Marshal(newSite)
+	if err != nil {
+		return "", err
+	}
+
+	return string(newJSON), nil
+}
+
+// migrateToV2 takes a v1 site JSON and returns a v2 one. It hoists the client owned dns
+// settings out of rawConfig.mobile_nebula and up to the top level of the site config.
+//
+// rawConfig belongs to DN, so mobile_nebula.dns_resolvers is now the admin supplied list and the
+// local override lives at the top level next to excludedApps. The old values have to move rather
+// than be copied, otherwise a user's resolvers would come back looking like an admin's.
+func migrateToV2(configJSON string) (string, error) {
+	var site map[string]interface{}
+	if err := json.Unmarshal([]byte(configJSON), &site); err != nil {
+		return "", fmt.Errorf("failed to parse config: %s", err)
+	}
+
+	if rawConfigStr, ok := site["rawConfig"].(string); ok && rawConfigStr != "" {
+		var rawConfig map[string]interface{}
+		if err := json.Unmarshal([]byte(rawConfigStr), &rawConfig); err != nil {
+			return "", fmt.Errorf("failed to parse rawConfig: %s", err)
+		}
+
+		if mobileNebula, ok := rawConfig["mobile_nebula"].(map[string]interface{}); ok {
+			if v, ok := mobileNebula["dns_resolvers"]; ok {
+				site["dnsResolvers"] = v
+				delete(mobileNebula, "dns_resolvers")
+			}
+
+			if v, ok := mobileNebula["match_domains"]; ok {
+				site["matchDomains"] = v
+				delete(mobileNebula, "match_domains")
+			}
+
+			if len(mobileNebula) == 0 {
+				delete(rawConfig, "mobile_nebula")
+			}
+
+			rawConfigBytes, err := json.Marshal(rawConfig)
+			if err != nil {
+				return "", err
+			}
+
+			site["rawConfig"] = string(rawConfigBytes)
+		}
+	}
+
+	site["configVersion"] = CurrentConfigVersion
+
+	newJSON, err := json.Marshal(site)
 	if err != nil {
 		return "", err
 	}
