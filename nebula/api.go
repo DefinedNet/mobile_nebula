@@ -9,18 +9,18 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"time"
 
 	"github.com/DefinedNet/dnapi"
 	"github.com/DefinedNet/dnapi/keys"
 	"github.com/DefinedNet/dnapi/message"
-	"github.com/sirupsen/logrus"
 	"github.com/slackhq/nebula/cert"
 )
 
 type APIClient struct {
 	c *dnapi.Client
-	l *logrus.Logger
+	l *slog.Logger
 }
 
 type EnrollResult struct {
@@ -47,14 +47,34 @@ type PollDataResult struct {
 	EnrollmentCode string
 }
 
+// PollDataV2Result mirrors dnapi's EndpointAuthPollDataV2. Status is one of WAITING, STARTED,
+// COMPLETED. AuthToken is only set once COMPLETED; it is an endpoint OIDC user session token used to
+// authenticate the host-management calls below (ListEndpointHosts/CreateEndpointHost/RenewEndpointHost).
+type PollDataV2Result struct {
+	Status    string
+	AuthToken string
+}
+
+// EnrollCodeResult carries a host ID and a single-use enrollment code returned by
+// CreateEndpointHost. Pass EnrollmentCode to Enroll immediately.
+type EnrollCodeResult struct {
+	HostID         string
+	EnrollmentCode string
+}
+
+// NewAPIClient returns a client that talks to the production API.
 func NewAPIClient(useragent string) *APIClient {
+	return NewAPIClientWithServer(useragent, "https://api.defined.net")
+}
+
+// NewAPIClientWithServer returns a client that talks to the API at serverURL (scheme included),
+// e.g. a staging deployment.
+func NewAPIClientWithServer(useragent string, serverURL string) *APIClient {
 	// TODO Use a log file
-	l := logrus.New()
-	l.SetOutput(io.Discard)
+	l := slog.New(slog.NewTextHandler(io.Discard, nil))
 
 	return &APIClient{
-		// TODO Make the server configurable
-		c: dnapi.NewClient(useragent, "https://api.defined.net"),
+		c: dnapi.NewClient(useragent, serverURL),
 		l: l,
 	}
 }
@@ -129,6 +149,86 @@ func (c *APIClient) Reauthenticate(hostID string, privateKey string, counter int
 	return resp.LoginURL, nil
 }
 
+// apiCallErr normalizes a dnapi call error into a platform-facing message, or nil if there was no
+// error. timeoutMsg is used when the call timed out.
+func apiCallErr(err error, timeoutMsg string) error {
+	var apiError *dnapi.APIError
+	switch {
+	case errors.As(err, &apiError):
+		return fmt.Errorf("%s (request ID: %s)", apiError, apiError.ReqID)
+	case errors.Is(err, context.DeadlineExceeded):
+		return errors.New(timeoutMsg)
+	case err != nil:
+		return fmt.Errorf("unexpected failure: %s", err)
+	}
+	return nil
+}
+
+// EndpointPreAuthV2 starts a v2 (token flow) OIDC login. Like EndpointPreAuth it returns a poll
+// token and login URL; unlike v1, polling with EndpointAuthPollV2 yields a session AuthToken rather
+// than an enrollment code, letting the caller decide whether to create a new host or re-enroll one.
+func (c *APIClient) EndpointPreAuthV2() (*PreAuthResult, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	msg, err := c.c.EndpointPreAuthV2(ctx)
+	if e := apiCallErr(err, "request timed out - try again?"); e != nil {
+		return nil, e
+	}
+	return &PreAuthResult{PollToken: msg.PollToken, LoginURL: msg.LoginURL}, nil
+}
+
+// EndpointAuthPollV2 checks the status of an in-progress v2 login. The server long-polls (~60s) so
+// this may block. On COMPLETED the returned AuthToken authenticates the host-management calls.
+func (c *APIClient) EndpointAuthPollV2(pollToken string) (*PollDataV2Result, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
+	defer cancel()
+	msg, err := c.c.EndpointAuthPollV2(ctx, pollToken)
+	if e := apiCallErr(err, "request timed out - try again?"); e != nil {
+		return nil, e
+	}
+	return &PollDataV2Result{Status: string(msg.Status), AuthToken: msg.AuthToken}, nil
+}
+
+// ListEndpointHosts returns, as a JSON array, the hosts owned by the authenticated endpoint OIDC
+// user. gomobile cannot return slices of structs, so the platform side parses the JSON. authToken
+// comes from EndpointAuthPollV2.
+func (c *APIClient) ListEndpointHosts(authToken string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	msg, err := c.c.ListEndpointHosts(ctx, authToken)
+	if e := apiCallErr(err, "request timed out - try again?"); e != nil {
+		return "", e
+	}
+	b, err := json.Marshal(msg.Hosts)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal hosts: %s", err)
+	}
+	return string(b), nil
+}
+
+// CreateEndpointHost creates a new host for the authenticated endpoint OIDC user and returns an
+// enrollment code to redeem via Enroll. This is the explicit "add a new device" action.
+func (c *APIClient) CreateEndpointHost(authToken string) (*EnrollCodeResult, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	msg, err := c.c.CreateEndpointHost(ctx, authToken)
+	if e := apiCallErr(err, "request timed out - try again?"); e != nil {
+		return nil, e
+	}
+	return &EnrollCodeResult{HostID: msg.HostID, EnrollmentCode: msg.EnrollmentCode}, nil
+}
+
+// RenewEndpointHost grants an existing host owned by the authenticated endpoint OIDC user a fresh
+// network-access window and queues an update for it. No enrollment code is issued — the server
+// never overwrites the host's key — so the platform side must run the site's normal update flow
+// (TryUpdate) afterwards to fetch the renewed certificate and config with the host's own key.
+func (c *APIClient) RenewEndpointHost(authToken string, hostID string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	_, err := c.c.RenewEndpointHost(ctx, authToken, hostID)
+	return apiCallErr(err, "request timed out - try again?")
+}
+
 func (c *APIClient) Enroll(code string) (*EnrollResult, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -154,54 +254,6 @@ func (c *APIClient) Enroll(code string) (*EnrollResult, error) {
 	}
 
 	return &EnrollResult{Site: string(jsonSite)}, nil
-}
-
-// EndpointPreAuth starts an OIDC login flow. It returns a poll token and a
-// login URL; the platform side opens the URL in a browser (Custom Tab) and then
-// polls EndpointAuthPoll with the token until the login completes.
-func (c *APIClient) EndpointPreAuth() (*PreAuthResult, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	msg, err := c.c.EndpointPreAuth(ctx)
-	var apiError *dnapi.APIError
-	switch {
-	case errors.As(err, &apiError):
-		return nil, fmt.Errorf("%s (request ID: %s)", apiError, apiError.ReqID)
-	case errors.Is(err, context.DeadlineExceeded):
-		return nil, fmt.Errorf("request timed out - try again?")
-	case err != nil:
-		return nil, fmt.Errorf("unexpected failure: %s", err)
-	}
-
-	return &PreAuthResult{
-		PollToken: msg.PollToken,
-		LoginURL:  msg.LoginURL,
-	}, nil
-}
-
-// EndpointAuthPoll checks the status of an in-progress OIDC login. The server
-// long-polls (~60s) so this call may block; the platform side calls it in a
-// loop. On COMPLETED the returned EnrollmentCode should be passed to Enroll
-// immediately, as it is single-use.
-func (c *APIClient) EndpointAuthPoll(pollToken string) (*PollDataResult, error) {
-	// Slightly longer than the server's long-poll window so we don't cancel it early.
-	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
-	defer cancel()
-	msg, err := c.c.EndpointAuthPoll(ctx, pollToken)
-	var apiError *dnapi.APIError
-	switch {
-	case errors.As(err, &apiError):
-		return nil, fmt.Errorf("%s (request ID: %s)", apiError, apiError.ReqID)
-	case errors.Is(err, context.DeadlineExceeded):
-		return nil, fmt.Errorf("request timed out - try again?")
-	case err != nil:
-		return nil, fmt.Errorf("unexpected failure: %s", err)
-	}
-
-	return &PollDataResult{
-		Status:         string(msg.Status),
-		EnrollmentCode: msg.EnrollmentCode,
-	}, nil
 }
 
 // credsFromInputs rebuilds a dnapi credentials struct from the fields the

@@ -4,6 +4,10 @@ go 1.26.5
 
 // replace github.com/slackhq/nebula => /Volumes/T7/nate/src/github.com/slackhq/nebula
 
+// TODO(oidc-v2): temporary local replace so the AAR picks up the unreleased v2 endpoint-auth
+// methods. Replace with a proper dnapi version bump before merging.
+replace github.com/DefinedNet/dnapi => /Users/bhiggins/Work/dnapi
+
 require (
 	github.com/DefinedNet/dnapi v0.0.0-20260313005402-c66f625d8dfd
 	github.com/sirupsen/logrus v1.9.4
@@ -42,10 +46,7 @@ require (
 	github.com/vishvananda/netns v0.0.5 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-<<<<<<< Updated upstream
-=======
 	golang.org/x/mobile v0.0.0-20260709172247-6129f5bee9d5 // indirect
->>>>>>> Stashed changes
 	golang.org/x/mod v0.38.0 // indirect
 	golang.org/x/net v0.57.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
