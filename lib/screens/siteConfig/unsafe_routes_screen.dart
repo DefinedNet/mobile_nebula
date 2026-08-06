@@ -48,6 +48,12 @@ class UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
     }
   }
 
+  String _viaLabel(UnsafeRoute route) {
+    if (route.via.isEmpty) return 'via —';
+    if (route.via.length == 1) return 'via ${route.via.first.gateway}';
+    return 'via ${route.via.length} gateways';
+  }
+
   List<Widget> _buildRoutes() {
     final double ipWidth = Utils.textSize("000.000.000.000/00", Theme.of(context).textTheme.labelLarge!).width;
     List<Widget> items = [];
@@ -57,7 +63,7 @@ class UnsafeRoutesScreenState extends State<UnsafeRoutesScreen> {
           disabled: widget.onSave == null,
           label: Text(route.route ?? ''),
           labelWidth: ipWidth,
-          content: Text('via ${route.via}', textAlign: TextAlign.end),
+          content: Text(_viaLabel(route), textAlign: TextAlign.end),
           onPressed: () {
             Utils.openPage(context, (context) {
               return UnsafeRouteScreen(

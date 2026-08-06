@@ -144,15 +144,26 @@ let statusString: [NEVPNStatus: String] = [
   NEVPNStatus.disconnecting: "Disconnecting...",
 ]
 
-// UnsafeRoute is used by the VPN service to configure routing
+// UnsafeRoute is used by the VPN service to configure routing.
+// `gateways` holds the nebula-ip + weight pairs; the VPN OS layer only uses `route`.
+class UnsafeRouteGateway: Codable {
+  var gateway: String
+  var weight: Int
+
+  init(gateway: String, weight: Int = 1) {
+    self.gateway = gateway
+    self.weight = weight
+  }
+}
+
 class UnsafeRoute: Codable {
   var route: String
-  var via: String
+  var gateways: [UnsafeRouteGateway]
   var mtu: Int?
 
-  init(route: String, via: String, mtu: Int? = nil) {
+  init(route: String, gateways: [UnsafeRouteGateway], mtu: Int? = nil) {
     self.route = route
-    self.via = via
+    self.gateways = gateways
     self.mtu = mtu
   }
 }
@@ -434,15 +445,25 @@ class Site: Encodable {
     let tun = rawConfigMap["tun"] as? [String: Any]
     mtu = tun?["mtu"] as? Int ?? 1300
 
-    // Parse unsafeRoutes from rawConfig
+    // Parse unsafeRoutes from rawConfig.
+    // `via` may be a legacy string (single gateway) or a list of {gateway, weight} dicts.
     if let routes = tun?["unsafe_routes"] as? [[String: Any]] {
       unsafeRoutes = routes.compactMap { routeMap in
-        guard let route = routeMap["route"] as? String,
-          let via = routeMap["via"] as? String
-        else {
-          return nil
+        guard let route = routeMap["route"] as? String else { return nil }
+        let routeMtu = routeMap["mtu"] as? Int
+        let gateways: [UnsafeRouteGateway]
+        if let viaStr = routeMap["via"] as? String {
+          gateways = [UnsafeRouteGateway(gateway: viaStr)]
+        } else if let viaList = routeMap["via"] as? [[String: Any]] {
+          gateways = viaList.compactMap { item in
+            guard let gw = item["gateway"] as? String else { return nil }
+            let wt = item["weight"] as? Int ?? 1
+            return UnsafeRouteGateway(gateway: gw, weight: wt)
+          }
+        } else {
+          gateways = []
         }
-        return UnsafeRoute(route: route, via: via, mtu: routeMap["mtu"] as? Int)
+        return UnsafeRoute(route: route, gateways: gateways, mtu: routeMtu)
       }
     } else {
       unsafeRoutes = []

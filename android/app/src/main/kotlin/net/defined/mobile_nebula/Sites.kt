@@ -205,11 +205,17 @@ data class DNCredentials(
     }
 }
 
-// UnsafeRoute is used by the VPN service to configure routing
+// UnsafeRoute is used by the VPN service to configure routing.
+// `gateways` holds the nebula-ip + weight pairs; the VPN OS layer only uses `route`.
 data class UnsafeRoute(
     val route: String,
-    val via: String,
+    val gateways: List<UnsafeRouteGateway>,
     val mtu: Int?
+)
+
+data class UnsafeRouteGateway(
+    val gateway: String,
+    val weight: Int
 )
 
 /**
@@ -355,16 +361,26 @@ class Site(context: Context, siteDir: File) {
         // Parse mtu from rawConfig
         mtu = getConfigInt(rawConfigMap, listOf("tun", "mtu")) ?: 1300
 
-        // Parse unsafeRoutes from rawConfig
+        // Parse unsafeRoutes from rawConfig.
+        // `via` may be a legacy string (single gateway) or a list of {gateway, weight} maps.
         unsafeRoutes = try {
             val tun = rawConfigMap["tun"] as? Map<*, *>
             val routes = tun?.get("unsafe_routes") as? List<*>
             routes?.mapNotNull { r ->
                 val routeMap = r as? Map<*, *> ?: return@mapNotNull null
                 val route = routeMap["route"] as? String ?: return@mapNotNull null
-                val via = routeMap["via"] as? String ?: return@mapNotNull null
                 val routeMtu = (routeMap["mtu"] as? Number)?.toInt()
-                UnsafeRoute(route, via, routeMtu)
+                val gateways = when (val via = routeMap["via"]) {
+                    is String -> listOf(UnsafeRouteGateway(via, 1))
+                    is List<*> -> via.mapNotNull { item ->
+                        val gMap = item as? Map<*, *> ?: return@mapNotNull null
+                        val gw = gMap["gateway"] as? String ?: return@mapNotNull null
+                        val wt = (gMap["weight"] as? Number)?.toInt() ?: 1
+                        UnsafeRouteGateway(gw, wt)
+                    }
+                    else -> emptyList()
+                }
+                UnsafeRoute(route, gateways, routeMtu)
             } ?: emptyList()
         } catch (_: Exception) { emptyList() }
 

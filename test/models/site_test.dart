@@ -92,7 +92,9 @@ tun:
         );
         expect(site.unsafeRoutes.length, 1);
         expect(site.unsafeRoutes[0].route, '10.0.0.0/24');
-        expect(site.unsafeRoutes[0].via, '192.168.1.1');
+        expect(site.unsafeRoutes[0].via.length, 1);
+        expect(site.unsafeRoutes[0].via[0].gateway, '192.168.1.1');
+        expect(site.unsafeRoutes[0].via[0].weight, 1);
         expect(site.errors, isEmpty);
       });
 
