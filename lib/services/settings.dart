@@ -12,7 +12,11 @@ bool defaultTrackErrors = true;
 class Settings {
   final _storage = Storage();
   final StreamController _change = StreamController.broadcast();
-  var _settings = <String, dynamic>{};
+  final _settings = <String, dynamic>{};
+
+  /// Completes once config.json has been loaded. Anything that reads a setting
+  /// before this resolves will see defaults, not what the user has stored.
+  late final Future<void> ready;
 
   bool get useSystemColors {
     return _getBool('systemDarkMode', true);
@@ -86,14 +90,33 @@ class Settings {
     return _instance;
   }
 
-  Settings._internal() {
-    _storage.readFile("config.json").then((rawConfig) {
-      if (rawConfig != null) {
-        _settings = jsonDecode(rawConfig);
-      }
+  /// Builds an isolated instance so tests can exercise the load more than once.
+  /// App code should always go through the Settings() singleton.
+  @visibleForTesting
+  factory Settings.forTesting() {
+    return Settings._internal();
+  }
 
-      _change.add(null);
-    });
+  Settings._internal() {
+    ready = _load();
+  }
+
+  Future<void> _load() async {
+    final rawConfig = await _storage.readFile("config.json");
+
+    try {
+      final decoded = rawConfig == null ? null : jsonDecode(rawConfig);
+      if (decoded is Map<String, dynamic>) {
+        // putIfAbsent rather than assignment so that any setting written while
+        // the read was in flight wins over the on disk copy it predates
+        decoded.forEach((key, value) => _settings.putIfAbsent(key, () => value));
+      }
+    } catch (_) {
+      // Unparsable config, carry on with the defaults rather than leaving
+      // listeners waiting on a change event that never arrives
+    }
+
+    _change.add(null);
   }
 
   void dispose() {
