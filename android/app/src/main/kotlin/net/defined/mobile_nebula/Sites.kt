@@ -279,13 +279,13 @@ fun saveSite(context: Context, jsonString: String, existingSite: Site? = null): 
         if (!map.containsKey("excludedApps")) {
             map["excludedApps"] = existingSite.excludedApps
         }
-        if (!map.containsKey("dnsOverride") && existingSite.dnsOverrideRaw != null) {
-            map["dnsOverride"] = existingSite.dnsOverrideRaw
+        if (!map.containsKey("dnsOverride") && existingSite.dnsOverride != null) {
+            map["dnsOverride"] = existingSite.dnsOverride
         }
     }
 
     // Stamp the current config version
-    map["configVersion"] = 1
+    map["configVersion"] = 2
 
     // Write the remaining config to disk
     val confFile = siteDir.resolve("config.json")
@@ -320,10 +320,10 @@ class Site(context: Context, siteDir: File) {
     val matchDomains: List<String>
     val searchDomains: List<String>
 
-    // Device-local DNS override, kept raw so saveSite can preserve it across
-    // managed updates (client-only field, like excludedApps)
-    @Transient
-    val dnsOverrideRaw: Map<String, Any?>?
+    // Device-local DNS override (client-only field, like excludedApps);
+    // exported to Flutter for editing and preserved by saveSite across
+    // managed config updates
+    val dnsOverride: Map<String, Any?>?
 
     // Path to this site on disk
     @Transient
@@ -387,10 +387,10 @@ class Site(context: Context, siteDir: File) {
         } catch (_: Exception) { emptyList() }
 
         @Suppress("UNCHECKED_CAST")
-        dnsOverrideRaw = siteMap["dnsOverride"] as? Map<String, Any?>
+        dnsOverride = siteMap["dnsOverride"] as? Map<String, Any?>
 
         // Resolve effective DNS settings via the shared Go helper: device-local
-        // override, else managed definednet.dns, else manual mobile_nebula settings
+        // override, else managed definednet.dns
         var effectiveDNS: EffectiveDNS? = null
         try {
             effectiveDNS = gson.fromJson(mobileNebula.MobileNebula.effectiveDNS(config), EffectiveDNS::class.java)

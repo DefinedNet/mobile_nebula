@@ -65,7 +65,7 @@ func newDNSite(name string, rawCfg []byte, key string, creds keys.Credentials) (
 		LastManagedUpdate: &now,
 		RawConfig:         string(rawConfigBytes),
 		Key:               &key,
-		ConfigVersion:     1,
+		ConfigVersion:     2,
 		DNCredentials: &dnCredentials{
 			HostID:      creds.HostID,
 			PrivateKey:  string(pkm),

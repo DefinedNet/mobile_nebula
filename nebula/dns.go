@@ -11,7 +11,7 @@ type effectiveDNS struct {
 	Resolvers     []string `json:"resolvers"`
 	MatchDomains  []string `json:"matchDomains"`
 	SearchDomains []string `json:"searchDomains"`
-	// Source records which channel won: "override", "managed", or "manual".
+	// Source records which channel won: "override", "managed", or "none".
 	Source string `json:"source"`
 }
 
@@ -29,8 +29,8 @@ type dnsOverride struct {
 // EffectiveDNS resolves the DNS settings a platform should apply for a site
 // from its site JSON. Precedence: the device-local dnsOverride when enabled,
 // else the managed definednet.dns block from rawConfig (non-empty
-// resolver_addrs is the install signal, matching dnclient), else the manual
-// mobile_nebula settings from rawConfig. Returns a JSON object:
+// resolver_addrs is the install signal, matching dnclient). Returns a JSON
+// object:
 //
 //	{"resolvers": [...], "matchDomains": [...], "searchDomains": [...], "source": "..."}
 func EffectiveDNS(siteJSON string) (string, error) {
@@ -49,7 +49,7 @@ func EffectiveDNS(siteJSON string) (string, error) {
 		}
 	}
 
-	result := effectiveDNS{Source: "manual"}
+	result := effectiveDNS{Source: "none"}
 
 	if s.DNSOverride != nil && s.DNSOverride.Enabled {
 		// Enabled with empty resolvers deliberately disables DNS on this device.
@@ -62,28 +62,26 @@ func EffectiveDNS(siteJSON string) (string, error) {
 		result.Resolvers = stringList(dns, "resolver_addrs")
 		result.MatchDomains = stringList(dns, "match_domains")
 		result.SearchDomains = stringList(dns, "search_domains")
-	} else if mn := getMap(rawConfig, "mobile_nebula"); mn != nil {
-		result.Resolvers = stringList(mn, "dns_resolvers")
-		result.MatchDomains = stringList(mn, "match_domains")
-		result.SearchDomains = stringList(mn, "search_domains")
 	}
 
 	// Marshal empty lists as [] rather than null for the platform parsers
-	if result.Resolvers == nil {
-		result.Resolvers = []string{}
-	}
-	if result.MatchDomains == nil {
-		result.MatchDomains = []string{}
-	}
-	if result.SearchDomains == nil {
-		result.SearchDomains = []string{}
-	}
+	result.Resolvers = orEmpty(result.Resolvers)
+	result.MatchDomains = orEmpty(result.MatchDomains)
+	result.SearchDomains = orEmpty(result.SearchDomains)
 
 	out, err := json.Marshal(result)
 	if err != nil {
 		return "", err
 	}
 	return string(out), nil
+}
+
+// orEmpty replaces a nil list with an empty one.
+func orEmpty(l []string) []string {
+	if l == nil {
+		return []string{}
+	}
+	return l
 }
 
 // getMap walks nested map keys, returning nil if any step is missing or not a map.

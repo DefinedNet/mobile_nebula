@@ -211,7 +211,7 @@ func MigrateConfig(oldConfigJSON string, key string) (string, error) {
 		LastManagedUpdate: old.LastManagedUpdate,
 		RawConfig:         string(rawConfigBytes),
 		Key:               nil, // Key is stored separately, not in config.json
-		ConfigVersion:     1,
+		ConfigVersion:     1,   // v0 output stays at 1 so the v2 migration still runs
 		DNCredentials:     nil, // DN credentials are stored separately
 	}
 
@@ -221,6 +221,59 @@ func MigrateConfig(oldConfigJSON string, key string) (string, error) {
 	}
 
 	return string(newJSON), nil
+}
+
+// MigrateConfigV2 migrates a site JSON from configVersion 1 to 2: DNS settings
+// move out of the rawConfig mobile_nebula namespace into the top-level
+// dnsOverride client field so they survive managed config updates.
+func MigrateConfigV2(siteJSON string) (string, error) {
+	var siteMap map[string]interface{}
+	if err := json.Unmarshal([]byte(siteJSON), &siteMap); err != nil {
+		return "", fmt.Errorf("failed to parse site JSON: %s", err)
+	}
+
+	if rc, ok := siteMap["rawConfig"].(string); ok && rc != "" {
+		var rawConfig map[string]interface{}
+		if err := json.Unmarshal([]byte(rc), &rawConfig); err != nil {
+			return "", fmt.Errorf("failed to parse rawConfig: %s", err)
+		}
+
+		if mn, ok := rawConfig["mobile_nebula"].(map[string]interface{}); ok {
+			resolvers := stringList(mn, "dns_resolvers")
+			matchDomains := stringList(mn, "match_domains")
+			searchDomains := stringList(mn, "search_domains")
+			delete(mn, "dns_resolvers")
+			delete(mn, "match_domains")
+			delete(mn, "search_domains")
+			if len(mn) == 0 {
+				delete(rawConfig, "mobile_nebula")
+			}
+
+			_, hasOverride := siteMap["dnsOverride"]
+			if !hasOverride && (resolvers != nil || matchDomains != nil || searchDomains != nil) {
+				siteMap["dnsOverride"] = map[string]interface{}{
+					"enabled":       true,
+					"resolvers":     orEmpty(resolvers),
+					"matchDomains":  orEmpty(matchDomains),
+					"searchDomains": orEmpty(searchDomains),
+				}
+			}
+
+			rawConfigBytes, err := json.Marshal(rawConfig)
+			if err != nil {
+				return "", err
+			}
+			siteMap["rawConfig"] = string(rawConfigBytes)
+		}
+	}
+
+	siteMap["configVersion"] = 2
+
+	out, err := json.Marshal(siteMap)
+	if err != nil {
+		return "", err
+	}
+	return string(out), nil
 }
 
 // DefaultRawConfig returns a JSON string of the default nebula config.

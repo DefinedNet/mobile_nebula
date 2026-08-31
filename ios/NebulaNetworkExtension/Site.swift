@@ -157,6 +157,24 @@ class UnsafeRoute: Codable {
   }
 }
 
+/// Device-local DNS override; typed so it can ride along in Site's Encodable
+/// output to Flutter.
+struct DNSOverride: Codable {
+  var enabled: Bool
+  var resolvers: [String]
+  var matchDomains: [String]
+  var searchDomains: [String]
+
+  func toDictionary() -> [String: Any] {
+    return [
+      "enabled": enabled,
+      "resolvers": resolvers,
+      "matchDomains": matchDomains,
+      "searchDomains": searchDomains,
+    ]
+  }
+}
+
 /// Saves a site JSON string to disk. Extracts key and dnCredentials into
 /// encrypted storage and writes the remaining config to config.json.
 /// If existingSite is provided, client-only fields (sortKey, dnsOverride) will be preserved from it.
@@ -201,13 +219,13 @@ func saveSiteToDisk(jsonString: String, existingSite: Site? = nil) throws {
     if map["sortKey"] == nil {
       map["sortKey"] = existingSite.sortKey
     }
-    if map["dnsOverride"] == nil, let dnsOverride = existingSite.dnsOverrideRaw {
-      map["dnsOverride"] = dnsOverride
+    if map["dnsOverride"] == nil, let dnsOverride = existingSite.dnsOverride {
+      map["dnsOverride"] = dnsOverride.toDictionary()
     }
   }
 
   // Stamp the current config version
-  map["configVersion"] = 1
+  map["configVersion"] = 2
 
   // Write the remaining config to disk
   let configPath = try SiteList.getSiteConfigFile(id: id, createDir: true)
@@ -339,9 +357,10 @@ class Site: Encodable {
   var matchDomains: [String]
   var searchDomains: [String]
 
-  // Device-local DNS override, kept raw so saveSiteToDisk can preserve it
-  // across managed updates (client-only field, like sortKey)
-  var dnsOverrideRaw: [String: Any]?
+  // Device-local DNS override (client-only field, like sortKey); exported to
+  // Flutter for editing and preserved by saveSiteToDisk across managed
+  // config updates
+  var dnsOverride: DNSOverride?
 
   /// If true then this site needs to be migrated to the filesystem. Should be handled by the initiator of the site
   var needsToMigrateToFS: Bool = false
@@ -456,10 +475,18 @@ class Site: Encodable {
       unsafeRoutes = []
     }
 
-    dnsOverrideRaw = configMap["dnsOverride"] as? [String: Any]
+    if let override = configMap["dnsOverride"] as? [String: Any] {
+      dnsOverride = DNSOverride(
+        enabled: override["enabled"] as? Bool ?? false,
+        resolvers: override["resolvers"] as? [String] ?? [],
+        matchDomains: override["matchDomains"] as? [String] ?? [],
+        searchDomains: override["searchDomains"] as? [String] ?? [])
+    } else {
+      dnsOverride = nil
+    }
 
     // Resolve effective DNS settings via the shared Go helper: device-local
-    // override, else managed definednet.dns, else manual mobile_nebula settings
+    // override, else managed definednet.dns
     var dnsErr: NSError?
     let effectiveDNS = MobileNebulaEffectiveDNS(String(data: configData, encoding: .utf8), &dnsErr)
     if dnsErr == nil,
@@ -633,6 +660,7 @@ class Site: Encodable {
     case logFile
     case alwaysOn
     case errors
+    case dnsOverride
   }
 }
 

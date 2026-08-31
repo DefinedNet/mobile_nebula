@@ -385,4 +385,40 @@ listen:
       expect(rawConfig['cipher'], 'aes');
     });
   });
+
+  group('dnsOverride', () {
+    test('accessors read and write the override, not rawConfig', () {
+      final site = Site();
+      expect(site.dnsResolvers, isEmpty);
+      expect(site.matchDomains, isEmpty);
+
+      site.dnsResolvers = ['1.1.1.1'];
+      site.matchDomains = ['internal.example.com'];
+      expect(site.dnsResolvers, ['1.1.1.1']);
+      expect(site.matchDomains, ['internal.example.com']);
+      expect(site.dnsOverride!['enabled'], true);
+      expect(site.rawConfig, isEmpty);
+      expect(site.toJson()['dnsOverride'], site.dnsOverride);
+    });
+
+    test('omitted from save JSON when unset so the platform preserves any existing override', () {
+      final site = Site();
+      expect(site.toJson().containsKey('dnsOverride'), false);
+    });
+
+    test('parsed from site JSON', () {
+      final parsed = Site.parseJson({
+        'name': 'site',
+        'id': 'an-id',
+        'dnsOverride': {
+          'enabled': true,
+          'resolvers': ['192.168.1.53'],
+        },
+      });
+      expect(parsed['dnsOverride'], {
+        'enabled': true,
+        'resolvers': ['192.168.1.53'],
+      });
+    });
+  });
 }
