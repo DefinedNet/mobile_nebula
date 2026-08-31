@@ -57,11 +57,14 @@ func EffectiveDNS(siteJSON string) (string, error) {
 		result.Resolvers = s.DNSOverride.Resolvers
 		result.MatchDomains = s.DNSOverride.MatchDomains
 		result.SearchDomains = s.DNSOverride.SearchDomains
-	} else if dns := getMap(rawConfig, "definednet", "dns"); len(stringList(dns, "resolver_addrs")) > 0 {
-		result.Source = "managed"
-		result.Resolvers = stringList(dns, "resolver_addrs")
-		result.MatchDomains = stringList(dns, "match_domains")
-		result.SearchDomains = stringList(dns, "search_domains")
+	} else {
+		dns := getMap(rawConfig, "definednet", "dns")
+		if resolvers := stringList(dns, "resolver_addrs"); len(resolvers) > 0 {
+			result.Source = "managed"
+			result.Resolvers = resolvers
+			result.MatchDomains = stringList(dns, "match_domains")
+			result.SearchDomains = stringList(dns, "search_domains")
+		}
 	}
 
 	// Marshal empty lists as [] rather than null for the platform parsers

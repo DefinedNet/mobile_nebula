@@ -269,7 +269,27 @@ func TestMigrateConfigV2_MissingRawConfig(t *testing.T) {
 func TestMigrateConfigV2_InvalidJSON(t *testing.T) {
 	_, err := MigrateConfigV2(`not json`)
 	assert.Error(t, err)
+}
 
-	_, err = MigrateConfigV2(`{"rawConfig": "not json"}`)
-	assert.Error(t, err)
+func TestMigrateConfigV2_UnparsableRawConfigStillMigrates(t *testing.T) {
+	// A migration error gets the site deleted as non-conforming by the platform
+	// loaders; an unparsable rawConfig must instead pass through untouched so
+	// the site loads and surfaces a parse error
+	siteMap := migrateV2(t, `{"rawConfig": "not json"}`)
+	assert.Equal(t, float64(2), siteMap["configVersion"])
+	assert.Equal(t, "not json", siteMap["rawConfig"])
+}
+
+func TestMigrateConfigV2_NullOverrideStillHoists(t *testing.T) {
+	s := siteJSON(t, map[string]any{
+		"mobile_nebula": map[string]any{
+			"dns_resolvers": []string{"1.1.1.1"},
+		},
+	}, map[string]any{"dnsOverride": nil})
+
+	siteMap := migrateV2(t, s)
+	override, ok := siteMap["dnsOverride"].(map[string]any)
+	require.True(t, ok)
+	assert.Equal(t, []any{"1.1.1.1"}, override["resolvers"])
+	assert.NotContains(t, rawConfigOf(t, siteMap), "mobile_nebula")
 }
