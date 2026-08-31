@@ -144,6 +144,33 @@ class Site {
       pki.remove('key');
     }
 
+    // Hoist legacy mobile_nebula DNS settings into dnsOverride, mirroring the
+    // configVersion 2 migration; imported YAML never passes through ConfigMigrator
+    Map<String, dynamic>? dnsOverride;
+    if (rawConfig['mobile_nebula'] is Map<String, dynamic>) {
+      final mobileNebula = rawConfig['mobile_nebula'] as Map<String, dynamic>;
+      List<String> takeStringList(String key) {
+        final values = mobileNebula.remove(key);
+        if (values is! List) return [];
+        return values.map((v) => v.toString()).where((v) => v.isNotEmpty).toList();
+      }
+
+      final resolvers = takeStringList('dns_resolvers');
+      final matchDomains = takeStringList('match_domains');
+      final searchDomains = takeStringList('search_domains');
+      if (resolvers.isNotEmpty || matchDomains.isNotEmpty || searchDomains.isNotEmpty) {
+        dnsOverride = {
+          'enabled': true,
+          'resolvers': resolvers,
+          'matchDomains': matchDomains,
+          'searchDomains': searchDomains,
+        };
+      }
+      if (mobileNebula.isEmpty) {
+        rawConfig.remove('mobile_nebula');
+      }
+    }
+
     // Parse certs for display via native
     List<CertificateInfo> ca = [];
     CertificateInfo? certInfo;
@@ -191,7 +218,7 @@ class Site {
       }
     }
 
-    return Site(rawConfig: rawConfig, ca: ca, certInfo: certInfo, errors: errors)..key = key;
+    return Site(rawConfig: rawConfig, ca: ca, certInfo: certInfo, errors: errors, dnsOverride: dnsOverride)..key = key;
   }
 
   void _updateFromJson(String json) {

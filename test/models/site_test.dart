@@ -420,5 +420,33 @@ listen:
         'resolvers': ['192.168.1.53'],
       });
     });
+
+    test('fromYaml hoists legacy mobile_nebula DNS settings', () async {
+      final site = await Site.fromYaml(
+        loadYaml('''
+mobile_nebula:
+  dns_resolvers:
+    - 1.1.1.1
+  match_domains:
+    - internal.example.com
+'''),
+      );
+      expect(site.dnsResolvers, ['1.1.1.1']);
+      expect(site.matchDomains, ['internal.example.com']);
+      expect(site.dnsOverride!['enabled'], true);
+      expect(site.rawConfig.containsKey('mobile_nebula'), false);
+    });
+
+    test('fromYaml keeps other mobile_nebula keys and skips the override when no DNS is set', () async {
+      final site = await Site.fromYaml(
+        loadYaml('''
+mobile_nebula:
+  dns_resolvers: []
+  future_knob: keep
+'''),
+      );
+      expect(site.dnsOverride, isNull);
+      expect(site.rawConfig['mobile_nebula'], {'future_knob': 'keep'});
+    });
   });
 }
