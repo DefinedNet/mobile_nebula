@@ -159,7 +159,7 @@ class UnsafeRoute: Codable {
 
 /// Saves a site JSON string to disk. Extracts key and dnCredentials into
 /// encrypted storage and writes the remaining config to config.json.
-/// If existingSite is provided, client-only fields (sortKey) will be preserved from it.
+/// If existingSite is provided, client-only fields (sortKey, dnsOverride) will be preserved from it.
 func saveSiteToDisk(jsonString: String, existingSite: Site? = nil) throws {
   guard let jsonData = jsonString.data(using: .utf8),
     let obj = try? JSONSerialization.jsonObject(with: jsonData),
@@ -200,6 +200,9 @@ func saveSiteToDisk(jsonString: String, existingSite: Site? = nil) throws {
   if let existingSite = existingSite {
     if map["sortKey"] == nil {
       map["sortKey"] = existingSite.sortKey
+    }
+    if map["dnsOverride"] == nil, let dnsOverride = existingSite.dnsOverrideRaw {
+      map["dnsOverride"] = dnsOverride
     }
   }
 
@@ -334,6 +337,11 @@ class Site: Encodable {
   var unsafeRoutes: [UnsafeRoute]
   var dnsResolvers: [String]
   var matchDomains: [String]
+  var searchDomains: [String]
+
+  // Device-local DNS override, kept raw so saveSiteToDisk can preserve it
+  // across managed updates (client-only field, like sortKey)
+  var dnsOverrideRaw: [String: Any]?
 
   /// If true then this site needs to be migrated to the filesystem. Should be handled by the initiator of the site
   var needsToMigrateToFS: Bool = false
@@ -448,18 +456,25 @@ class Site: Encodable {
       unsafeRoutes = []
     }
 
-    // Parse dnsResolvers from rawConfig
-    let mobileNebulaConfig = rawConfigMap["mobile_nebula"] as? [String: Any]
-    if let resolvers = mobileNebulaConfig?["dns_resolvers"] as? [String] {
-      dnsResolvers = resolvers
-    } else {
-      dnsResolvers = []
-    }
+    dnsOverrideRaw = configMap["dnsOverride"] as? [String: Any]
 
-    if let domains = mobileNebulaConfig?["match_domains"] as? [String] {
-      matchDomains = domains
+    // Resolve effective DNS settings via the shared Go helper: device-local
+    // override, else managed definednet.dns, else manual mobile_nebula settings
+    var dnsErr: NSError?
+    let effectiveDNS = MobileNebulaEffectiveDNS(String(data: configData, encoding: .utf8), &dnsErr)
+    if dnsErr == nil,
+      let dnsData = effectiveDNS.data(using: .utf8),
+      let dns = try? JSONSerialization.jsonObject(with: dnsData) as? [String: Any]
+    {
+      dnsResolvers = dns["resolvers"] as? [String] ?? []
+      matchDomains = dns["matchDomains"] as? [String] ?? []
+      searchDomains = dns["searchDomains"] as? [String] ?? []
     } else {
+      errors.append(
+        "Failed to resolve DNS settings: \(dnsErr?.localizedDescription ?? "unknown error")")
+      dnsResolvers = []
       matchDomains = []
+      searchDomains = []
     }
 
     // Parse cert from rawConfig's pki.cert

@@ -199,6 +199,17 @@ class NebulaVpnService : VpnService() {
             Log.i(TAG, "Adding dns resolver: $it")
         }
 
+        site!!.searchDomains.forEach {
+            builder.addSearchDomain(it)
+            Log.i(TAG, "Adding dns search domain: $it")
+        }
+
+        if (site!!.matchDomains.isNotEmpty()) {
+            // VpnService cannot split DNS by domain, so the resolvers above
+            // receive queries for all domains, not just the match list.
+            Log.w(TAG, "Match domains are unsupported on Android; dns resolvers will serve all domains")
+        }
+
         if (isChromeOs() && !hasDnsResolvers) {
             // Newer versions of ChromeOS need a dns server installed for resolution to work at all.
             // Even if the system is configured to use DoH in which case the resolvers here will may be entirely ignored.
