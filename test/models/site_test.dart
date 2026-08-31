@@ -406,6 +406,35 @@ listen:
       expect(site.toJson().containsKey('dnsOverride'), false);
     });
 
+    test('empty writes without an existing override do not create one', () {
+      // The Advanced screen save path writes these setters unconditionally;
+      // an enabled-empty override would deliberately disable managed DNS
+      final site = Site();
+      site.dnsResolvers = [];
+      site.matchDomains = [];
+      expect(site.dnsOverride, isNull);
+      expect(site.toJson().containsKey('dnsOverride'), false);
+    });
+
+    test('empty writes to an existing override keep it enabled', () {
+      final site = Site();
+      site.dnsResolvers = ['1.1.1.1'];
+      site.dnsResolvers = [];
+      expect(site.dnsOverride!['resolvers'], isEmpty);
+      expect(site.dnsOverride!['enabled'], true);
+    });
+
+    test('effective DNS from the platform is parsed for display', () {
+      final parsed = Site.parseJson({
+        'name': 'site',
+        'id': 'an-id',
+        'dnsResolvers': ['240.0.0.1'],
+        'matchDomains': ['internal.example.com'],
+      });
+      expect(parsed['effectiveDnsResolvers'], ['240.0.0.1']);
+      expect(parsed['effectiveMatchDomains'], ['internal.example.com']);
+    });
+
     test('parsed from site JSON', () {
       final parsed = Site.parseJson({
         'name': 'site',

@@ -162,6 +162,7 @@ func MissingArgumentError(message: String, details: Any?) -> FlutterError {
       }
 
       let oldSite = self.sites?.getSite(id: id)
+      // TODO: pass existingSite so client-only fields (sortKey, dnsOverride) survive re-enrollment
       saveSite(jsonString: json, manager: oldSite?.manager) { error in
         if error != nil {
           return result(

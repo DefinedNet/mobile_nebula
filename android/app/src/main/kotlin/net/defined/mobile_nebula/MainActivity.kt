@@ -275,6 +275,7 @@ class MainActivity: FlutterActivity() {
         val siteDir: File
         try {
             val json = apiClient!!.enroll(code)
+            // TODO: pass existingSite so client-only fields (sortKey, excludedApps, dnsOverride) survive re-enrollment
             siteDir = saveSite(context, json)
         } catch (err: Exception) {
             return result.error("unhandled_error", err.message, null)

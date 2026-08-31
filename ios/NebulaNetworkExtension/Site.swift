@@ -350,7 +350,8 @@ class Site: Encodable {
   var alwaysOn: Bool
   var errors: [String]
 
-  // Fields parsed from rawConfig for VPN service use (not encoded to Flutter)
+  // Fields parsed from rawConfig for VPN service use; the effective DNS
+  // fields are also encoded to Flutter for display
   var mtu: Int
   var unsafeRoutes: [UnsafeRoute]
   var dnsResolvers: [String]
@@ -661,6 +662,9 @@ class Site: Encodable {
     case alwaysOn
     case errors
     case dnsOverride
+    case dnsResolvers
+    case matchDomains
+    case searchDomains
   }
 }
 

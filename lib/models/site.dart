@@ -50,6 +50,11 @@ class Site {
   // Device-local DNS override (client-only field, preserved across managed config updates)
   Map<String, dynamic>? dnsOverride;
 
+  // Effective DNS as resolved by the platform (dnsOverride when enabled, else
+  // managed definednet.dns). Display-only; edits go through the dnsOverride setters.
+  late List<String> effectiveDnsResolvers;
+  late List<String> effectiveMatchDomains;
+
   // DN management
   late bool managed;
   late DateTime? lastManagedUpdate;
@@ -74,12 +79,16 @@ class Site {
     this.alwaysOn = false,
     List<String>? excludedApps,
     this.dnsOverride,
+    List<String>? effectiveDnsResolvers,
+    List<String>? effectiveMatchDomains,
   }) {
     this.id = id ?? uuid.v4();
     this.rawConfig = rawConfig ?? {};
     this.ca = ca ?? [];
     this.errors = errors ?? [];
     this.excludedApps = excludedApps ?? [];
+    this.effectiveDnsResolvers = effectiveDnsResolvers ?? [];
+    this.effectiveMatchDomains = effectiveMatchDomains ?? [];
 
     if (id != null) {
       _updates = EventChannel('net.defined.nebula/${this.id}');
@@ -124,6 +133,8 @@ class Site {
       alwaysOn: decoded['alwaysOn'],
       excludedApps: decoded['excludedApps'],
       dnsOverride: decoded['dnsOverride'],
+      effectiveDnsResolvers: decoded['effectiveDnsResolvers'],
+      effectiveMatchDomains: decoded['effectiveMatchDomains'],
     );
   }
 
@@ -239,6 +250,8 @@ class Site {
     alwaysOn = decoded['alwaysOn'];
     excludedApps = decoded['excludedApps'];
     dnsOverride = decoded['dnsOverride'];
+    effectiveDnsResolvers = decoded['effectiveDnsResolvers'];
+    effectiveMatchDomains = decoded['effectiveMatchDomains'];
   }
 
   static Map<String, dynamic> _fromJson(Map<String, dynamic> json) {
@@ -253,11 +266,12 @@ class Site {
       }
     }
 
-    List<dynamic> rawExcludedApps = json['excludedApps'] ?? [];
-    List<String> excludedApps = [];
-    for (var val in rawExcludedApps) {
-      excludedApps.add(val.toString());
+    List<String> stringList(dynamic values) {
+      if (values is! List) return [];
+      return values.map((v) => v.toString()).toList();
     }
+
+    List<String> excludedApps = stringList(json['excludedApps']);
 
     List<dynamic> rawCA = json['ca'] ?? [];
     List<CertificateInfo> ca = [];
@@ -293,6 +307,10 @@ class Site {
       "alwaysOn": json['alwaysOn'] ?? false,
       "excludedApps": excludedApps,
       "dnsOverride": json['dnsOverride'] == null ? null : Map<String, dynamic>.from(json['dnsOverride']),
+      // Effective DNS resolved by the platform (keyed dnsResolvers/matchDomains
+      // in the platform Site serialization)
+      "effectiveDnsResolvers": stringList(json['dnsResolvers']),
+      "effectiveMatchDomains": stringList(json['matchDomains']),
     };
   }
 
@@ -404,8 +422,12 @@ class Site {
     return values.map((v) => v.toString()).toList();
   }
 
-  // Writing any DNS setting enables the override so the values take effect on save
+  // Writing any DNS setting enables the override so the values take effect on
+  // save. Empty values with no existing override are dropped: an enabled-empty
+  // override deliberately disables managed DNS, and the Advanced screen save
+  // path writes these setters unconditionally (seeded empty on managed sites).
   void _setDnsOverride(String key, List<String> values) {
+    if (dnsOverride == null && values.isEmpty) return;
     final override = dnsOverride ?? <String, dynamic>{};
     override[key] = values;
     override['enabled'] = true;
