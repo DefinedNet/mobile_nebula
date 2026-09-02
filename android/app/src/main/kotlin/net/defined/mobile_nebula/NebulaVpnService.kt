@@ -192,16 +192,28 @@ class NebulaVpnService : VpnService() {
             disallowApp(builder, packageName)
         }
 
+        // A managed config can push a malformed resolver or search domain, which
+        // VpnService.Builder rejects by throwing. Skip the bad entry instead of
+        // unwinding out of startVpn, which would leave the UI on "connecting"
+        // forever with no exit announced.
         var hasDnsResolvers = false
         site!!.dnsResolvers.forEach {
-            hasDnsResolvers = true
-            builder.addDnsServer(it)
-            Log.i(TAG, "Adding dns resolver: $it")
+            try {
+                builder.addDnsServer(it)
+                hasDnsResolvers = true
+                Log.i(TAG, "Adding dns resolver: $it")
+            } catch (err: Exception) {
+                Log.w(TAG, "Skipping invalid dns resolver $it: ${err.message}")
+            }
         }
 
         site!!.searchDomains.forEach {
-            builder.addSearchDomain(it)
-            Log.i(TAG, "Adding dns search domain: $it")
+            try {
+                builder.addSearchDomain(it)
+                Log.i(TAG, "Adding dns search domain: $it")
+            } catch (err: Exception) {
+                Log.w(TAG, "Skipping invalid dns search domain $it: ${err.message}")
+            }
         }
 
         if (site!!.matchDomains.isNotEmpty()) {
