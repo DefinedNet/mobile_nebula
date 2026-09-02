@@ -164,9 +164,20 @@ func TestEffectiveDNS_MissingRawConfig(t *testing.T) {
 func TestEffectiveDNS_InvalidJSON(t *testing.T) {
 	_, err := EffectiveDNS(`not json`)
 	assert.Error(t, err)
+}
 
-	_, err = EffectiveDNS(`{"rawConfig": "not json"}`)
-	assert.Error(t, err)
+func TestEffectiveDNS_UnparsableRawConfigYieldsNoManagedDNS(t *testing.T) {
+	result := effectiveDNSFromJSON(t, `{"rawConfig": "not json"}`)
+	assert.Equal(t, "none", result.Source)
+	assert.Empty(t, result.Resolvers)
+}
+
+func TestEffectiveDNS_UnparsableRawConfigKeepsOverride(t *testing.T) {
+	// The site loaders report the rawConfig parse failure on their own; losing
+	// the override here would report it twice and throw away usable settings
+	result := effectiveDNSFromJSON(t, `{"rawConfig": "not json", "dnsOverride": {"enabled": true, "resolvers": ["10.1.1.1"]}}`)
+	assert.Equal(t, "override", result.Source)
+	assert.Equal(t, []string{"10.1.1.1"}, result.Resolvers)
 }
 
 func migrateV2(t *testing.T, siteJSON string) map[string]any {

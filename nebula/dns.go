@@ -42,13 +42,6 @@ func EffectiveDNS(siteJSON string) (string, error) {
 		return "", fmt.Errorf("failed to parse site JSON: %s", err)
 	}
 
-	var rawConfig map[string]any
-	if s.RawConfig != "" {
-		if err := json.Unmarshal([]byte(s.RawConfig), &rawConfig); err != nil {
-			return "", fmt.Errorf("failed to parse rawConfig: %s", err)
-		}
-	}
-
 	result := effectiveDNS{Source: "none"}
 
 	if s.DNSOverride != nil && s.DNSOverride.Enabled {
@@ -58,6 +51,13 @@ func EffectiveDNS(siteJSON string) (string, error) {
 		result.MatchDomains = s.DNSOverride.MatchDomains
 		result.SearchDomains = s.DNSOverride.SearchDomains
 	} else {
+		// An unparsable rawConfig holds no readable managed DNS, and the site
+		// loaders already surface the parse failure. Resolving to no DNS keeps a
+		// usable override from being discarded alongside it, matching the
+		// tolerance MigrateConfigV2 has for the same input.
+		var rawConfig map[string]any
+		_ = json.Unmarshal([]byte(s.RawConfig), &rawConfig)
+
 		dns := getMap(rawConfig, "definednet", "dns")
 		if resolvers := stringList(dns, "resolver_addrs"); len(resolvers) > 0 {
 			result.Source = "managed"
