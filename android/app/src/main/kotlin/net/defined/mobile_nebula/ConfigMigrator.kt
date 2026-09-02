@@ -19,6 +19,11 @@ object ConfigMigrator {
             version = 1
         }
 
+        if (version < 2) {
+            result = migrateToV2(siteDir, result)
+            version = 2
+        }
+
         // Future migrations go here
 
         return result
@@ -34,6 +39,13 @@ object ConfigMigrator {
         } catch (_: Exception) { "" }
 
         val migrated = mobileNebula.MobileNebula.migrateConfig(configJson, key)
+        siteDir.resolve("config.json").writeText(migrated)
+        return migrated
+    }
+
+    /** Migrates from v1 to v2: mobile_nebula DNS settings move to the top-level dnsOverride field. */
+    private fun migrateToV2(siteDir: File, configJson: String): String {
+        val migrated = mobileNebula.MobileNebula.migrateConfigV2(configJson)
         siteDir.resolve("config.json").writeText(migrated)
         return migrated
     }

@@ -47,6 +47,14 @@ class Site {
   late bool alwaysOn;
   late List<String> excludedApps;
 
+  // Device-local DNS override (client-only field, preserved across managed config updates)
+  Map<String, dynamic>? dnsOverride;
+
+  // Effective DNS as resolved by the platform (dnsOverride when enabled, else
+  // managed definednet.dns). Display-only; edits go through the dnsOverride setters.
+  late List<String> effectiveDnsResolvers;
+  late List<String> effectiveMatchDomains;
+
   // DN management
   late bool managed;
   late DateTime? lastManagedUpdate;
@@ -70,12 +78,17 @@ class Site {
     this.lastManagedUpdate,
     this.alwaysOn = false,
     List<String>? excludedApps,
+    this.dnsOverride,
+    List<String>? effectiveDnsResolvers,
+    List<String>? effectiveMatchDomains,
   }) {
     this.id = id ?? uuid.v4();
     this.rawConfig = rawConfig ?? {};
     this.ca = ca ?? [];
     this.errors = errors ?? [];
     this.excludedApps = excludedApps ?? [];
+    this.effectiveDnsResolvers = effectiveDnsResolvers ?? [];
+    this.effectiveMatchDomains = effectiveMatchDomains ?? [];
 
     if (id != null) {
       _updates = EventChannel('net.defined.nebula/${this.id}');
@@ -119,6 +132,9 @@ class Site {
       lastManagedUpdate: decoded['lastManagedUpdate'],
       alwaysOn: decoded['alwaysOn'],
       excludedApps: decoded['excludedApps'],
+      dnsOverride: decoded['dnsOverride'],
+      effectiveDnsResolvers: decoded['effectiveDnsResolvers'],
+      effectiveMatchDomains: decoded['effectiveMatchDomains'],
     );
   }
 
@@ -137,6 +153,33 @@ class Site {
         key = pki['key'] as String;
       }
       pki.remove('key');
+    }
+
+    // Hoist legacy mobile_nebula DNS settings into dnsOverride, mirroring the
+    // configVersion 2 migration; imported YAML never passes through ConfigMigrator
+    Map<String, dynamic>? dnsOverride;
+    if (rawConfig['mobile_nebula'] is Map<String, dynamic>) {
+      final mobileNebula = rawConfig['mobile_nebula'] as Map<String, dynamic>;
+      List<String> takeStringList(String key) {
+        final values = mobileNebula.remove(key);
+        if (values is! List) return [];
+        return values.map((v) => v.toString()).where((v) => v.isNotEmpty).toList();
+      }
+
+      final resolvers = takeStringList('dns_resolvers');
+      final matchDomains = takeStringList('match_domains');
+      final searchDomains = takeStringList('search_domains');
+      if (resolvers.isNotEmpty || matchDomains.isNotEmpty || searchDomains.isNotEmpty) {
+        dnsOverride = {
+          'enabled': true,
+          'resolvers': resolvers,
+          'matchDomains': matchDomains,
+          'searchDomains': searchDomains,
+        };
+      }
+      if (mobileNebula.isEmpty) {
+        rawConfig.remove('mobile_nebula');
+      }
     }
 
     // Parse certs for display via native
@@ -186,7 +229,7 @@ class Site {
       }
     }
 
-    return Site(rawConfig: rawConfig, ca: ca, certInfo: certInfo, errors: errors)..key = key;
+    return Site(rawConfig: rawConfig, ca: ca, certInfo: certInfo, errors: errors, dnsOverride: dnsOverride)..key = key;
   }
 
   void _updateFromJson(String json) {
@@ -206,6 +249,9 @@ class Site {
     lastManagedUpdate = decoded['lastManagedUpdate'];
     alwaysOn = decoded['alwaysOn'];
     excludedApps = decoded['excludedApps'];
+    dnsOverride = decoded['dnsOverride'];
+    effectiveDnsResolvers = decoded['effectiveDnsResolvers'];
+    effectiveMatchDomains = decoded['effectiveMatchDomains'];
   }
 
   static Map<String, dynamic> _fromJson(Map<String, dynamic> json) {
@@ -220,11 +266,12 @@ class Site {
       }
     }
 
-    List<dynamic> rawExcludedApps = json['excludedApps'] ?? [];
-    List<String> excludedApps = [];
-    for (var val in rawExcludedApps) {
-      excludedApps.add(val.toString());
+    List<String> stringList(dynamic values) {
+      if (values is! List) return [];
+      return values.map((v) => v.toString()).toList();
     }
+
+    List<String> excludedApps = stringList(json['excludedApps']);
 
     List<dynamic> rawCA = json['ca'] ?? [];
     List<CertificateInfo> ca = [];
@@ -259,6 +306,11 @@ class Site {
       "lastManagedUpdate": json["lastManagedUpdate"] == null ? null : DateTime.parse(json["lastManagedUpdate"]),
       "alwaysOn": json['alwaysOn'] ?? false,
       "excludedApps": excludedApps,
+      "dnsOverride": json['dnsOverride'] == null ? null : Map<String, dynamic>.from(json['dnsOverride']),
+      // Effective DNS resolved by the platform (keyed dnsResolvers/matchDomains
+      // in the platform Site serialization)
+      "effectiveDnsResolvers": stringList(json['dnsResolvers']),
+      "effectiveMatchDomains": stringList(json['matchDomains']),
     };
   }
 
@@ -267,7 +319,7 @@ class Site {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    final json = <String, dynamic>{
       'name': name,
       'id': id,
       'sortKey': sortKey,
@@ -278,6 +330,11 @@ class Site {
       'alwaysOn': alwaysOn,
       'excludedApps': excludedApps,
     };
+    // Omitted when unset so the platform save path preserves any existing override
+    if (dnsOverride != null) {
+      json['dnsOverride'] = dnsOverride;
+    }
+    return json;
   }
 
   // Convenience getters for UI — read from rawConfig
@@ -313,11 +370,9 @@ class Site {
     return routes.map((r) => UnsafeRoute.fromJson(Map<String, dynamic>.from(r))).toList();
   }
 
-  List<String> get dnsResolvers {
-    final resolvers = _getConfig<List<dynamic>>(['mobile_nebula', 'dns_resolvers']);
-    if (resolvers == null) return [];
-    return resolvers.map((r) => r.toString()).toList();
-  }
+  // DNS settings read and write the device-local dnsOverride; managed DNS in
+  // rawConfig applies only while the override is not enabled
+  List<String> get dnsResolvers => _dnsOverrideList('resolvers');
 
   Map<String, StaticHost> get staticHostmap {
     final shm = _getConfig<Map<String, dynamic>>(['static_host_map']) ?? {};
@@ -355,18 +410,28 @@ class Site {
     _setConfig(['tun', 'unsafe_routes'], routes.map((r) => r.toJson()).toList());
   }
 
-  set dnsResolvers(List<String> resolvers) {
-    _setConfig(['mobile_nebula', 'dns_resolvers'], resolvers);
+  set dnsResolvers(List<String> resolvers) => _setDnsOverride('resolvers', resolvers);
+
+  List<String> get matchDomains => _dnsOverrideList('matchDomains');
+
+  set matchDomains(List<String> domains) => _setDnsOverride('matchDomains', domains);
+
+  List<String> _dnsOverrideList(String key) {
+    final values = dnsOverride?[key];
+    if (values is! List) return [];
+    return values.map((v) => v.toString()).toList();
   }
 
-  List<String> get matchDomains {
-    final domains = _getConfig<List<dynamic>>(['mobile_nebula', 'match_domains']);
-    if (domains == null) return [];
-    return domains.map((d) => d.toString()).toList();
-  }
-
-  set matchDomains(List<String> domains) {
-    _setConfig(['mobile_nebula', 'match_domains'], domains);
+  // Writing any DNS setting enables the override so the values take effect on
+  // save. Empty values with no existing override are dropped: an enabled-empty
+  // override deliberately disables managed DNS, and the Advanced screen save
+  // path writes these setters unconditionally (seeded empty on managed sites).
+  void _setDnsOverride(String key, List<String> values) {
+    if (dnsOverride == null && values.isEmpty) return;
+    final override = dnsOverride ?? <String, dynamic>{};
+    override[key] = values;
+    override['enabled'] = true;
+    dnsOverride = override;
   }
 
   List<FirewallRule> get inboundFirewallRules {

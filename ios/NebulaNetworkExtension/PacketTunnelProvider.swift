@@ -170,6 +170,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
       } else {
         dnsSettings.matchDomains = _site.matchDomains
       }
+      if !_site.searchDomains.isEmpty {
+        dnsSettings.searchDomains = _site.searchDomains
+      }
       tunnelNetworkSettings.dnsSettings = dnsSettings
     }
 

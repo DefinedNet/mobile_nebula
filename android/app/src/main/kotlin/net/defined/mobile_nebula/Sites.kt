@@ -212,11 +212,19 @@ data class UnsafeRoute(
     val mtu: Int?
 )
 
+// Result of mobileNebula.MobileNebula.effectiveDNS()
+data class EffectiveDNS(
+    val resolvers: List<String>,
+    val matchDomains: List<String>,
+    val searchDomains: List<String>,
+    val source: String
+)
+
 /**
  * Saves a site JSON string to disk. Extracts key and dnCredentials into
  * encrypted storage, handles the always-on file, and writes the remaining
  * config to config.json. Returns the site directory.
- * If existingSite is provided, client-only fields (sortKey, excludedApps) will be preserved from it.
+ * If existingSite is provided, client-only fields (sortKey, excludedApps, dnsOverride) will be preserved from it.
  */
 fun saveSite(context: Context, jsonString: String, existingSite: Site? = null): File {
     val gson = Gson()
@@ -271,10 +279,13 @@ fun saveSite(context: Context, jsonString: String, existingSite: Site? = null): 
         if (!map.containsKey("excludedApps")) {
             map["excludedApps"] = existingSite.excludedApps
         }
+        if (!map.containsKey("dnsOverride") && existingSite.dnsOverride != null) {
+            map["dnsOverride"] = existingSite.dnsOverride
+        }
     }
 
     // Stamp the current config version
-    map["configVersion"] = 1
+    map["configVersion"] = 2
 
     // Write the remaining config to disk
     val confFile = siteDir.resolve("config.json")
@@ -306,6 +317,13 @@ class Site(context: Context, siteDir: File) {
     val mtu: Int
     val unsafeRoutes: List<UnsafeRoute>
     val dnsResolvers: List<String>
+    val matchDomains: List<String>
+    val searchDomains: List<String>
+
+    // Device-local DNS override (client-only field, like excludedApps);
+    // exported to Flutter for editing and preserved by saveSite across
+    // managed config updates
+    val dnsOverride: Map<String, Any?>?
 
     // Path to this site on disk
     @Transient
@@ -368,12 +386,20 @@ class Site(context: Context, siteDir: File) {
             } ?: emptyList()
         } catch (_: Exception) { emptyList() }
 
-        // Parse dnsResolvers from rawConfig
-        dnsResolvers = try {
-            val mobileNebulaConfig = rawConfigMap["mobile_nebula"] as? Map<*, *>
-            val resolvers = mobileNebulaConfig?.get("dns_resolvers") as? List<*>
-            resolvers?.mapNotNull { it?.toString() } ?: emptyList()
-        } catch (_: Exception) { emptyList() }
+        @Suppress("UNCHECKED_CAST")
+        dnsOverride = siteMap["dnsOverride"] as? Map<String, Any?>
+
+        // Resolve effective DNS settings via the shared Go helper: device-local
+        // override, else managed definednet.dns
+        var effectiveDNS: EffectiveDNS? = null
+        try {
+            effectiveDNS = gson.fromJson(mobileNebula.MobileNebula.effectiveDNS(config), EffectiveDNS::class.java)
+        } catch (err: Exception) {
+            errors.add("Failed to resolve DNS settings: ${err.message}")
+        }
+        dnsResolvers = effectiveDNS?.resolvers ?: emptyList()
+        matchDomains = effectiveDNS?.matchDomains ?: emptyList()
+        searchDomains = effectiveDNS?.searchDomains ?: emptyList()
 
         // Parse cert from rawConfig's pki.cert
         val pki = rawConfigMap["pki"] as? Map<*, *>

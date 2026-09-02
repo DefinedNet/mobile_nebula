@@ -385,4 +385,97 @@ listen:
       expect(rawConfig['cipher'], 'aes');
     });
   });
+
+  group('dnsOverride', () {
+    test('accessors read and write the override, not rawConfig', () {
+      final site = Site();
+      expect(site.dnsResolvers, isEmpty);
+      expect(site.matchDomains, isEmpty);
+
+      site.dnsResolvers = ['1.1.1.1'];
+      site.matchDomains = ['internal.example.com'];
+      expect(site.dnsResolvers, ['1.1.1.1']);
+      expect(site.matchDomains, ['internal.example.com']);
+      expect(site.dnsOverride!['enabled'], true);
+      expect(site.rawConfig, isEmpty);
+      expect(site.toJson()['dnsOverride'], site.dnsOverride);
+    });
+
+    test('omitted from save JSON when unset so the platform preserves any existing override', () {
+      final site = Site();
+      expect(site.toJson().containsKey('dnsOverride'), false);
+    });
+
+    test('empty writes without an existing override do not create one', () {
+      // The Advanced screen save path writes these setters unconditionally;
+      // an enabled-empty override would deliberately disable managed DNS
+      final site = Site();
+      site.dnsResolvers = [];
+      site.matchDomains = [];
+      expect(site.dnsOverride, isNull);
+      expect(site.toJson().containsKey('dnsOverride'), false);
+    });
+
+    test('empty writes to an existing override keep it enabled', () {
+      final site = Site();
+      site.dnsResolvers = ['1.1.1.1'];
+      site.dnsResolvers = [];
+      expect(site.dnsOverride!['resolvers'], isEmpty);
+      expect(site.dnsOverride!['enabled'], true);
+    });
+
+    test('effective DNS from the platform is parsed for display', () {
+      final parsed = Site.parseJson({
+        'name': 'site',
+        'id': 'an-id',
+        'dnsResolvers': ['240.0.0.1'],
+        'matchDomains': ['internal.example.com'],
+      });
+      expect(parsed['effectiveDnsResolvers'], ['240.0.0.1']);
+      expect(parsed['effectiveMatchDomains'], ['internal.example.com']);
+    });
+
+    test('parsed from site JSON', () {
+      final parsed = Site.parseJson({
+        'name': 'site',
+        'id': 'an-id',
+        'dnsOverride': {
+          'enabled': true,
+          'resolvers': ['192.168.1.53'],
+        },
+      });
+      expect(parsed['dnsOverride'], {
+        'enabled': true,
+        'resolvers': ['192.168.1.53'],
+      });
+    });
+
+    test('fromYaml hoists legacy mobile_nebula DNS settings', () async {
+      final site = await Site.fromYaml(
+        loadYaml('''
+mobile_nebula:
+  dns_resolvers:
+    - 1.1.1.1
+  match_domains:
+    - internal.example.com
+'''),
+      );
+      expect(site.dnsResolvers, ['1.1.1.1']);
+      expect(site.matchDomains, ['internal.example.com']);
+      expect(site.dnsOverride!['enabled'], true);
+      expect(site.rawConfig.containsKey('mobile_nebula'), false);
+    });
+
+    test('fromYaml keeps other mobile_nebula keys and skips the override when no DNS is set', () async {
+      final site = await Site.fromYaml(
+        loadYaml('''
+mobile_nebula:
+  dns_resolvers: []
+  future_knob: keep
+'''),
+      );
+      expect(site.dnsOverride, isNull);
+      expect(site.rawConfig['mobile_nebula'], {'future_knob': 'keep'});
+    });
+  });
 }

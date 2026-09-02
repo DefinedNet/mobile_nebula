@@ -157,9 +157,27 @@ class UnsafeRoute: Codable {
   }
 }
 
+/// Device-local DNS override; typed so it can ride along in Site's Encodable
+/// output to Flutter.
+struct DNSOverride: Codable {
+  var enabled: Bool
+  var resolvers: [String]
+  var matchDomains: [String]
+  var searchDomains: [String]
+
+  func toDictionary() -> [String: Any] {
+    return [
+      "enabled": enabled,
+      "resolvers": resolvers,
+      "matchDomains": matchDomains,
+      "searchDomains": searchDomains,
+    ]
+  }
+}
+
 /// Saves a site JSON string to disk. Extracts key and dnCredentials into
 /// encrypted storage and writes the remaining config to config.json.
-/// If existingSite is provided, client-only fields (sortKey) will be preserved from it.
+/// If existingSite is provided, client-only fields (sortKey, dnsOverride) will be preserved from it.
 func saveSiteToDisk(jsonString: String, existingSite: Site? = nil) throws {
   guard let jsonData = jsonString.data(using: .utf8),
     let obj = try? JSONSerialization.jsonObject(with: jsonData),
@@ -201,10 +219,13 @@ func saveSiteToDisk(jsonString: String, existingSite: Site? = nil) throws {
     if map["sortKey"] == nil {
       map["sortKey"] = existingSite.sortKey
     }
+    if map["dnsOverride"] == nil, let dnsOverride = existingSite.dnsOverride {
+      map["dnsOverride"] = dnsOverride.toDictionary()
+    }
   }
 
   // Stamp the current config version
-  map["configVersion"] = 1
+  map["configVersion"] = 2
 
   // Write the remaining config to disk
   let configPath = try SiteList.getSiteConfigFile(id: id, createDir: true)
@@ -329,11 +350,18 @@ class Site: Encodable {
   var alwaysOn: Bool
   var errors: [String]
 
-  // Fields parsed from rawConfig for VPN service use (not encoded to Flutter)
+  // Fields parsed from rawConfig for VPN service use; the effective DNS
+  // fields are also encoded to Flutter for display
   var mtu: Int
   var unsafeRoutes: [UnsafeRoute]
   var dnsResolvers: [String]
   var matchDomains: [String]
+  var searchDomains: [String]
+
+  // Device-local DNS override (client-only field, like sortKey); exported to
+  // Flutter for editing and preserved by saveSiteToDisk across managed
+  // config updates
+  var dnsOverride: DNSOverride?
 
   /// If true then this site needs to be migrated to the filesystem. Should be handled by the initiator of the site
   var needsToMigrateToFS: Bool = false
@@ -448,18 +476,33 @@ class Site: Encodable {
       unsafeRoutes = []
     }
 
-    // Parse dnsResolvers from rawConfig
-    let mobileNebulaConfig = rawConfigMap["mobile_nebula"] as? [String: Any]
-    if let resolvers = mobileNebulaConfig?["dns_resolvers"] as? [String] {
-      dnsResolvers = resolvers
+    if let override = configMap["dnsOverride"] as? [String: Any] {
+      dnsOverride = DNSOverride(
+        enabled: override["enabled"] as? Bool ?? false,
+        resolvers: override["resolvers"] as? [String] ?? [],
+        matchDomains: override["matchDomains"] as? [String] ?? [],
+        searchDomains: override["searchDomains"] as? [String] ?? [])
     } else {
-      dnsResolvers = []
+      dnsOverride = nil
     }
 
-    if let domains = mobileNebulaConfig?["match_domains"] as? [String] {
-      matchDomains = domains
+    // Resolve effective DNS settings via the shared Go helper: device-local
+    // override, else managed definednet.dns
+    var dnsErr: NSError?
+    let effectiveDNS = MobileNebulaEffectiveDNS(String(data: configData, encoding: .utf8), &dnsErr)
+    if dnsErr == nil,
+      let dnsData = effectiveDNS.data(using: .utf8),
+      let dns = try? JSONSerialization.jsonObject(with: dnsData) as? [String: Any]
+    {
+      dnsResolvers = dns["resolvers"] as? [String] ?? []
+      matchDomains = dns["matchDomains"] as? [String] ?? []
+      searchDomains = dns["searchDomains"] as? [String] ?? []
     } else {
+      errors.append(
+        "Failed to resolve DNS settings: \(dnsErr?.localizedDescription ?? "unknown error")")
+      dnsResolvers = []
       matchDomains = []
+      searchDomains = []
     }
 
     // Parse cert from rawConfig's pki.cert
@@ -618,6 +661,10 @@ class Site: Encodable {
     case logFile
     case alwaysOn
     case errors
+    case dnsOverride
+    case dnsResolvers
+    case matchDomains
+    case searchDomains
   }
 }
 

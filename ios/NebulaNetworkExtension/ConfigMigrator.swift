@@ -18,6 +18,11 @@ enum ConfigMigrator {
       version = 1
     }
 
+    if version < 2 {
+      result = try migrateToV2(configData: result, path: path)
+      version = 2
+    }
+
     // Future migrations go here
 
     return result
@@ -38,6 +43,23 @@ enum ConfigMigrator {
     let oldJson = String(data: configData, encoding: .utf8) ?? "{}"
     var err: NSError?
     let newJson = MobileNebulaMigrateConfig(oldJson, key, &err)
+    if let err = err {
+      throw err
+    }
+
+    guard let newData = newJson.data(using: .utf8) else {
+      return configData
+    }
+
+    try newData.write(to: path)
+    return newData
+  }
+
+  /// Migrates from v1 to v2: mobile_nebula DNS settings move to the top-level dnsOverride field.
+  private static func migrateToV2(configData: Data, path: URL) throws -> Data {
+    let oldJson = String(data: configData, encoding: .utf8) ?? "{}"
+    var err: NSError?
+    let newJson = MobileNebulaMigrateConfigV2(oldJson, &err)
     if let err = err {
       throw err
     }
