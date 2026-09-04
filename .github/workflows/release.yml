@@ -174,25 +174,14 @@ jobs:
           } >> "$GITHUB_ENV"
 
       # Automatic signing wants a cloud managed profile, which Apple refuses here
-      - name: Download the app profile
-        uses: Apple-Actions/download-provisioning-profiles@473562c853e9f580367eeff7c180258653e416e0 #v6.1.0
-        with:
-          bundle-id: net.defined.mobileNebula
-          profile-type: IOS_APP_STORE
-          issuer-id: ${{ env.ASC_ISSUER_ID }}
-          api-key-id: ${{ env.ASC_KEY_ID }}
-          api-private-key: ${{ env.ASC_PRIVATE_KEY }}
+      # Not Apple-Actions': its filter[identifier] is an unpaged prefix match, so our shortest
+      # id falls off page one and reads as having no ACTIVE profile
+      - name: Download the profiles
+        run: |
+          python3 .github/scripts/download-profiles.py --profile-type IOS_APP_STORE \
+            net.defined.mobileNebula \
+            net.defined.mobileNebula.NebulaNetworkExtension
 
-      - name: Download the extension profile
-        uses: Apple-Actions/download-provisioning-profiles@473562c853e9f580367eeff7c180258653e416e0 #v6.1.0
-        with:
-          bundle-id: net.defined.mobileNebula.NebulaNetworkExtension
-          profile-type: IOS_APP_STORE
-          issuer-id: ${{ env.ASC_ISSUER_ID }}
-          api-key-id: ${{ env.ASC_KEY_ID }}
-          api-private-key: ${{ env.ASC_PRIVATE_KEY }}
-
-      # The download action treats no profiles as success
       - name: Check the profiles we need are installed
         run: |
           for want in "apple-signing net.defined.mobileNebula" \
