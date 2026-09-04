@@ -17,10 +17,17 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
+  // Settings reads config.json over a platform channel, so the binding has to
+  // be up before we touch it
+  WidgetsFlutterBinding.ensureInitialized();
+
   PrintAppender.setupLogging();
 
   usePathUrlStrategy();
   var settings = Settings();
+  // Wait for the stored config, otherwise trackErrors reads its default and we
+  // start Sentry against the user's wishes
+  await settings.ready;
   if (settings.trackErrors && !kDebugMode) {
     await SentryFlutter.init((options) {
       options.dsn = 'https://96106df405ade3f013187dfc8e4200e7@o920269.ingest.us.sentry.io/4508132321001472';
@@ -57,17 +64,22 @@ class AppState extends State<App> {
   Brightness brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
   StreamController dnEnrolled = StreamController.broadcast();
 
+  void _updateBrightness() {
+    if (settings.useSystemColors) {
+      brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
+    } else {
+      brightness = settings.darkMode ? Brightness.dark : Brightness.light;
+    }
+  }
+
   @override
   void initState() {
-    //TODO: wait until settings is ready?
+    // main awaits Settings.ready before runApp, so the stored values are already here and the
+    // load's change event has already fired. Apply them directly rather than waiting on a stream.
+    _updateBrightness();
+
     settings.onChange().listen((_) {
-      setState(() {
-        if (settings.useSystemColors) {
-          brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
-        } else {
-          brightness = settings.darkMode ? Brightness.dark : Brightness.light;
-        }
-      });
+      setState(_updateBrightness);
     });
 
     // Listen to changes to the system brightness mode, update accordingly
