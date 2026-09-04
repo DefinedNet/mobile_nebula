@@ -64,17 +64,22 @@ class AppState extends State<App> {
   Brightness brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
   StreamController dnEnrolled = StreamController.broadcast();
 
+  void _updateBrightness() {
+    if (settings.useSystemColors) {
+      brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
+    } else {
+      brightness = settings.darkMode ? Brightness.dark : Brightness.light;
+    }
+  }
+
   @override
   void initState() {
-    //TODO: wait until settings is ready?
+    // main awaits Settings.ready before runApp, so the stored values are already here and the
+    // load's change event has already fired. Apply them directly rather than waiting on a stream.
+    _updateBrightness();
+
     settings.onChange().listen((_) {
-      setState(() {
-        if (settings.useSystemColors) {
-          brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
-        } else {
-          brightness = settings.darkMode ? Brightness.dark : Brightness.light;
-        }
-      });
+      setState(_updateBrightness);
     });
 
     // Listen to changes to the system brightness mode, update accordingly
