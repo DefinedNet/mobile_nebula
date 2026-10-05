@@ -151,35 +151,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     let _site = self.site!
     key = try _site.getKey()
 
-    // This is set to 127.0.0.1 because it has to be something..
-    let tunnelNetworkSettings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: "127.0.0.1")
-
-    // Set up all ipv4/6 networks and unsafe routes
-    let (v4Settings, v6Settings) = try getNetworkAddressesAndRoutes(
-      networks: _site.cert!.cert.networks,
-      unsafeRoutes: _site.unsafeRoutes
-    )
-
-    if !_site.dnsResolvers.isEmpty {
-      self.log.info("Assigning dns resolvers: \(_site.dnsResolvers, privacy: .public)")
-      let dnsSettings = NEDNSSettings(servers: _site.dnsResolvers)
-      if _site.matchDomains.isEmpty {
-        // An empty string in matchDomains means "match all domains", which tells iOS to
-        // actually route DNS queries through these servers. Without this, iOS ignores them.
-        dnsSettings.matchDomains = [""]
-      } else {
-        dnsSettings.matchDomains = _site.matchDomains
-      }
-      if !_site.searchDomains.isEmpty {
-        dnsSettings.searchDomains = _site.searchDomains
-      }
-      tunnelNetworkSettings.dnsSettings = dnsSettings
-    }
-
-    tunnelNetworkSettings.ipv4Settings = v4Settings
-    tunnelNetworkSettings.ipv6Settings = v6Settings
-    tunnelNetworkSettings.mtu = _site.mtu as NSNumber
-
+    let tunnelNetworkSettings = try makeTunnelNetworkSettings(site: _site)
     try await self.setTunnelNetworkSettings(tunnelNetworkSettings)
 
     // A stopTunnel that raced us across the awaits above may have already let
@@ -227,6 +199,39 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     // Skips the monitor and DN updater if a stopTunnel raced us, the tunnel
     // is coming down and nothing would ever cancel them
     startPostStartWork()
+  }
+
+  private func makeTunnelNetworkSettings(site: Site) throws -> NEPacketTunnelNetworkSettings {
+    // This is set to 127.0.0.1 because it has to be something..
+    let tunnelNetworkSettings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: "127.0.0.1")
+
+    // Set up all ipv4/6 networks and unsafe routes
+    let (v4Settings, v6Settings) = try getNetworkAddressesAndRoutes(
+      networks: site.cert!.cert.networks,
+      unsafeRoutes: site.unsafeRoutes
+    )
+
+    if !site.dnsResolvers.isEmpty {
+      self.log.info("Assigning dns resolvers: \(site.dnsResolvers, privacy: .public)")
+      let dnsSettings = NEDNSSettings(servers: site.dnsResolvers)
+      if site.matchDomains.isEmpty {
+        // An empty string in matchDomains means "match all domains", which tells iOS to
+        // actually route DNS queries through these servers. Without this, iOS ignores them.
+        dnsSettings.matchDomains = [""]
+      } else {
+        dnsSettings.matchDomains = site.matchDomains
+      }
+      if !site.searchDomains.isEmpty {
+        dnsSettings.searchDomains = site.searchDomains
+      }
+      tunnelNetworkSettings.dnsSettings = dnsSettings
+    }
+
+    tunnelNetworkSettings.ipv4Settings = v4Settings
+    tunnelNetworkSettings.ipv6Settings = v6Settings
+    tunnelNetworkSettings.mtu = site.mtu as NSNumber
+
+    return tunnelNetworkSettings
   }
 
   private func getNetworkAddressesAndRoutes(networks: [String], unsafeRoutes: [UnsafeRoute]) throws
@@ -306,6 +311,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
       try self.nebula?.reload(
         String(data: newSite.getConfig(), encoding: .utf8), key: newSite.getKey())
 
+      // DNS, routes, and MTU only reach the OS through tunnel network settings, nebula.reload
+      // cannot change them. The utun fd survives this call, so nebula keeps running.
+      self.setTunnelNetworkSettings(try makeTunnelNetworkSettings(site: newSite)) { error in
+        if let error {
+          self.log.error(
+            "Failed to apply updated network settings \(error.localizedDescription, privacy: .public)"
+          )
+        }
+      }
     } catch {
       log.error(
         "Got an error while updating nebula \(error.localizedDescription, privacy: .public)")

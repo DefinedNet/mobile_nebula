@@ -328,8 +328,37 @@ class NebulaVpnService : VpnService() {
     }
 
     private fun reload() {
+        val oldSite = site!!
         site = Site(this, File(path!!))
+
+        if (needsInterfaceRebuild(oldSite, site!!)) {
+            Log.i(TAG, "Interface settings changed, restarting the vpn")
+            return restartVpn()
+        }
+
         nebula?.reload(site!!.config, site!!.getKey(this))
+    }
+
+    // Settings handed to VpnService.Builder in startVpn are fixed for the life of the
+    // interface; nebula.reload cannot change them, only a new establish() can.
+    // matchDomains is absent because the builder has no per-domain DNS to apply it to.
+    private fun needsInterfaceRebuild(old: Site, new: Site): Boolean =
+        old.dnsResolvers != new.dnsResolvers ||
+            old.searchDomains != new.searchDomains ||
+            old.mtu != new.mtu ||
+            old.unsafeRoutes != new.unsafeRoutes ||
+            old.excludedApps != new.excludedApps ||
+            old.cert?.cert?.networks != new.cert?.cert?.networks
+
+    // establish() hands out a new tun fd, and the running nebula owns the old one,
+    // so applying new interface settings means a full stop and start of nebula.
+    private fun restartVpn() {
+        unregisterNetworkCallback()
+        unregisterReloadReceiver()
+        nebula?.stop()
+        nebula = null
+        running = false
+        startVpn()
     }
 
     private fun stopVpn(error: String? = null) {
