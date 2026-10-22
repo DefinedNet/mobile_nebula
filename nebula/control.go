@@ -95,9 +95,10 @@ func NewNebula(configData string, key string, logFile string, tunFd int) (_ *Neb
 	if err := logging.ApplyConfig(l, c); err != nil {
 		return nil, fmt.Errorf("failed to apply logging config: %s", err)
 	}
-	c.RegisterReloadCallback(func(c *nc.C) {
+	c.RegisterReloadCallback(func(c *nc.C, r *nc.Reload) {
 		if err := logging.ApplyConfig(l, c); err != nil {
 			l.Error("Failed to reconfigure logger on reload", "error", err)
+			r.Failed()
 		}
 	})
 
@@ -197,7 +198,8 @@ func (n *Nebula) Reload(configData string, key string) error {
 	}
 
 	n.l.Info("Reloading Nebula")
-	return n.config.ReloadConfigString(yamlConfig)
+	// Callbacks log their own failures, so only a config that fails to load is an error here
+	return n.config.ReloadConfigString(yamlConfig).Err
 }
 
 func (n *Nebula) ListHostmap(pending bool) (string, error) {

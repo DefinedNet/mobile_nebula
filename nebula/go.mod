@@ -1,13 +1,13 @@
 module github.com/DefinedNet/mobile_nebula/nebula
 
-go 1.26.10
+go 1.27.3
 
 // replace github.com/slackhq/nebula => /Volumes/T7/nate/src/github.com/slackhq/nebula
 
 require (
 	github.com/DefinedNet/dnapi v0.0.0-20260313005402-c66f625d8dfd
 	github.com/sirupsen/logrus v1.9.4
-	github.com/slackhq/nebula v1.11.1-0.20260922204501-7cfa47d569e8
+	github.com/slackhq/nebula v1.11.1-0.20261021222607-4059abeb9d28
 	github.com/stretchr/testify v1.12.1
 	golang.org/x/crypto v0.57.0
 	golang.org/x/sys v0.48.0
@@ -19,7 +19,6 @@ require (
 	filippo.io/bigmod v0.1.0 // indirect
 	github.com/DefinedNet/netlink v1.3.2-dn.1 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
-	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/flynn/noise v1.1.0 // indirect
@@ -43,5 +42,5 @@ require (
 	golang.zx2c4.com/wireguard v0.0.0-20250521234502-f333402bd9cb // indirect
 	golang.zx2c4.com/wireguard/windows v1.0.1 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
-	gvisor.dev/gvisor v0.0.0-20250503011706-39ed1f5ac29c // indirect
+	gvisor.dev/gvisor v0.0.0-20261014193016-04d31b385980 // indirect
 )
