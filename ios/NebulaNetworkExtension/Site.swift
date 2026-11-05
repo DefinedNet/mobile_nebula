@@ -487,7 +487,7 @@ class Site: Encodable {
     }
 
     // Resolve effective DNS settings via the shared Go helper: device-local
-    // override, else managed definednet.dns
+    // override, else the managed DNS from the config (nebula dns stanza, or definednet.dns)
     var dnsErr: NSError?
     let effectiveDNS = MobileNebulaEffectiveDNS(String(data: configData, encoding: .utf8), &dnsErr)
     if dnsErr == nil,

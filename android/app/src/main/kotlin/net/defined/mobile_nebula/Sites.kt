@@ -390,7 +390,7 @@ class Site(context: Context, siteDir: File) {
         dnsOverride = siteMap["dnsOverride"] as? Map<String, Any?>
 
         // Resolve effective DNS settings via the shared Go helper: device-local
-        // override, else managed definednet.dns
+        // override, else the managed DNS from the config (nebula dns stanza, or definednet.dns)
         var effectiveDNS: EffectiveDNS? = null
         try {
             effectiveDNS = gson.fromJson(mobileNebula.MobileNebula.effectiveDNS(config), EffectiveDNS::class.java)

@@ -86,7 +86,7 @@ class AdvancedScreenState extends State<AdvancedScreen> {
   Widget build(BuildContext context) {
     // Managed sites show the effective DNS resolved by the platform (read-only);
     // settings holds only the device-local override, which seeds empty when the
-    // managed definednet.dns config is in effect
+    // managed DNS from the config is in effect
     final dnsResolvers = widget.site.managed ? widget.site.effectiveDnsResolvers : settings.dnsResolvers;
     final matchDomains = widget.site.managed ? widget.site.effectiveMatchDomains : settings.matchDomains;
 
