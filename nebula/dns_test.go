@@ -205,22 +205,26 @@ func TestEffectiveDNS_NebulaStanzaNoDomainsIsInert(t *testing.T) {
 	}
 }
 
-func TestEffectiveDNS_NebulaStanzaScalarSuppressesDefinedNet(t *testing.T) {
-	// Nebula reads a scalar dns key as a disabled stanza, and so does mobile:
-	// it must not fall back to the legacy block
-	s := siteJSON(t, map[string]any{
-		"dns": false,
-		"definednet": map[string]any{
-			"dns": map[string]any{
-				"resolver_addrs": []string{"240.0.0.1"},
-				"match_domains":  []string{"example.com"},
-			},
-		},
-	}, nil)
+func TestEffectiveDNS_NebulaStanzaNonMapSuppressesDefinedNet(t *testing.T) {
+	// Nebula reads a scalar or null dns key as a disabled stanza, and so does
+	// mobile: it must not fall back to the legacy block
+	for _, dns := range []any{false, "off", nil} {
+		t.Run(fmt.Sprintf("dns=%#v", dns), func(t *testing.T) {
+			s := siteJSON(t, map[string]any{
+				"dns": dns,
+				"definednet": map[string]any{
+					"dns": map[string]any{
+						"resolver_addrs": []string{"240.0.0.1"},
+						"match_domains":  []string{"example.com"},
+					},
+				},
+			}, nil)
 
-	result := effectiveDNSFromJSON(t, s)
-	assert.Equal(t, "none", result.Source)
-	assert.Empty(t, result.Resolvers)
+			result := effectiveDNSFromJSON(t, s)
+			assert.Equal(t, "none", result.Source)
+			assert.Empty(t, result.Resolvers)
+		})
+	}
 }
 
 func TestEffectiveDNS_NebulaStanzaDisabledIgnoresResolverKeys(t *testing.T) {
@@ -235,8 +239,10 @@ func TestEffectiveDNS_NebulaStanzaDisabledIgnoresResolverKeys(t *testing.T) {
 	assert.Equal(t, "none", result.Source)
 }
 
-func TestEffectiveDNS_NebulaStanzaUnreadableKeys(t *testing.T) {
-	// A key that is not a list cannot be read, with or without an override
+func TestEffectiveDNS_NebulaStanzaUnreadableKeysInstallNothing(t *testing.T) {
+	// A key that is not a list cannot be read, which installs nothing rather
+	// than catch-all; nebula's own report of the stanza comes from TestConfig,
+	// which the loaders only reach when EffectiveDNS raised no error
 	for _, key := range []string{"nameservers", "search_domains", "match_domains"} {
 		t.Run(key, func(t *testing.T) {
 			dns := map[string]any{
@@ -245,13 +251,15 @@ func TestEffectiveDNS_NebulaStanzaUnreadableKeys(t *testing.T) {
 				"search_domains": []string{"example.com"},
 			}
 			dns[key] = "not a list"
-			s := siteJSON(t, map[string]any{"dns": dns}, map[string]any{
-				"dnsOverride": map[string]any{"enabled": true, "resolvers": []string{"192.168.1.53"}},
-			})
 
-			_, err := EffectiveDNS(s)
-			require.Error(t, err)
-			assert.Contains(t, err.Error(), "dns."+key+" must be a list")
+			result := effectiveDNSFromJSON(t, siteJSON(t, map[string]any{"dns": dns}, nil))
+			assert.Equal(t, "none", result.Source)
+			assert.Empty(t, result.MatchDomains)
+
+			result = effectiveDNSFromJSON(t, siteJSON(t, map[string]any{"dns": dns}, map[string]any{
+				"dnsOverride": map[string]any{"enabled": true, "resolvers": []string{"192.168.1.53"}},
+			}))
+			assert.Equal(t, "override", result.Source)
 		})
 	}
 }

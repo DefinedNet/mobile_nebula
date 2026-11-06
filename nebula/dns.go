@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
-	"slices"
 
 	nc "github.com/slackhq/nebula/config"
 )
@@ -36,9 +35,6 @@ type dnsOverride struct {
 // object:
 //
 //	{"resolvers": [...], "matchDomains": [...], "searchDomains": [...], "source": "..."}
-//
-// A dns stanza that cannot be read is an error whether or not an override is
-// in effect, since the override cannot rescue a config nebula will not run.
 func EffectiveDNS(siteJSON string) (string, error) {
 	var s struct {
 		RawConfig   string       `json:"rawConfig"`
@@ -48,10 +44,7 @@ func EffectiveDNS(siteJSON string) (string, error) {
 		return "", fmt.Errorf("failed to parse site JSON: %s", err)
 	}
 
-	managed, hasManaged, err := managedDNS(loadRawConfig(s.RawConfig))
-	if err != nil {
-		return "", err
-	}
+	managed, hasManaged := managedDNS(loadRawConfig(s.RawConfig))
 
 	result := effectiveDNS{Source: "none"}
 
@@ -81,77 +74,62 @@ func EffectiveDNS(siteJSON string) (string, error) {
 }
 
 // managedDNS reads the managed DNS settings out of a site's nebula config.
-// Nebula's own top-level dns stanza is authoritative whenever it is present:
-// it is the setting nebula itself honours, and an admin who turned it off
-// should not find this device still installing resolvers from the older
-// definednet.dns block. That block is read only when there is no dns key at
-// all; a dns key of any shape is the stanza, as it is to nebula, which reads a
-// scalar there as a disabled stanza. ok is false when the config installs no
-// DNS, and err is set when the dns stanza cannot be read.
-func managedDNS(c *nc.C) (dns effectiveDNS, ok bool, err error) {
-	if c.IsSet("dns") {
+// Nebula's own top-level dns stanza is authoritative whenever the key is
+// present, null included, because that is how nebula reads it: an admin who
+// turned it off should not find this device still installing resolvers from
+// the older definednet.dns block, which is read only when there is no dns key
+// at all. ok is false when the config installs no DNS.
+func managedDNS(c *nc.C) (effectiveDNS, bool) {
+	if _, present := c.Settings["dns"]; present {
 		return nebulaDNS(c)
 	}
-	dns, ok = definedNetDNS(c.GetMap("definednet.dns", nil))
-	return dns, ok, nil
+	return definedNetDNS(c.GetMap("definednet.dns", nil))
 }
 
-// loadRawConfig reads a site's rawConfig into nebula's config type so the dns
-// stanza can be read with the getters nebula itself uses. rawConfig is JSON,
-// which the YAML parser accepts. An unparsable rawConfig holds no readable
-// managed DNS and loads as empty, and the site loaders already surface the
-// parse failure. Resolving to no DNS keeps a usable override from being
-// discarded alongside it, matching the tolerance MigrateConfigV2 has for the
-// same input.
+// loadRawConfig reads a site's rawConfig, which is JSON and therefore YAML,
+// into nebula's config type so that the dns stanza can be read with nebula's
+// own getters. An unparsable rawConfig loads as empty: the site loaders report
+// the parse failure, and a usable override should not be lost alongside it.
 func loadRawConfig(raw string) *nc.C {
 	c := nc.NewC(slog.New(slog.DiscardHandler))
 	_ = c.LoadString(raw)
 	return c
 }
 
-// nebulaDNS reads the DNS settings nebula's dns stanza asks for, the way
-// loadHostDNSConfig reads them. It extracts and does not validate: the site
-// loaders run TestConfig, nebula's own config test, over the same config, and
-// the nebula embedded in this app refuses to start on a stanza it cannot
-// load, so a bad stanza is reported there. Only the shape has to hold up
-// here, because a key that is not a list cannot be read at all.
+// nebulaDNS extracts the DNS settings nebula's dns stanza asks for, the way
+// loadHostDNSConfig reads them. It does not validate: the site loaders run
+// nebula's own config test over the same config, and the embedded nebula
+// refuses to start on a stanza it cannot load. A stanza nebula refuses, or a
+// key that cannot be read as a list, installs nothing here.
 //
-// Two rules of nebula's are reproduced because the platform needs their
-// result: match_domains defaults to search_domains when unset, and an
-// explicitly empty match_domains is the opt in to catching every query. A
-// stanza that sets neither list is one nebula refuses rather than treats as
-// catch-all, and it installs nothing here. The stanza is inert unless enabled
-// with at least one nameserver and a domain list.
-func nebulaDNS(c *nc.C) (effectiveDNS, bool, error) {
+// Nebula's rules for the domain lists are reproduced because the platform
+// needs their result: match_domains defaults to search_domains when unset, an
+// empty match_domains is catch-all, and a stanza that sets neither list is
+// refused rather than treated as catch-all.
+func nebulaDNS(c *nc.C) (effectiveDNS, bool) {
 	if !c.GetBool("dns.enabled", false) {
-		return effectiveDNS{}, false, nil
+		return effectiveDNS{}, false
 	}
 
 	nameservers, err := c.GetStringSliceStrict("dns.nameservers")
-	if err != nil {
-		return effectiveDNS{}, false, err
-	}
-	if len(nameservers) == 0 {
-		return effectiveDNS{}, false, nil
+	if err != nil || len(nameservers) == 0 {
+		return effectiveDNS{}, false
 	}
 
 	search, err := c.GetStringSliceStrict("dns.search_domains")
 	if err != nil {
-		return effectiveDNS{}, false, err
+		return effectiveDNS{}, false
 	}
-	var match []string
-	switch {
-	case c.IsSet("dns.match_domains"):
+	match := search
+	if c.IsSet("dns.match_domains") {
 		if match, err = c.GetStringSliceStrict("dns.match_domains"); err != nil {
-			return effectiveDNS{}, false, err
+			return effectiveDNS{}, false
 		}
-	case len(search) == 0:
-		return effectiveDNS{}, false, nil
-	default:
-		match = slices.Clone(search)
+	} else if len(search) == 0 {
+		return effectiveDNS{}, false
 	}
 
-	return effectiveDNS{Resolvers: nameservers, MatchDomains: match, SearchDomains: search}, true, nil
+	return effectiveDNS{Resolvers: nameservers, MatchDomains: match, SearchDomains: search}, true
 }
 
 // definedNetDNS reads the older definednet.dns block. Non-empty resolver_addrs
