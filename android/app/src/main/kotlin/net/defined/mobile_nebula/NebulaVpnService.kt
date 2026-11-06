@@ -76,6 +76,8 @@ class NebulaVpnService : VpnService() {
         var sitePath: String? = null
         try {
             sitePath = intent?.getStringExtra("path")
+            // The quick settings tile has no ui to bind with, it asks us to start right away
+            autoStart = intent?.getBooleanExtra("autoStart", false) == true
             if (sitePath == null) {
                 // If the UI is starting us we expect a path, if there is no path then we expect the system is starting us
                 autoStart = true
@@ -257,6 +259,13 @@ class NebulaVpnService : VpnService() {
 
         running = true
         sendSimple(MSG_IS_RUNNING, 1)
+
+        // The quick settings tile toggles the last site that ran
+        try {
+            path?.let { filesDir.resolve("last-site").writeText(it) }
+        } catch (err: Exception) {
+            Log.w(TAG, "Could not remember the last site for the quick settings tile: $err")
+        }
     }
 
     private fun disallowApp(builder: Builder, name: String) {

@@ -686,6 +686,11 @@ class MainActivity: FlutterActivity() {
 
             sites?.refreshSites(activeSiteId)
             ui?.invokeMethod("refreshSites", null)
+
+            // The vpn may have been started outside the app (quick settings tile), attach so we show it
+            if (outMessenger == null) {
+                bindService(Intent(context, NebulaVpnService::class.java), connection, 0)
+            }
         }
     }
 
