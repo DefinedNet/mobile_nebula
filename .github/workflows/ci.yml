@@ -194,14 +194,20 @@ jobs:
             flutter:
               - '.github/workflows/ci.yml'
               - '**.dart'
+              - 'pubspec.yaml'
+              - 'pubspec.lock'
+              - 'analysis_options.yaml'
             go:
               - '.github/workflows/ci.yml'
               - '.github/workflows/gofmt.sh'
               - '**.go'
+              - 'nebula/go.mod'
               - 'nebula/go.sum'
             swift:
               - '.github/workflows/ci.yml'
               - '**.swift'
+              - 'swift-format.sh'
+              - '.swiftformatignore'
 
   flutterfmt:
     name: Run flutter format
