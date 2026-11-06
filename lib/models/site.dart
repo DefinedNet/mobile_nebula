@@ -51,7 +51,7 @@ class Site {
   Map<String, dynamic>? dnsOverride;
 
   // Effective DNS as resolved by the platform (dnsOverride when enabled, else
-  // managed definednet.dns). Display-only; edits go through the dnsOverride setters.
+  // managed DNS from the config). Display-only; edits go through the dnsOverride setters.
   late List<String> effectiveDnsResolvers;
   late List<String> effectiveMatchDomains;
 
